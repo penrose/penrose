@@ -20,7 +20,7 @@
         stroke-opacity="1"
         stroke-width="0.5"
       />
-      <title>12:0:epsilonMarker</title>
+      <title>12:0.epsilonMarker</title>
     </g>
     <g>
       <line
@@ -32,7 +32,7 @@
         stroke-opacity="1"
         stroke-width="0.5"
       />
-      <title>12:0:epsilonMarkerStart</title>
+      <title>12:0.epsilonMarkerStart</title>
     </g>
     <g>
       <line
@@ -44,14 +44,14 @@
         stroke-opacity="1"
         stroke-width="0.5"
       />
-      <title>12:0:epsilonMarkerEnd</title>
+      <title>12:0.epsilonMarkerEnd</title>
     </g>
-    <title>12:0:markerGroup</title>
+    <title>12:0.markerGroup</title>
   </g>
   <g
     transform="rotate(0, 49.680604270077524, 47.64244710560902)translate(47.58360427007752, 45.50944710560902)"
   >
-    <title>12:0:epsilonLabel</title>
+    <title>12:0.epsilonLabel</title>
     <svg
       style="font-size: 9px"
       xmlns="http://www.w3.org/2000/svg"

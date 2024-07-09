@@ -609,7 +609,7 @@
     transform="scale(1)"
     points="5,195,190,50,54.02,195"
   >
-    <title>47:6:subtended</title>
+    <title>47:6.subtended</title>
   </polygon>
   <polygon
     fill="#ff0000"
@@ -620,7 +620,7 @@
     transform="scale(1)"
     points="54.02,195,190,50,67.89,154.53"
   >
-    <title>47:7:subtended</title>
+    <title>47:7.subtended</title>
   </polygon>
   <polygon
     fill="#0000ff"
@@ -631,7 +631,7 @@
     transform="scale(1)"
     points="67.89,154.53,190,50,132.87,154.53"
   >
-    <title>47:0:subtended</title>
+    <title>47:0.subtended</title>
   </polygon>
   <polygon
     fill="#0000ff"
@@ -642,7 +642,7 @@
     transform="scale(1)"
     points="122.61,5,190,50,76.63,5"
   >
-    <title>47:4:subtended</title>
+    <title>47:4.subtended</title>
   </polygon>
   <polygon
     fill="#ff0000"
@@ -653,7 +653,7 @@
     transform="scale(1)"
     points="119.95,117.86,190,50,80.62,117.86"
   >
-    <title>47:9:subtended</title>
+    <title>47:9.subtended</title>
   </polygon>
   <polygon
     fill="#0000ff"
@@ -664,7 +664,7 @@
     transform="scale(1)"
     points="147.31,195,190,50,195,195"
   >
-    <title>47:2:subtended</title>
+    <title>47:2.subtended</title>
   </polygon>
   <polygon
     fill="#ff0000"
@@ -675,7 +675,7 @@
     transform="scale(1)"
     points="80.62,117.86,190,50,100,61.62"
   >
-    <title>47:10:subtended</title>
+    <title>47:10.subtended</title>
   </polygon>
   <polygon
     fill="#0000ff"
@@ -686,7 +686,7 @@
     transform="scale(1)"
     points="132.87,154.53,190,50,147.31,195"
   >
-    <title>47:1:subtended</title>
+    <title>47:1.subtended</title>
   </polygon>
   <polygon
     fill="#0000ff"
@@ -697,7 +697,7 @@
     transform="scale(1)"
     points="100,61.62,190,50,119.95,117.86"
   >
-    <title>47:8:subtended</title>
+    <title>47:8.subtended</title>
   </polygon>
   <polygon
     fill="#ff0000"
@@ -708,7 +708,7 @@
     transform="scale(1)"
     points="195,195,190,50,122.61,5"
   >
-    <title>47:3:subtended</title>
+    <title>47:3.subtended</title>
   </polygon>
   <polygon
     fill="#0000ff"
@@ -719,7 +719,7 @@
     transform="scale(1)"
     points="76.63,5,190,50,5,195"
   >
-    <title>47:5:subtended</title>
+    <title>47:5.subtended</title>
   </polygon>
   <polyline
     fill="none"

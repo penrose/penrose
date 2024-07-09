@@ -28,7 +28,7 @@
       stroke-opacity="1"
       stroke-width="2"
     />
-    <title>9:1:closestSegment</title>
+    <title>9:1.closestSegment</title>
   </g>
   <g>
     <line
@@ -41,7 +41,7 @@
       stroke-width="2"
       stroke-dasharray="10 8"
     />
-    <title>9:1:continuedSegment</title>
+    <title>9:1.continuedSegment</title>
   </g>
   <circle
     fill="#ffffff"
@@ -53,7 +53,7 @@
     stroke-width="2"
     r="5"
   >
-    <title>9:1:closestDot</title>
+    <title>9:1.closestDot</title>
   </circle>
   <g>
     <line
@@ -111,7 +111,7 @@
       stroke-opacity="1"
       stroke-width="2"
     />
-    <title>9:3:closestSegment</title>
+    <title>9:3.closestSegment</title>
   </g>
   <g>
     <line
@@ -124,7 +124,7 @@
       stroke-width="2"
       stroke-dasharray="10 8"
     />
-    <title>9:3:continuedSegment</title>
+    <title>9:3.continuedSegment</title>
   </g>
   <circle
     fill="#ffffff"
@@ -136,7 +136,7 @@
     stroke-width="2"
     r="5"
   >
-    <title>9:3:closestDot</title>
+    <title>9:3.closestDot</title>
   </circle>
   <g>
     <line
@@ -148,7 +148,7 @@
       stroke-opacity="1"
       stroke-width="2"
     />
-    <title>9:0:closestSegment</title>
+    <title>9:0.closestSegment</title>
   </g>
   <g>
     <line
@@ -161,7 +161,7 @@
       stroke-width="2"
       stroke-dasharray="10 8"
     />
-    <title>9:0:continuedSegment</title>
+    <title>9:0.continuedSegment</title>
   </g>
   <circle
     fill="#ffffff"
@@ -173,7 +173,7 @@
     stroke-width="2"
     r="5"
   >
-    <title>9:0:closestDot</title>
+    <title>9:0.closestDot</title>
   </circle>
   <g>
     <line
@@ -185,7 +185,7 @@
       stroke-opacity="1"
       stroke-width="2"
     />
-    <title>9:4:closestSegment</title>
+    <title>9:4.closestSegment</title>
   </g>
   <g>
     <line
@@ -198,7 +198,7 @@
       stroke-width="2"
       stroke-dasharray="10 8"
     />
-    <title>9:4:continuedSegment</title>
+    <title>9:4.continuedSegment</title>
   </g>
   <circle
     fill="#ffffff"
@@ -210,7 +210,7 @@
     stroke-width="2"
     r="5"
   >
-    <title>9:4:closestDot</title>
+    <title>9:4.closestDot</title>
   </circle>
   <polyline
     fill="none"
@@ -234,7 +234,7 @@
       stroke-opacity="1"
       stroke-width="2"
     />
-    <title>10:0:closestSegment</title>
+    <title>10:0.closestSegment</title>
   </g>
   <g>
     <line
@@ -247,7 +247,7 @@
       stroke-width="2"
       stroke-dasharray="10 8"
     />
-    <title>10:0:continuedSegment</title>
+    <title>10:0.continuedSegment</title>
   </g>
   <circle
     fill="#ffffff"
@@ -259,7 +259,7 @@
     stroke-width="2"
     r="5"
   >
-    <title>10:0:closestDot</title>
+    <title>10:0.closestDot</title>
   </circle>
   <g>
     <line
@@ -271,7 +271,7 @@
       stroke-opacity="1"
       stroke-width="2"
     />
-    <title>9:2:closestSegment</title>
+    <title>9:2.closestSegment</title>
   </g>
   <g>
     <line
@@ -284,7 +284,7 @@
       stroke-width="2"
       stroke-dasharray="10 8"
     />
-    <title>9:2:continuedSegment</title>
+    <title>9:2.continuedSegment</title>
   </g>
   <circle
     fill="#ffffff"
@@ -296,7 +296,7 @@
     stroke-width="2"
     r="5"
   >
-    <title>9:2:closestDot</title>
+    <title>9:2.closestDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`x`.icon</title>

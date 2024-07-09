@@ -39,7 +39,7 @@
     </svg>
     <title>global.background</title>
   </g>
-  <g style="filter: blur(5px)" opacity="0.1">
+  <g opacity="0.1" style="filter: blur(5px)">
     <ellipse
       fill="#000000"
       fill-opacity="1"
@@ -352,7 +352,7 @@
     >
       <title>`O2`.shadow</title>
     </ellipse>
-    <title>5:0:nodeShadows</title>
+    <title>5:0.nodeShadows</title>
   </g>
   <circle
     fill="#cccccc"
@@ -419,7 +419,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:19:line</title>
+    <title>15:19.line</title>
   </g>
   <g>
     <line
@@ -432,7 +432,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:19:innerLine</title>
+    <title>15:19.innerLine</title>
   </g>
   <circle
     fill="#cccccc"
@@ -499,7 +499,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:17:line</title>
+    <title>15:17.line</title>
   </g>
   <g>
     <line
@@ -512,7 +512,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:17:innerLine</title>
+    <title>15:17.innerLine</title>
   </g>
   <circle
     fill="#cccccc"
@@ -579,7 +579,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:18:line</title>
+    <title>15:18.line</title>
   </g>
   <g>
     <line
@@ -592,7 +592,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:18:innerLine</title>
+    <title>15:18.innerLine</title>
   </g>
   <circle
     fill="#666666"
@@ -659,7 +659,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:20:line</title>
+    <title>15:20.line</title>
   </g>
   <g>
     <line
@@ -672,7 +672,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:20:innerLine</title>
+    <title>15:20.innerLine</title>
   </g>
   <circle
     fill="#ff6666"
@@ -739,7 +739,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>16:1:line1</title>
+    <title>16:1.line1</title>
   </g>
   <g>
     <line
@@ -752,7 +752,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>16:1:innerLine1</title>
+    <title>16:1.innerLine1</title>
   </g>
   <g>
     <line
@@ -765,7 +765,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>16:1:line2</title>
+    <title>16:1.line2</title>
   </g>
   <g>
     <line
@@ -778,7 +778,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>16:1:innerLine2</title>
+    <title>16:1.innerLine2</title>
   </g>
   <circle
     fill="#666666"
@@ -845,7 +845,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:3:line</title>
+    <title>15:3.line</title>
   </g>
   <g>
     <line
@@ -858,7 +858,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:3:innerLine</title>
+    <title>15:3.innerLine</title>
   </g>
   <circle
     fill="#6666ff"
@@ -914,7 +914,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:4:line</title>
+    <title>15:4.line</title>
   </g>
   <g>
     <line
@@ -927,7 +927,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:4:innerLine</title>
+    <title>15:4.innerLine</title>
   </g>
   <circle
     fill="#ff6666"
@@ -994,7 +994,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>16:2:line1</title>
+    <title>16:2.line1</title>
   </g>
   <g>
     <line
@@ -1007,7 +1007,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>16:2:innerLine1</title>
+    <title>16:2.innerLine1</title>
   </g>
   <g>
     <line
@@ -1020,7 +1020,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>16:2:line2</title>
+    <title>16:2.line2</title>
   </g>
   <g>
     <line
@@ -1033,7 +1033,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>16:2:innerLine2</title>
+    <title>16:2.innerLine2</title>
   </g>
   <g
     transform="rotate(0, 434.2204427017775, 301.0620481590846)translate(409.9704427017775, 276.8120481590846)"
@@ -1088,7 +1088,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:2:line</title>
+    <title>15:2.line</title>
   </g>
   <g>
     <line
@@ -1101,7 +1101,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:2:innerLine</title>
+    <title>15:2.innerLine</title>
   </g>
   <circle
     fill="#666666"
@@ -1168,7 +1168,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>16:0:line1</title>
+    <title>16:0.line1</title>
   </g>
   <g>
     <line
@@ -1181,7 +1181,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>16:0:innerLine1</title>
+    <title>16:0.innerLine1</title>
   </g>
   <g>
     <line
@@ -1194,7 +1194,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>16:0:line2</title>
+    <title>16:0.line2</title>
   </g>
   <g>
     <line
@@ -1207,7 +1207,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>16:0:innerLine2</title>
+    <title>16:0.innerLine2</title>
   </g>
   <circle
     fill="#666666"
@@ -1274,7 +1274,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:1:line</title>
+    <title>15:1.line</title>
   </g>
   <g>
     <line
@@ -1287,7 +1287,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:1:innerLine</title>
+    <title>15:1.innerLine</title>
   </g>
   <circle
     fill="#666666"
@@ -1354,7 +1354,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:0:line</title>
+    <title>15:0.line</title>
   </g>
   <g>
     <line
@@ -1367,7 +1367,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:0:innerLine</title>
+    <title>15:0.innerLine</title>
   </g>
   <circle
     fill="#cccccc"
@@ -1434,7 +1434,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:8:line</title>
+    <title>15:8.line</title>
   </g>
   <g>
     <line
@@ -1447,7 +1447,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:8:innerLine</title>
+    <title>15:8.innerLine</title>
   </g>
   <circle
     fill="#cccccc"
@@ -1514,7 +1514,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:7:line</title>
+    <title>15:7.line</title>
   </g>
   <g>
     <line
@@ -1527,7 +1527,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:7:innerLine</title>
+    <title>15:7.innerLine</title>
   </g>
   <circle
     fill="#cccccc"
@@ -1594,7 +1594,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:6:line</title>
+    <title>15:6.line</title>
   </g>
   <g>
     <line
@@ -1607,7 +1607,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:6:innerLine</title>
+    <title>15:6.innerLine</title>
   </g>
   <circle
     fill="#666666"
@@ -1674,7 +1674,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:5:line</title>
+    <title>15:5.line</title>
   </g>
   <g>
     <line
@@ -1687,7 +1687,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:5:innerLine</title>
+    <title>15:5.innerLine</title>
   </g>
   <circle
     fill="#6666ff"
@@ -1887,7 +1887,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:9:line</title>
+    <title>15:9.line</title>
   </g>
   <g>
     <line
@@ -1900,7 +1900,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:9:innerLine</title>
+    <title>15:9.innerLine</title>
   </g>
   <circle
     fill="#cccccc"
@@ -1967,7 +1967,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:10:line</title>
+    <title>15:10.line</title>
   </g>
   <g>
     <line
@@ -1980,7 +1980,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:10:innerLine</title>
+    <title>15:10.innerLine</title>
   </g>
   <circle
     fill="#666666"
@@ -2047,7 +2047,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:12:line</title>
+    <title>15:12.line</title>
   </g>
   <g>
     <line
@@ -2060,7 +2060,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:12:innerLine</title>
+    <title>15:12.innerLine</title>
   </g>
   <g>
     <line
@@ -2073,7 +2073,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:13:line</title>
+    <title>15:13.line</title>
   </g>
   <g>
     <line
@@ -2086,7 +2086,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:13:innerLine</title>
+    <title>15:13.innerLine</title>
   </g>
   <circle
     fill="#6666ff"
@@ -2153,7 +2153,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:14:line</title>
+    <title>15:14.line</title>
   </g>
   <g>
     <line
@@ -2166,7 +2166,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:14:innerLine</title>
+    <title>15:14.innerLine</title>
   </g>
   <circle
     fill="#cccccc"
@@ -2233,7 +2233,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:16:line</title>
+    <title>15:16.line</title>
   </g>
   <g>
     <line
@@ -2246,7 +2246,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:16:innerLine</title>
+    <title>15:16.innerLine</title>
   </g>
   <g>
     <line
@@ -2259,7 +2259,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:15:line</title>
+    <title>15:15.line</title>
   </g>
   <g>
     <line
@@ -2272,7 +2272,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:15:innerLine</title>
+    <title>15:15.innerLine</title>
   </g>
   <circle
     fill="#6666ff"
@@ -2339,7 +2339,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>16:3:line1</title>
+    <title>16:3.line1</title>
   </g>
   <g>
     <line
@@ -2352,7 +2352,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>16:3:innerLine1</title>
+    <title>16:3.innerLine1</title>
   </g>
   <g>
     <line
@@ -2365,7 +2365,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>16:3:line2</title>
+    <title>16:3.line2</title>
   </g>
   <g>
     <line
@@ -2378,7 +2378,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>16:3:innerLine2</title>
+    <title>16:3.innerLine2</title>
   </g>
   <circle
     fill="#666666"
@@ -2647,7 +2647,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>15:11:line</title>
+    <title>15:11.line</title>
   </g>
   <g>
     <line
@@ -2660,7 +2660,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>15:11:innerLine</title>
+    <title>15:11.innerLine</title>
   </g>
   <circle
     fill="#cccccc"

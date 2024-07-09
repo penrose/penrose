@@ -503,12 +503,12 @@
     visibility=""
     paint-order="stroke"
   >
-    <title>18:1:notVisible</title>
+    <title>18:1.notVisible</title>
     ×
   </text>
   <g>
     <marker
-      id="next-event-estimation__registry-TransfusionElephant49974-16:0:normalArrow-endArrowId"
+      id="next-event-estimation__registry-TransfusionElephant49974-16:0.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -531,9 +531,9 @@
       stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-16:0:normalArrow-endArrowId)"
+      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-16:0.normalArrow-endArrowId)"
     />
-    <title>16:0:normalArrow</title>
+    <title>16:0.normalArrow</title>
   </g>
   <circle
     fill="#000000"
@@ -567,7 +567,7 @@
       rx="2"
       transform="rotate(0, 184.557297565802, 42.373656648026476)"
     >
-      <title>10:0:viewfinder</title>
+      <title>10:0.viewfinder</title>
     </rect>
     <rect
       x="175.357297565802"
@@ -580,7 +580,7 @@
       rx="0"
       transform="rotate(0, 176.557297565802, 42.373656648026476)"
     >
-      <title>10:0:shutterRelease</title>
+      <title>10:0.shutterRelease</title>
     </rect>
     <rect
       x="172.557297565802"
@@ -595,7 +595,7 @@
       rx="2"
       transform="rotate(0, 184.557297565802, 50.623656648026476)"
     >
-      <title>10:0:body</title>
+      <title>10:0.body</title>
     </rect>
     <circle
       fill="#ffffff"
@@ -607,7 +607,7 @@
       stroke-width="0.8"
       r="1.155"
     >
-      <title>10:0:flash</title>
+      <title>10:0.flash</title>
     </circle>
     <circle
       fill="#cccccc"
@@ -619,7 +619,7 @@
       stroke-width="1"
       r="6.2700000000000005"
     >
-      <title>10:0:outerLens</title>
+      <title>10:0.outerLens</title>
     </circle>
     <circle
       fill="#227788"
@@ -699,12 +699,12 @@
     visibility=""
     paint-order="stroke"
   >
-    <title>18:0:notVisible</title>
+    <title>18:0.notVisible</title>
     ×
   </text>
   <g>
     <marker
-      id="next-event-estimation__registry-TransfusionElephant49974-16:1:normalArrow-endArrowId"
+      id="next-event-estimation__registry-TransfusionElephant49974-16:1.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -727,9 +727,9 @@
       stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-16:1:normalArrow-endArrowId)"
+      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-16:1.normalArrow-endArrowId)"
     />
-    <title>16:1:normalArrow</title>
+    <title>16:1.normalArrow</title>
   </g>
   <circle
     fill="#000000"
@@ -786,7 +786,7 @@
   </g>
   <g>
     <marker
-      id="next-event-estimation__registry-TransfusionElephant49974-16:2:normalArrow-endArrowId"
+      id="next-event-estimation__registry-TransfusionElephant49974-16:2.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -809,9 +809,9 @@
       stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-16:2:normalArrow-endArrowId)"
+      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-16:2.normalArrow-endArrowId)"
     />
-    <title>16:2:normalArrow</title>
+    <title>16:2.normalArrow</title>
   </g>
   <circle
     fill="#000000"

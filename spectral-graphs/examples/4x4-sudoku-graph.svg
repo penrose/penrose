@@ -1327,7 +1327,7 @@
       />
       <title>`e_55`.bloom</title>
     </g>
-    <title>6:0:nodeShadows</title>
+    <title>6:0.nodeShadows</title>
   </g>
   <g>
     <line
@@ -1750,6 +1750,6 @@
     >
       <title>`n_15`.bloom</title>
     </circle>
-    <title>4:0:nodeShadows</title>
+    <title>4:0.nodeShadows</title>
   </g>
 </svg>

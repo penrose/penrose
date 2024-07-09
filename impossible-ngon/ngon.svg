@@ -222,7 +222,7 @@
     <title>logo.icon</title>
   </g>
   <g>
-    <clipPath id="ngon__registry3:0:mask-clip">
+    <clipPath id="ngon__registry3:0.mask-clip">
       <polygon
         fill="#c63a39"
         fill-opacity="0.5"
@@ -230,10 +230,10 @@
         transform="scale(1)"
         points="960,130,1292.8697807033036,371.8440519687684,1165.7248383023657,763.1559480312316,754.2751616976344,763.1559480312317,627.1302192966962,371.84405196876844"
       >
-        <title>3:0:mask</title>
+        <title>3:0.mask</title>
       </polygon>
     </clipPath>
-    <g clip-path="url(#ngon__registry3:0:mask-clip)">
+    <g clip-path="url(#ngon__registry3:0.mask-clip)">
       <path
         fill="none"
         stroke="#ffffff"
@@ -246,7 +246,7 @@
         <title>`P_3`.glow</title>
       </path>
     </g>
-    <g clip-path="url(#ngon__registry3:0:mask-clip)">
+    <g clip-path="url(#ngon__registry3:0.mask-clip)">
       <path
         fill="none"
         stroke="#ffffff"
@@ -259,7 +259,7 @@
         <title>`P_5`.glow</title>
       </path>
     </g>
-    <g clip-path="url(#ngon__registry3:0:mask-clip)">
+    <g clip-path="url(#ngon__registry3:0.mask-clip)">
       <path
         fill="none"
         stroke="#ffffff"
@@ -272,7 +272,7 @@
         <title>`P_4`.glow</title>
       </path>
     </g>
-    <g clip-path="url(#ngon__registry3:0:mask-clip)">
+    <g clip-path="url(#ngon__registry3:0.mask-clip)">
       <path
         fill="none"
         stroke="#ffffff"
@@ -285,7 +285,7 @@
         <title>`P_12`.glow</title>
       </path>
     </g>
-    <g clip-path="url(#ngon__registry3:0:mask-clip)">
+    <g clip-path="url(#ngon__registry3:0.mask-clip)">
       <path
         fill="none"
         stroke="#ffffff"
@@ -298,7 +298,7 @@
         <title>`P_10`.glow</title>
       </path>
     </g>
-    <g clip-path="url(#ngon__registry3:0:mask-clip)">
+    <g clip-path="url(#ngon__registry3:0.mask-clip)">
       <path
         fill="none"
         stroke="#ffffff"
@@ -311,7 +311,7 @@
         <title>`P_1`.glow</title>
       </path>
     </g>
-    <g clip-path="url(#ngon__registry3:0:mask-clip)">
+    <g clip-path="url(#ngon__registry3:0.mask-clip)">
       <path
         fill="none"
         stroke="#ffffff"
@@ -324,7 +324,7 @@
         <title>`P_2`.glow</title>
       </path>
     </g>
-    <g clip-path="url(#ngon__registry3:0:mask-clip)">
+    <g clip-path="url(#ngon__registry3:0.mask-clip)">
       <path
         fill="none"
         stroke="#ffffff"
@@ -337,7 +337,7 @@
         <title>`P_6`.glow</title>
       </path>
     </g>
-    <g clip-path="url(#ngon__registry3:0:mask-clip)">
+    <g clip-path="url(#ngon__registry3:0.mask-clip)">
       <path
         fill="none"
         stroke="#ffffff"
@@ -350,7 +350,7 @@
         <title>`P_7`.glow</title>
       </path>
     </g>
-    <g clip-path="url(#ngon__registry3:0:mask-clip)">
+    <g clip-path="url(#ngon__registry3:0.mask-clip)">
       <path
         fill="none"
         stroke="#ffffff"
@@ -363,7 +363,7 @@
         <title>`P_8`.glow</title>
       </path>
     </g>
-    <g clip-path="url(#ngon__registry3:0:mask-clip)">
+    <g clip-path="url(#ngon__registry3:0.mask-clip)">
       <path
         fill="none"
         stroke="#ffffff"
@@ -376,7 +376,7 @@
         <title>`P_9`.glow</title>
       </path>
     </g>
-    <g clip-path="url(#ngon__registry3:0:mask-clip)">
+    <g clip-path="url(#ngon__registry3:0.mask-clip)">
       <path
         fill="none"
         stroke="#ffffff"
@@ -389,6 +389,6 @@
         <title>`P_11`.glow</title>
       </path>
     </g>
-    <title>3:0:clipGroup</title>
+    <title>3:0.clipGroup</title>
   </g>
 </svg>

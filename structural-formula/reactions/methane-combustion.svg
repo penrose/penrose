@@ -350,7 +350,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>12:2:line</title>
+    <title>12:2.line</title>
   </g>
   <g>
     <line
@@ -363,7 +363,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>12:2:innerLine</title>
+    <title>12:2.innerLine</title>
   </g>
   <circle
     fill="#ffffff"
@@ -388,7 +388,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>12:0:line</title>
+    <title>12:0.line</title>
   </g>
   <g>
     <line
@@ -401,7 +401,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>12:0:innerLine</title>
+    <title>12:0.innerLine</title>
   </g>
   <circle
     fill="#ffffff"
@@ -426,7 +426,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>12:3:line</title>
+    <title>12:3.line</title>
   </g>
   <g>
     <line
@@ -439,7 +439,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>12:3:innerLine</title>
+    <title>12:3.innerLine</title>
   </g>
   <circle
     fill="#ffffff"
@@ -464,7 +464,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>12:1:line</title>
+    <title>12:1.line</title>
   </g>
   <g>
     <line
@@ -477,7 +477,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>12:1:innerLine</title>
+    <title>12:1.innerLine</title>
   </g>
   <circle
     fill="#ffffff"
@@ -626,7 +626,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>12:6:line</title>
+    <title>12:6.line</title>
   </g>
   <g>
     <line
@@ -639,7 +639,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>12:6:innerLine</title>
+    <title>12:6.innerLine</title>
   </g>
   <circle
     fill="#ffffff"
@@ -664,7 +664,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>12:7:line</title>
+    <title>12:7.line</title>
   </g>
   <g>
     <line
@@ -677,7 +677,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>12:7:innerLine</title>
+    <title>12:7.innerLine</title>
   </g>
   <circle
     fill="#ffffff"
@@ -844,7 +844,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>13:2:line1</title>
+    <title>13:2.line1</title>
   </g>
   <g>
     <line
@@ -857,7 +857,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>13:2:innerLine1</title>
+    <title>13:2.innerLine1</title>
   </g>
   <g>
     <line
@@ -870,7 +870,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>13:2:line2</title>
+    <title>13:2.line2</title>
   </g>
   <g>
     <line
@@ -883,7 +883,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>13:2:innerLine2</title>
+    <title>13:2.innerLine2</title>
   </g>
   <circle
     fill="#ffffff"
@@ -908,7 +908,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>13:3:line1</title>
+    <title>13:3.line1</title>
   </g>
   <g>
     <line
@@ -921,7 +921,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>13:3:innerLine1</title>
+    <title>13:3.innerLine1</title>
   </g>
   <g>
     <line
@@ -934,7 +934,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>13:3:line2</title>
+    <title>13:3.line2</title>
   </g>
   <g>
     <line
@@ -947,7 +947,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>13:3:innerLine2</title>
+    <title>13:3.innerLine2</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1132,7 +1132,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>12:4:line</title>
+    <title>12:4.line</title>
   </g>
   <g>
     <line
@@ -1145,7 +1145,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>12:4:innerLine</title>
+    <title>12:4.innerLine</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1170,7 +1170,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>12:5:line</title>
+    <title>12:5.line</title>
   </g>
   <g>
     <line
@@ -1183,7 +1183,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>12:5:innerLine</title>
+    <title>12:5.innerLine</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1314,7 +1314,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>13:1:line1</title>
+    <title>13:1.line1</title>
   </g>
   <g>
     <line
@@ -1327,7 +1327,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>13:1:innerLine1</title>
+    <title>13:1.innerLine1</title>
   </g>
   <g>
     <line
@@ -1340,7 +1340,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>13:1:line2</title>
+    <title>13:1.line2</title>
   </g>
   <g>
     <line
@@ -1353,7 +1353,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>13:1:innerLine2</title>
+    <title>13:1.innerLine2</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1533,7 +1533,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>13:0:line1</title>
+    <title>13:0.line1</title>
   </g>
   <g>
     <line
@@ -1546,7 +1546,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>13:0:innerLine1</title>
+    <title>13:0.innerLine1</title>
   </g>
   <g>
     <line
@@ -1559,7 +1559,7 @@
       stroke-width="10"
       stroke-linecap="round"
     />
-    <title>13:0:line2</title>
+    <title>13:0.line2</title>
   </g>
   <g>
     <line
@@ -1572,7 +1572,7 @@
       stroke-width="4"
       stroke-linecap="round"
     />
-    <title>13:0:innerLine2</title>
+    <title>13:0.innerLine2</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1711,7 +1711,7 @@
   </circle>
   <g>
     <marker
-      id="methane-combustion__registry--27:0:reactionArrow-endArrowId"
+      id="methane-combustion__registry--27:0.reactionArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -1734,9 +1734,9 @@
       stroke="#000000"
       stroke-opacity="1"
       stroke-width="5"
-      marker-end="url(#methane-combustion__registry--27:0:reactionArrow-endArrowId)"
+      marker-end="url(#methane-combustion__registry--27:0.reactionArrow-endArrowId)"
     />
-    <title>27:0:reactionArrow</title>
+    <title>27:0.reactionArrow</title>
   </g>
   <circle
     fill="#000000"

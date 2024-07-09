@@ -66,7 +66,7 @@
   </circle>
   <g>
     <marker
-      id="tree-tree__registry--5:3:arrow-endArrowId"
+      id="tree-tree__registry--5:3.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -89,9 +89,9 @@
       stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      marker-end="url(#tree-tree__registry--5:3:arrow-endArrowId)"
+      marker-end="url(#tree-tree__registry--5:3.arrow-endArrowId)"
     />
-    <title>5:3:arrow</title>
+    <title>5:3.arrow</title>
   </g>
   <circle
     fill="none"
@@ -104,7 +104,7 @@
   </circle>
   <g>
     <marker
-      id="tree-tree__registry--5:5:arrow-endArrowId"
+      id="tree-tree__registry--5:5.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -127,13 +127,13 @@
       stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      marker-end="url(#tree-tree__registry--5:5:arrow-endArrowId)"
+      marker-end="url(#tree-tree__registry--5:5.arrow-endArrowId)"
     />
-    <title>5:5:arrow</title>
+    <title>5:5.arrow</title>
   </g>
   <g>
     <marker
-      id="tree-tree__registry--5:2:arrow-endArrowId"
+      id="tree-tree__registry--5:2.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -156,9 +156,9 @@
       stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      marker-end="url(#tree-tree__registry--5:2:arrow-endArrowId)"
+      marker-end="url(#tree-tree__registry--5:2.arrow-endArrowId)"
     />
-    <title>5:2:arrow</title>
+    <title>5:2.arrow</title>
   </g>
   <circle
     fill="none"
@@ -171,7 +171,7 @@
   </circle>
   <g>
     <marker
-      id="tree-tree__registry--5:1:arrow-endArrowId"
+      id="tree-tree__registry--5:1.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -194,13 +194,13 @@
       stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      marker-end="url(#tree-tree__registry--5:1:arrow-endArrowId)"
+      marker-end="url(#tree-tree__registry--5:1.arrow-endArrowId)"
     />
-    <title>5:1:arrow</title>
+    <title>5:1.arrow</title>
   </g>
   <g>
     <marker
-      id="tree-tree__registry--5:0:arrow-endArrowId"
+      id="tree-tree__registry--5:0.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -223,13 +223,13 @@
       stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      marker-end="url(#tree-tree__registry--5:0:arrow-endArrowId)"
+      marker-end="url(#tree-tree__registry--5:0.arrow-endArrowId)"
     />
-    <title>5:0:arrow</title>
+    <title>5:0.arrow</title>
   </g>
   <g>
     <marker
-      id="tree-tree__registry--5:4:arrow-endArrowId"
+      id="tree-tree__registry--5:4.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -252,9 +252,9 @@
       stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      marker-end="url(#tree-tree__registry--5:4:arrow-endArrowId)"
+      marker-end="url(#tree-tree__registry--5:4.arrow-endArrowId)"
     />
-    <title>5:4:arrow</title>
+    <title>5:4.arrow</title>
   </g>
   <text
     fill="#000000"

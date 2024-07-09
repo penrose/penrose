@@ -79,7 +79,7 @@
       stroke-opacity="1"
       stroke-width="2"
     />
-    <title>5:3:line</title>
+    <title>5:3.line</title>
   </g>
   <g
     transform="rotate(0, 140.50464119067806, 122.36407154190228)translate(126.21904119067806, 115.57527154190228)"
@@ -245,7 +245,7 @@
       stroke-opacity="1"
       stroke-width="2"
     />
-    <title>5:5:line</title>
+    <title>5:5.line</title>
   </g>
   <g
     transform="rotate(0, 107.11611890136857, 219.2192251298258)translate(90.00251890136857, 212.43042512982578)"
@@ -372,7 +372,7 @@
       stroke-opacity="1"
       stroke-width="2"
     />
-    <title>5:2:line</title>
+    <title>5:2.line</title>
   </g>
   <g
     transform="rotate(0, 69.66318928473527, 326.91132330496123)translate(58.206389284735266, 320.12252330496125)"
@@ -522,7 +522,7 @@
       stroke-opacity="1"
       stroke-width="2"
     />
-    <title>5:1:line</title>
+    <title>5:1.line</title>
   </g>
   <g
     transform="rotate(0, 538.9367284055994, 9.992104337716228)translate(530.3079284055995, 3.328104337716228)"
@@ -593,7 +593,7 @@
       stroke-opacity="1"
       stroke-width="2"
     />
-    <title>5:0:line</title>
+    <title>5:0.line</title>
   </g>
   <g>
     <line
@@ -605,7 +605,7 @@
       stroke-opacity="1"
       stroke-width="2"
     />
-    <title>5:4:line</title>
+    <title>5:4.line</title>
   </g>
   <circle
     fill="#000000"
@@ -665,6 +665,6 @@
     stroke-linecap="butt"
     d="M 536.3936383522622 4.894425406917065 C 84.33259841796684 4.328250243777035 12.492736484473028 302.86784526676166 133.4053801873704 375.16590693677085"
   >
-    <title>2:0:curve</title>
+    <title>2:0.curve</title>
   </path>
 </svg>

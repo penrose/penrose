@@ -80,7 +80,7 @@
     stroke="none"
     r="100"
   >
-    <title>35:0:disk</title>
+    <title>35:0.disk</title>
   </circle>
   <circle
     fill="#000000"

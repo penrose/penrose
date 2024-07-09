@@ -73,7 +73,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:22:line</title>
+    <title>3:22.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -85,7 +85,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:22:intersectDot</title>
+    <title>3:22.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_23`.icon</title>
@@ -100,7 +100,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:76:line</title>
+    <title>3:76.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -112,7 +112,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:76:intersectDot</title>
+    <title>3:76.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_77`.icon</title>
@@ -127,7 +127,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:69:line</title>
+    <title>3:69.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -139,7 +139,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:69:intersectDot</title>
+    <title>3:69.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_70`.icon</title>
@@ -154,7 +154,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:71:line</title>
+    <title>3:71.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -166,7 +166,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:71:intersectDot</title>
+    <title>3:71.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_72`.icon</title>
@@ -181,7 +181,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:82:line</title>
+    <title>3:82.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -193,7 +193,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:82:intersectDot</title>
+    <title>3:82.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_83`.icon</title>
@@ -208,7 +208,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:34:line</title>
+    <title>3:34.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -220,7 +220,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:34:intersectDot</title>
+    <title>3:34.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_35`.icon</title>
@@ -235,7 +235,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:42:line</title>
+    <title>3:42.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -247,7 +247,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:42:intersectDot</title>
+    <title>3:42.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_43`.icon</title>
@@ -262,7 +262,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:57:line</title>
+    <title>3:57.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -274,7 +274,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:57:intersectDot</title>
+    <title>3:57.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_58`.icon</title>
@@ -289,7 +289,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:4:line</title>
+    <title>3:4.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -301,7 +301,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:4:intersectDot</title>
+    <title>3:4.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_5`.icon</title>
@@ -316,7 +316,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:74:line</title>
+    <title>3:74.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -328,7 +328,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:74:intersectDot</title>
+    <title>3:74.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_75`.icon</title>
@@ -343,7 +343,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:29:line</title>
+    <title>3:29.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -355,7 +355,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:29:intersectDot</title>
+    <title>3:29.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_30`.icon</title>
@@ -370,7 +370,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:65:line</title>
+    <title>3:65.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -382,7 +382,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:65:intersectDot</title>
+    <title>3:65.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_66`.icon</title>
@@ -397,7 +397,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:2:line</title>
+    <title>3:2.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -409,7 +409,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:2:intersectDot</title>
+    <title>3:2.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_3`.icon</title>
@@ -424,7 +424,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:37:line</title>
+    <title>3:37.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -436,7 +436,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:37:intersectDot</title>
+    <title>3:37.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_38`.icon</title>
@@ -451,7 +451,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:19:line</title>
+    <title>3:19.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -463,7 +463,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:19:intersectDot</title>
+    <title>3:19.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_20`.icon</title>
@@ -478,7 +478,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:91:line</title>
+    <title>3:91.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -490,7 +490,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:91:intersectDot</title>
+    <title>3:91.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_92`.icon</title>
@@ -505,7 +505,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:21:line</title>
+    <title>3:21.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -517,7 +517,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:21:intersectDot</title>
+    <title>3:21.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_22`.icon</title>
@@ -532,7 +532,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:33:line</title>
+    <title>3:33.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -544,7 +544,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:33:intersectDot</title>
+    <title>3:33.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_34`.icon</title>
@@ -559,7 +559,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:41:line</title>
+    <title>3:41.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -571,7 +571,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:41:intersectDot</title>
+    <title>3:41.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_42`.icon</title>
@@ -586,7 +586,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:67:line</title>
+    <title>3:67.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -598,7 +598,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:67:intersectDot</title>
+    <title>3:67.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_68`.icon</title>
@@ -613,7 +613,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:68:line</title>
+    <title>3:68.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -625,7 +625,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:68:intersectDot</title>
+    <title>3:68.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_69`.icon</title>
@@ -640,7 +640,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:25:line</title>
+    <title>3:25.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -652,7 +652,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:25:intersectDot</title>
+    <title>3:25.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_26`.icon</title>
@@ -667,7 +667,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:64:line</title>
+    <title>3:64.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -679,7 +679,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:64:intersectDot</title>
+    <title>3:64.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_65`.icon</title>
@@ -694,7 +694,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:38:line</title>
+    <title>3:38.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -706,7 +706,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:38:intersectDot</title>
+    <title>3:38.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_39`.icon</title>
@@ -721,7 +721,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:1:line</title>
+    <title>3:1.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -733,7 +733,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:1:intersectDot</title>
+    <title>3:1.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_2`.icon</title>
@@ -748,7 +748,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:44:line</title>
+    <title>3:44.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -760,7 +760,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:44:intersectDot</title>
+    <title>3:44.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_45`.icon</title>
@@ -775,7 +775,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:24:line</title>
+    <title>3:24.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -787,7 +787,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:24:intersectDot</title>
+    <title>3:24.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_25`.icon</title>
@@ -802,7 +802,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:27:line</title>
+    <title>3:27.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -814,7 +814,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:27:intersectDot</title>
+    <title>3:27.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_28`.icon</title>
@@ -829,7 +829,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:40:line</title>
+    <title>3:40.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -841,7 +841,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:40:intersectDot</title>
+    <title>3:40.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_41`.icon</title>
@@ -856,7 +856,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:63:line</title>
+    <title>3:63.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -868,7 +868,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:63:intersectDot</title>
+    <title>3:63.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_64`.icon</title>
@@ -883,7 +883,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:78:line</title>
+    <title>3:78.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -895,7 +895,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:78:intersectDot</title>
+    <title>3:78.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_79`.icon</title>
@@ -910,7 +910,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:0:line</title>
+    <title>3:0.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -922,7 +922,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:0:intersectDot</title>
+    <title>3:0.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_1`.icon</title>
@@ -937,7 +937,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:61:line</title>
+    <title>3:61.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -949,7 +949,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:61:intersectDot</title>
+    <title>3:61.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_62`.icon</title>
@@ -964,7 +964,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:55:line</title>
+    <title>3:55.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -976,7 +976,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:55:intersectDot</title>
+    <title>3:55.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_56`.icon</title>
@@ -991,7 +991,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:16:line</title>
+    <title>3:16.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1003,7 +1003,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:16:intersectDot</title>
+    <title>3:16.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_17`.icon</title>
@@ -1018,7 +1018,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:28:line</title>
+    <title>3:28.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1030,7 +1030,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:28:intersectDot</title>
+    <title>3:28.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_29`.icon</title>
@@ -1045,7 +1045,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:36:line</title>
+    <title>3:36.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1057,7 +1057,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:36:intersectDot</title>
+    <title>3:36.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_37`.icon</title>
@@ -1072,7 +1072,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:93:line</title>
+    <title>3:93.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1084,7 +1084,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:93:intersectDot</title>
+    <title>3:93.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_94`.icon</title>
@@ -1099,7 +1099,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:53:line</title>
+    <title>3:53.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1111,7 +1111,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:53:intersectDot</title>
+    <title>3:53.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_54`.icon</title>
@@ -1126,7 +1126,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:45:line</title>
+    <title>3:45.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1138,7 +1138,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:45:intersectDot</title>
+    <title>3:45.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_46`.icon</title>
@@ -1153,7 +1153,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:88:line</title>
+    <title>3:88.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1165,7 +1165,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:88:intersectDot</title>
+    <title>3:88.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_89`.icon</title>
@@ -1180,7 +1180,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:48:line</title>
+    <title>3:48.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1192,7 +1192,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:48:intersectDot</title>
+    <title>3:48.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_49`.icon</title>
@@ -1207,7 +1207,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:3:line</title>
+    <title>3:3.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1219,7 +1219,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:3:intersectDot</title>
+    <title>3:3.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_4`.icon</title>
@@ -1234,7 +1234,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:30:line</title>
+    <title>3:30.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1246,7 +1246,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:30:intersectDot</title>
+    <title>3:30.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_31`.icon</title>
@@ -1261,7 +1261,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:62:line</title>
+    <title>3:62.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1273,7 +1273,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:62:intersectDot</title>
+    <title>3:62.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_63`.icon</title>
@@ -1288,7 +1288,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:77:line</title>
+    <title>3:77.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1300,7 +1300,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:77:intersectDot</title>
+    <title>3:77.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_78`.icon</title>
@@ -1315,7 +1315,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:66:line</title>
+    <title>3:66.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1327,7 +1327,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:66:intersectDot</title>
+    <title>3:66.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_67`.icon</title>
@@ -1342,7 +1342,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:11:line</title>
+    <title>3:11.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1354,7 +1354,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:11:intersectDot</title>
+    <title>3:11.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_12`.icon</title>
@@ -1369,7 +1369,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:17:line</title>
+    <title>3:17.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1381,7 +1381,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:17:intersectDot</title>
+    <title>3:17.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_18`.icon</title>
@@ -1396,7 +1396,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:85:line</title>
+    <title>3:85.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1408,7 +1408,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:85:intersectDot</title>
+    <title>3:85.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_86`.icon</title>
@@ -1423,7 +1423,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:15:line</title>
+    <title>3:15.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1435,7 +1435,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:15:intersectDot</title>
+    <title>3:15.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_16`.icon</title>
@@ -1450,7 +1450,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:60:line</title>
+    <title>3:60.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1462,7 +1462,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:60:intersectDot</title>
+    <title>3:60.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_61`.icon</title>
@@ -1477,7 +1477,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:96:line</title>
+    <title>3:96.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1489,7 +1489,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:96:intersectDot</title>
+    <title>3:96.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_97`.icon</title>
@@ -1504,7 +1504,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:56:line</title>
+    <title>3:56.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1516,7 +1516,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:56:intersectDot</title>
+    <title>3:56.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_57`.icon</title>
@@ -1531,7 +1531,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:5:line</title>
+    <title>3:5.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1543,7 +1543,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:5:intersectDot</title>
+    <title>3:5.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_6`.icon</title>
@@ -1558,7 +1558,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:83:line</title>
+    <title>3:83.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1570,7 +1570,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:83:intersectDot</title>
+    <title>3:83.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_84`.icon</title>
@@ -1585,7 +1585,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:9:line</title>
+    <title>3:9.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1597,7 +1597,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:9:intersectDot</title>
+    <title>3:9.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_10`.icon</title>
@@ -1612,7 +1612,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:99:line</title>
+    <title>3:99.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1624,7 +1624,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:99:intersectDot</title>
+    <title>3:99.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_100`.icon</title>
@@ -1639,7 +1639,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:90:line</title>
+    <title>3:90.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1651,7 +1651,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:90:intersectDot</title>
+    <title>3:90.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_91`.icon</title>
@@ -1666,7 +1666,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:20:line</title>
+    <title>3:20.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1678,7 +1678,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:20:intersectDot</title>
+    <title>3:20.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_21`.icon</title>
@@ -1693,7 +1693,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:54:line</title>
+    <title>3:54.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1705,7 +1705,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:54:intersectDot</title>
+    <title>3:54.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_55`.icon</title>
@@ -1720,7 +1720,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:80:line</title>
+    <title>3:80.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1732,7 +1732,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:80:intersectDot</title>
+    <title>3:80.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_81`.icon</title>
@@ -1747,7 +1747,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:92:line</title>
+    <title>3:92.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1759,7 +1759,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:92:intersectDot</title>
+    <title>3:92.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_93`.icon</title>
@@ -1774,7 +1774,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:84:line</title>
+    <title>3:84.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1786,7 +1786,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:84:intersectDot</title>
+    <title>3:84.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_85`.icon</title>
@@ -1801,7 +1801,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:47:line</title>
+    <title>3:47.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1813,7 +1813,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:47:intersectDot</title>
+    <title>3:47.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_48`.icon</title>
@@ -1828,7 +1828,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:39:line</title>
+    <title>3:39.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1840,7 +1840,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:39:intersectDot</title>
+    <title>3:39.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_40`.icon</title>
@@ -1855,7 +1855,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:26:line</title>
+    <title>3:26.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1867,7 +1867,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:26:intersectDot</title>
+    <title>3:26.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_27`.icon</title>
@@ -1882,7 +1882,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:18:line</title>
+    <title>3:18.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1894,7 +1894,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:18:intersectDot</title>
+    <title>3:18.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_19`.icon</title>
@@ -1909,7 +1909,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:59:line</title>
+    <title>3:59.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1921,7 +1921,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:59:intersectDot</title>
+    <title>3:59.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_60`.icon</title>
@@ -1936,7 +1936,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:52:line</title>
+    <title>3:52.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1948,7 +1948,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:52:intersectDot</title>
+    <title>3:52.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_53`.icon</title>
@@ -1963,7 +1963,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:79:line</title>
+    <title>3:79.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -1975,7 +1975,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:79:intersectDot</title>
+    <title>3:79.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_80`.icon</title>
@@ -1990,7 +1990,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:87:line</title>
+    <title>3:87.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2002,7 +2002,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:87:intersectDot</title>
+    <title>3:87.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_88`.icon</title>
@@ -2017,7 +2017,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:12:line</title>
+    <title>3:12.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2029,7 +2029,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:12:intersectDot</title>
+    <title>3:12.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_13`.icon</title>
@@ -2044,7 +2044,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:10:line</title>
+    <title>3:10.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2056,7 +2056,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:10:intersectDot</title>
+    <title>3:10.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_11`.icon</title>
@@ -2071,7 +2071,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:98:line</title>
+    <title>3:98.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2083,7 +2083,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:98:intersectDot</title>
+    <title>3:98.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_99`.icon</title>
@@ -2098,7 +2098,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:58:line</title>
+    <title>3:58.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2110,7 +2110,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:58:intersectDot</title>
+    <title>3:58.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_59`.icon</title>
@@ -2125,7 +2125,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:14:line</title>
+    <title>3:14.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2137,7 +2137,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:14:intersectDot</title>
+    <title>3:14.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_15`.icon</title>
@@ -2152,7 +2152,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:72:line</title>
+    <title>3:72.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2164,7 +2164,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:72:intersectDot</title>
+    <title>3:72.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_73`.icon</title>
@@ -2179,7 +2179,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:89:line</title>
+    <title>3:89.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2191,7 +2191,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:89:intersectDot</title>
+    <title>3:89.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_90`.icon</title>
@@ -2206,7 +2206,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:32:line</title>
+    <title>3:32.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2218,7 +2218,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:32:intersectDot</title>
+    <title>3:32.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_33`.icon</title>
@@ -2233,7 +2233,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:73:line</title>
+    <title>3:73.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2245,7 +2245,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:73:intersectDot</title>
+    <title>3:73.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_74`.icon</title>
@@ -2260,7 +2260,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:6:line</title>
+    <title>3:6.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2272,7 +2272,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:6:intersectDot</title>
+    <title>3:6.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_7`.icon</title>
@@ -2287,7 +2287,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:13:line</title>
+    <title>3:13.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2299,7 +2299,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:13:intersectDot</title>
+    <title>3:13.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_14`.icon</title>
@@ -2314,7 +2314,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:70:line</title>
+    <title>3:70.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2326,7 +2326,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:70:intersectDot</title>
+    <title>3:70.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_71`.icon</title>
@@ -2341,7 +2341,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:8:line</title>
+    <title>3:8.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2353,7 +2353,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:8:intersectDot</title>
+    <title>3:8.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_9`.icon</title>
@@ -2368,7 +2368,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:94:line</title>
+    <title>3:94.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2380,7 +2380,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:94:intersectDot</title>
+    <title>3:94.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_95`.icon</title>
@@ -2395,7 +2395,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:35:line</title>
+    <title>3:35.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2407,7 +2407,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:35:intersectDot</title>
+    <title>3:35.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_36`.icon</title>
@@ -2422,7 +2422,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:51:line</title>
+    <title>3:51.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2434,7 +2434,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:51:intersectDot</title>
+    <title>3:51.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_52`.icon</title>
@@ -2449,7 +2449,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:23:line</title>
+    <title>3:23.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2461,7 +2461,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:23:intersectDot</title>
+    <title>3:23.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_24`.icon</title>
@@ -2476,7 +2476,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:75:line</title>
+    <title>3:75.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2488,7 +2488,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:75:intersectDot</title>
+    <title>3:75.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_76`.icon</title>
@@ -2503,7 +2503,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:7:line</title>
+    <title>3:7.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2515,7 +2515,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:7:intersectDot</title>
+    <title>3:7.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_8`.icon</title>
@@ -2530,7 +2530,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:43:line</title>
+    <title>3:43.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2542,7 +2542,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:43:intersectDot</title>
+    <title>3:43.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_44`.icon</title>
@@ -2557,7 +2557,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:49:line</title>
+    <title>3:49.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2569,7 +2569,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:49:intersectDot</title>
+    <title>3:49.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_50`.icon</title>
@@ -2584,7 +2584,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:50:line</title>
+    <title>3:50.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2596,7 +2596,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:50:intersectDot</title>
+    <title>3:50.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_51`.icon</title>
@@ -2611,7 +2611,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:46:line</title>
+    <title>3:46.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2623,7 +2623,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:46:intersectDot</title>
+    <title>3:46.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_47`.icon</title>
@@ -2638,7 +2638,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:31:line</title>
+    <title>3:31.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2650,7 +2650,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:31:intersectDot</title>
+    <title>3:31.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_32`.icon</title>
@@ -2665,7 +2665,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:81:line</title>
+    <title>3:81.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2677,7 +2677,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:81:intersectDot</title>
+    <title>3:81.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_82`.icon</title>
@@ -2692,7 +2692,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:95:line</title>
+    <title>3:95.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2704,7 +2704,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:95:intersectDot</title>
+    <title>3:95.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_96`.icon</title>
@@ -2719,7 +2719,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:86:line</title>
+    <title>3:86.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2731,7 +2731,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:86:intersectDot</title>
+    <title>3:86.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_87`.icon</title>
@@ -2746,7 +2746,7 @@
       stroke-opacity="0.1"
       stroke-width="3.5"
     />
-    <title>3:97:line</title>
+    <title>3:97.line</title>
   </g>
   <circle
     fill="#ffffff"
@@ -2758,7 +2758,7 @@
     stroke-width="1.5"
     r="2.5"
   >
-    <title>3:97:intersectDot</title>
+    <title>3:97.intersectDot</title>
   </circle>
   <circle fill="#000000" fill-opacity="1" cx="400" cy="10" stroke="none" r="5">
     <title>`r_98`.icon</title>

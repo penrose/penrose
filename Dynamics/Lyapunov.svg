@@ -176,7 +176,7 @@
   </g>
   <g>
     <marker
-      id="Lyapunov__5:1:orientedPath-endArrowId"
+      id="Lyapunov__5:1.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="19.9"
       markerHeight="16.24"
@@ -198,9 +198,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 368.8786363879637 245.105408671048 Q 392.9379672124725 19.52835030216943 620.8214418376754 705.5554919526749"
-      marker-end="url(#Lyapunov__5:1:orientedPath-endArrowId)"
+      marker-end="url(#Lyapunov__5:1.orientedPath-endArrowId)"
     />
-    <title>5:1:orientedPath</title>
+    <title>5:1.orientedPath</title>
   </g>
   <g
     transform="rotate(0, 426.054857309199, 244.11144879228576)translate(398.094857309199, 234.11144879228576)"
@@ -277,7 +277,7 @@
   </g>
   <g>
     <marker
-      id="Lyapunov__5:0:orientedPath-endArrowId"
+      id="Lyapunov__5:0.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="19.9"
       markerHeight="16.24"
@@ -299,9 +299,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 380.300267137166 272.8120061254566 Q 467.08711427271965 412.1704869713466 514.2307701521853 0.2219627889726894"
-      marker-end="url(#Lyapunov__5:0:orientedPath-endArrowId)"
+      marker-end="url(#Lyapunov__5:0.orientedPath-endArrowId)"
     />
-    <title>5:0:orientedPath</title>
+    <title>5:0.orientedPath</title>
   </g>
   <g
     transform="rotate(0, 380.03899358535466, 291.7395061042267)translate(370.02899358535467, 283.81200610422667)"

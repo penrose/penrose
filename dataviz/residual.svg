@@ -16,7 +16,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>7:0:ressegment</title>
+    <title>7:0.ressegment</title>
   </g>
   <g>
     <marker
@@ -90,7 +90,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>7:3:ressegment</title>
+    <title>7:3.ressegment</title>
   </g>
   <circle fill="#000000" fill-opacity="1" cx="175" cy="50" stroke="none" r="2">
     <title>`p_4`.icon</title>
@@ -106,7 +106,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>7:1:ressegment</title>
+    <title>7:1.ressegment</title>
   </g>
   <circle fill="#000000" fill-opacity="1" cx="300" cy="250" stroke="none" r="2">
     <title>`p_2`.icon</title>
@@ -122,7 +122,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>7:2:ressegment</title>
+    <title>7:2.ressegment</title>
   </g>
   <circle fill="#000000" fill-opacity="1" cx="100" cy="175" stroke="none" r="2">
     <title>`p_3`.icon</title>

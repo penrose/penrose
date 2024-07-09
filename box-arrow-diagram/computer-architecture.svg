@@ -20,7 +20,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:3:debug_line</title>
+    <title>4:3.debug_line</title>
   </g>
   <rect
     x="170.7986540751104"
@@ -69,7 +69,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:0:debug_line</title>
+    <title>4:0.debug_line</title>
   </g>
   <circle
     fill="#000000"
@@ -128,7 +128,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:2:debug_line</title>
+    <title>4:2.debug_line</title>
   </g>
   <g>
     <line
@@ -141,7 +141,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:1:debug_line</title>
+    <title>4:1.debug_line</title>
   </g>
   <circle
     fill="#000000"
@@ -164,7 +164,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:11:debug_line</title>
+    <title>4:11.debug_line</title>
   </g>
   <g>
     <line
@@ -177,7 +177,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:10:debug_line</title>
+    <title>4:10.debug_line</title>
   </g>
   <g>
     <line
@@ -190,7 +190,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:7:debug_line</title>
+    <title>4:7.debug_line</title>
   </g>
   <g>
     <line
@@ -203,7 +203,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:9:debug_line</title>
+    <title>4:9.debug_line</title>
   </g>
   <rect
     x="415.4920147134271"
@@ -252,7 +252,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:5:debug_line</title>
+    <title>4:5.debug_line</title>
   </g>
   <g>
     <line
@@ -265,7 +265,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:14:debug_line</title>
+    <title>4:14.debug_line</title>
   </g>
   <g>
     <line
@@ -278,7 +278,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:16:debug_line</title>
+    <title>4:16.debug_line</title>
   </g>
   <g>
     <line
@@ -291,7 +291,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:8:debug_line</title>
+    <title>4:8.debug_line</title>
   </g>
   <g>
     <line
@@ -304,7 +304,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:21:debug_line</title>
+    <title>4:21.debug_line</title>
   </g>
   <g>
     <line
@@ -317,7 +317,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:4:debug_line</title>
+    <title>4:4.debug_line</title>
   </g>
   <g>
     <line
@@ -330,7 +330,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:20:debug_line</title>
+    <title>4:20.debug_line</title>
   </g>
   <g>
     <line
@@ -343,7 +343,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:18:debug_line</title>
+    <title>4:18.debug_line</title>
   </g>
   <g>
     <line
@@ -356,7 +356,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:19:debug_line</title>
+    <title>4:19.debug_line</title>
   </g>
   <circle
     fill="#000000"
@@ -415,7 +415,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:12:debug_line</title>
+    <title>4:12.debug_line</title>
   </g>
   <circle
     fill="#000000"
@@ -474,7 +474,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:6:debug_line</title>
+    <title>4:6.debug_line</title>
   </g>
   <circle
     fill="#000000"
@@ -543,7 +543,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:13:debug_line</title>
+    <title>4:13.debug_line</title>
   </g>
   <rect
     x="421.26183300398293"
@@ -684,7 +684,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:15:debug_line</title>
+    <title>4:15.debug_line</title>
   </g>
   <circle
     fill="#000000"
@@ -707,7 +707,7 @@
       stroke-width="1"
       stroke-dasharray="7,5"
     />
-    <title>4:17:debug_line</title>
+    <title>4:17.debug_line</title>
   </g>
   <rect
     x="230.52131049687836"

@@ -60,7 +60,7 @@
     <title>global.floor</title>
   </polygon>
   <g opacity="0.1" style="filter: blur(3px)">
-    <clipPath id="dinoshade__registry6:0:floorShape-clip">
+    <clipPath id="dinoshade__registry6:0.floorShape-clip">
       <polygon
         fill="#7dd884"
         fill-opacity="0.5"
@@ -68,10 +68,10 @@
         transform="scale(1)"
         points="1767.5803955173126,540,960,1379.2620042234846,152.41960448268742,540,960,217.20692145250587"
       >
-        <title>6:0:floorShape</title>
+        <title>6:0.floorShape</title>
       </polygon>
     </clipPath>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -80,13 +80,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="447.92172012170386,747.0529754148383,362.0033962516625,771.0532067825302,374.2324131938183,795.5383454213879,460.8366531026169,769.420819265134"
-        opacity="0.2"
         stroke-linejoin="round"
+        opacity="0.2"
       >
-        <title>4:1:f60</title>
+        <title>4:1.f60</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -95,13 +95,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="905.9643968768586,595.7317525641607,948.335743333378,583.20615747131,974.6067767162563,606.6178196940973,932.561435066167,620.5641802729392"
-        opacity="1321.043977989423"
         stroke-linejoin="round"
+        opacity="1321.043977989423"
       >
-        <title>4:1:f71</title>
+        <title>4:1.f71</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -110,13 +110,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="514.9434351217631,691.3880176288451,518.5509600436775,693.9524153057156,600.5980998703667,817.9687760530935,598.2276528289972,817.5778818573874"
-        opacity="236.99061735586116"
         stroke-linejoin="round"
+        opacity="236.99061735586116"
       >
-        <title>4:1:f82</title>
+        <title>4:1.f82</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -125,13 +125,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="887.2221671095233,621.5757337574155,926.4969158827597,614.8529444738982,915.314413682988,623.7863497108265,932.561435066167,620.5641802729392,974.6067767162563,606.6178196940973,981.6144392761353,605.4182948026188,963.3600948492424,614.8102301805656,885.3904116657237,647.6918434505315,921.9377874599236,628.7610860011613,904.7703057618908,632.209758643667,802.9328811758072,666.2537319023638,785.6065304437922,663.4898842857805,794.0977841707265,654.4420990767023,829.9030071182918,639.743309336802"
-        opacity="275.6796404183383"
         stroke-linejoin="round"
+        opacity="275.6796404183383"
       >
-        <title>4:1:f93</title>
+        <title>4:1.f93</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -140,13 +140,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="858.0999019144555,723.943835380574,895.1591113013209,707.4490089931703,930.7591390437689,744.385397033255,893.056565088362,761.9042790600201"
-        opacity="1956.0496153704444"
         stroke-linejoin="round"
+        opacity="1956.0496153704444"
       >
-        <title>4:1:f50</title>
+        <title>4:1.f50</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -155,13 +155,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="362.0033962516625,771.0532067825302,472.98327604815387,737.1547539969099,486.23733359642637,759.1683837147698,374.2324131938183,795.5383454213879"
-        opacity="2892.362023990584"
         stroke-linejoin="round"
+        opacity="2892.362023990584"
       >
-        <title>4:1:f61</title>
+        <title>4:1.f61</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -170,13 +170,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="948.335743333378,583.20615747131,955.662237667617,582.444221561017,981.6144392761353,605.4182948026188,974.6067767162563,606.6178196940973"
-        opacity="188.09333179568097"
         stroke-linejoin="round"
+        opacity="188.09333179568097"
       >
-        <title>4:1:f72</title>
+        <title>4:1.f72</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -185,13 +185,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="518.5509600436775,693.9524153057156,480.9961782216403,708.4805324546895,560.2146110791382,835.6686268507386,600.5980998703667,817.9687760530935"
-        opacity="0.2"
         stroke-linejoin="round"
+        opacity="0.2"
       >
-        <title>4:1:f83</title>
+        <title>4:1.f83</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -200,13 +200,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="855.351619142021,717.9500570492505,842.6047927524044,726.2274656803978,800.5331372056048,744.8836310974755,705.5746527118381,789.5173531852371,618.7217613206278,825.5056807680318,518.7578578113895,869.8334614404755,544.3299925114856,857.0681505204951,462.3352184316038,891.8563753225689,517.4486320527312,867.4691720582783,428.21414951575184,903.6214647809217,544.2919945061163,855.5912190621535,516.0068065491776,864.8654249913661,570.6760677903046,843.9164975044458,666.3316888570531,804.3936358040155,677.8927360488235,793.400934257606,776.774287638085,749.7497055860857"
-        opacity="0.2"
         stroke-linejoin="round"
+        opacity="0.2"
       >
-        <title>4:1:f94</title>
+        <title>4:1.f94</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -215,13 +215,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="973.8077515370223,679.3466546109935,989.5112193455325,673.7355669168984,1020.0450044746943,702.2435536520561,1005.2600730845118,709.2218615851172"
-        opacity="619.0019979733679"
         stroke-linejoin="round"
+        opacity="619.0019979733679"
       >
-        <title>4:1:f40</title>
+        <title>4:1.f40</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -230,13 +230,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="895.1591113013209,707.4490089931703,951.7403922910945,684.2146396317656,986.7566413531428,718.2109177825935,930.7591390437689,744.385397033255"
-        opacity="2737.1334310170587"
         stroke-linejoin="round"
+        opacity="2737.1334310170587"
       >
-        <title>4:1:f51</title>
+        <title>4:1.f51</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -245,13 +245,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="472.98327604815387,737.1547539969099,443.41311086853625,739.1475074058492,456.849248264351,762.4162389114856,486.23733359642637,759.1683837147698"
-        opacity="0.2"
         stroke-linejoin="round"
+        opacity="0.2"
       >
-        <title>4:1:f62</title>
+        <title>4:1.f62</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -260,13 +260,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="955.662237667617,582.444221561017,937.9941314145792,591.8327297556737,963.3600948492424,614.8102301805656,981.6144392761353,605.4182948026188"
-        opacity="0.2"
         stroke-linejoin="round"
+        opacity="0.2"
       >
-        <title>4:1:f73</title>
+        <title>4:1.f73</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -275,13 +275,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="480.9961782216403,708.4805324546895,427.476459179431,725.1134831286245,503.87343916423947,858.88826719747,560.2146110791382,835.6686268507386"
-        opacity="0.2"
         stroke-linejoin="round"
+        opacity="0.2"
       >
-        <title>4:1:f84</title>
+        <title>4:1.f84</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -290,13 +290,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="875.0461947026614,739.284637818681,861.262197340722,746.8064341376845,818.7654445339174,766.0942165408031,722.0067205921977,811.2265703312912,634.8708180412402,849.5575238908555,533.5907933032545,895.5249672813995,559.8719137474781,882.9084291269481,477.0554148967337,919.7357032206827,532.9848933892895,894.3769901713969,443.1367069526468,933.4996544520105,560.2116997992309,882.0322161880304,532.3163657631509,893.1103545530002,586.9637089993191,869.9027177002662,683.0649620858887,827.683895859471,696.4889618830637,818.7568942647531,796.5948086206199,773.4191443848299"
-        opacity="53.789177069575146"
         stroke-linejoin="round"
+        opacity="53.789177069575146"
       >
-        <title>4:1:f95</title>
+        <title>4:1.f95</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -308,10 +308,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f30</title>
+        <title>4:1.f30</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -323,10 +323,10 @@
         stroke-linejoin="round"
         opacity="1613.050618899841"
       >
-        <title>4:1:f41</title>
+        <title>4:1.f41</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -338,10 +338,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f52</title>
+        <title>4:1.f52</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -353,10 +353,10 @@
         stroke-linejoin="round"
         opacity="1334.6444652184114"
       >
-        <title>4:1:f63</title>
+        <title>4:1.f63</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -368,10 +368,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f74</title>
+        <title>4:1.f74</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -383,10 +383,10 @@
         stroke-linejoin="round"
         opacity="2756.4652648670535"
       >
-        <title>4:1:f85</title>
+        <title>4:1.f85</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -398,10 +398,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f96</title>
+        <title>4:1.f96</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -413,10 +413,10 @@
         stroke-linejoin="round"
         opacity="3401.4814804891585"
       >
-        <title>4:1:f20</title>
+        <title>4:1.f20</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -428,10 +428,10 @@
         stroke-linejoin="round"
         opacity="3833.8413227668652"
       >
-        <title>4:1:f31</title>
+        <title>4:1.f31</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -443,10 +443,10 @@
         stroke-linejoin="round"
         opacity="228.38211581466794"
       >
-        <title>4:1:f42</title>
+        <title>4:1.f42</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -458,10 +458,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f53</title>
+        <title>4:1.f53</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -473,10 +473,10 @@
         stroke-linejoin="round"
         opacity="2231.019458899328"
       >
-        <title>4:1:f64</title>
+        <title>4:1.f64</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -488,10 +488,10 @@
         stroke-linejoin="round"
         opacity="1346.3050080183102"
       >
-        <title>4:1:f75</title>
+        <title>4:1.f75</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -503,10 +503,10 @@
         stroke-linejoin="round"
         opacity="6430.040867261658"
       >
-        <title>4:1:f86</title>
+        <title>4:1.f86</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -518,10 +518,10 @@
         stroke-linejoin="round"
         opacity="286.32321663532457"
       >
-        <title>4:1:f97</title>
+        <title>4:1.f97</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -533,10 +533,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f10</title>
+        <title>4:1.f10</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -548,10 +548,10 @@
         stroke-linejoin="round"
         opacity="1385.0506232684897"
       >
-        <title>4:1:f21</title>
+        <title>4:1.f21</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -563,10 +563,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f32</title>
+        <title>4:1.f32</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -578,10 +578,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f43</title>
+        <title>4:1.f43</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -593,10 +593,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f54</title>
+        <title>4:1.f54</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -608,10 +608,10 @@
         stroke-linejoin="round"
         opacity="380.7411150398741"
       >
-        <title>4:1:f65</title>
+        <title>4:1.f65</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -623,10 +623,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f76</title>
+        <title>4:1.f76</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -638,10 +638,10 @@
         stroke-linejoin="round"
         opacity="4895.5420103679435"
       >
-        <title>4:1:f87</title>
+        <title>4:1.f87</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -653,10 +653,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f98</title>
+        <title>4:1.f98</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -665,13 +665,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="223.52838986287986,808.665381339194,281.62948029890265,771.1305374611134,345.04575271943213,916.369367950651,277.877474355754,951.6494521781492"
-        stroke-linejoin="round"
         opacity="10818.854309729224"
+        stroke-linejoin="round"
       >
-        <title>4:1:f11</title>
+        <title>4:1.f11</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -680,13 +680,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="855.351619142021,717.9500570492505,842.6047927524044,726.2274656803978,861.262197340722,746.8064341376845,875.0461947026614,739.284637818681"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f22</title>
+        <title>4:1.f22</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -695,13 +695,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="516.0068065491776,864.8654249913661,570.6760677903046,843.9164975044458,586.9637089993191,869.9027177002662,532.3163657631509,893.1103545530002"
-        stroke-linejoin="round"
         opacity="1761.8560751753753"
+        stroke-linejoin="round"
       >
-        <title>4:1:f33</title>
+        <title>4:1.f33</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -710,13 +710,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="1017.4069288352555,663.7680059842098,937.5892066778828,699.622427574075,965.4864713074983,727.3763488538201,1046.2354155166638,689.8819979355608"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f44</title>
+        <title>4:1.f44</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -725,13 +725,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="630.9041258759426,690.86642907189,545.8556329755343,716.9814048153216,559.4651448094752,737.250938155331,644.9166242423853,709.3790333290469"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f55</title>
+        <title>4:1.f55</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -740,13 +740,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="594.6363536594091,679.8808296394541,687.7186400036105,643.4004727266604,704.3052929826235,663.2080634508748,610.1060127395364,700.9737148547799"
-        stroke-linejoin="round"
         opacity="2448.8228522431236"
+        stroke-linejoin="round"
       >
-        <title>4:1:f66</title>
+        <title>4:1.f66</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -755,13 +755,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="878.5222431292641,606.8684351795865,776.3945937191068,637.3805726886428,802.9328811758072,666.2537319023638,904.7703057618908,632.209758643667"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f77</title>
+        <title>4:1.f77</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -770,13 +770,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="514.9434351217631,691.3880176288451,518.5509600436775,693.9524153057156,480.9961782216403,708.4805324546895,427.476459179431,725.1134831286245,442.5617248862616,715.8157171288512,482.20951623454994,700.5716691222295"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f88</title>
+        <title>4:1.f88</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -785,13 +785,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="1215.5512217947528,571.1194188009983,1203.2566633838123,579.1451112734694,1107.5593031510382,622.0877996840109,987.4164820207893,671.728249987678,925.3196477895793,699.4927870389478,871.0715888051192,722.0321007220085,654.7259956754646,801.9597553380606,514.4111619836226,861.9839009462173,447.9122683522821,887.1924030144243,606.5863839844861,815.431375320144,370.11636355373116,916.6833933139687,277.877474355754,951.6494521781492,345.04575271943213,916.369367950651,580.5074193454311,814.143664478745,709.2577492910045,763.5778374523334,800.3876276629148,732.4493255177675,788.0065031016786,741.5203912948809,869.2429336629637,708.9294519826201,1017.4072616718008,654.9388885830531,1113.7747894719043,616.6841735766352,1148.483383632001,602.4790928970945,1197.3014537801316,580.5972523697253"
-        stroke-linejoin="round"
         opacity="240.07619266931658"
+        stroke-linejoin="round"
       >
-        <title>4:1:f99</title>
+        <title>4:1.f99</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -803,10 +803,10 @@
         stroke-linejoin="round"
         opacity="34165.443363854596"
       >
-        <title>4:1:f12</title>
+        <title>4:1.f12</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -818,10 +818,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f23</title>
+        <title>4:1.f23</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -833,10 +833,10 @@
         stroke-linejoin="round"
         opacity="2889.1911340294546"
       >
-        <title>4:1:f34</title>
+        <title>4:1.f34</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -848,10 +848,10 @@
         stroke-linejoin="round"
         opacity="1643.264956049715"
       >
-        <title>4:1:f45</title>
+        <title>4:1.f45</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -863,10 +863,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f56</title>
+        <title>4:1.f56</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -878,10 +878,10 @@
         stroke-linejoin="round"
         opacity="1786.853758204365"
       >
-        <title>4:1:f67</title>
+        <title>4:1.f67</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -893,10 +893,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f78</title>
+        <title>4:1.f78</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -908,10 +908,10 @@
         stroke-linejoin="round"
         opacity="57.74223032681317"
       >
-        <title>4:1:f89</title>
+        <title>4:1.f89</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -920,13 +920,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="498.77111345637525,688.0681916913525,624.0430369588047,653.657168761793,709.2577492910045,763.5778374523334,580.5074193454311,814.143664478745"
-        stroke-linejoin="round"
         opacity="16702.299019536407"
+        stroke-linejoin="round"
       >
-        <title>4:1:f13</title>
+        <title>4:1.f13</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -935,13 +935,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="800.5331372056048,744.8836310974755,705.5746527118381,789.5173531852371,722.0067205921977,811.2265703312912,818.7654445339174,766.0942165408031"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f24</title>
+        <title>4:1.f24</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -950,13 +950,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="666.3316888570531,804.3936358040155,677.8927360488235,793.400934257606,696.4889618830637,818.7568942647531,683.0649620858887,827.683895859471"
-        stroke-linejoin="round"
         opacity="497.56421072070407"
+        stroke-linejoin="round"
       >
-        <title>4:1:f35</title>
+        <title>4:1.f35</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -965,13 +965,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="976.7655586592768,680.7794396842759,961.0128887311781,686.5094419166135,991.1900000684241,715.6440851210282,1006.1033345317326,708.6139251690213"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f46</title>
+        <title>4:1.f46</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -980,13 +980,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="452.0504315044359,754.292324385168,474.54066480558555,741.035155352485,487.5337372317031,762.6376719491575,464.4823505981738,775.8251303618295"
-        stroke-linejoin="round"
         opacity="658.0969955580515"
+        stroke-linejoin="round"
       >
-        <title>4:1:f57</title>
+        <title>4:1.f57</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -995,13 +995,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="857.4381358270252,592.6592667155417,898.1860915632053,588.4215877752426,926.4969158827597,614.8529444738982,887.2221671095233,621.5757337574155"
-        stroke-linejoin="round"
         opacity="1196.9959368054797"
+        stroke-linejoin="round"
       >
-        <title>4:1:f68</title>
+        <title>4:1.f68</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1010,13 +1010,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="757.440248197158,632.4192271215834,764.7282656572536,622.5488961163195,794.0977841707265,654.4420990767023,785.6065304437922,663.4898842857805"
-        stroke-linejoin="round"
         opacity="522.3250892268454"
+        stroke-linejoin="round"
       >
-        <title>4:1:f79</title>
+        <title>4:1.f79</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1025,13 +1025,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="624.0430369588047,653.657168761793,719.2868861689865,639.0235928363381,800.3876276629148,732.4493255177675,709.2577492910045,763.5778374523334"
-        stroke-linejoin="round"
         opacity="10085.020254122914"
+        stroke-linejoin="round"
       >
-        <title>4:1:f14</title>
+        <title>4:1.f14</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1040,13 +1040,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="705.5746527118381,789.5173531852371,618.7217613206278,825.5056807680318,634.8708180412402,849.5575238908555,722.0067205921977,811.2265703312912"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f25</title>
+        <title>4:1.f25</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1055,13 +1055,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="677.8927360488235,793.400934257606,776.774287638085,749.7497055860857,796.5948086206199,773.4191443848299,696.4889618830637,818.7568942647531"
-        stroke-linejoin="round"
         opacity="3205.6609274641937"
+        stroke-linejoin="round"
       >
-        <title>4:1:f36</title>
+        <title>4:1.f36</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1070,13 +1070,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="961.0128887311781,686.5094419166135,860.2323049320657,728.5944307009668,891.223527184216,762.3122994886237,991.1900000684241,715.6440851210282"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f47</title>
+        <title>4:1.f47</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1085,13 +1085,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="474.54066480558555,741.035155352485,396.5850192999603,767.3287329572214,408.783018593665,790.4311435001604,487.5337372317031,762.6376719491575"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f58</title>
+        <title>4:1.f58</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1100,13 +1100,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="898.1860915632053,588.4215877752426,888.0718741112256,597.9098335058688,915.314413682988,623.7863497108265,926.4969158827597,614.8529444738982"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f69</title>
+        <title>4:1.f69</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1115,13 +1115,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="1151.840921712457,525.0215847667723,1143.8342388609549,535.4706643442706,1203.2566633838123,579.1451112734694,1215.5512217947528,571.1194188009983"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f0</title>
+        <title>4:1.f0</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1130,13 +1130,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="719.2868861689865,639.0235928363381,711.4578119395642,651.6619026132207,788.0065031016786,741.5203912948809,800.3876276629148,732.4493255177675"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f15</title>
+        <title>4:1.f15</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1145,13 +1145,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="618.7217613206278,825.5056807680318,518.7578578113895,869.8334614404755,533.5907933032545,895.5249672813995,634.8708180412402,849.5575238908555"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f26</title>
+        <title>4:1.f26</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1160,13 +1160,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="776.774287638085,749.7497055860857,855.351619142021,717.9500570492505,875.0461947026614,739.284637818681,796.5948086206199,773.4191443848299"
-        stroke-linejoin="round"
         opacity="2302.695006527553"
+        stroke-linejoin="round"
       >
-        <title>4:1:f37</title>
+        <title>4:1.f37</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1175,13 +1175,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="860.2323049320657,728.5944307009668,846.8039145393259,730.997655596467,880.123398224277,767.75288816135,891.223527184216,762.3122994886237"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f48</title>
+        <title>4:1.f48</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1190,13 +1190,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="396.5850192999603,767.3287329572214,447.92172012170386,747.0529754148383,460.8366531026169,769.420819265134,408.783018593665,790.4311435001604"
-        stroke-linejoin="round"
         opacity="1410.1513575672275"
+        stroke-linejoin="round"
       >
-        <title>4:1:f59</title>
+        <title>4:1.f59</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1205,13 +1205,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="1143.8342388609549,535.4706643442706,1049.8755994672722,574.9730585105599,1107.5593031510382,622.0877996840109,1203.2566633838123,579.1451112734694"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f1</title>
+        <title>4:1.f1</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1220,13 +1220,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="711.4578119395642,651.6619026132207,792.8026192590611,627.7283956051232,869.2429336629637,708.9294519826201,788.0065031016786,741.5203912948809"
-        stroke-linejoin="round"
         opacity="8434.769085654072"
+        stroke-linejoin="round"
       >
-        <title>4:1:f16</title>
+        <title>4:1.f16</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1235,13 +1235,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="518.7578578113895,869.8334614404755,544.3299925114856,857.0681505204951,559.8719137474781,882.9084291269481,533.5907933032545,895.5249672813995"
-        stroke-linejoin="round"
         opacity="859.188542083517"
+        stroke-linejoin="round"
       >
-        <title>4:1:f27</title>
+        <title>4:1.f27</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1250,13 +1250,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="951.7403922910945,684.2146396317656,987.4164820207893,671.728249987678,1020.2483611994502,702.3805227672793,986.7566413531428,718.2109177825935"
-        stroke-linejoin="round"
         opacity="1503.5048702765066"
+        stroke-linejoin="round"
       >
-        <title>4:1:f38</title>
+        <title>4:1.f38</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1265,13 +1265,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="846.8039145393259,730.997655596467,858.0999019144555,723.943835380574,893.056565088362,761.9042790600201,880.123398224277,767.75288816135"
-        stroke-linejoin="round"
         opacity="675.3787099336105"
+        stroke-linejoin="round"
       >
-        <title>4:1:f49</title>
+        <title>4:1.f49</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1280,13 +1280,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="1049.8755994672722,574.9730585105599,926.4969158827597,614.8529444738982,987.4164820207893,671.728249987678,1107.5593031510382,622.0877996840109"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f2</title>
+        <title>4:1.f2</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1295,13 +1295,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="792.8026192590611,627.7283956051232,951.0239589854086,595.2589384647563,1017.4072616718008,654.9388885830531,869.2429336629637,708.9294519826201"
-        stroke-linejoin="round"
         opacity="11598.071463930315"
+        stroke-linejoin="round"
       >
-        <title>4:1:f17</title>
+        <title>4:1.f17</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1310,13 +1310,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="544.3299925114856,857.0681505204951,462.3352184316038,891.8563753225689,477.0554148967337,919.7357032206827,559.8719137474781,882.9084291269481"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f28</title>
+        <title>4:1.f28</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1325,13 +1325,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="987.4164820207893,671.728249987678,973.8077515370223,679.3466546109935,1005.2600730845118,709.2218615851172,1020.2483611994502,702.3805227672793"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f39</title>
+        <title>4:1.f39</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1340,13 +1340,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="926.4969158827597,614.8529444738982,866.0960568197611,639.9787970292714,925.3196477895793,699.4927870389478,987.4164820207893,671.728249987678"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f3</title>
+        <title>4:1.f3</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1355,13 +1355,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="951.0239589854086,595.2589384647563,1052.01480458762,566.7052974096011,1113.7747894719043,616.6841735766352,1017.4072616718008,654.9388885830531"
-        stroke-linejoin="round"
         opacity="6810.881406314642"
+        stroke-linejoin="round"
       >
-        <title>4:1:f18</title>
+        <title>4:1.f18</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1370,13 +1370,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="462.3352184316038,891.8563753225689,517.4486320527312,867.4691720582783,532.9848933892895,894.3769901713969,477.0554148967337,919.7357032206827"
-        stroke-linejoin="round"
         opacity="1861.867672492151"
+        stroke-linejoin="round"
       >
-        <title>4:1:f29</title>
+        <title>4:1.f29</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1385,13 +1385,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="866.0960568197611,639.9787970292714,811.3351192135186,657.9947092581542,871.0715888051192,722.0321007220085,925.3196477895793,699.4927870389478"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f4</title>
+        <title>4:1.f4</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1400,13 +1400,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="1052.01480458762,566.7052974096011,1088.0850609511385,555.3936521553754,1148.483383632001,602.4790928970945,1113.7747894719043,616.6841735766352"
-        stroke-linejoin="round"
         opacity="2381.588318659242"
+        stroke-linejoin="round"
       >
-        <title>4:1:f19</title>
+        <title>4:1.f19</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1415,13 +1415,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="811.3351192135186,657.9947092581542,586.512713838272,706.0128294405788,654.7259956754646,801.9597553380606,871.0715888051192,722.0321007220085"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f5</title>
+        <title>4:1.f5</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1430,13 +1430,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="586.512713838272,706.0128294405788,452.46973213115473,754.7228458627844,514.4111619836226,861.9839009462173,654.7259956754646,801.9597553380606"
-        stroke-linejoin="round"
         opacity="0.2"
+        stroke-linejoin="round"
       >
-        <title>4:1:f6</title>
+        <title>4:1.f6</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1448,10 +1448,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f7</title>
+        <title>4:1.f7</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1463,10 +1463,10 @@
         stroke-linejoin="round"
         opacity="20579.14951800123"
       >
-        <title>4:1:f8</title>
+        <title>4:1.f8</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1478,10 +1478,10 @@
         stroke-linejoin="round"
         opacity="0.2"
       >
-        <title>4:1:f9</title>
+        <title>4:1.f9</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1490,13 +1490,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="951.7403922910945,684.2146396317656,987.4164820207893,671.728249987678,973.8077515370223,679.3466546109935,989.5112193455325,673.7355669168984,1030.678667831738,656.5867781228171,1036.9402819312147,654.3952556202291,1017.4069288352555,663.7680059842098,937.5892066778828,699.622427574075,976.7655586592768,680.7794396842759,961.0128887311781,686.5094419166135,860.2323049320657,728.5944307009668,846.8039145393259,730.997655596467,858.0999019144555,723.943835380574,895.1591113013209,707.4490089931703"
-        opacity="0.2"
         stroke-linejoin="round"
+        opacity="0.2"
       >
-        <title>4:1:f90</title>
+        <title>4:1.f90</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1505,13 +1505,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="764.7282656572536,622.5488961163195,799.9250768522475,608.6400620877852,829.9030071182918,639.743309336802,794.0977841707265,654.4420990767023"
-        opacity="1511.6931775642465"
         stroke-linejoin="round"
+        opacity="1511.6931775642465"
       >
-        <title>4:1:f80</title>
+        <title>4:1.f80</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1520,13 +1520,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="986.7566413531428,718.2109177825935,1020.2483611994502,702.3805227672793,1005.2600730845118,709.2218615851172,1020.0450044746943,702.2435536520561,1060.641238127188,683.288185899976,1066.4676574548498,680.5342359713069,1046.2354155166638,689.8819979355608,965.4864713074983,727.3763488538201,1006.1033345317326,708.6139251690213,991.1900000684241,715.6440851210282,891.223527184216,762.3122994886237,880.123398224277,767.75288816135,893.056565088362,761.9042790600201,930.7591390437689,744.385397033255"
-        opacity="0.2"
         stroke-linejoin="round"
+        opacity="0.2"
       >
-        <title>4:1:f91</title>
+        <title>4:1.f91</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1535,13 +1535,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="888.0718741112256,597.9098335058688,905.9643968768586,595.7317525641607,932.561435066167,620.5641802729392,915.314413682988,623.7863497108265"
-        opacity="502.2452800912671"
         stroke-linejoin="round"
+        opacity="502.2452800912671"
       >
-        <title>4:1:f70</title>
+        <title>4:1.f70</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1550,13 +1550,13 @@
         stroke-width="2"
         transform="scale(1)"
         points="799.9250768522475,608.6400620877852,857.4381358270252,592.6592667155417,887.2221671095233,621.5757337574155,829.9030071182918,639.743309336802"
-        opacity="2139.04698360761"
         stroke-linejoin="round"
+        opacity="2139.04698360761"
       >
-        <title>4:1:f81</title>
+        <title>4:1.f81</title>
       </polygon>
     </g>
-    <g clip-path="url(#dinoshade__registry6:0:floorShape-clip)">
+    <g clip-path="url(#dinoshade__registry6:0.floorShape-clip)">
       <polygon
         fill="#000000"
         fill-opacity="1"
@@ -1565,10 +1565,10 @@
         stroke-width="2"
         transform="scale(1)"
         points="857.4381358270252,592.6592667155417,898.1860915632053,588.4215877752426,888.0718741112256,597.9098335058688,905.9643968768586,595.7317525641607,948.335743333378,583.20615747131,955.662237667617,582.444221561017,937.9941314145792,591.8327297556737,860.9376430559788,623.3647194805985,896.2831726854367,604.4210335833629,878.5222431292641,606.8684351795865,776.3945937191068,637.3805726886428,757.440248197158,632.4192271215834,764.7282656572536,622.5488961163195,799.9250768522475,608.6400620877852"
-        opacity="0.2"
         stroke-linejoin="round"
+        opacity="0.2"
       >
-        <title>4:1:f92</title>
+        <title>4:1.f92</title>
       </polygon>
     </g>
     <title>`s`.mesh</title>
@@ -1582,10 +1582,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="766.7818503852276,388.72144885851594,747.3948310155719,361.18460973165315,760.6385411115075,372.43176160745895,780.0036315249017,400.09018782488647"
-      opacity="146.6411630848812"
       stroke-linejoin="round"
+      opacity="146.6411630848812"
     >
-      <title>4:0:f60</title>
+      <title>4:0.f60</title>
     </polygon>
     <polygon
       fill="#12b612"
@@ -1595,10 +1595,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="937.4686974779298,542.9727100985493,962.7667702004327,557.6731757120729,988.7127777006905,579.991916667731,963.4420391297801,565.4659289786526"
-      opacity="183.20274070517655"
       stroke-linejoin="round"
+      opacity="183.20274070517655"
     >
-      <title>4:0:f71</title>
+      <title>4:0.f71</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -1608,10 +1608,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="969.6450185229784,171.8945111102605,961.982562781066,184.5034676557915,1032.558344337626,224.00044031756124,1040.7665085164717,210.73316811503264"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f82</title>
+      <title>4:0.f82</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -1621,10 +1621,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="990.534532919789,449.4065237413706,989.7787768218036,503.57994176004036,963.4845285832901,539.8800994596872,963.4420391297801,565.4659289786526,988.7127777006905,579.991916667731,988.5424871478133,592.1985284704522,963.3600948492424,614.8102301805656,885.3904116657237,647.6918434505313,937.598217609741,601.0809139982175,937.3223786353908,575.9978907065017,881.5456101122422,545.1187553541671,908.104314158981,479.3585981860422,935.8346046369686,440.70928639258636,963.6655212921584,430.8919103738838"
-      opacity="1397.015235772327"
       stroke-linejoin="round"
+      opacity="1397.015235772327"
     >
-      <title>4:0:f93</title>
+      <title>4:0.f93</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -1634,10 +1634,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="994.3490361417774,486.5193613856462,1022.8740707209361,475.7374997324356,1054.6487329394877,499.8041838111251,1025.7752587416057,511.1224819667358"
-      opacity="1029.093007668226"
       stroke-linejoin="round"
+      opacity="1029.093007668226"
     >
-      <title>4:0:f50</title>
+      <title>4:0.f50</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -1647,10 +1647,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="747.3948310155719,361.18460973165315,782.9346646535098,383.6536054596694,796.2842449372978,394.8935560561737,760.6385411115075,372.43176160745895"
-      opacity="99.5143119311615"
       stroke-linejoin="round"
+      opacity="99.5143119311615"
     >
-      <title>4:0:f61</title>
+      <title>4:0.f61</title>
     </polygon>
     <polygon
       fill="#18f318"
@@ -1660,10 +1660,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="962.7667702004327,557.6731757120729,962.7506952889802,569.7607575677634,988.5424871478133,592.1985284704522,988.7127777006905,579.991916667731"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f72</title>
+      <title>4:0.f72</title>
     </polygon>
     <polygon
       fill="#15d515"
@@ -1673,10 +1673,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="961.982562781066,184.5034676557915,943.5129259895137,189.30782732644514,1013.5461379338842,229.36968043071283,1032.558344337626,224.00044031756124"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f83</title>
+      <title>4:0.f83</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -1686,10 +1686,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1054.6079471066555,373.75547057987376,1024.6327249200797,415.25239685758254,995.3206312232259,425.6583053380473,904.1042304839788,489.77744092089654,871.1612606637502,469.7353699242824,804.5845361752532,493.37036881318033,837.3509612931126,465.12881076091674,802.1909695171383,460.33835976478827,836.4179353898737,448.59798627012515,817.2231912732943,420.4859812784458,853.222403323261,442.8337964015102,868.4495584990947,403.54680987353333,869.8257914263748,437.1385799943007,903.2860658766979,458.33093779957994,965.4983410662827,371.4554075045654,1026.492593011501,351.2862613330194"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f94</title>
+      <title>4:0.f94</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -1699,10 +1699,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1019.6290613465727,587.3425702083632,1018.8694794926107,613.4667432272188,1048.4826189746245,639.1120697710414,1049.6507203137949,612.7217485616002"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f40</title>
+      <title>4:0.f40</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -1712,10 +1712,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1022.8740707209361,475.7374997324356,1049.5821911752914,494.0447249931093,1081.2176524305987,517.9601541214844,1054.6487329394877,499.8041838111251"
-      opacity="59.57864645201471"
       stroke-linejoin="round"
+      opacity="59.57864645201471"
     >
-      <title>4:0:f51</title>
+      <title>4:0.f51</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -1725,10 +1725,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="782.9346646535098,383.6536054596694,796.6017089494537,346.3204838816381,810.2412861307934,357.18431481135394,796.2842449372978,394.8935560561737"
-      opacity="657.684451723966"
       stroke-linejoin="round"
+      opacity="657.684451723966"
     >
-      <title>4:0:f62</title>
+      <title>4:0.f62</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -1738,10 +1738,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="962.7506952889802,569.7607575677634,937.9941314145792,591.8327297556737,963.3600948492424,614.8102301805656,988.5424871478133,592.1985284704522"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f73</title>
+      <title>4:0.f73</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -1751,10 +1751,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="943.5129259895137,189.30782732644514,927.7839827657785,182.61634488665607,997.6629248304453,222.72366755980954,1013.5461379338842,229.36968043071283"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f84</title>
+      <title>4:0.f84</title>
     </polygon>
     <polygon
       fill="#15d515"
@@ -1764,10 +1764,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1071.189783067099,384.7460233101459,1040.7945752441997,426.72631433573486,1011.2987071442158,437.3936587783884,919.2379192317687,502.5721102146383,886.2694290980933,482.61119127525444,819.1652141897193,506.8798031213274,852.3051717471819,478.19818286001146,816.9665189154156,473.606597926512,851.4748312377529,461.5446472933302,832.3466197060028,433.32947416929005,868.4132461135594,455.62403540921684,883.9883659769773,415.9233648828832,885.1462715603271,449.77521484107683,918.6335153763283,470.90653980571926,981.7528395650211,382.97135929669787,1043.1492170419822,362.27740269527044"
-      opacity="914.0089756368063"
       stroke-linejoin="round"
+      opacity="914.0089756368063"
     >
-      <title>4:0:f95</title>
+      <title>4:0.f95</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -1777,10 +1777,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="836.4179353898737,448.59798627012515,817.2231912732943,420.4859812784458,832.3466197060028,433.32947416929005,851.4748312377529,461.5446472933302"
-      opacity="178.62233598874397"
       stroke-linejoin="round"
+      opacity="178.62233598874397"
     >
-      <title>4:0:f30</title>
+      <title>4:0.f30</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -1790,10 +1790,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1018.8694794926107,613.4667432272188,1044.0041161073786,627.5534946476275,1073.5012154456308,652.9268827909564,1048.4826189746245,639.1120697710414"
-      opacity="222.23258466697064"
       stroke-linejoin="round"
+      opacity="222.23258466697064"
     >
-      <title>4:0:f41</title>
+      <title>4:0.f41</title>
     </polygon>
     <polygon
       fill="#0e910e"
@@ -1803,10 +1803,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="977.4612492713158,322.62211884799524,949.4249040951024,361.85948004720865,963.7632564613243,372.0388263796749,992.167280888772,332.3693758061672"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f52</title>
+      <title>4:0.f52</title>
     </polygon>
     <polygon
       fill="#15d515"
@@ -1816,10 +1816,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="796.6017089494537,346.3204838816381,798.9061455658956,378.6426542552979,812.3798022389695,389.7559926063029,810.2412861307934,357.18431481135394"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f63</title>
+      <title>4:0.f63</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -1829,10 +1829,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="937.9941314145792,591.8327297556737,860.9376430559788,623.3647194805985,885.3904116657237,647.6918434505313,963.3600948492424,614.8102301805656"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f74</title>
+      <title>4:0.f74</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -1842,10 +1842,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="927.7839827657785,182.61634488665607,943.3803516816209,169.61638782385683,1014.0016172238487,208.87983981515958,997.6629248304453,222.72366755980954"
-      opacity="1530.440701935329"
       stroke-linejoin="round"
+      opacity="1530.440701935329"
     >
-      <title>4:0:f85</title>
+      <title>4:0.f85</title>
     </polygon>
     <polygon
       fill="#18f318"
@@ -1855,10 +1855,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="977.4612492713158,322.62211884799524,949.4249040951024,361.85948004720865,921.026692571832,371.0919337135525,833.8363002028975,430.3699200655843,801.1464863380028,410.0658123558268,737.1350242026784,430.8763784647184,768.1500578228041,404.65003390908544,733.9197272355593,399.0317323242989,766.7818503852276,388.72144885851594,747.3948310155719,361.18460973165315,782.9346646535098,383.6536054596694,796.6017089494537,346.3204838816381,798.9061455658956,378.6426542552979,832.1009453095203,400.00230508224047,890.1392977824398,318.06519619627295,949.1386495223421,300.24301714013393"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f96</title>
+      <title>4:0.f96</title>
     </polygon>
     <polygon
       fill="#18f318"
@@ -1871,7 +1871,7 @@
       stroke-linejoin="round"
       opacity="2951.843978647593"
     >
-      <title>4:0:f20</title>
+      <title>4:0.f20</title>
     </polygon>
     <polygon
       fill="#18f318"
@@ -1884,7 +1884,7 @@
       stroke-linejoin="round"
       opacity="120.9563799670641"
     >
-      <title>4:0:f31</title>
+      <title>4:0.f31</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -1897,7 +1897,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f42</title>
+      <title>4:0.f42</title>
     </polygon>
     <polygon
       fill="#12b612"
@@ -1910,7 +1910,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f53</title>
+      <title>4:0.f53</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -1923,7 +1923,7 @@
       stroke-linejoin="round"
       opacity="79.08421386086752"
     >
-      <title>4:0:f64</title>
+      <title>4:0.f64</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -1936,7 +1936,7 @@
       stroke-linejoin="round"
       opacity="2342.5197923200462"
     >
-      <title>4:0:f75</title>
+      <title>4:0.f75</title>
     </polygon>
     <polygon
       fill="#0e910e"
@@ -1949,7 +1949,7 @@
       stroke-linejoin="round"
       opacity="1055.5680303337012"
     >
-      <title>4:0:f86</title>
+      <title>4:0.f86</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -1962,7 +1962,7 @@
       stroke-linejoin="round"
       opacity="865.3107676905533"
     >
-      <title>4:0:f97</title>
+      <title>4:0.f97</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -1975,7 +1975,7 @@
       stroke-linejoin="round"
       opacity="2201.2840660810093"
     >
-      <title>4:0:f10</title>
+      <title>4:0.f10</title>
     </polygon>
     <polygon
       fill="#12b612"
@@ -1988,7 +1988,7 @@
       stroke-linejoin="round"
       opacity="2994.8829868972066"
     >
-      <title>4:0:f21</title>
+      <title>4:0.f21</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2001,7 +2001,7 @@
       stroke-linejoin="round"
       opacity="798.9326437140139"
     >
-      <title>4:0:f32</title>
+      <title>4:0.f32</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2014,7 +2014,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f43</title>
+      <title>4:0.f43</title>
     </polygon>
     <polygon
       fill="#18f318"
@@ -2027,7 +2027,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f54</title>
+      <title>4:0.f54</title>
     </polygon>
     <polygon
       fill="#18f318"
@@ -2040,7 +2040,7 @@
       stroke-linejoin="round"
       opacity="1763.6069027916674"
     >
-      <title>4:0:f65</title>
+      <title>4:0.f65</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2053,7 +2053,7 @@
       stroke-linejoin="round"
       opacity="624.2554144428562"
     >
-      <title>4:0:f76</title>
+      <title>4:0.f76</title>
     </polygon>
     <polygon
       fill="#12b612"
@@ -2066,7 +2066,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f87</title>
+      <title>4:0.f87</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2079,7 +2079,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f98</title>
+      <title>4:0.f98</title>
     </polygon>
     <polygon
       fill="#15d515"
@@ -2092,7 +2092,7 @@
       stroke-linejoin="round"
       opacity="5936.561408705238"
     >
-      <title>4:0:f11</title>
+      <title>4:0.f11</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2105,7 +2105,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f22</title>
+      <title>4:0.f22</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -2118,7 +2118,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f33</title>
+      <title>4:0.f33</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2131,7 +2131,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f44</title>
+      <title>4:0.f44</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -2144,7 +2144,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f55</title>
+      <title>4:0.f55</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2157,7 +2157,7 @@
       stroke-linejoin="round"
       opacity="835.8535023080183"
     >
-      <title>4:0:f66</title>
+      <title>4:0.f66</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2170,7 +2170,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f77</title>
+      <title>4:0.f77</title>
     </polygon>
     <polygon
       fill="#f33131"
@@ -2183,7 +2183,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f88</title>
+      <title>4:0.f88</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2196,7 +2196,7 @@
       stroke-linejoin="round"
       opacity="4338.521486905587"
     >
-      <title>4:0:f99</title>
+      <title>4:0.f99</title>
     </polygon>
     <polygon
       fill="#18f318"
@@ -2206,10 +2206,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="900.2907300812429,154.32315446019095,994.9723526715123,131.29878350285924,1063.3010694022835,165.6894176825556,965.9353382538917,191.3026414705647"
-      stroke-linejoin="round"
       opacity="4829.386767089742"
+      stroke-linejoin="round"
     >
-      <title>4:0:f12</title>
+      <title>4:0.f12</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2219,10 +2219,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1024.6327249200797,415.25239685758254,995.3206312232259,425.6583053380473,1011.2987071442158,437.3936587783884,1040.7945752441997,426.72631433573486"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f23</title>
+      <title>4:0.f23</title>
     </polygon>
     <polygon
       fill="#0e910e"
@@ -2232,10 +2232,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="869.8257914263748,437.1385799943007,903.2860658766979,458.33093779957994,918.6335153763283,470.90653980571926,885.1462715603271,449.77521484107683"
-      stroke-linejoin="round"
       opacity="95.53445330883233"
+      stroke-linejoin="round"
     >
-      <title>4:0:f34</title>
+      <title>4:0.f34</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -2245,10 +2245,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="937.5892066778827,699.622427574075,991.7305197778074,650.5441431409663,1020.6467899494804,676.9662984931331,965.4864713074983,727.37634885382"
-      stroke-linejoin="round"
       opacity="2849.6911179265016"
+      stroke-linejoin="round"
     >
-      <title>4:0:f45</title>
+      <title>4:0.f45</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2258,10 +2258,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="801.1464863380028,410.0658123558268,737.1350242026784,430.8763784647184,749.9436488624384,442.74395233522455,814.4581032774489,421.41053639367044"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f56</title>
+      <title>4:0.f56</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -2271,10 +2271,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="949.1386495223421,300.24301714013393,977.4612492713158,322.62211884799524,992.167280888772,332.3693758061672,963.8663463030867,309.96132482128905"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f67</title>
+      <title>4:0.f67</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2284,10 +2284,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="855.9455023427096,521.8315342115012,881.5141892751691,457.18771956100807,908.104314158981,479.3585981860422,881.5456101122422,545.1187553541671"
-      stroke-linejoin="round"
       opacity="2285.7673591036564"
+      stroke-linejoin="round"
     >
-      <title>4:0:f78</title>
+      <title>4:0.f78</title>
     </polygon>
     <polygon
       fill="#ec2f2f"
@@ -2297,10 +2297,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1040.7665085164717,210.73316811503264,1032.558344337626,224.00044031756124,1013.5461379338842,229.36968043071283,997.6629248304453,222.72366755980954,1014.0016172238487,208.87983981515958,1033.1710215128164,203.61550160277739"
-      stroke-linejoin="round"
       opacity="208.1685131647085"
+      stroke-linejoin="round"
     >
-      <title>4:0:f89</title>
+      <title>4:0.f89</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -2313,7 +2313,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f13</title>
+      <title>4:0.f13</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2326,7 +2326,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f24</title>
+      <title>4:0.f24</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2339,7 +2339,7 @@
       stroke-linejoin="round"
       opacity="2128.5517387195505"
     >
-      <title>4:0:f35</title>
+      <title>4:0.f35</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2352,7 +2352,7 @@
       stroke-linejoin="round"
       opacity="760.3024137188753"
     >
-      <title>4:0:f46</title>
+      <title>4:0.f46</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2365,7 +2365,7 @@
       stroke-linejoin="round"
       opacity="701.0083347834258"
     >
-      <title>4:0:f57</title>
+      <title>4:0.f57</title>
     </polygon>
     <polygon
       fill="#0e910e"
@@ -2378,7 +2378,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f68</title>
+      <title>4:0.f68</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -2391,7 +2391,7 @@
       stroke-linejoin="round"
       opacity="1609.8545721908185"
     >
-      <title>4:0:f79</title>
+      <title>4:0.f79</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2401,10 +2401,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1024.1671924841069,159.58606610205243,1022.3995318032551,227.86502141059032,1088.3663415696428,265.26731973369067,1092.1927768353,194.53459470163318"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f14</title>
+      <title>4:0.f14</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2414,10 +2414,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="904.1042304839788,489.77744092089654,871.1612606637502,469.7353699242824,886.2694290980933,482.61119127525444,919.2379192317687,502.5721102146383"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f25</title>
+      <title>4:0.f25</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -2427,10 +2427,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="965.4983410662827,371.4554075045654,1026.492593011501,351.2862613330194,1043.1492170419822,362.27740269527044,981.7528395650211,382.97135929669787"
-      stroke-linejoin="round"
       opacity="1006.3463302099102"
+      stroke-linejoin="round"
     >
-      <title>4:0:f36</title>
+      <title>4:0.f36</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2440,10 +2440,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="992.1388578991495,624.9657002650413,936.3796837271955,594.9987484354597,965.7897542241077,621.7517145420354,1021.4452668116936,651.1452482722942"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f47</title>
+      <title>4:0.f47</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2453,10 +2453,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="768.1500578228041,404.65003390908544,733.9197272355593,399.0317323242989,746.8743219674267,410.66477848440104,781.2942376753806,416.1375128340592"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f58</title>
+      <title>4:0.f58</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2466,10 +2466,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="962.8673085582027,482.07303117774904,937.1964574827697,517.6571554927633,963.4845285832901,539.8800994596872,989.7787768218036,503.57994176004036"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f69</title>
+      <title>4:0.f69</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2479,10 +2479,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1180.002142820668,454.65336210377313,1153.274025250022,512.0967473833942,1211.6979501440906,553.7994340214727,1240.3639306735643,494.56985183584686"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f0</title>
+      <title>4:0.f0</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2492,10 +2492,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1022.3995318032551,227.86502141059032,993.050933584977,269.02819070366627,1057.3383950325556,308.40340221320616,1088.3663415696428,265.26731973369067"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f15</title>
+      <title>4:0.f15</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2505,10 +2505,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="871.1612606637502,469.7353699242824,804.5845361752532,493.37036881318033,819.1652141897193,506.8798031213274,886.2694290980933,482.61119127525444"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f26</title>
+      <title>4:0.f26</title>
     </polygon>
     <polygon
       fill="#12b612"
@@ -2518,10 +2518,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1026.492593011501,351.2862613330194,1054.6079471066555,373.75547057987376,1071.189783067099,384.7460233101459,1043.1492170419822,362.27740269527044"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f37</title>
+      <title>4:0.f37</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2531,10 +2531,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="936.3796837271955,594.9987484354597,965.121280002166,526.899413988926,995.7372026434889,552.4270077042697,965.7897542241077,621.7517145420354"
-      stroke-linejoin="round"
       opacity="2818.627747778537"
+      stroke-linejoin="round"
     >
-      <title>4:0:f48</title>
+      <title>4:0.f48</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2544,10 +2544,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="733.9197272355593,399.0317323242989,766.7818503852276,388.72144885851594,780.0036315249017,400.09018782488647,746.8743219674267,410.66477848440104"
-      stroke-linejoin="round"
       opacity="509.92121144188377"
+      stroke-linejoin="round"
     >
-      <title>4:0:f59</title>
+      <title>4:0.f59</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2557,10 +2557,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1153.274025250022,512.0967473833942,1061.8442787211784,549.8191043212809,1118.6403411171373,594.7274536909163,1211.6979501440906,553.7994340214727"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f1</title>
+      <title>4:0.f1</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -2570,10 +2570,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="993.050933584977,269.02819070366627,1020.726650260678,292.4829683499555,1084.7551936390041,332.0203982243785,1057.3383950325556,308.40340221320616"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f16</title>
+      <title>4:0.f16</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2583,10 +2583,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="804.5845361752532,493.37036881318033,837.3509612931126,465.12881076091674,852.3051717471819,478.19818286001146,819.1652141897193,506.8798031213274"
-      stroke-linejoin="round"
       opacity="850.5668048867938"
+      stroke-linejoin="round"
     >
-      <title>4:0:f27</title>
+      <title>4:0.f27</title>
     </polygon>
     <polygon
       fill="#18f318"
@@ -2596,10 +2596,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1049.5821911752914,494.0447249931093,1047.2643657845556,549.5208547374444,1078.0085054881135,574.0907316782809,1081.2176524305987,517.9601541214844"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f38</title>
+      <title>4:0.f38</title>
     </polygon>
     <polygon
       fill="#15d515"
@@ -2609,10 +2609,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="965.121280002166,526.899413988926,994.3490361417774,486.5193613856462,1025.7752587416057,511.1224819667358,995.7372026434889,552.4270077042697"
-      stroke-linejoin="round"
       opacity="1988.0865303209862"
+      stroke-linejoin="round"
     >
-      <title>4:0:f49</title>
+      <title>4:0.f49</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2622,10 +2622,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1061.8442787211784,549.8191043212809,989.7787768218036,503.57994176004036,1047.2643657845556,549.5208547374444,1118.6403411171373,594.7274536909163"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f2</title>
+      <title>4:0.f2</title>
     </polygon>
     <polygon
       fill="#13bc13"
@@ -2635,10 +2635,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1020.726650260678,292.4829683499555,1042.7675904350806,430.42697412121754,1102.9748973181179,473.27534504441485,1084.7551936390041,332.0203982243785"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f17</title>
+      <title>4:0.f17</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2648,10 +2648,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="837.3509612931126,465.12881076091674,802.1909695171383,460.33835976478827,816.9665189154156,473.606597926512,852.3051717471819,478.19818286001146"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f28</title>
+      <title>4:0.f28</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -2661,10 +2661,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1047.2643657845556,549.5208547374444,1019.6290613465727,587.3425702083632,1049.6507203137949,612.7217485616002,1078.0085054881135,574.0907316782809"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f39</title>
+      <title>4:0.f39</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2674,10 +2674,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="989.7787768218036,503.57994176004036,936.7498072928007,523.9319331811624,992.9878963463874,571.7816346902218,1047.2643657845556,549.5208547374444"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f3</title>
+      <title>4:0.f3</title>
     </polygon>
     <polygon
       fill="#16df16"
@@ -2687,10 +2687,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1042.7675904350806,430.42697412121754,1088.2784839648864,490.75808369956314,1147.0514301070689,533.7881881235617,1102.9748973181179,473.27534504441485"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f18</title>
+      <title>4:0.f18</title>
     </polygon>
     <polygon
       fill="#15d515"
@@ -2700,10 +2700,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="802.1909695171383,460.33835976478827,836.4179353898737,448.59798627012515,851.4748312377529,461.5446472933302,816.9665189154156,473.606597926512"
-      stroke-linejoin="round"
       opacity="619.898505931456"
+      stroke-linejoin="round"
     >
-      <title>4:0:f29</title>
+      <title>4:0.f29</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2713,10 +2713,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="936.7498072928007,523.9319331811624,908.774651558027,507.243805765205,965.0519896984673,555.4644487868997,992.9878963463874,571.7816346902218"
-      stroke-linejoin="round"
       opacity="0.2"
+      stroke-linejoin="round"
     >
-      <title>4:0:f4</title>
+      <title>4:0.f4</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -2726,10 +2726,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1088.2784839648864,490.75808369956314,1110.0980291905496,506.3313443307537,1168.5222673857838,549.0892287516521,1147.0514301070689,533.7881881235617"
-      stroke-linejoin="round"
       opacity="23.101704282329138"
+      stroke-linejoin="round"
     >
-      <title>4:0:f19</title>
+      <title>4:0.f19</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2739,10 +2739,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="908.774651558027,507.243805765205,904.0795356306951,311.9327841390751,965.5391236018738,354.64274417189927,965.0519896984673,555.4644487868997"
-      stroke-linejoin="round"
       opacity="11803.206701766101"
+      stroke-linejoin="round"
     >
-      <title>4:0:f5</title>
+      <title>4:0.f5</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2755,7 +2755,7 @@
       stroke-linejoin="round"
       opacity="0.2"
     >
-      <title>4:0:f6</title>
+      <title>4:0.f6</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2768,7 +2768,7 @@
       stroke-linejoin="round"
       opacity="2009.7918724434028"
     >
-      <title>4:0:f7</title>
+      <title>4:0.f7</title>
     </polygon>
     <polygon
       fill="#17eb17"
@@ -2781,7 +2781,7 @@
       stroke-linejoin="round"
       opacity="6553.795586098267"
     >
-      <title>4:0:f8</title>
+      <title>4:0.f8</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2791,10 +2791,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="933.581445489543,235.8214763652419,837.0864354480965,244.46564145152433,898.8076003253816,286.19921799051735,997.7213453285665,275.27673331364133"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f9</title>
+      <title>4:0.f9</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2804,10 +2804,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1049.5821911752914,494.0447249931093,1047.2643657845556,549.5208547374444,1019.6290613465727,587.3425702083632,1018.8694794926107,613.4667432272188,1044.0041161073786,627.5534946476275,1043.484278884712,639.9955695881508,1017.4069288352554,663.7680059842098,937.5892066778827,699.622427574075,991.7305197778074,650.5441431409663,992.1388578991495,624.9657002650413,936.3796837271955,594.9987484354597,965.121280002166,526.899413988926,994.3490361417774,486.5193613856462,1022.8740707209361,475.7374997324356"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f90</title>
+      <title>4:0.f90</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2817,10 +2817,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="908.5512809934982,419.3495795642873,936.0383682875186,409.96662220612836,963.6655212921584,430.8919103738838,935.8346046369686,440.70928639258636"
-      opacity="834.3996210894929"
       stroke-linejoin="round"
+      opacity="834.3996210894929"
     >
-      <title>4:0:f80</title>
+      <title>4:0.f80</title>
     </polygon>
     <polygon
       fill="#11a611"
@@ -2830,10 +2830,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="1081.2176524305987,517.9601541214844,1078.0085054881135,574.0907316782809,1049.6507203137949,612.7217485616002,1048.4826189746245,639.1120697710414,1073.5012154456308,652.9268827909564,1072.7832631297354,665.484449917579,1046.2354155166638,689.8819979355608,965.4864713074983,727.37634885382,1020.6467899494804,676.9662984931331,1021.4452668116936,651.1452482722942,965.7897542241077,621.7517145420354,995.7372026434889,552.4270077042697,1025.7752587416057,511.1224819667358,1054.6487329394877,499.8041838111251"
-      opacity="1467.7662503498705"
       stroke-linejoin="round"
+      opacity="1467.7662503498705"
     >
-      <title>4:0:f91</title>
+      <title>4:0.f91</title>
     </polygon>
     <polygon
       fill="#18ec18"
@@ -2843,10 +2843,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="937.1964574827697,517.6571554927633,937.4686974779298,542.9727100985493,963.4420391297801,565.4659289786526,963.4845285832901,539.8800994596872"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f70</title>
+      <title>4:0.f70</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2856,10 +2856,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="936.0383682875186,409.96662220612836,962.9384941784052,428.5447729542617,990.534532919789,449.4065237413706,963.6655212921584,430.8919103738838"
-      opacity="48.500354688779225"
       stroke-linejoin="round"
+      opacity="48.500354688779225"
     >
-      <title>4:0:f81</title>
+      <title>4:0.f81</title>
     </polygon>
     <polygon
       fill="#0d800d"
@@ -2869,10 +2869,10 @@
       stroke-width="2"
       transform="scale(1)"
       points="962.9384941784052,428.5447729542617,962.8673085582027,482.07303117774904,937.1964574827697,517.6571554927633,937.4686974779298,542.9727100985493,962.7667702004327,557.6731757120729,962.7506952889802,569.7607575677634,937.9941314145792,591.8327297556737,860.9376430559788,623.3647194805985,912.2276491802868,577.8986330042977,911.6518473143516,553.0662886430646,855.9455023427096,521.8315342115012,881.5141892751691,457.18771956100807,908.5512809934982,419.3495795642873,936.0383682875186,409.96662220612836"
-      opacity="0.2"
       stroke-linejoin="round"
+      opacity="0.2"
     >
-      <title>4:0:f92</title>
+      <title>4:0.f92</title>
     </polygon>
     <title>`dino`.mesh</title>
   </g>

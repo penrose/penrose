@@ -401,7 +401,7 @@
   </g>
   <g>
     <marker
-      id="path-trace__registry-RockfallLlama5064-16:0:normalArrow-endArrowId"
+      id="path-trace__registry-RockfallLlama5064-16:0.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -424,9 +424,9 @@
       stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      marker-end="url(#path-trace__registry-RockfallLlama5064-16:0:normalArrow-endArrowId)"
+      marker-end="url(#path-trace__registry-RockfallLlama5064-16:0.normalArrow-endArrowId)"
     />
-    <title>16:0:normalArrow</title>
+    <title>16:0.normalArrow</title>
   </g>
   <circle
     fill="#000000"
@@ -460,7 +460,7 @@
       rx="2"
       transform="rotate(0, 183.54928213660247, 74.11935566371821)"
     >
-      <title>10:0:viewfinder</title>
+      <title>10:0.viewfinder</title>
     </rect>
     <rect
       x="174.34928213660248"
@@ -473,7 +473,7 @@
       rx="0"
       transform="rotate(0, 175.54928213660247, 74.11935566371821)"
     >
-      <title>10:0:shutterRelease</title>
+      <title>10:0.shutterRelease</title>
     </rect>
     <rect
       x="171.54928213660247"
@@ -488,7 +488,7 @@
       rx="2"
       transform="rotate(0, 183.54928213660247, 82.36935566371821)"
     >
-      <title>10:0:body</title>
+      <title>10:0.body</title>
     </rect>
     <circle
       fill="#ffffff"
@@ -500,7 +500,7 @@
       stroke-width="0.8"
       r="1.155"
     >
-      <title>10:0:flash</title>
+      <title>10:0.flash</title>
     </circle>
     <circle
       fill="#cccccc"
@@ -512,7 +512,7 @@
       stroke-width="1"
       r="6.2700000000000005"
     >
-      <title>10:0:outerLens</title>
+      <title>10:0.outerLens</title>
     </circle>
     <circle
       fill="#227788"
@@ -573,7 +573,7 @@
   </g>
   <g>
     <marker
-      id="path-trace__registry-RockfallLlama5064-16:1:normalArrow-endArrowId"
+      id="path-trace__registry-RockfallLlama5064-16:1.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -596,9 +596,9 @@
       stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      marker-end="url(#path-trace__registry-RockfallLlama5064-16:1:normalArrow-endArrowId)"
+      marker-end="url(#path-trace__registry-RockfallLlama5064-16:1.normalArrow-endArrowId)"
     />
-    <title>16:1:normalArrow</title>
+    <title>16:1.normalArrow</title>
   </g>
   <circle
     fill="#000000"
@@ -655,7 +655,7 @@
   </g>
   <g>
     <marker
-      id="path-trace__registry-RockfallLlama5064-16:2:normalArrow-endArrowId"
+      id="path-trace__registry-RockfallLlama5064-16:2.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -678,9 +678,9 @@
       stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      marker-end="url(#path-trace__registry-RockfallLlama5064-16:2:normalArrow-endArrowId)"
+      marker-end="url(#path-trace__registry-RockfallLlama5064-16:2.normalArrow-endArrowId)"
     />
-    <title>16:2:normalArrow</title>
+    <title>16:2.normalArrow</title>
   </g>
   <circle
     fill="#000000"

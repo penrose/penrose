@@ -231,7 +231,7 @@
       rx="2"
       transform="rotate(0, 92.91563852774347, 142.03369821239644)"
     >
-      <title>10:0:viewfinder</title>
+      <title>10:0.viewfinder</title>
     </rect>
     <rect
       x="83.71563852774347"
@@ -244,7 +244,7 @@
       rx="0"
       transform="rotate(0, 84.91563852774347, 142.03369821239644)"
     >
-      <title>10:0:shutterRelease</title>
+      <title>10:0.shutterRelease</title>
     </rect>
     <rect
       x="80.91563852774347"
@@ -259,7 +259,7 @@
       rx="2"
       transform="rotate(0, 92.91563852774347, 150.28369821239644)"
     >
-      <title>10:0:body</title>
+      <title>10:0.body</title>
     </rect>
     <circle
       fill="#ffffff"
@@ -271,7 +271,7 @@
       stroke-width="0.8"
       r="1.155"
     >
-      <title>10:0:flash</title>
+      <title>10:0.flash</title>
     </circle>
     <circle
       fill="#cccccc"
@@ -283,7 +283,7 @@
       stroke-width="1"
       r="6.2700000000000005"
     >
-      <title>10:0:outerLens</title>
+      <title>10:0.outerLens</title>
     </circle>
     <circle
       fill="#227788"
@@ -301,7 +301,7 @@
   </g>
   <g>
     <marker
-      id="bidirectional__registry-SunflowerDolphin187-16:3:normalArrow-endArrowId"
+      id="bidirectional__registry-SunflowerDolphin187-16:3.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -324,9 +324,9 @@
       stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      marker-end="url(#bidirectional__registry-SunflowerDolphin187-16:3:normalArrow-endArrowId)"
+      marker-end="url(#bidirectional__registry-SunflowerDolphin187-16:3.normalArrow-endArrowId)"
     />
-    <title>16:3:normalArrow</title>
+    <title>16:3.normalArrow</title>
   </g>
   <circle
     fill="#000000"
@@ -626,7 +626,7 @@
   </g>
   <g>
     <marker
-      id="bidirectional__registry-SunflowerDolphin187-16:0:normalArrow-endArrowId"
+      id="bidirectional__registry-SunflowerDolphin187-16:0.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -649,9 +649,9 @@
       stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      marker-end="url(#bidirectional__registry-SunflowerDolphin187-16:0:normalArrow-endArrowId)"
+      marker-end="url(#bidirectional__registry-SunflowerDolphin187-16:0.normalArrow-endArrowId)"
     />
-    <title>16:0:normalArrow</title>
+    <title>16:0.normalArrow</title>
   </g>
   <circle
     fill="#000000"
@@ -727,12 +727,12 @@
     visibility=""
     paint-order="stroke"
   >
-    <title>18:0:notVisible</title>
+    <title>18:0.notVisible</title>
     ×
   </text>
   <g>
     <marker
-      id="bidirectional__registry-SunflowerDolphin187-16:1:normalArrow-endArrowId"
+      id="bidirectional__registry-SunflowerDolphin187-16:1.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -755,9 +755,9 @@
       stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      marker-end="url(#bidirectional__registry-SunflowerDolphin187-16:1:normalArrow-endArrowId)"
+      marker-end="url(#bidirectional__registry-SunflowerDolphin187-16:1.normalArrow-endArrowId)"
     />
-    <title>16:1:normalArrow</title>
+    <title>16:1.normalArrow</title>
   </g>
   <circle
     fill="#000000"
@@ -814,7 +814,7 @@
   </g>
   <g>
     <marker
-      id="bidirectional__registry-SunflowerDolphin187-16:2:normalArrow-endArrowId"
+      id="bidirectional__registry-SunflowerDolphin187-16:2.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -837,9 +837,9 @@
       stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      marker-end="url(#bidirectional__registry-SunflowerDolphin187-16:2:normalArrow-endArrowId)"
+      marker-end="url(#bidirectional__registry-SunflowerDolphin187-16:2.normalArrow-endArrowId)"
     />
-    <title>16:2:normalArrow</title>
+    <title>16:2.normalArrow</title>
   </g>
   <circle
     fill="#000000"

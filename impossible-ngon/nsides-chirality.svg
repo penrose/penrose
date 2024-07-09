@@ -50,7 +50,7 @@
     cw
   </text>
   <g transform="rotate(0, 415, 20)translate(402.0568, 9.8168)">
-    <title>3:4:nSides</title>
+    <title>3:4.nSides</title>
     <svg
       style="font-size: 24px"
       xmlns="http://www.w3.org/2000/svg"
@@ -87,7 +87,7 @@
     </svg>
   </g>
   <g transform="rotate(0, 245, 20)translate(232.0568, 9.8168)">
-    <title>3:2:nSides</title>
+    <title>3:2.nSides</title>
     <svg
       style="font-size: 24px"
       xmlns="http://www.w3.org/2000/svg"
@@ -124,7 +124,7 @@
     </svg>
   </g>
   <g transform="rotate(0, 160, 20)translate(147.0568, 10.004000000000001)">
-    <title>3:1:nSides</title>
+    <title>3:1.nSides</title>
     <svg
       style="font-size: 24px"
       xmlns="http://www.w3.org/2000/svg"
@@ -163,7 +163,7 @@
   <g
     transform="rotate(0, 75, 20)translate(62.056799999999996, 10.004000000000001)"
   >
-    <title>3:0:nSides</title>
+    <title>3:0.nSides</title>
     <svg
       style="font-size: 24px"
       xmlns="http://www.w3.org/2000/svg"
@@ -200,7 +200,7 @@
     </svg>
   </g>
   <g transform="rotate(0, 330, 20)translate(317.0568, 10.004000000000001)">
-    <title>3:3:nSides</title>
+    <title>3:3.nSides</title>
     <svg
       style="font-size: 24px"
       xmlns="http://www.w3.org/2000/svg"
@@ -237,7 +237,7 @@
     </svg>
   </g>
   <g transform="rotate(0, 500, 20)translate(487.0568, 9.8168)">
-    <title>3:5:nSides</title>
+    <title>3:5.nSides</title>
     <svg
       style="font-size: 24px"
       xmlns="http://www.w3.org/2000/svg"
@@ -274,7 +274,7 @@
     </svg>
   </g>
   <g transform="rotate(0, 585, 20)translate(572.0568, 9.8168)">
-    <title>3:6:nSides</title>
+    <title>3:6.nSides</title>
     <svg
       style="font-size: 24px"
       xmlns="http://www.w3.org/2000/svg"
@@ -311,7 +311,7 @@
     </svg>
   </g>
   <g transform="rotate(0, 755, 20)translate(742.0568, 9.8168)">
-    <title>3:8:nSides</title>
+    <title>3:8.nSides</title>
     <svg
       style="font-size: 24px"
       xmlns="http://www.w3.org/2000/svg"
@@ -348,7 +348,7 @@
     </svg>
   </g>
   <g transform="rotate(0, 670, 20)translate(657.0568, 9.8168)">
-    <title>3:7:nSides</title>
+    <title>3:7.nSides</title>
     <svg
       style="font-size: 24px"
       xmlns="http://www.w3.org/2000/svg"

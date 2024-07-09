@@ -28,7 +28,7 @@
     stroke-linecap="butt"
     d="M 400 350 L 387.41945374747513 365.54765878969334 L 402.96711891367215 378.1282006658989 L 415.547665166197 362.58054187620553 Z "
   >
-    <title>6:0:perpMark</title>
+    <title>6:0.perpMark</title>
   </path>
   <g>
     <marker

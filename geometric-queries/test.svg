@@ -833,7 +833,7 @@
     transform="scale(1)"
     points="303.17073184005096,409.1772249088831,303.17073184005096,409.1772249088831,303.17073184005096,409.1772249088831"
   >
-    <title>17:1:perpMark</title>
+    <title>17:1.perpMark</title>
   </polyline>
   <g fill="none">
     <marker
@@ -1161,7 +1161,7 @@
     transform="scale(1)"
     points="658.704289544574,537.9234213880642,653.233871419934,550.8104085741809,666.1208586060507,556.2808266988209"
   >
-    <title>17:2:perpMark</title>
+    <title>17:2.perpMark</title>
   </polyline>
   <polyline
     fill="none"
@@ -1172,7 +1172,7 @@
     transform="scale(1)"
     points="503.19213531416335,126.2994738980849,503.19213531416335,126.2994738980849,503.19213531416335,126.2994738980849"
   >
-    <title>17:4:perpMark</title>
+    <title>17:4.perpMark</title>
   </polyline>
   <polyline
     fill="none"
@@ -1183,7 +1183,7 @@
     transform="scale(1)"
     points="140.09137256340034,398.0010187352131,140.09137256340034,398.0010187352131,140.09137256340034,398.0010187352131"
   >
-    <title>17:0:perpMark</title>
+    <title>17:0.perpMark</title>
   </polyline>
   <polyline
     fill="none"
@@ -1194,7 +1194,7 @@
     transform="scale(1)"
     points="188.1691979408728,250.88874024790897,192.02517008584485,237.43023240397196,178.56666224190784,233.5742602589999"
   >
-    <title>17:3:perpMark</title>
+    <title>17:3.perpMark</title>
   </polyline>
   <polyline
     fill="none"
@@ -1205,7 +1205,7 @@
     transform="scale(1)"
     points="754.916378733911,144.89528143449485,764.5204102701216,155.08166940332262,774.7067982389493,145.47763786711195"
   >
-    <title>17:5:perpMark</title>
+    <title>17:5.perpMark</title>
   </polyline>
   <text
     fill="#000000"

@@ -17,11 +17,11 @@
     stroke-linecap="butt"
     d="M 114.63350465102498 65.19832858173264 Q 94.69128411363907 69.09357482773272 76.95824507425334 61.193927385831515"
   >
-    <title>7:1:pathOutline</title>
+    <title>7:1.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:1:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:1.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -43,9 +43,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 114.63350465102498 65.19832858173264 Q 94.69128411363907 69.09357482773272 76.95824507425334 61.193927385831515"
-      marker-end="url(#quaternion-cayley-graph__7:1:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:1.orientedPath-endArrowId)"
     />
-    <title>7:1:orientedPath</title>
+    <title>7:1.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -55,11 +55,11 @@
     stroke-linecap="butt"
     d="M 114.63350465102498 65.19832858173264 Q 77.8712702910378 77.75453232854194 39.4957869953772 78.41967103173347"
   >
-    <title>7:9:pathOutline</title>
+    <title>7:9.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:9:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:9.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -81,9 +81,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 114.63350465102498 65.19832858173264 Q 77.8712702910378 77.75453232854194 39.4957869953772 78.41967103173347"
-      marker-end="url(#quaternion-cayley-graph__7:9:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:9.orientedPath-endArrowId)"
     />
-    <title>7:9:orientedPath</title>
+    <title>7:9.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -93,11 +93,11 @@
     stroke-linecap="butt"
     d="M 84.40616141774325 100.50946062019031 Q 104.13791126040344 97.00142625385526 121.39610336148668 105.23568774902382"
   >
-    <title>7:2:pathOutline</title>
+    <title>7:2.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:2:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:2.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -119,9 +119,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 84.40616141774325 100.50946062019031 Q 104.13791126040344 97.00142625385526 121.39610336148668 105.23568774902382"
-      marker-end="url(#quaternion-cayley-graph__7:2:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:2.orientedPath-endArrowId)"
     />
-    <title>7:2:orientedPath</title>
+    <title>7:2.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -131,11 +131,11 @@
     stroke-linecap="butt"
     d="M 116.35670312303058 151.41418391177842 Q 108.09651666356618 113.45513059915825 111.83393403494125 75.25628087658671"
   >
-    <title>7:0:pathOutline</title>
+    <title>7:0.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:0:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:0.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -157,9 +157,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 116.35670312303058 151.41418391177842 Q 108.09651666356618 113.45513059915825 111.83393403494125 75.25628087658671"
-      marker-end="url(#quaternion-cayley-graph__7:0:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:0.orientedPath-endArrowId)"
     />
-    <title>7:0:orientedPath</title>
+    <title>7:0.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -169,11 +169,11 @@
     stroke-linecap="butt"
     d="M 42.033661436814185 119.97395187434739 Q 80.50799124240623 108.19513037666172 120.29482868761046 108.3443147347744"
   >
-    <title>7:13:pathOutline</title>
+    <title>7:13.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:13:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:13.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -195,9 +195,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 42.033661436814185 119.97395187434739 Q 80.50799124240623 108.19513037666172 120.29482868761046 108.3443147347744"
-      marker-end="url(#quaternion-cayley-graph__7:13:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:13.orientedPath-endArrowId)"
     />
-    <title>7:13:orientedPath</title>
+    <title>7:13.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -207,11 +207,11 @@
     stroke-linecap="butt"
     d="M 67.68146237550232 56.40421938218936 Q 63.68358247126248 86.35841335165598 48.5573064137165 111.82275219483166"
   >
-    <title>7:4:pathOutline</title>
+    <title>7:4.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:4:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:4.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -233,9 +233,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 67.68146237550232 56.40421938218936 Q 63.68358247126248 86.35841335165598 48.5573064137165 111.82275219483166"
-      marker-end="url(#quaternion-cayley-graph__7:4:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:4.orientedPath-endArrowId)"
     />
-    <title>7:4:orientedPath</title>
+    <title>7:4.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -245,11 +245,11 @@
     stroke-linecap="butt"
     d="M 130.56296047734546 110.2325598323805 Q 109.27398745344075 131.68050558865218 81.83273420648918 142.82556592106775"
   >
-    <title>7:7:pathOutline</title>
+    <title>7:7.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:7:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:7.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -271,9 +271,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 130.56296047734546 110.2325598323805 Q 109.27398745344075 131.68050558865218 81.83273420648918 142.82556592106775"
-      marker-end="url(#quaternion-cayley-graph__7:7:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:7.orientedPath-endArrowId)"
     />
-    <title>7:7:orientedPath</title>
+    <title>7:7.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -283,11 +283,11 @@
     stroke-linecap="butt"
     d="M 71.70892629751404 145.37674475097612 Q 90.0829417535579 140.29308791295432 106.84890774497309 147.10120036799012"
   >
-    <title>7:14:pathOutline</title>
+    <title>7:14.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:14:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:14.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -309,9 +309,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 71.70892629751404 145.37674475097612 Q 90.0829417535579 140.29308791295432 106.84890774497309 147.10120036799012"
-      marker-end="url(#quaternion-cayley-graph__7:14:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:14.orientedPath-endArrowId)"
     />
-    <title>7:14:orientedPath</title>
+    <title>7:14.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -321,11 +321,11 @@
     stroke-linecap="butt"
     d="M 67.68146237550232 56.40421938218936 Q 76.96142184517272 95.55644627814573 74.25365672301507 135.25131404104928"
   >
-    <title>7:12:pathOutline</title>
+    <title>7:12.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:12:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:12.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -347,9 +347,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 67.68146237550232 56.40421938218936 Q 76.96142184517272 95.55644627814573 74.25365672301507 135.25131404104928"
-      marker-end="url(#quaternion-cayley-graph__7:12:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:12.orientedPath-endArrowId)"
     />
-    <title>7:12:orientedPath</title>
+    <title>7:12.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -359,11 +359,11 @@
     stroke-linecap="butt"
     d="M 130.56296047734546 110.2325598323805 Q 117.19489233384915 94.93028407743705 115.1399443497753 75.62634463616646"
   >
-    <title>7:15:pathOutline</title>
+    <title>7:15.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:15:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:15.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -385,9 +385,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 130.56296047734546 110.2325598323805 Q 117.19489233384915 94.93028407743705 115.1399443497753 75.62634463616646"
-      marker-end="url(#quaternion-cayley-graph__7:15:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:15.orientedPath-endArrowId)"
     />
-    <title>7:15:orientedPath</title>
+    <title>7:15.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -397,11 +397,11 @@
     stroke-linecap="butt"
     d="M 84.40616141774325 100.50946062019031 Q 70.80389282626541 85.79122805583387 68.42200576845903 66.81822895982793"
   >
-    <title>7:10:pathOutline</title>
+    <title>7:10.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:10:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:10.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -423,9 +423,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 84.40616141774325 100.50946062019031 Q 70.80389282626541 85.79122805583387 68.42200576845903 66.81822895982793"
-      marker-end="url(#quaternion-cayley-graph__7:10:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:10.orientedPath-endArrowId)"
     />
-    <title>7:10:orientedPath</title>
+    <title>7:10.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -435,11 +435,11 @@
     stroke-linecap="butt"
     d="M 116.35670312303058 151.41418391177842 Q 96.68710464239199 134.18386236422236 87.18134483761582 110.57416911006047"
   >
-    <title>7:8:pathOutline</title>
+    <title>7:8.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:8:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:8.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -461,9 +461,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 116.35670312303058 151.41418391177842 Q 96.68710464239199 134.18386236422236 87.18134483761582 110.57416911006047"
-      marker-end="url(#quaternion-cayley-graph__7:8:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:8.orientedPath-endArrowId)"
     />
-    <title>7:8:orientedPath</title>
+    <title>7:8.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -473,11 +473,11 @@
     stroke-linecap="butt"
     d="M 42.033661436814185 119.97395187434739 Q 77.51222839785832 126.8386929020845 108.315636588774 144.75526140196808"
   >
-    <title>7:5:pathOutline</title>
+    <title>7:5.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:5:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:5.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -499,9 +499,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 42.033661436814185 119.97395187434739 Q 77.51222839785832 126.8386929020845 108.315636588774 144.75526140196808"
-      marker-end="url(#quaternion-cayley-graph__7:5:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:5.orientedPath-endArrowId)"
     />
-    <title>7:5:orientedPath</title>
+    <title>7:5.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -511,11 +511,11 @@
     stroke-linecap="butt"
     d="M 29.18325389177737 76.79127888389021 Q 41.370813035145886 91.451146517468 42.056832300661384 109.53367107778503"
   >
-    <title>7:11:pathOutline</title>
+    <title>7:11.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:11:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:11.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -537,9 +537,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 29.18325389177737 76.79127888389021 Q 41.370813035145886 91.451146517468 42.056832300661384 109.53367107778503"
-      marker-end="url(#quaternion-cayley-graph__7:11:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:11.orientedPath-endArrowId)"
     />
-    <title>7:11:orientedPath</title>
+    <title>7:11.orientedPath</title>
   </g>
   <path
     fill="none"
@@ -549,11 +549,11 @@
     stroke-linecap="butt"
     d="M 29.18325389177737 76.79127888389021 Q 55.160320693929634 79.78590252257483 76.4017172524737 93.80656023266535"
   >
-    <title>7:3:pathOutline</title>
+    <title>7:3.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:3:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:3.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -575,9 +575,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 29.18325389177737 76.79127888389021 Q 55.160320693929634 79.78590252257483 76.4017172524737 93.80656023266535"
-      marker-end="url(#quaternion-cayley-graph__7:3:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:3.orientedPath-endArrowId)"
     />
-    <title>7:3:orientedPath</title>
+    <title>7:3.orientedPath</title>
   </g>
   <circle
     fill="#000000"
@@ -587,7 +587,7 @@
     stroke="none"
     r="7.5"
   >
-    <title>4:0:identityMarker</title>
+    <title>4:0.identityMarker</title>
   </circle>
   <path
     fill="none"
@@ -597,11 +597,11 @@
     stroke-linecap="butt"
     d="M 71.70892629751404 145.37674475097612 Q 46.70675004962668 119.28567847901587 31.903227386313773 86.8710479382396"
   >
-    <title>7:6:pathOutline</title>
+    <title>7:6.pathOutline</title>
   </path>
   <g>
     <marker
-      id="quaternion-cayley-graph__7:6:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:6.orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -623,9 +623,9 @@
       stroke-width="1"
       stroke-linecap="butt"
       d="M 71.70892629751404 145.37674475097612 Q 46.70675004962668 119.28567847901587 31.903227386313773 86.8710479382396"
-      marker-end="url(#quaternion-cayley-graph__7:6:orientedPath-endArrowId)"
+      marker-end="url(#quaternion-cayley-graph__7:6.orientedPath-endArrowId)"
     />
-    <title>7:6:orientedPath</title>
+    <title>7:6.orientedPath</title>
   </g>
   <circle
     fill="#cccccc"

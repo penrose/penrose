@@ -20,10 +20,10 @@
     rx="2"
     transform="rotate(0, 165, 145)"
   >
-    <title>4:45:productShape</title>
+    <title>4:45.productShape</title>
   </rect>
   <g transform="rotate(0, 165, 145)translate(159.888, 142.008)">
-    <title>4:45:productText</title>
+    <title>4:45.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -68,10 +68,10 @@
     rx="2"
     transform="rotate(0, 142.5, 167.5)"
   >
-    <title>4:38:productShape</title>
+    <title>4:38.productShape</title>
   </rect>
   <g transform="rotate(0, 142.5, 167.5)translate(140.852, 164.04)">
-    <title>4:38:productText</title>
+    <title>4:38.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -110,10 +110,10 @@
     rx="2"
     transform="rotate(0, 165, 32.5)"
   >
-    <title>4:40:productShape</title>
+    <title>4:40.productShape</title>
   </rect>
   <g transform="rotate(0, 165, 32.5)translate(160.508, 29.528)">
-    <title>4:40:productText</title>
+    <title>4:40.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -158,10 +158,10 @@
     rx="2"
     transform="rotate(0, 187.5, 100)"
   >
-    <title>4:51:productShape</title>
+    <title>4:51.productShape</title>
   </rect>
   <g transform="rotate(0, 187.5, 100)translate(183.008, 97.028)">
-    <title>4:51:productText</title>
+    <title>4:51.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -206,10 +206,10 @@
     rx="2"
     transform="rotate(0, 52.5, 100)"
   >
-    <title>4:3:productShape</title>
+    <title>4:3.productShape</title>
   </rect>
   <g transform="rotate(0, 52.5, 100)translate(50.416, 97.18)">
-    <title>4:3:productText</title>
+    <title>4:3.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -248,10 +248,10 @@
     rx="2"
     transform="rotate(0, 75, 100)"
   >
-    <title>4:11:productShape</title>
+    <title>4:11.productShape</title>
   </rect>
   <g transform="rotate(0, 75, 100)translate(70.24, 96.54)">
-    <title>4:11:productText</title>
+    <title>4:11.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -296,10 +296,10 @@
     rx="2"
     transform="rotate(0, 120, 77.5)"
   >
-    <title>4:26:productShape</title>
+    <title>4:26.productShape</title>
   </rect>
   <g transform="rotate(0, 120, 77.5)translate(115.508, 74.528)">
-    <title>4:26:productText</title>
+    <title>4:26.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -344,10 +344,10 @@
     rx="2"
     transform="rotate(0, 165, 100)"
   >
-    <title>4:43:productShape</title>
+    <title>4:43.productShape</title>
   </rect>
   <g transform="rotate(0, 165, 100)translate(163.352, 96.54)">
-    <title>4:43:productText</title>
+    <title>4:43.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -386,10 +386,10 @@
     rx="2"
     transform="rotate(0, 142.5, 77.5)"
   >
-    <title>4:34:productShape</title>
+    <title>4:34.productShape</title>
   </rect>
   <g transform="rotate(0, 142.5, 77.5)translate(137.74, 74.04)">
-    <title>4:34:productText</title>
+    <title>4:34.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -434,10 +434,10 @@
     rx="2"
     transform="rotate(0, 52.5, 167.5)"
   >
-    <title>4:6:productShape</title>
+    <title>4:6.productShape</title>
   </rect>
   <g transform="rotate(0, 52.5, 167.5)translate(47.74, 164.04)">
-    <title>4:6:productText</title>
+    <title>4:6.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -482,10 +482,10 @@
     rx="2"
     transform="rotate(0, 210, 122.5)"
   >
-    <title>4:60:productShape</title>
+    <title>4:60.productShape</title>
   </rect>
   <g transform="rotate(0, 210, 122.5)translate(207.916, 119.68)">
-    <title>4:60:productText</title>
+    <title>4:60.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -524,10 +524,10 @@
     rx="2"
     transform="rotate(0, 52.5, 77.5)"
   >
-    <title>4:2:productShape</title>
+    <title>4:2.productShape</title>
   </rect>
   <g transform="rotate(0, 52.5, 77.5)translate(50.852, 74.04)">
-    <title>4:2:productText</title>
+    <title>4:2.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -566,10 +566,10 @@
     rx="2"
     transform="rotate(0, 75, 77.5)"
   >
-    <title>4:10:productShape</title>
+    <title>4:10.productShape</title>
   </rect>
   <g transform="rotate(0, 75, 77.5)translate(72.916, 74.68)">
-    <title>4:10:productText</title>
+    <title>4:10.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -608,10 +608,10 @@
     rx="2"
     transform="rotate(0, 142.5, 122.5)"
   >
-    <title>4:36:productShape</title>
+    <title>4:36.productShape</title>
   </rect>
   <g transform="rotate(0, 142.5, 122.5)translate(140.5, 119.836)">
-    <title>4:36:productText</title>
+    <title>4:36.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -650,10 +650,10 @@
     rx="2"
     transform="rotate(0, 142.5, 145)"
   >
-    <title>4:37:productShape</title>
+    <title>4:37.productShape</title>
   </rect>
   <g transform="rotate(0, 142.5, 145)translate(141.12, 142.312)">
-    <title>4:37:productText</title>
+    <title>4:37.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -692,10 +692,10 @@
     rx="2"
     transform="rotate(0, 142.5, 55)"
   >
-    <title>4:33:productShape</title>
+    <title>4:33.productShape</title>
   </rect>
   <g transform="rotate(0, 142.5, 55)translate(138.008, 52.028)">
-    <title>4:33:productText</title>
+    <title>4:33.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -740,10 +740,10 @@
     rx="2"
     transform="rotate(0, 52.5, 190)"
   >
-    <title>4:7:productShape</title>
+    <title>4:7.productShape</title>
   </rect>
   <g transform="rotate(0, 52.5, 190)translate(47.304, 186.896)">
-    <title>4:7:productText</title>
+    <title>4:7.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -788,10 +788,10 @@
     rx="2"
     transform="rotate(0, 75, 145)"
   >
-    <title>4:13:productShape</title>
+    <title>4:13.productShape</title>
   </rect>
   <g transform="rotate(0, 75, 145)translate(73, 142.336)">
-    <title>4:13:productText</title>
+    <title>4:13.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -830,10 +830,10 @@
     rx="2"
     transform="rotate(0, 75, 55)"
   >
-    <title>4:9:productShape</title>
+    <title>4:9.productShape</title>
   </rect>
   <g transform="rotate(0, 75, 55)translate(69.888, 52.008)">
-    <title>4:9:productText</title>
+    <title>4:9.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -878,10 +878,10 @@
     rx="2"
     transform="rotate(0, 142.5, 32.5)"
   >
-    <title>4:32:productShape</title>
+    <title>4:32.productShape</title>
   </rect>
   <g transform="rotate(0, 142.5, 32.5)translate(137.388, 29.508)">
-    <title>4:32:productText</title>
+    <title>4:32.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -926,10 +926,10 @@
     rx="2"
     transform="rotate(0, 165, 190)"
   >
-    <title>4:47:productShape</title>
+    <title>4:47.productShape</title>
   </rect>
   <g transform="rotate(0, 165, 190)translate(160.24, 186.54)">
-    <title>4:47:productText</title>
+    <title>4:47.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -974,10 +974,10 @@
     rx="2"
     transform="rotate(0, 120, 167.5)"
   >
-    <title>4:30:productShape</title>
+    <title>4:30.productShape</title>
   </rect>
   <g transform="rotate(0, 120, 167.5)translate(118.62, 164.812)">
-    <title>4:30:productText</title>
+    <title>4:30.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1016,10 +1016,10 @@
     rx="2"
     transform="rotate(0, 120, 32.5)"
   >
-    <title>4:24:productShape</title>
+    <title>4:24.productShape</title>
   </rect>
   <g transform="rotate(0, 120, 32.5)translate(117.916, 29.68)">
-    <title>4:24:productText</title>
+    <title>4:24.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1058,10 +1058,10 @@
     rx="2"
     transform="rotate(0, 52.5, 145)"
   >
-    <title>4:5:productShape</title>
+    <title>4:5.productShape</title>
   </rect>
   <g transform="rotate(0, 52.5, 145)translate(48.008, 142.028)">
-    <title>4:5:productText</title>
+    <title>4:5.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1106,10 +1106,10 @@
     rx="2"
     transform="rotate(0, 210, 167.5)"
   >
-    <title>4:62:productShape</title>
+    <title>4:62.productShape</title>
   </rect>
   <g transform="rotate(0, 210, 167.5)translate(205.508, 164.528)">
-    <title>4:62:productText</title>
+    <title>4:62.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1154,10 +1154,10 @@
     rx="2"
     transform="rotate(0, 97.5, 167.5)"
   >
-    <title>4:22:productShape</title>
+    <title>4:22.productShape</title>
   </rect>
   <g transform="rotate(0, 97.5, 167.5)translate(95.5, 164.836)">
-    <title>4:22:productText</title>
+    <title>4:22.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1196,10 +1196,10 @@
     rx="2"
     transform="rotate(0, 75, 167.5)"
   >
-    <title>4:14:productShape</title>
+    <title>4:14.productShape</title>
   </rect>
   <g transform="rotate(0, 75, 167.5)translate(69.804, 164.396)">
-    <title>4:14:productText</title>
+    <title>4:14.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1244,10 +1244,10 @@
     rx="2"
     transform="rotate(0, 210, 55)"
   >
-    <title>4:57:productShape</title>
+    <title>4:57.productShape</title>
   </rect>
   <g transform="rotate(0, 210, 55)translate(205.24, 51.54)">
-    <title>4:57:productText</title>
+    <title>4:57.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1292,10 +1292,10 @@
     rx="2"
     transform="rotate(0, 97.5, 55)"
   >
-    <title>4:17:productShape</title>
+    <title>4:17.productShape</title>
   </rect>
   <g transform="rotate(0, 97.5, 55)translate(92.304, 51.896)">
-    <title>4:17:productText</title>
+    <title>4:17.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1340,10 +1340,10 @@
     rx="2"
     transform="rotate(0, 120, 190)"
   >
-    <title>4:31:productShape</title>
+    <title>4:31.productShape</title>
   </rect>
   <g transform="rotate(0, 120, 190)translate(118, 187.336)">
-    <title>4:31:productText</title>
+    <title>4:31.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1382,10 +1382,10 @@
     rx="2"
     transform="rotate(0, 165, 167.5)"
   >
-    <title>4:46:productShape</title>
+    <title>4:46.productShape</title>
   </rect>
   <g transform="rotate(0, 165, 167.5)translate(162.916, 164.68)">
-    <title>4:46:productText</title>
+    <title>4:46.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1424,10 +1424,10 @@
     rx="2"
     transform="rotate(0, 142.5, 100)"
   >
-    <title>4:35:productShape</title>
+    <title>4:35.productShape</title>
   </rect>
   <g transform="rotate(0, 142.5, 100)translate(137.304, 96.896)">
-    <title>4:35:productText</title>
+    <title>4:35.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1472,10 +1472,10 @@
     rx="2"
     transform="rotate(0, 187.5, 167.5)"
   >
-    <title>4:54:productShape</title>
+    <title>4:54.productShape</title>
   </rect>
   <g transform="rotate(0, 187.5, 167.5)translate(182.388, 164.508)">
-    <title>4:54:productText</title>
+    <title>4:54.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1520,10 +1520,10 @@
     rx="2"
     transform="rotate(0, 120, 145)"
   >
-    <title>4:29:productShape</title>
+    <title>4:29.productShape</title>
   </rect>
   <g transform="rotate(0, 120, 145)translate(115.24, 141.54)">
-    <title>4:29:productText</title>
+    <title>4:29.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1568,10 +1568,10 @@
     rx="2"
     transform="rotate(0, 120, 55)"
   >
-    <title>4:25:productShape</title>
+    <title>4:25.productShape</title>
   </rect>
   <g transform="rotate(0, 120, 55)translate(118.352, 51.54)">
-    <title>4:25:productText</title>
+    <title>4:25.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1610,10 +1610,10 @@
     rx="2"
     transform="rotate(0, 187.5, 122.5)"
   >
-    <title>4:52:productShape</title>
+    <title>4:52.productShape</title>
   </rect>
   <g transform="rotate(0, 187.5, 122.5)translate(185.852, 119.04)">
-    <title>4:52:productText</title>
+    <title>4:52.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1652,10 +1652,10 @@
     rx="2"
     transform="rotate(0, 210, 100)"
   >
-    <title>4:59:productShape</title>
+    <title>4:59.productShape</title>
   </rect>
   <g transform="rotate(0, 210, 100)translate(208, 97.336)">
-    <title>4:59:productText</title>
+    <title>4:59.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1694,10 +1694,10 @@
     rx="2"
     transform="rotate(0, 97.5, 190)"
   >
-    <title>4:23:productShape</title>
+    <title>4:23.productShape</title>
   </rect>
   <g transform="rotate(0, 97.5, 190)translate(93.008, 187.028)">
-    <title>4:23:productText</title>
+    <title>4:23.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1742,10 +1742,10 @@
     rx="2"
     transform="rotate(0, 187.5, 55)"
   >
-    <title>4:49:productShape</title>
+    <title>4:49.productShape</title>
   </rect>
   <g transform="rotate(0, 187.5, 55)translate(185.416, 52.18)">
-    <title>4:49:productText</title>
+    <title>4:49.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1784,10 +1784,10 @@
     rx="2"
     transform="rotate(0, 210, 145)"
   >
-    <title>4:61:productShape</title>
+    <title>4:61.productShape</title>
   </rect>
   <g transform="rotate(0, 210, 145)translate(208.352, 141.54)">
-    <title>4:61:productText</title>
+    <title>4:61.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1826,10 +1826,10 @@
     rx="2"
     transform="rotate(0, 187.5, 145)"
   >
-    <title>4:53:productShape</title>
+    <title>4:53.productShape</title>
   </rect>
   <g transform="rotate(0, 187.5, 145)translate(182.304, 141.896)">
-    <title>4:53:productText</title>
+    <title>4:53.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1874,10 +1874,10 @@
     rx="2"
     transform="rotate(0, 97.5, 32.5)"
   >
-    <title>4:16:productShape</title>
+    <title>4:16.productShape</title>
   </rect>
   <g transform="rotate(0, 97.5, 32.5)translate(95.852, 29.04)">
-    <title>4:16:productText</title>
+    <title>4:16.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1916,10 +1916,10 @@
     rx="2"
     transform="rotate(0, 75, 32.5)"
   >
-    <title>4:8:productShape</title>
+    <title>4:8.productShape</title>
   </rect>
   <g transform="rotate(0, 75, 32.5)translate(73.62, 29.812)">
-    <title>4:8:productText</title>
+    <title>4:8.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -1958,10 +1958,10 @@
     rx="2"
     transform="rotate(0, 120, 122.5)"
   >
-    <title>4:28:productShape</title>
+    <title>4:28.productShape</title>
   </rect>
   <g transform="rotate(0, 120, 122.5)translate(114.804, 119.396)">
-    <title>4:28:productText</title>
+    <title>4:28.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2006,10 +2006,10 @@
     rx="2"
     transform="rotate(0, 97.5, 145)"
   >
-    <title>4:21:productShape</title>
+    <title>4:21.productShape</title>
   </rect>
   <g transform="rotate(0, 97.5, 145)translate(95.416, 142.18)">
-    <title>4:21:productText</title>
+    <title>4:21.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2048,10 +2048,10 @@
     rx="2"
     transform="rotate(0, 187.5, 32.5)"
   >
-    <title>4:48:productShape</title>
+    <title>4:48.productShape</title>
   </rect>
   <g transform="rotate(0, 187.5, 32.5)translate(182.74, 29.04)">
-    <title>4:48:productText</title>
+    <title>4:48.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2096,10 +2096,10 @@
     rx="2"
     transform="rotate(0, 210, 32.5)"
   >
-    <title>4:56:productShape</title>
+    <title>4:56.productShape</title>
   </rect>
   <g transform="rotate(0, 210, 32.5)translate(204.804, 29.396)">
-    <title>4:56:productText</title>
+    <title>4:56.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2144,10 +2144,10 @@
     rx="2"
     transform="rotate(0, 120, 100)"
   >
-    <title>4:27:productShape</title>
+    <title>4:27.productShape</title>
   </rect>
   <g transform="rotate(0, 120, 100)translate(114.888, 97.008)">
-    <title>4:27:productText</title>
+    <title>4:27.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2192,10 +2192,10 @@
     rx="2"
     transform="rotate(0, 165, 55)"
   >
-    <title>4:41:productShape</title>
+    <title>4:41.productShape</title>
   </rect>
   <g transform="rotate(0, 165, 55)translate(163, 52.336)">
-    <title>4:41:productText</title>
+    <title>4:41.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2234,10 +2234,10 @@
     rx="2"
     transform="rotate(0, 210, 77.5)"
   >
-    <title>4:58:productShape</title>
+    <title>4:58.productShape</title>
   </rect>
   <g transform="rotate(0, 210, 77.5)translate(208.62, 74.812)">
-    <title>4:58:productText</title>
+    <title>4:58.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2276,10 +2276,10 @@
     rx="2"
     transform="rotate(0, 52.5, 55)"
   >
-    <title>4:1:productShape</title>
+    <title>4:1.productShape</title>
   </rect>
   <g transform="rotate(0, 52.5, 55)translate(51.12, 52.312)">
-    <title>4:1:productText</title>
+    <title>4:1.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2318,10 +2318,10 @@
     rx="2"
     transform="rotate(0, 165, 77.5)"
   >
-    <title>4:42:productShape</title>
+    <title>4:42.productShape</title>
   </rect>
   <g transform="rotate(0, 165, 77.5)translate(159.804, 74.396)">
-    <title>4:42:productText</title>
+    <title>4:42.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2366,10 +2366,10 @@
     rx="2"
     transform="rotate(0, 142.5, 190)"
   >
-    <title>4:39:productShape</title>
+    <title>4:39.productShape</title>
   </rect>
   <g transform="rotate(0, 142.5, 190)translate(140.416, 187.18)">
-    <title>4:39:productText</title>
+    <title>4:39.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2408,10 +2408,10 @@
     rx="2"
     transform="rotate(0, 210, 190)"
   >
-    <title>4:63:productShape</title>
+    <title>4:63.productShape</title>
   </rect>
   <g transform="rotate(0, 210, 190)translate(204.888, 187.008)">
-    <title>4:63:productText</title>
+    <title>4:63.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2456,10 +2456,10 @@
     rx="2"
     transform="rotate(0, 52.5, 122.5)"
   >
-    <title>4:4:productShape</title>
+    <title>4:4.productShape</title>
   </rect>
   <g transform="rotate(0, 52.5, 122.5)translate(47.388, 119.508)">
-    <title>4:4:productText</title>
+    <title>4:4.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2504,10 +2504,10 @@
     rx="2"
     transform="rotate(0, 97.5, 122.5)"
   >
-    <title>4:20:productShape</title>
+    <title>4:20.productShape</title>
   </rect>
   <g transform="rotate(0, 97.5, 122.5)translate(92.74, 119.04)">
-    <title>4:20:productText</title>
+    <title>4:20.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2552,10 +2552,10 @@
     rx="2"
     transform="rotate(0, 165, 122.5)"
   >
-    <title>4:44:productShape</title>
+    <title>4:44.productShape</title>
   </rect>
   <g transform="rotate(0, 165, 122.5)translate(163.62, 119.812)">
-    <title>4:44:productText</title>
+    <title>4:44.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2594,10 +2594,10 @@
     rx="2"
     transform="rotate(0, 75, 122.5)"
   >
-    <title>4:12:productShape</title>
+    <title>4:12.productShape</title>
   </rect>
   <g transform="rotate(0, 75, 122.5)translate(70.508, 119.528)">
-    <title>4:12:productText</title>
+    <title>4:12.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2642,10 +2642,10 @@
     rx="2"
     transform="rotate(0, 97.5, 77.5)"
   >
-    <title>4:18:productShape</title>
+    <title>4:18.productShape</title>
   </rect>
   <g transform="rotate(0, 97.5, 77.5)translate(92.388, 74.508)">
-    <title>4:18:productText</title>
+    <title>4:18.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2690,10 +2690,10 @@
     rx="2"
     transform="rotate(0, 97.5, 100)"
   >
-    <title>4:19:productShape</title>
+    <title>4:19.productShape</title>
   </rect>
   <g transform="rotate(0, 97.5, 100)translate(96.12, 97.312)">
-    <title>4:19:productText</title>
+    <title>4:19.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2732,10 +2732,10 @@
     rx="2"
     transform="rotate(0, 75, 190)"
   >
-    <title>4:15:productShape</title>
+    <title>4:15.productShape</title>
   </rect>
   <g transform="rotate(0, 75, 190)translate(73.352, 186.54)">
-    <title>4:15:productText</title>
+    <title>4:15.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2774,10 +2774,10 @@
     rx="2"
     transform="rotate(0, 52.5, 32.5)"
   >
-    <title>4:0:productShape</title>
+    <title>4:0.productShape</title>
   </rect>
   <g transform="rotate(0, 52.5, 32.5)translate(50.5, 29.836)">
-    <title>4:0:productText</title>
+    <title>4:0.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2816,10 +2816,10 @@
     rx="2"
     transform="rotate(0, 187.5, 77.5)"
   >
-    <title>4:50:productShape</title>
+    <title>4:50.productShape</title>
   </rect>
   <g transform="rotate(0, 187.5, 77.5)translate(185.5, 74.836)">
-    <title>4:50:productText</title>
+    <title>4:50.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
@@ -2858,10 +2858,10 @@
     rx="2"
     transform="rotate(0, 187.5, 190)"
   >
-    <title>4:55:productShape</title>
+    <title>4:55.productShape</title>
   </rect>
   <g transform="rotate(0, 187.5, 190)translate(186.12, 187.312)">
-    <title>4:55:productText</title>
+    <title>4:55.productText</title>
     <svg
       style="font-size: 8px"
       xmlns="http://www.w3.org/2000/svg"
