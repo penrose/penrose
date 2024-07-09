@@ -1,7 +1,12 @@
 import { isPenroseError, runtimeError, showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
-import { isErr, showOptimizerError } from "../optimizer/common.js";
+import {
+  DiagramID,
+  StepSequenceID,
+  isErr,
+  showOptimizerError,
+} from "../optimizer/common.js";
 import {
   Diagram,
   canvasState,
@@ -38,7 +43,8 @@ export default function DiagramPanel() {
     new Map(),
   );
 
-  const computeLayoutShouldStop = useRef(false);
+  const currDiagramId = useRef<DiagramID | null>(null);
+  const currStepSequenceId = useRef<StepSequenceID | null>(null);
 
   useEffect(() => {
     const cur = canvasRef.current;
@@ -88,11 +94,11 @@ export default function DiagramPanel() {
   // starts a chain of callbacks, running every animation frame, to compute the
   // most recent shapes, until it sees that the step sequence it was given has
   // finished optimizing, or `computeLayoutShouldStop` is set.
-  const runComputeLayout = async (
-    diagramId: number,
-    stepSequenceId: number,
-  ) => {
-    if (computeLayoutShouldStop.current) {
+  const runComputeLayout = async () => {
+    const diagramId = currDiagramId.current;
+    const stepSequenceId = currStepSequenceId.current;
+
+    if (diagramId === null || stepSequenceId === null) {
       setComputeLayoutRunning(false);
       return;
     }
@@ -155,7 +161,7 @@ export default function DiagramPanel() {
     }
 
     if (stepSequenceInfo.state.tag == "Pending") {
-      requestAnimationFrame(() => runComputeLayout(diagramId, stepSequenceId));
+      requestAnimationFrame(() => runComputeLayout());
     } else {
       // state is either "done" or an OptimizationError; either case we quit
       setWorkerState((worker) => ({
@@ -173,32 +179,33 @@ export default function DiagramPanel() {
       }
     }
 
-    setDiagram((diagram) => ({
-      ...diagram,
-      ...newDiagram,
-    }));
+    // if step sequence has changed (interaction or resample), don't commit
+    setDiagram((diagram) => {
+      if (
+        diagram.historyLoc?.sequenceId === newDiagram.historyLoc?.sequenceId
+      ) {
+        return {
+          ...diagram,
+          ...newDiagram,
+        };
+      } else {
+        return diagram;
+      }
+    });
   };
 
   // stop whenever either active id changes (but we will restart very quickly)
   useEffect(() => {
-    computeLayoutShouldStop.current = true;
+    currDiagramId.current = diagram.diagramId;
+    currStepSequenceId.current = diagram.historyLoc?.sequenceId ?? null;
   }, [diagram.diagramId, diagram.historyLoc?.sequenceId]);
 
   useEffect(() => {
-    if (
-      !computeLayoutRunning &&
-      workerState.optimizing &&
-      diagram.diagramId !== null &&
-      diagram.historyLoc !== null
-    ) {
+    if (!computeLayoutRunning && workerState.optimizing) {
       setComputeLayoutRunning(true);
-      computeLayoutShouldStop.current = false;
-
-      requestAnimationFrame(() =>
-        runComputeLayout(diagram.diagramId!, diagram.historyLoc!.sequenceId),
-      );
+      requestAnimationFrame(() => runComputeLayout());
     }
-  }, [computeLayoutRunning, workerState, diagram]);
+  }, [computeLayoutRunning, workerState]);
 
   const layoutTimeline = useRecoilValue(layoutTimelineState);
   const unexcludedWarnings = warnings.filter(
