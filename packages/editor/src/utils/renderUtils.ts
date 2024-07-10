@@ -164,11 +164,6 @@ export const makeTranslateOnMouseDown =
     const approxInitDeltaX = startX - approxCenterX;
     const approxInitDeltaY = startY - approxCenterY;
 
-    const minX = startX - bboxX;
-    const maxX = state.canvas.width - bboxW + (startX - bboxX);
-    const minY = startY - bboxY;
-    const maxY = state.canvas.height - bboxH + (startY - bboxY);
-
     let dx = 0,
       dy = 0;
     let queuedMouseMove: () => void = () => {};

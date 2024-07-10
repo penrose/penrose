@@ -32,7 +32,7 @@ const valueIsVectorNumeric = (
   }
 
   for (const elem of val.contents) {
-    if (!elem) {
+    if (!elem === undefined) {
       return false;
     }
   }
@@ -120,8 +120,8 @@ export const getTranslatedInputsIdxs = (
 };
 
 /**
- * Add`dx`and `dy` to `parentVaryingValues` to find offset shape values, but mutate
- * `recentVaryingValues` with these deltas added.
+ * Add`dx`and `dy` to `parentVaryingValues` to find offset shape values, but return a copy
+ * of `recentVaryingValues` with these indices replaced.
  * @param path
  * @param dx
  * @param dy
@@ -138,11 +138,13 @@ export const translateVaryingValues = (
   state: State,
 ) => {
   const inputIdxPairs = getTranslatedInputsIdxs(path, state);
+  const res = [...recentVaryingValues];
   for (let i = 0; i < inputIdxPairs.length; i++) {
     const [xIdx, yIdx] = inputIdxPairs[i];
-    recentVaryingValues[xIdx] = parentVaryingValues[xIdx] + dx;
-    recentVaryingValues[yIdx] = parentVaryingValues[yIdx] + dy;
+    res[xIdx] = parentVaryingValues[xIdx] + dx;
+    res[yIdx] = parentVaryingValues[yIdx] + dy;
   }
+  return res;
 };
 
 export type RadiusScaling = {
@@ -287,7 +289,8 @@ export const makeScaleCallback = (
 };
 
 /**
- * Scale the values in `parentVaryingValues` and store the changed inputs in `recentVaryingValues`
+ * Scale the values in `parentVaryingValues` and return a copy of `recentVaryingValues` with the
+ * edited indices replaced
  * @param path
  * @param sx
  * @param sy
@@ -304,10 +307,11 @@ export const scaleVaryingValues = (
   state: State,
 ) => {
   const info = getScalingInfo(path, state);
+  const res = [...recentVaryingValues];
   switch (info.tag) {
     case "RadiusScaling": {
       const start = parentVaryingValues[info.rIdx];
-      recentVaryingValues[info.rIdx] = start * min([sx, sy])!;
+      res[info.rIdx] = start * min([sx, sy])!;
       break;
     }
 
@@ -316,8 +320,8 @@ export const scaleVaryingValues = (
         parentVaryingValues[info.widthIdx],
         parentVaryingValues[info.heightIdx],
       ];
-      recentVaryingValues[info.widthIdx] = start[0] * sx;
-      recentVaryingValues[info.heightIdx] = start[1] * sy;
+      res[info.widthIdx] = start[0] * sx;
+      res[info.heightIdx] = start[1] * sy;
       break;
     }
 
@@ -326,6 +330,8 @@ export const scaleVaryingValues = (
       throw new Error("Points scaling not implemented");
     }
   }
+
+  return res;
 };
 
 export const getAllInteractiveIdxs = (

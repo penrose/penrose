@@ -322,6 +322,12 @@ export type Diagram = {
   metadata: DiagramMetadata;
 };
 
+export type DiagramWorker = {
+  compiling: boolean;
+  resampling: boolean;
+  optimizing: boolean;
+};
+
 export type Canvas = {
   ref: RefObject<HTMLDivElement> | null;
 };
@@ -367,11 +373,7 @@ export const layoutTimelineState = atom<LayoutTimeline>({
   default: [],
 });
 
-export const diagramWorkerState = atom<{
-  compiling: boolean;
-  resampling: boolean;
-  optimizing: boolean;
-}>({
+export const diagramWorkerState = atom<DiagramWorker>({
   key: "diagramWorkerState",
   default: {
     compiling: false,

@@ -157,7 +157,7 @@ const recursivelyDeleteStepSequence = (sequenceId: StepSequenceID) => {
 const makeNewStepSequence = (
   parentLoc: HistoryLoc | null,
   variation: string,
-  initVaryingValues: number[],
+  initVaryingValues?: number[],
 ): StepSequenceID => {
   const id = stepSequenceIdGenerator.next();
 
@@ -181,8 +181,8 @@ const makeNewStepSequence = (
           : penroseState!.optStages.length === 1
           ? "default"
           : penroseState!.optStages[0],
-        frames: 1,
-        cumulativeFrames: 1,
+        frames: initVaryingValues ? 1 : 0,
+        cumulativeFrames: initVaryingValues ? 1 : 0,
       },
     ],
     parent: parentLoc,
@@ -192,11 +192,8 @@ const makeNewStepSequence = (
     pinnedInputPaths: new Map(parentSeq?.pinnedInputPaths),
   };
 
-  // initialize the history of varying values to just the unoptimized values
-  const varyingValuesSequence: number[][] = [initVaryingValues];
-
   historyInfo.set(id, info);
-  historyValues.set(id, varyingValuesSequence);
+  historyValues.set(id, initVaryingValues ? [initVaryingValues] : []);
   return id;
 };
 
@@ -207,8 +204,12 @@ const makeNewStepSequence = (
  *
  * The loop exists when the optimizer is done or `startOptimize` is called again.
  * @param stepSequenceId
+ * @param initVaryingValues Values to push to history and start from
  */
-const startOptimize = (stepSequenceId: StepSequenceID) => {
+const startOptimize = (
+  stepSequenceId: StepSequenceID,
+  initVaryingValues?: number[],
+) => {
   // we can't just use stepSequenceId because we might want to interrupt
   // and continue on same sequence (e.g., for interaction)
   activeOptimizationId++;
@@ -224,7 +225,10 @@ const startOptimize = (stepSequenceId: StepSequenceID) => {
   stepSequenceInfo.state = { tag: "Pending" };
 
   const varyingValuesSequence = historyValues.get(stepSequenceId);
-  if (!varyingValuesSequence || varyingValuesSequence.length === 0) {
+  if (
+    !varyingValuesSequence ||
+    (!initVaryingValues && varyingValuesSequence.length === 0)
+  ) {
     stepSequenceInfo.state = {
       tag: "OptimizationError",
       error: new Error(
@@ -234,7 +238,15 @@ const startOptimize = (stepSequenceId: StepSequenceID) => {
     return;
   }
 
-  const initVaryingValues = varyingValuesSequence.at(-1)!;
+  if (initVaryingValues) {
+    initVaryingValues = [...initVaryingValues]; // so we don't mutate parameter
+    varyingValuesSequence.push(initVaryingValues);
+    stepSequenceInfo.layoutStats.at(-1)!.frames++;
+    stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames++;
+  } else {
+    initVaryingValues = varyingValuesSequence.at(-1)!;
+  }
+
   penroseState = {
     ...penroseState!,
     varyingValues: initVaryingValues,
@@ -249,6 +261,8 @@ const startOptimize = (stepSequenceId: StepSequenceID) => {
   // take one optimization step
   const optStep = () => {
     try {
+      // changed if `startOptimize` is called again.
+      // e.g. recompile, resample, drag, ...
       if (activeOptimizationId !== startingOptimizationId) {
         // we've been interrupted
         log.info("Optimization finishing early");
@@ -375,25 +389,20 @@ const interact = (data: InteractionRequestData): InteractionResult => {
   let stepSeqId: StepSequenceID;
   if (parentSeqInfo.child === null) {
     // this is a new interaction
-    const newInitValues = [...parentValues];
     stepSeqId = makeNewStepSequence(
       data.parentHistoryLoc,
       parentSeqInfo.variation,
-      newInitValues,
     );
-
-    currentValues = historyValues.get(stepSeqId)!.at(-1)!;
+    currentValues = [...parentValues];
   } else {
     // we're continuing an interaction
     stepSeqId = parentSeqInfo.child;
     currentValues = [...historyValues.get(stepSeqId)!.at(-1)!];
-    historyValues.get(stepSeqId)!.push(currentValues);
-    historyInfo.get(stepSeqId)!.layoutStats.at(-1)!.cumulativeFrames++;
-    historyInfo.get(stepSeqId)!.layoutStats.at(-1)!.frames++;
   }
 
   const stepSeqInfo = historyInfo.get(stepSeqId)!;
 
+  let newXs: number[];
   switch (data.interaction.tag) {
     case "Translation":
       if (
@@ -407,7 +416,7 @@ const interact = (data: InteractionRequestData): InteractionResult => {
         });
       }
 
-      translateVaryingValues(
+      newXs = translateVaryingValues(
         data.interaction.path,
         data.interaction.dx,
         data.interaction.dy,
@@ -431,7 +440,7 @@ const interact = (data: InteractionRequestData): InteractionResult => {
         });
       }
 
-      scaleVaryingValues(
+      newXs = scaleVaryingValues(
         data.interaction.path,
         data.interaction.sx,
         data.interaction.sy,
@@ -451,6 +460,7 @@ const interact = (data: InteractionRequestData): InteractionResult => {
         removePins(data.interaction.path, stepSeqInfo);
       }
       applyPins(stepSeqInfo, penroseState!);
+      newXs = currentValues;
   }
 
   penroseState = {
@@ -458,7 +468,10 @@ const interact = (data: InteractionRequestData): InteractionResult => {
     currentStageIndex: 0,
     params: start(penroseState!.varyingValues.length),
   };
-  startOptimize(stepSeqId);
+
+  // if we're continuing, we need to push the translated values to history
+  // if this is new, makeNewStepSequence already did this for
+  startOptimize(stepSeqId, newXs);
 
   return taggedOk(MessageTags.Interaction, {
     sequenceId: stepSeqId,
