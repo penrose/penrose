@@ -130,6 +130,7 @@ export interface SynthesisContext {
 export interface SynthesizedSubstance {
   prog: SubProg<A>;
   ops: Mutation[];
+  notes?: string;
 }
 
 interface IDList {

@@ -117,7 +117,7 @@ interface SettingState {
 const SettingContainer = styled(Box)({
   padding: "0.5rem",
   paddingTop: "1rem",
-  width: "35vw",
+  width: "25vw",
 });
 
 const SettingsDrawer = styled(Drawer)(({ theme }) => ({
@@ -265,11 +265,12 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         <Tabs
           textColor="primary"
           indicatorColor="primary"
+          variant="scrollable"
           value={this.state.currentTab}
           onChange={handleTabSwitch}
         >
-          <Tab label="Generate new problem" />
-          <Tab label="LLM Mutation" />
+          <Tab label="Natural language" />
+          <Tab label="LLM-based mutation" />
           <Tab label="Select from presets" />
         </Tabs>
 
@@ -458,15 +459,24 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
         substance,
         numPrograms,
       );
-      const res = await this.openai(prompt);
-      console.log(res);
+      if (numPrograms > 0) {
+        const res = await this.openai(prompt);
+        console.log(res);
 
-      this.props.LLMGenerateCallback({
-        input: this.state.substance,
-        dsl: this.state.domain,
-        sty: this.state.style,
-        progs: JSON.parse(res),
-      });
+        this.props.LLMGenerateCallback({
+          input: this.state.substance,
+          dsl: this.state.domain,
+          sty: this.state.style,
+          progs: JSON.parse(res),
+        });
+      } else {
+        this.props.LLMGenerateCallback({
+          input: this.state.substance,
+          dsl: this.state.domain,
+          sty: this.state.style,
+          progs: [],
+        });
+      }
     }
   };
 

@@ -15,7 +15,10 @@ import {
   showError,
   toSVG,
 } from "@penrose/core";
-import { initSubstanceEnv } from "@penrose/core/dist/compiler/Substance";
+import {
+  initSubstanceEnv,
+  parseSubstance,
+} from "@penrose/core/dist/compiler/Substance";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { shuffle } from "lodash";
@@ -179,16 +182,12 @@ export class Content extends React.Component<ContentProps, ContentState> {
           if (subRes.isOk()) {
             return subRes.value.ast;
           } else {
-            throw new Error(
-              `Error when compiling the template Substance program: ${showError(
-                subRes.error,
-              )}`,
-            );
+            return parseSubstance(sub).unsafelyUnwrap();
           }
         })
-        .map((prog) => ({ prog, ops: [] }));
+        .map((prog, i) => ({ prog, ops: [], notes: allProgs[i] }));
       this.setState({
-        progs: compiledProgs,
+        progs: compiledProgs as any,
         staged: [],
         domain: dsl,
         style: sty,
@@ -434,6 +433,10 @@ export class Content extends React.Component<ContentProps, ContentState> {
                 {
                   name: "Mutations",
                   data: showMutations(progs[i].ops),
+                },
+                {
+                  name: "Notes",
+                  data: progs[i].notes ?? "",
                 },
               ]}
               gridBoxProps={{

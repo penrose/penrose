@@ -12,6 +12,6 @@ export const LLMMutatorPrompt = (
 
 		${domain}
 
-		Now, come up with ${numProgs} incorrect answers that will help the student understand the concepts related to this problem, in the format of a list of Substance programs. To write comments, begin with \`--\`. Return only the Substance program; explain your reasoning in Substance comments only. Respond with the raw JSON list without markdown formatting.
-		`;
+
+		Now, come up with ${numProgs} incorrect answers that will help the student understand the concepts related to this problem, in the format of a list of Substance programs. To write comments, begin with \`--\`. Return only the Substance program; explain your reasoning in Substance comments only. Respond with the raw JSON list without markdown formatting. Make sure you give a pedagogical explanation for each incorrect answer.`;
 };
