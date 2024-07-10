@@ -340,6 +340,10 @@ export const renderPlayModeInteractivity = (
 ) => {
   if (!diagram.state || !diagram.svg) return;
 
+  for (const [_, elem] of svgTitleCache) {
+    elem.setAttribute("pointer-events", "none");
+  }
+
   for (const [path, constraint] of diagram.state.interactivityInfo
     .draggingConstraints) {
     const elem = svgTitleCache.get(path);

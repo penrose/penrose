@@ -4071,7 +4071,6 @@ export const compileStyleHelper = async (
   for (const [path, shape] of nameShapeMap) {
     const constraint = shape.passthrough.get("draggingConstraint");
     if (constraint !== undefined && constraint.tag === "StrV") {
-      console.log(path);
       draggingConstraints.set(path, constraint.contents);
     }
   }

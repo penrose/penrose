@@ -570,5 +570,17 @@
   "alloy-models/icicle-plot-file-system": {
     "name": "File System Icicle Plot",
     "gallery": false
+  },
+  "interactive/ellipse-rays": {
+    "name": "Ellipse Rays",
+    "gallery": true
+  },
+  "interactive/viewport": {
+    "name": "Viewport",
+    "gallery": true
+  },
+  "interactive/planets": {
+    "name": "Planets",
+    "gallery": true
   }
 }

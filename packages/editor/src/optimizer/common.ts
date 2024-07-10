@@ -21,7 +21,7 @@ import { Interaction } from "../utils/interactionUtils.js";
 
 // Config
 
-export const logLevel = LogLevels.info;
+export const logLevel = LogLevels.warn;
 
 // Basic types
 

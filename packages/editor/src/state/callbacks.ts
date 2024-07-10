@@ -4,7 +4,7 @@ import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
 import queryString from "query-string";
 import toast from "react-hot-toast";
-import { RecoilState, useRecoilCallback } from "recoil";
+import { RecoilState, useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import { isErr, showOptimizerError } from "../optimizer/common.js";
 import {
@@ -128,26 +128,28 @@ const _compileDiagram = async (
   }));
 };
 
-export const useCompileDiagram = () =>
-  useRecoilCallback(({ snapshot, set }) => async () => {
-    const workspace = snapshot.getLoadable(currentWorkspaceState)
-      .contents as Workspace;
-    const domainFile = workspace.files.domain.contents;
-    const substanceFile = workspace.files.substance.contents;
-    const styleFile = workspace.files.style.contents;
-    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
-
-    set(showCompileErrsState, true);
-
-    await _compileDiagram(
-      substanceFile,
-      styleFile,
-      domainFile,
-      diagram.metadata.variation,
-      diagram.metadata.excludeWarnings,
-      set,
-    );
-  });
+export const useCompileDiagram = () => {
+  const workspace = useRecoilValue(currentWorkspaceState);
+  const metadata = useRecoilValue(diagramMetadataSelector);
+  return useRecoilCallback(
+    ({ snapshot, set }) =>
+      async () => {
+        set(showCompileErrsState, true);
+        const domainFile = workspace.files.domain.contents;
+        const substanceFile = workspace.files.substance.contents;
+        const styleFile = workspace.files.style.contents;
+        await _compileDiagram(
+          substanceFile,
+          styleFile,
+          domainFile,
+          metadata.variation,
+          metadata.excludeWarnings,
+          set,
+        );
+      },
+    [workspace, metadata],
+  );
+};
 
 export const useIsUnsaved = () =>
   useRecoilCallback(({ snapshot, set }) => () => {
