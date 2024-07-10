@@ -24,9 +24,9 @@ import { layoutModel } from "../App.js";
 
 import {
   DiagramID,
-  LayoutStats,
+  HistoryInfo,
+  HistoryLoc,
   RenderState,
-  StepSequenceID,
 } from "../optimizer/common.js";
 import Optimizer from "../optimizer/optimizer.js";
 
@@ -303,7 +303,6 @@ export type DiagramMetadata = {
   variation: string;
   stepSize: number;
   autostep: boolean;
-  interactive: boolean;
   excludeWarnings: string[];
   source: {
     domain: string;
@@ -316,10 +315,17 @@ export type Diagram = {
   state: RenderState | null;
   error: PenroseError | null;
   warnings: PenroseWarning[];
-  layoutStats: LayoutStats;
+  historyInfo: HistoryInfo | null;
   diagramId: DiagramID | null;
-  stepSequenceId: StepSequenceID | null;
+  historyLoc: HistoryLoc | null;
+  svg: SVGSVGElement | null;
   metadata: DiagramMetadata;
+};
+
+export type DiagramWorker = {
+  compiling: boolean;
+  resampling: boolean;
+  optimizing: boolean;
 };
 
 export type Canvas = {
@@ -339,14 +345,14 @@ export const diagramState = atom<Diagram>({
     state: null,
     error: null,
     warnings: [],
-    layoutStats: [],
     diagramId: null,
-    stepSequenceId: null,
+    historyLoc: null,
+    svg: null,
+    historyInfo: null,
     metadata: {
       variation: generateVariation(),
       stepSize: 10000,
       autostep: true,
-      interactive: false,
       excludeWarnings: [],
       source: {
         substance: "",
@@ -367,13 +373,11 @@ export const layoutTimelineState = atom<LayoutTimeline>({
   default: [],
 });
 
-export const diagramWorkerState = atom<{
-  compiling: boolean;
-  optimizing: boolean;
-}>({
+export const diagramWorkerState = atom<DiagramWorker>({
   key: "diagramWorkerState",
   default: {
     compiling: false,
+    resampling: false,
     optimizing: false,
   },
 });
@@ -434,6 +438,16 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
       gridSize,
     }));
   },
+});
+
+export const diagramErrorSelector = selector<PenroseError | null>({
+  key: "diagramError",
+  get: ({ get }) => get(diagramState).error,
+});
+
+export const diagramWarningsSelector = selector<PenroseWarning[]>({
+  key: "diagramWarnings",
+  get: ({ get }) => get(diagramState).warnings,
 });
 
 export interface TrioWithPreview {
@@ -502,6 +516,7 @@ export type Settings = {
   github: LocalGithubUser | null;
   vimMode: boolean;
   debugMode: boolean;
+  interactive: "EditMode" | "PlayMode" | "Off";
 };
 
 const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
@@ -544,6 +559,7 @@ export const settingsState = atom<Settings>({
     vimMode: false,
     // debug mode is on by default in local dev mode
     debugMode: process.env.NODE_ENV === "development",
+    interactive: "Off",
   },
   effects: [settingsEffect, debugModeEffect],
 });

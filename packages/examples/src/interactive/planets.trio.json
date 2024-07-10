@@ -1,0 +1,6 @@
+{
+  "substance": "./planets.substance",
+  "style": ["./planets.style"],
+  "domain": "./planets.domain",
+  "variation": ""
+}

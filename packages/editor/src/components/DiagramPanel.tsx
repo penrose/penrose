@@ -1,18 +1,29 @@
 import { isPenroseError, runtimeError, showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { isErr, showOptimizerError } from "../optimizer/common.js";
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
 import {
+  DiagramID,
+  StepSequenceID,
+  isErr,
+  showOptimizerError,
+} from "../optimizer/common.js";
+import {
+  Diagram,
   canvasState,
   currentRogerState,
   diagramState,
   diagramWorkerState,
   layoutTimelineState,
   optimizer,
+  settingsState,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
-import { stateToSVG } from "../utils/renderUtils.js";
+import {
+  renderPlayModeInteractivity,
+  stateToSVG,
+} from "../utils/renderUtils.js";
+import InteractivityOverlay from "./InteractivityOverlay.js";
 import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
 
 export default function DiagramPanel() {
@@ -25,20 +36,29 @@ export default function DiagramPanel() {
   const rogerState = useRecoilValue(currentRogerState);
   const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
   const [computeLayoutRunning, setComputeLayoutRunning] = useState(false);
+  const settings = useRecoilValueLoadable(settingsState);
 
-  const computeLayoutShouldStop = useRef(false);
+  // keep a map from paths to title elements, so we can grab their parent svg elements
+  const [svgTitleCache, setSvgTitleCache] = useState<Map<string, SVGElement>>(
+    new Map(),
+  );
+
+  const currDiagramId = useRef<DiagramID | null>(null);
+  const currStepSequenceId = useRef<StepSequenceID | null>(null);
 
   useEffect(() => {
     const cur = canvasRef.current;
     setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
     if (state !== null && cur !== null) {
       (async () => {
+        const titleCache = new Map<string, SVGElement>();
         const rendered = await stateToSVG(state, {
           pathResolver: (path: string) =>
             pathResolver(path, rogerState, workspace),
           width: "100%",
           height: "100%",
           texLabels: false,
+          titleCache,
         });
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
@@ -47,20 +67,38 @@ export default function DiagramPanel() {
         } else {
           cur.appendChild(rendered);
         }
+
+        setSvgTitleCache(titleCache);
+        setDiagram((state) => ({
+          ...state,
+          svg: rendered,
+        }));
       })();
     } else if (state === null && cur !== null) {
       cur.innerHTML = "";
     }
-  }, [diagram.state]);
+  }, [state, settings.contents.interactive]);
+
+  // attach event listeners that trigger interaction but constrain dragging
+  useEffect(() => {
+    if (settings.contents.interactive === "PlayMode") {
+      renderPlayModeInteractivity(
+        diagram,
+        svgTitleCache,
+        setDiagram,
+        setWorkerState,
+      );
+    }
+  }, [diagram, svgTitleCache, settings.contents.interactive]);
 
   // starts a chain of callbacks, running every animation frame, to compute the
   // most recent shapes, until it sees that the step sequence it was given has
   // finished optimizing, or `computeLayoutShouldStop` is set.
-  const runComputeLayout = async (
-    diagramId: number,
-    stepSequenceId: number,
-  ) => {
-    if (computeLayoutShouldStop.current) {
+  const runComputeLayout = async () => {
+    const diagramId = currDiagramId.current;
+    const stepSequenceId = currStepSequenceId.current;
+
+    if (diagramId === null || stepSequenceId === null) {
       setComputeLayoutRunning(false);
       return;
     }
@@ -82,43 +120,48 @@ export default function DiagramPanel() {
       setDiagram((diagram) => ({
         ...diagram,
         error: runtimeError(
-          `Invalid step sequence id ${diagram.stepSequenceId} for diagram`,
+          `Invalid step sequence id ${stepSequenceId} for diagram`,
         ),
       }));
       setComputeLayoutRunning(false);
       return;
     }
 
-    // set layout stats for use by timeline slider
-    setDiagram((diagram) => ({
-      ...diagram,
-      layoutStats: stepSequenceInfo.layoutStats,
-    }));
-
-    // compute the most recent shapes for the step sequence
-    const layoutResult = await optimizer.computeLayout(diagramId, {
+    const newHistoryLoc = {
       sequenceId: stepSequenceId,
       frame: stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames - 1,
-    });
+    };
+
+    // cache so we can set once at end (profiling shows this is fairly critical)
+    let newDiagram: Partial<Diagram> = {
+      historyInfo: pollResult.value,
+      historyLoc: newHistoryLoc,
+    };
+
+    // compute the most recent shapes for the step sequence
+    const layoutResult = await optimizer.computeLayout(
+      diagramId,
+      newHistoryLoc,
+    );
 
     if (layoutResult.isErr()) {
-      setDiagram((diagram) => ({
-        ...diagram,
+      newDiagram = {
+        ...newDiagram,
         error: isPenroseError(layoutResult.error)
           ? layoutResult.error
           : runtimeError(showOptimizerError(layoutResult.error)),
-      }));
+      };
       // don't return here, since we want to check whether the step sequence has
       // stopped optimizing, and set the diagram state accordingly
     } else {
-      setDiagram((diagram) => ({
-        ...diagram,
+      newDiagram = {
+        ...newDiagram,
         state: layoutResult.value,
-      }));
+      };
     }
 
     if (stepSequenceInfo.state.tag == "Pending") {
-      requestAnimationFrame(() => runComputeLayout(diagramId, stepSequenceId));
+      requestAnimationFrame(() => runComputeLayout());
     } else {
       // state is either "done" or an OptimizationError; either case we quit
       setWorkerState((worker) => ({
@@ -129,34 +172,40 @@ export default function DiagramPanel() {
 
       if (stepSequenceInfo.state.tag === "OptimizationError") {
         const error = stepSequenceInfo.state;
-        setDiagram((diagram) => ({
-          ...diagram,
+        newDiagram = {
+          ...newDiagram,
           error: runtimeError(showOptimizerError(error)),
-        }));
+        };
       }
     }
+
+    // if step sequence has changed (interaction or resample), don't commit
+    setDiagram((diagram) => {
+      if (
+        diagram.historyLoc?.sequenceId === newDiagram.historyLoc?.sequenceId
+      ) {
+        return {
+          ...diagram,
+          ...newDiagram,
+        };
+      } else {
+        return diagram;
+      }
+    });
   };
 
   // stop whenever either active id changes (but we will restart very quickly)
   useEffect(() => {
-    computeLayoutShouldStop.current = true;
-  }, [diagram.diagramId, diagram.stepSequenceId]);
+    currDiagramId.current = diagram.diagramId;
+    currStepSequenceId.current = diagram.historyLoc?.sequenceId ?? null;
+  }, [diagram.diagramId, diagram.historyLoc?.sequenceId]);
 
   useEffect(() => {
-    if (
-      !computeLayoutRunning &&
-      workerState.optimizing &&
-      diagram.diagramId !== null &&
-      diagram.stepSequenceId !== null
-    ) {
+    if (!computeLayoutRunning && workerState.optimizing) {
       setComputeLayoutRunning(true);
-      computeLayoutShouldStop.current = false;
-
-      requestAnimationFrame(() =>
-        runComputeLayout(diagram.diagramId!, diagram.stepSequenceId!),
-      );
+      requestAnimationFrame(() => runComputeLayout());
     }
-  }, [computeLayoutRunning, workerState, diagram]);
+  }, [computeLayoutRunning, workerState]);
 
   const layoutTimeline = useRecoilValue(layoutTimelineState);
   const unexcludedWarnings = warnings.filter(
@@ -231,10 +280,31 @@ export default function DiagramPanel() {
             display: "flex",
             minHeight: "60%",
             maxHeight: "100%",
+            margin: "10px",
             justifyContent: "center",
           }}
           ref={canvasRef}
-        />
+        >
+          {diagram.svg &&
+            state &&
+            !workerState.compiling &&
+            !workerState.resampling &&
+            settings.contents.interactive === "EditMode" &&
+            diagram.diagramId !== null &&
+            diagram.historyLoc !== null && (
+              <InteractivityOverlay
+                diagramSVG={diagram.svg}
+                state={state}
+                svgTitleCache={svgTitleCache}
+                diagramId={diagram.diagramId}
+                historyLoc={diagram.historyLoc}
+                pinnedInputPaths={
+                  diagram.historyInfo?.get(diagram.historyLoc.sequenceId)
+                    ?.pinnedInputPaths ?? null
+                }
+              />
+            )}
+        </div>
 
         {showEasterEgg && (
           <iframe

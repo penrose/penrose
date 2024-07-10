@@ -4,26 +4,27 @@ import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
 import {
   ProgramType,
   codemirrorHistory,
-  diagramState,
+  diagramErrorSelector,
+  diagramWarningsSelector,
   domainCacheState,
   fileContentsSelector,
   settingsState,
   showCompileErrsState,
   substanceCacheState,
-  workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { useCompileDiagram } from "../state/callbacks.js";
 export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   const [programState, setProgramState] = useRecoilState(
     fileContentsSelector(kind),
   );
-  const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const domainCache = useRecoilValue(domainCacheState);
   const substanceCache = useRecoilValue(substanceCacheState);
   const codemirrorHistoryState = useRecoilValue(codemirrorHistory);
   const compileDiagram = useCompileDiagram();
   const settings = useRecoilValueLoadable(settingsState);
-  const [diagram] = useRecoilState(diagramState);
+  const error = useRecoilValue(diagramErrorSelector);
+  const warnings = useRecoilValue(diagramWarningsSelector);
+
   /*
   When a user clicks compile, if there are compiler errors these are shown.
   On edit, these are hidden and parser errors are shown.
@@ -32,7 +33,6 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   */
   const [showCompileErrs, setShowCompileErrs] =
     useRecoilState(showCompileErrsState);
-  let { error, warnings } = diagram;
   const onChange = useCallback(
     (v: string) => {
       setProgramState((state) => ({ ...state, contents: v }));
