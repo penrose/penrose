@@ -4,7 +4,8 @@ import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
 import {
   ProgramType,
   codemirrorHistory,
-  diagramErrorsAndWarningsSelector,
+  diagramErrorSelector,
+  diagramWarningsSelector,
   domainCacheState,
   fileContentsSelector,
   settingsState,
@@ -21,7 +22,9 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   const codemirrorHistoryState = useRecoilValue(codemirrorHistory);
   const compileDiagram = useCompileDiagram();
   const settings = useRecoilValueLoadable(settingsState);
-  const { error, warnings } = useRecoilValue(diagramErrorsAndWarningsSelector);
+  const error = useRecoilValue(diagramErrorSelector);
+  const warnings = useRecoilValue(diagramWarningsSelector);
+
   /*
   When a user clicks compile, if there are compiler errors these are shown.
   On edit, these are hidden and parser errors are shown.

@@ -438,32 +438,14 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
   },
 });
 
-export const diagramErrorsAndWarningsSelector = selector<{
-  error: PenroseError | null;
-  warnings: PenroseWarning[];
-}>({
-  key: "diagramErrorsAndWarnings",
-  get: ({ get }) => {
-    const diagram = get(diagramState);
-    return {
-      error: diagram.error,
-      warnings: diagram.warnings,
-    };
-  },
+export const diagramErrorSelector = selector<PenroseError | null>({
+  key: "diagramError",
+  get: ({ get }) => get(diagramState).error,
 });
 
-export const diagramIdsSelector = selector<{
-  diagramId: DiagramID | null;
-  historyLoc: HistoryLoc | null;
-}>({
-  key: "diagramIds",
-  get: ({ get }) => {
-    const diagram = get(diagramState);
-    return {
-      diagramId: diagram.diagramId,
-      historyLoc: diagram.historyLoc,
-    };
-  },
+export const diagramWarningsSelector = selector<PenroseWarning[]>({
+  key: "diagramWarnings",
+  get: ({ get }) => get(diagramState).warnings,
 });
 
 export interface TrioWithPreview {
