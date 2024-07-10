@@ -122,6 +122,9 @@ export const checkEllipse = (
   const fill = checkFill(path, trans);
   if (fill.isErr()) return err(fill.error);
 
+  const rotate = checkRotate(path, trans);
+  if (rotate.isErr()) return err(rotate.error);
+
   const center = checkCenter(path, trans);
   if (center.isErr()) return err(center.error);
 
@@ -135,6 +138,7 @@ export const checkEllipse = (
     ...named.value,
     ...stroke.value,
     ...fill.value,
+    ...rotate.value,
     ...center.value,
     rx: rx.value,
     ry: ry.value,

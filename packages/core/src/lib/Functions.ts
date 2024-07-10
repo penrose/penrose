@@ -1649,6 +1649,63 @@ export const compDict = {
     returns: valueT("RealN"),
   },
 
+  projectEllipse: {
+    name: "projectEllipse",
+    description:
+      "`projectEllipse(c,u1,u2,r1,r2)` given a 3D ellipse with center $c$, orthonormal axes $u_1,u_2$, gives the data for its perspective projection as the center, radii, and angle of rotation for a 2D ellipse.  The return value is a vector $[x,y,a,b,\theta]$, where $(x,y)$ is the 2D ellipse center, $a,b$ are its radii, and $\theta$ is its angle of rotation.",
+    params: [
+      {
+        name: "c",
+        description: "3D ellipse center",
+        type: realNT(),
+      },
+      {
+        name: "u1",
+        description: "first axis of 3D ellipse",
+        type: realNT(),
+      },
+      {
+        name: "u2",
+        description: "second axis of 3D ellipse",
+        type: realNT(),
+      },
+      {
+        name: "r1",
+        description: "first radius of 3D ellipse",
+        type: realT(),
+      },
+      {
+        name: "r2",
+        description: "second radius of 3D ellipse",
+        type: realT(),
+      },
+      // { name: "model", description: "4x4 modelview matrix", type: realNMT() },
+      // { name: "proj", description: "4x4 projection matrix", type: realNMT() },
+      // {
+      //   name: "view",
+      //   description: "viewport (x, y, width, height)",
+      //   type: realNT(),
+      // },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Num[],
+      u1: ad.Num[],
+      u2: ad.Num[],
+      r1: ad.Num,
+      r2: ad.Num,
+      // model: ad.Num[][],
+      // proj: ad.Num[][],
+      // view: ad.Num[],
+    ): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
+        tag: "VectorV",
+        contents: projectEllipse(c, u1, u2, r1, r2)
+      });
+    },
+    returns: valueT("RealN"),
+  },
+
   projectDepth: {
     name: "projectDepth",
     description:
@@ -7959,6 +8016,79 @@ const project = (
 
   // return x, y, and depth
   return r;
+};
+
+// Project a 3D ellipse into 2D window coordinates using a given
+// model and projection transformation, and a given viewport.
+// The input 3D ellipse is described by a center, two axes as 3D vectors, and two radii.
+// The output 2D ellipse is described by a center, two radii, and an angle of rotation.
+// This output data can be used to draw a standard 2D SVG ellipse.
+// c       3D ellipse center (3D vector)
+// u1      first axis of 3D ellipse (3D unit vector)
+// u2      second axis of 3D ellipse (3D unit vector)
+// r1      first radius of 3D ellipse (positive scalar)
+// r2      second radius of 3D ellipse (positive scalar)
+// model   4x4 modelview matrix
+// proj    4x4 projection matrix
+// view    viewport (x, y, width, height)
+// Return values: [x,y,a,b,theta] for 2D ellipse
+const projectEllipse = (
+  c: ad.Num[],
+  u1: ad.Num[],
+  u2: ad.Num[],
+  r1: ad.Num,
+  r2: ad.Num,
+  // modelMatrix: ad.Num[][],
+  // projMatrix: ad.Num[][],
+  // viewport: ad.Num[]
+): ad.Num[] => {
+
+   // quadratic form for reference ellipse
+   const P = [
+    [div(1,mul(r1,r1)), 0, 0],
+    [0, div(1,mul(r2,r2)), 0],
+    [0, 0, -1],
+   ];
+
+   // quadratic form for projected ellipse
+   const AT = [ u1, u2, c ];
+   const ATi = inverse(AT);
+   const Q = ops.mmmul(ops.mmmul(ATi,P),ops.mtrans(ATi));
+
+   // extract 2D ellipse center (x,y), axes (a,b), and angle θ
+   const QA = Q[0][0];
+   const QB = mul(2,Q[1][0]);
+   const QC = Q[1][1];
+   const QD = mul(2,Q[2][0]);
+   const QE = mul(2,Q[2][1]);
+   const QF = Q[2][2];
+   const c1 = sqrt(add(squared(QB),squared(sub(QA,QC))));
+   const c2 = add(add( sub( mul(QC,squared(QD)), mul(mul(QB,QD),QE) ), mul(QA,squared(QE)) ), mul(QF,sub(squared(QB),mul(mul(4,QA),QC))) );
+   const c3 = div(neg(sqrt(2)),sub(squared(QB),mul(mul(4,QA),QC)));
+   const c4 = sub(squared(QB), mul(mul(4,QA),QC));
+   const a = mul(c3,sqrt(mul(c2,sub(add(QA,QC),c1))));
+   const b = mul(c3,sqrt(mul(c2,add(add(QA,QC),c1))));
+   const x = div(sub(mul(mul(2,QC),QD), mul(QB,QE)), c4);
+   const y = div(sub(mul(mul(2,QA),QE), mul(QB,QD)), c4);
+   const theta = atan(div(QB,sub(sub(QC,QA),c1))); // XXX there are some additional conditions not implemented here, for the case where QB is (close to) zero.
+
+   return [ x, y, a, b, theta ];
+
+   // // apply modelview and projection transformations
+   // const q = ops.mvmul(projMatrix, ops.mvmul(modelMatrix, toHomogeneous(p)));
+
+   // // homogeneous divide by w to get x, y, z
+   // let r = ops.vdiv(q, q[3]).slice(0, 3);
+
+   // // map x, y and z to range 0-1
+   // r = ops.vadd(ops.vmul(0.5, r), [0.5, 0.5, 0.5]);
+
+   // // map x,y to viewport
+   // r[0] = add(mul(r[0], viewport[2]), viewport[0]);
+   // r[1] = add(mul(r[1], viewport[3]), viewport[1]);
+
+   // // return x, y, and depth
+   // return r;
 };
 
 // Construct a 3x3 matrix with entries
