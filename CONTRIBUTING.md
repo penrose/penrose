@@ -25,6 +25,7 @@
   - [Adding tests](#adding-tests)
   - [Opening a pull request (PR)](#opening-a-pull-request-pr)
 - [Release](#release)
+  - [Pre-release](#pre-release)
 
 <!-- tocstop -->
 
