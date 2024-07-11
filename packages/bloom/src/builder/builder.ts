@@ -49,7 +49,6 @@ export type SelectorAssignment = Record<string, Substance>;
 export class DiagramBuilder {
   /** Substance/Domain stuff */
   private substanceTypeMap: Map<Substance, Type> = new Map();
-  private namedSubstances: Map<string, Substance> = new Map();
 
   private canvas: Canvas;
   private inputs: Var[] = [];
@@ -97,7 +96,7 @@ export class DiagramBuilder {
           }
           const penroseShape = this.sampleAndFillPenroseShape(shapeType, props);
           this.shapes.push(penroseShape);
-          if (penroseShape.ensureOnCanvas) {
+          if (penroseShape.ensureOnCanvas.contents) {
             this.ensure(
               constrDict.onCanvas.body(
                 penroseShape,
@@ -112,33 +111,29 @@ export class DiagramBuilder {
     }
   };
 
-  private substance = (type: Type, name?: string): Substance => {
+  private substance = (type: Type): Substance => {
     const newSubstance: Substance = {};
     this.substanceTypeMap.set(newSubstance, type);
-    if (name !== undefined) {
-      newSubstance.name = name;
-      this.namedSubstances.set(name, newSubstance);
-    }
     return newSubstance;
   };
 
   type = (): Type => {
     const substance = this.substance.bind(this);
-    return function t(name?: string) {
-      return substance(t, name);
+    return function t() {
+      return substance(t);
     };
   };
 
   predicate = (): Predicate => {
-    const substanceSeqs: Substance[][] = [];
-    const pred: Partial<Predicate> = (...substances: Substance[]) => {
-      substanceSeqs.push(substances);
+    const objSeqs: any[][] = [];
+    const pred: Partial<Predicate> = (...objs: any[]) => {
+      objSeqs.push(objs);
     };
-    pred.test = (...substances: Substance[]) =>
-      substanceSeqs.some((subs) => {
+    pred.test = (...objs: any[]) =>
+      objSeqs.some((realObjs) => {
         return (
-          subs.length === substances.length &&
-          subs.every((s, i) => s === substances[i])
+          realObjs.length === objs.length &&
+          realObjs.every((o, i) => o === objs[i])
         );
       });
 
@@ -191,18 +186,7 @@ export class DiagramBuilder {
     traverseSubstances([], varTypePairs, 0, 0);
   };
 
-  where = (
-    conditions: boolean[],
-    func: (assignment: SelectorAssignment) => void,
-  ): ((assignment: SelectorAssignment) => void) => {
-    if (conditions.every((b) => b)) {
-      return func;
-    } else {
-      return () => {};
-    }
-  };
-
-  vary = (init?: number, name?: string): Var => {
+  vary = (name?: string, init?: number): Var => {
     const newVar = this.samplingContext.makeInput(
       {
         init: {

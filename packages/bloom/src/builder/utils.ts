@@ -162,3 +162,5 @@ export const sortShapes = (
       nameIndices.get(a.name.contents)! - nameIndices.get(b.name.contents)!,
   );
 };
+
+export { makeCanvas as canvas } from "@penrose/core";

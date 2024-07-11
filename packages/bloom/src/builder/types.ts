@@ -1,9 +1,9 @@
 import { Num, Value } from "@penrose/core";
 
-export type Substance = any;
-export type Type = (name?: string) => Substance;
-export type Predicate = ((...substances: Substance[]) => void) & {
-  test: ((...substances: Substance[]) => boolean);
+export type Substance = Record<string, any>;
+export type Type = () => Substance;
+export type Predicate = ((...objs: any[]) => void) & {
+  test: (...objs: any[]) => boolean;
 };
 
 export type Vec2 = [Num, Num];

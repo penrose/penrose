@@ -1,8 +1,8 @@
 // import { circles } from "./examples/simple.js";
-import { sets } from "./examples/sets.js";
+import { basisVectors } from "./examples/eigen.js";
 import Renderer from "./renderer/Renderer.tsx";
 
-const diagram = await sets();
+const diagram = await basisVectors();
 
 function App() {
   return (

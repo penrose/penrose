@@ -1,11 +1,10 @@
-import { makeCanvas } from "@penrose/core";
 import { DiagramBuilder } from "../builder/builder.js";
 import constraints from "../builder/constraints.ts";
 import objectives from "../builder/objectives.ts";
+import { canvas } from "../builder/utils.ts";
 
 export const sets = async () => {
   const {
-    vary,
     circle,
     equation,
     ensure,
@@ -14,10 +13,8 @@ export const sets = async () => {
     type,
     predicate,
     forall,
-    where,
-    test,
     layer,
-  } = new DiagramBuilder(makeCanvas(800, 700), "abcd");
+  } = new DiagramBuilder(canvas(800, 700), "abcd");
 
   // domain
   const Set = type();
@@ -25,13 +22,21 @@ export const sets = async () => {
   const IsDisjoint = predicate();
 
   // substance
-  const A = Set("A");
-  const B = Set("B");
-  const C = Set("C");
-  const D = Set("D");
-  const E = Set("E");
-  const F = Set("F");
-  const G = Set("G");
+  const A = Set();
+  const B = Set();
+  const C = Set();
+  const D = Set();
+  const E = Set();
+  const F = Set();
+  const G = Set();
+
+  A.label = "A";
+  B.label = "B";
+  C.label = "C";
+  D.label = "D";
+  E.label = "E";
+  F.label = "F";
+  G.label = "G";
 
   IsSubset(A, B);
   IsSubset(A, C);
@@ -43,24 +48,27 @@ export const sets = async () => {
   IsSubset(C, G);
 
   IsDisjoint(B, C);
+  IsDisjoint(D, E);
+  IsDisjoint(F, G);
 
   // style
   forall({ s: Set }, ({ s }) => {
     s.icon = circle();
-    s.label = equation({
-      string: s.name,
+    s.text = equation({
+      string: s.label,
+      fontSize: "32px",
     });
 
-    layer(s.icon, s.label);
+    layer(s.icon, s.text);
 
-    encourage(objectives.near(s.icon, s.label));
-    ensure(constraints.contains(s.icon, s.label, 5));
+    encourage(objectives.near(s.icon, s.text));
+    ensure(constraints.contains(s.icon, s.text, 5));
   });
 
   forall({ a: Set, b: Set }, ({ a, b }) => {
     if (IsSubset.test(a, b)) {
       ensure(constraints.contains(a.icon, b.icon, 10));
-      ensure(constraints.disjoint(a.label, b.icon, 5));
+      ensure(constraints.disjoint(a.text, b.icon, 5));
     }
   });
 
