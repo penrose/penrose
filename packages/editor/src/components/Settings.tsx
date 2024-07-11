@@ -82,10 +82,9 @@ export default function Settings() {
         />
         <label>Play Mode</label>
       </div>
-      {settings.contents.github === null && (
+
       {currentUser != null ? (
         <div style={{ margin: "10px" }}>
-          {" "}
           <BlueButton onClick={useLogout}>Sign Out</BlueButton>
         </div>
       ) : (
