@@ -1,4 +1,5 @@
 import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
+
 import { lintGutter, linter } from "@codemirror/lint";
 import { Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
@@ -91,6 +92,7 @@ export default function EditorPane({
   );
 
   const defaultExtensions = [
+    vim(),
     EditorView.lineWrapping,
     ResponsiveStyles,
     lintObject,
@@ -158,7 +160,10 @@ export default function EditorPane({
     });
   }
 
-  if (vimMode) extensionsList.push(vim());
+  if (vimMode) {
+    // NOTE: need to make sure vim keybindings have the highest precedence whenever we're in vim mode
+    extensionsList.push(Prec.highest(vim()));
+  }
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
