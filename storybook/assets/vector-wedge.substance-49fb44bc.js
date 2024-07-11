@@ -1,4 +1,4 @@
-import{_ as e,__tla as m}from"./iframe-0fd4e399.js";let l,n,s,c,u,_=Promise.all([(()=>{try{return m}catch{}})()]).then(async()=>{let i;n=`type Scalar
+import{_ as e,__tla as m}from"./iframe-e48e659b.js";let l,n,s,c,u,_=Promise.all([(()=>{try{return m}catch{}})()]).then(async()=>{let i;n=`type Scalar
 
 -- define vectors and bivectors as subtypes of a base k-vector type
 type kVector
