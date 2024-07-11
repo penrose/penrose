@@ -1,0 +1,7 @@
+-- To enable interactivity, enable to Settings -> Interactivity -> Edit Mode
+
+Curve c
+
+-- inSphere(c_i) for i in [1]
+onSphere(c)
+hasShadow(c)

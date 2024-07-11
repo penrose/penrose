@@ -1,0 +1,8 @@
+-- To enable constrained dragging, enable Settings -> Interactivity -> Play Mode
+
+Star Sun := Star (20)
+
+Planet Mercury := Planet (Sun, 88, 58)
+Planet Venus := Planet (Sun, 225, 107)
+Planet Earth := Planet (Sun, 365, 150)
+Planet Mars := Planet (Sun, 687, 228)

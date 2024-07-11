@@ -47,7 +47,7 @@ export const toPathString = (
 
 export const RenderPath = (
   shape: Path<number>,
-  { canvasSize }: RenderProps,
+  { canvasSize, titleCache }: RenderProps,
 ): SVGGElement => {
   // TODO: distinguish between fill opacity and stroke opacity
   const strokeColor = toSvgPaintProperty(shape.strokeColor.contents);
@@ -132,7 +132,7 @@ export const RenderPath = (
     elem = path;
   }
 
-  attrToNotAutoMap.push(...attrTitle(shape, elem));
+  attrToNotAutoMap.push(...attrTitle(shape, elem, titleCache));
 
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);

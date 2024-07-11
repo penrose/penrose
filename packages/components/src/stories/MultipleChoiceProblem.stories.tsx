@@ -1,7 +1,7 @@
 import substance from "@penrose/examples/dist/molecules/hydrogencyanide.substance";
 import style from "@penrose/examples/dist/molecules/lewis.style";
 import domain from "@penrose/examples/dist/molecules/molecules.domain";
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Meta, StoryFn } from "@storybook/react";
 import { ThemeProvider } from "styled-components";
 import MultipleChoiceProblem from "../MultipleChoiceProblem.js";
 
@@ -11,10 +11,10 @@ import MultipleChoiceProblem from "../MultipleChoiceProblem.js";
 export default {
   title: "Example/Multiple Choice Problem Component",
   component: MultipleChoiceProblem,
-} as ComponentMeta<typeof MultipleChoiceProblem>;
+} as Meta<typeof MultipleChoiceProblem>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof MultipleChoiceProblem> = (args) => (
+const Template: StoryFn<typeof MultipleChoiceProblem> = (args) => (
   <ThemeProvider
     theme={{
       default: "#fff",

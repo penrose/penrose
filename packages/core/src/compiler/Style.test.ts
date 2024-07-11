@@ -329,8 +329,8 @@ describe("Compiler", () => {
       ["C", "C"],
     ]) {
       const v = substances.get(name)?.get("label");
-      if (v?.tag === "OtherSource" && v?.expr.expr.tag === "StringLit") {
-        expect(v.expr.expr.contents).toBe(label);
+      if (v?.tag === "OtherSource" && v?.expr.tag === "StringLit") {
+        expect(v.expr.contents).toBe(label);
       }
     }
   });
@@ -859,7 +859,6 @@ where Subset(y, x) { }`,
 
       // ------- Compilation errors
 
-      PropertyMemberError: [`forall Set x { delete y.z.p }`],
       MissingShapeError: [
         `forall Set x { x.icon = Circle { }
 delete x.z.p }`,
@@ -1096,6 +1095,43 @@ delete x.z.p }`,
         }
         collect Set a into aa {
           x = listof c from aa
+        }`,
+      ],
+      UndeclaredSubVarError: [
+        `forall Set \`B\` {
+           \`B\`.x = 100 
+         }
+           forall Set a {
+           a.x = \`B\`.x
+         }`,
+      ],
+      PathToSubstanceError: [
+        `forall Set x {
+          v = x
+        }`,
+      ],
+      PathToCollectionError: [
+        `collect Set s into ss {
+          x = ss
+        }`,
+      ],
+      PathToNamespaceError: [
+        `ns {
+          x = 100
+        }
+        forall Set x {
+          y = ns
+        }`,
+      ],
+      CollectionMemberAccessError: [
+        `collect Set s into ss {
+          x = ss.r
+        }`,
+      ],
+      UnindexableItemError: [
+        `forall Set x {
+          x.icon = Circle {}
+          y = x.icon[1]
         }`,
       ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
@@ -1402,7 +1438,7 @@ delete x.z.p }`,
       // And this would fail:
       const { graph } = await loadProgs({ dsl, sub, sty });
       expect(graph.parents("`t`.val").sort()).toEqual(
-        ["`t`.vals", "1:0:match_id"].sort(),
+        ["`t`.vals", "1:0.match_id"].sort(),
       );
     });
   });

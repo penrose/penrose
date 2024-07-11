@@ -6,6 +6,7 @@ import {
 } from "@penrose/core";
 import consola from "consola";
 import { Result } from "true-myth";
+import { Interaction } from "../utils/interactionUtils.js";
 import Broker from "./broker.ts?worker";
 import {
   collectAndSeparateLabels,
@@ -15,6 +16,8 @@ import {
   DiagramID,
   DiscardDiagramData,
   HistoryLoc,
+  InteractionRequestData,
+  InteractionResult,
   InvalidDiagramIDError,
   InvalidHistoryLocError,
   isErr,
@@ -41,7 +44,7 @@ import {
   taggedErr,
 } from "./common.js";
 
-const log = consola.create({ level: logLevel }).withScope("optimizer:client");
+const log = consola.create({ level: logLevel }).withTag("optimizer:client");
 
 export default class Optimizer {
   private resolvesByMsgId = new Map<
@@ -249,6 +252,20 @@ export default class Optimizer {
       tag: MessageTags.Resample,
       diagramId,
       variation,
+    };
+    return await this.request(requestData);
+  };
+
+  interact = async (
+    diagramId: DiagramID,
+    parentHistoryLoc: HistoryLoc,
+    interaction: Interaction,
+  ): Promise<InteractionResult> => {
+    const requestData: InteractionRequestData = {
+      tag: MessageTags.Interaction,
+      diagramId,
+      parentHistoryLoc,
+      interaction,
     };
     return await this.request(requestData);
   };

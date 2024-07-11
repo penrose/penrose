@@ -10,7 +10,15 @@ import {
   Stroke,
 } from "../types/shapes.js";
 import { FloatV, StrV } from "../types/value.js";
-import { black, boolV, floatV, noPaint, strV, vectorV } from "../utils/Util.js";
+import {
+  black,
+  boolV,
+  fakePath,
+  floatV,
+  noPaint,
+  strV,
+  vectorV,
+} from "../utils/Util.js";
 import { Canvas, Context, uniform } from "./Samplers.js";
 
 export interface TextProps<T>
@@ -110,4 +118,5 @@ export const makeText = (
   ...properties,
   shapeType: "Text",
   passthrough: new Map(),
+  path: fakePath("defaultText"),
 });

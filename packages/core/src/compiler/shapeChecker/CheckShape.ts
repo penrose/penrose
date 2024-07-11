@@ -13,7 +13,9 @@ import { Rectangle } from "../../shapes/Rectangle.js";
 import { Shape, ShapeType } from "../../shapes/Shapes.js";
 import { Text } from "../../shapes/Text.js";
 import * as ad from "../../types/ad.js";
+import { A } from "../../types/ast.js";
 import { StyleError } from "../../types/errors.js";
+import { StylePathToUnindexedObject } from "../../types/stylePathResolution.js";
 import { Translation } from "../../types/styleSemantics.js";
 import {
   checkArrow,
@@ -42,7 +44,7 @@ const { err, ok } = Result;
 
 export const checkShape = (
   shapeType: ShapeType,
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Shape<ad.Num>, StyleError> => {
   switch (shapeType) {
@@ -77,7 +79,7 @@ export const checkShape = (
 };
 
 export const checkCircle = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Circle<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -103,11 +105,12 @@ export const checkCircle = (
     r: r.value,
     passthrough: new Map(),
     shapeType: "Circle",
+    path,
   });
 };
 
 export const checkEllipse = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Ellipse<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -137,11 +140,12 @@ export const checkEllipse = (
     ry: ry.value,
     passthrough: new Map(),
     shapeType: "Ellipse",
+    path,
   });
 };
 
 export const checkEquation = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Equation<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -179,11 +183,12 @@ export const checkEquation = (
     descent: descent.value,
     passthrough: new Map(),
     shapeType: "Equation",
+    path,
   });
 };
 
 export const checkGroup = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Group<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -201,11 +206,12 @@ export const checkGroup = (
     clipPath: clipPath.value,
     passthrough: new Map(),
     shapeType: "Group",
+    path,
   });
 };
 
 export const checkImage = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Image<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -240,11 +246,12 @@ export const checkImage = (
     preserveAspectRatio: preserveAspectRatio.value,
     passthrough: new Map(),
     shapeType: "Image",
+    path,
   });
 };
 
 export const checkLine = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Line<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -278,11 +285,12 @@ export const checkLine = (
     strokeLinecap: strokeLinecap.value,
     passthrough: new Map(),
     shapeType: "Line",
+    path,
   });
 };
 
 export const checkPath = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Path<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -312,11 +320,12 @@ export const checkPath = (
     passthrough: new Map(),
     strokeLinecap: strokeLinecap.value,
     shapeType: "Path",
+    path,
   });
 };
 
 export const checkPolygon = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Polygon<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -342,11 +351,12 @@ export const checkPolygon = (
     ...poly.value,
     passthrough: new Map(),
     shapeType: "Polygon",
+    path,
   });
 };
 
 export const checkPolyline = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Polyline<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -376,11 +386,12 @@ export const checkPolyline = (
     strokeLinecap: strokeLinecap.value,
     passthrough: new Map(),
     shapeType: "Polyline",
+    path,
   });
 };
 
 export const checkRectangle = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Rectangle<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -414,11 +425,12 @@ export const checkRectangle = (
     ...corner.value,
     passthrough: new Map(),
     shapeType: "Rectangle",
+    path,
   });
 };
 
 export const checkText = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Text<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -514,5 +526,6 @@ export const checkText = (
     descent: descent.value,
     passthrough: new Map(),
     shapeType: "Text",
+    path,
   });
 };

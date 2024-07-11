@@ -7,7 +7,14 @@ import {
   ShapeCommon,
   Stroke,
 } from "../types/shapes.js";
-import { boolV, floatV, noPaint, ptListV, strV } from "../utils/Util.js";
+import {
+  boolV,
+  fakePath,
+  floatV,
+  noPaint,
+  ptListV,
+  strV,
+} from "../utils/Util.js";
 import { Canvas, Context, sampleColor } from "./Samplers.js";
 
 export interface PolygonProps<T>
@@ -49,4 +56,5 @@ export const makePolygon = (
   ...properties,
   shapeType: "Polygon",
   passthrough: new Map(),
+  path: fakePath("defaultPolygon"),
 });

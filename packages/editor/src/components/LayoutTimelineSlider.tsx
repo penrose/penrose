@@ -16,13 +16,17 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
   const onChange = (i: number) => {
     // request shapes from worker
     async function requestShapes() {
-      if (diagram.diagramId === null || diagram.stepSequenceId === null) return;
+      if (diagram.diagramId === null || diagram.historyLoc === null) return;
 
       setWaiting(true);
-      const state = await optimizer.computeLayout(diagram.diagramId, {
-        sequenceId: diagram.stepSequenceId,
+      const historyLoc = {
+        sequenceId: diagram.historyLoc.sequenceId,
         frame: i,
-      });
+      };
+      const state = await optimizer.computeLayout(
+        diagram.diagramId,
+        historyLoc,
+      );
       if (state.isErr()) {
         setWaiting(false);
         setDiagram((diagram) => ({
@@ -38,6 +42,11 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
           state: state.value,
         }));
       }
+
+      setDiagram((diagram) => ({
+        ...diagram,
+        historyLoc,
+      }));
     }
 
     if (!waiting) {
@@ -48,6 +57,11 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
       });
     }
   };
+
+  const layoutStats = diagram.historyLoc
+    ? diagram.historyInfo?.get(diagram.historyLoc.sequenceId)?.layoutStats ?? []
+    : [];
+
   return (
     <div
       style={{
@@ -58,14 +72,12 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
     >
       <SegmentedSlider
         disabled={optimizing}
-        segments={
-          diagram.layoutStats.map((stat, i) => ({
-            label: stat.name,
-            frames: stat.frames,
-            cumulativeFrames: stat.cumulativeFrames,
-            color: penroseBlue.primary,
-          })) ?? []
-        }
+        segments={layoutStats.map((stat, i) => ({
+          label: stat.name,
+          frames: stat.frames,
+          cumulativeFrames: stat.cumulativeFrames,
+          color: penroseBlue.primary,
+        }))}
         onChange={onChange}
       ></SegmentedSlider>
     </div>

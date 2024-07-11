@@ -4,7 +4,7 @@ import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
 import queryString from "query-string";
 import toast from "react-hot-toast";
-import { RecoilState, useRecoilCallback } from "recoil";
+import { RecoilState, useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import { isErr, showOptimizerError } from "../optimizer/common.js";
 import {
@@ -29,6 +29,7 @@ import {
   WorkspaceLocation,
   WorkspaceMetadata,
   canvasState,
+  codemirrorHistory,
   currentRogerState,
   currentWorkspaceState,
   defaultWorkspaceState,
@@ -39,6 +40,7 @@ import {
   localFilesState,
   optimizer,
   settingsState,
+  showCompileErrsState,
   workspaceMetadataSelector,
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
@@ -54,6 +56,7 @@ const _compileDiagram = async (
   // indicate that buttons should gray out for now
   set(diagramWorkerState, (state) => ({
     optimizing: false,
+    resampling: false,
     compiling: true,
   }));
 
@@ -69,6 +72,7 @@ const _compileDiagram = async (
   // un-gray buttons
   set(diagramWorkerState, () => ({
     optimizing: false,
+    resampling: false,
     compiling: false,
   }));
 
@@ -97,11 +101,14 @@ const _compileDiagram = async (
     ...diagram,
     warnings: compileResult.value.warnings,
     error: null,
-    layoutStats: [],
+    historyInfo: pollResult.value,
     diagramId: compileResult.value.diagramId,
     // uses our assumption that there will only be one step sequence for a newly
     // compiled diagram
-    stepSequenceId: pollResult.value.keys().next().value,
+    historyLoc: {
+      sequenceId: pollResult.value.keys().next().value,
+      frame: 0,
+    },
     metadata: {
       ...diagram.metadata,
       variation,
@@ -116,28 +123,33 @@ const _compileDiagram = async (
 
   set(diagramWorkerState, () => ({
     compiling: false,
+    resampling: false,
     optimizing: true,
   }));
 };
 
-export const useCompileDiagram = () =>
-  useRecoilCallback(({ snapshot, set }) => async () => {
-    const workspace = snapshot.getLoadable(currentWorkspaceState)
-      .contents as Workspace;
-    const domainFile = workspace.files.domain.contents;
-    const substanceFile = workspace.files.substance.contents;
-    const styleFile = workspace.files.style.contents;
-    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
-
-    await _compileDiagram(
-      substanceFile,
-      styleFile,
-      domainFile,
-      diagram.metadata.variation,
-      diagram.metadata.excludeWarnings,
-      set,
-    );
-  });
+export const useCompileDiagram = () => {
+  const workspace = useRecoilValue(currentWorkspaceState);
+  const metadata = useRecoilValue(diagramMetadataSelector);
+  return useRecoilCallback(
+    ({ snapshot, set }) =>
+      async () => {
+        set(showCompileErrsState, true);
+        const domainFile = workspace.files.domain.contents;
+        const substanceFile = workspace.files.substance.contents;
+        const styleFile = workspace.files.style.contents;
+        await _compileDiagram(
+          substanceFile,
+          styleFile,
+          domainFile,
+          metadata.variation,
+          metadata.excludeWarnings,
+          set,
+        );
+      },
+    [workspace, metadata],
+  );
+};
 
 export const useIsUnsaved = () =>
   useRecoilCallback(({ snapshot, set }) => () => {
@@ -145,6 +157,18 @@ export const useIsUnsaved = () =>
       .contents as Workspace;
     return !isCleanWorkspace(workspace);
   });
+
+/*
+ * See: https://github.com/uiwjs/react-codemirror/issues/405
+ * Summary: Utilizing React Codemirror provides useful abstractions that
+ * would be annoying to implement manually (namely onChange hook)
+ * Docs recommend clearing history by resetting State, but this would
+ * remove the React Codemirror state. This is a hacky workaround
+ */
+export const useResetEditorHistory = (set: any) => {
+  set(codemirrorHistory, false);
+  setTimeout(() => set(codemirrorHistory, true), 1);
+};
 
 export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
@@ -176,10 +200,14 @@ export const useResampleDiagram = () =>
     set(diagramWorkerState, () => ({
       compiling: false,
       optimizing: true,
+      resampling: false,
     }));
     set(diagramState, (diagram) => ({
       ...diagram,
-      stepSequenceId: resampleResult.value,
+      historyLoc: {
+        sequenceId: resampleResult.value,
+        frame: 0,
+      },
       // on resample, only clear runtime errors
       error:
         diagram.error !== null && diagram.error.errorType !== "RuntimeError"
@@ -441,6 +469,7 @@ export const useLoadLocalWorkspace = () =>
       [],
       set,
     );
+    useResetEditorHistory(set);
   });
 
 export const useLoadExampleWorkspace = () =>
@@ -503,6 +532,8 @@ export const useLoadExampleWorkspace = () =>
           excludeWarnings,
           set,
         );
+
+        useResetEditorHistory(set);
       },
   );
 
@@ -519,6 +550,7 @@ export const useNewWorkspace = () =>
     // set rather than reset to generate new id to avoid id conflicts
     set(currentWorkspaceState, () => defaultWorkspaceState());
     reset(diagramState);
+    useResetEditorHistory(set);
   });
 
 export const useCheckURL = () =>
