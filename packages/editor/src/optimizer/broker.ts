@@ -182,6 +182,7 @@ self.onmessage = async ({
           case MessageTags.ComputeLayout:
           case MessageTags.Poll:
           case MessageTags.Resample:
+          case MessageTags.Interaction:
             result = await forwardRequest(requestData.diagramId, requestData);
             break;
 

@@ -9,6 +9,7 @@ import {
   compileCompGraph,
   dummyIdentifier,
   isConcrete,
+  mapValueNumeric,
 } from "../engine/EngineUtils.js";
 import { start as genOptProblem } from "../engine/Optimizer.js";
 import { constrDict } from "../lib/Constraints.js";
@@ -27,10 +28,13 @@ import {
 import {
   Shape,
   ShapeType,
+  isScalable,
   isShapeType,
+  isTranslatable,
   sampleShape,
 } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
+import { isVar } from "../types/ad.js";
 import { A, C, Identifier, SourceRange } from "../types/ast.js";
 import { DomainEnv, Type } from "../types/domain.js";
 import {
@@ -45,6 +49,7 @@ import {
 } from "../types/errors.js";
 import {
   Fn,
+  IdxsByPath,
   OptPipeline,
   OptStages,
   StagedConstraints,
@@ -181,7 +186,6 @@ import {
   cartesianProduct,
   colorV,
   floatV,
-  getAdValueAsString,
   hexToRgba,
   isKeyOf,
   listV,
@@ -3849,6 +3853,47 @@ export const stageConstraints = (
     ]),
   );
 
+/**
+ * Map each numeric field, map the field such that each number with a
+ * corresponding optimizer input is replaced by the index of that input,
+ * and otherwise undefined.
+ * @param symbols
+ * @param inputIdxsByVar A map of `ad.Var`s to input indices
+ */
+const getInputIdxsByPath = (
+  symbols: im.Map<string, ArgVal<ad.Num>>,
+  inputIdxsByVar: Map<ad.Var, number>,
+): IdxsByPath => {
+  const tryGetIdx = (x: ad.Num) =>
+    isVar(x) ? inputIdxsByVar.get(x) : undefined;
+  const res: IdxsByPath = new Map();
+  for (const [path, val] of symbols) {
+    let mappedVal: ArgVal<number | undefined>;
+    switch (val.tag) {
+      case "Val":
+        switch (val.contents.tag) {
+          case "StrV":
+          case "BoolV":
+            continue;
+
+          default:
+            mappedVal = {
+              tag: "Val",
+              contents: mapValueNumeric((x) => tryGetIdx(x), val.contents),
+            };
+            break;
+        }
+        break;
+
+      case "ShapeVal":
+        continue;
+    }
+    res.set(path, mappedVal);
+  }
+
+  return res;
+};
+
 const processPassthrough = (
   { symbols }: Translation,
   nameShapeMap: Map<string, Shape<ad.Num>>,
@@ -3943,6 +3988,7 @@ export const compileStyleHelper = async (
   const rng = seedrandom(variation);
   const varyingValues: number[] = [];
   const inputs: ad.Var[] = [];
+  const inputIdxsByVar = new Map<ad.Var, number>();
   const metas: InputMeta[] = [];
   const makeInput = (meta: InputMeta) => {
     const val =
@@ -3951,6 +3997,7 @@ export const compileStyleHelper = async (
     varyingValues.push(val);
     inputs.push(x);
     metas.push(meta);
+    inputIdxsByVar.set(x, inputs.length - 1);
     return x;
   };
 
@@ -3961,6 +4008,11 @@ export const compileStyleHelper = async (
     optimizationStages.value,
     graph,
     assignment.diagnostics.warnings,
+  );
+
+  const inputIdxsByPath = getInputIdxsByPath(
+    translation.symbols,
+    inputIdxsByVar,
   );
 
   log.info("translation (before genOptProblem)", translation);
@@ -3996,18 +4048,31 @@ export const compileStyleHelper = async (
   }
 
   const shapes = getShapesList(translation, layerOrdering);
-
+  const translatableShapePaths = new Set<string>();
+  const scalableShapePaths = new Set<string>();
   const nameShapeMap = new Map<string, Shape<ad.Num>>();
-
   for (const shape of shapes) {
-    const shapeName = getAdValueAsString(shape.name);
-    nameShapeMap.set(shapeName, shape);
+    nameShapeMap.set(shape.name.contents, shape);
+    if (isTranslatable(shape)) {
+      translatableShapePaths.add(shape.name.contents);
+    }
+    if (isScalable(shape)) {
+      scalableShapePaths.add(shape.name.contents);
+    }
   }
 
   // fill in passthrough properties
   const passthroughResult = processPassthrough(translation, nameShapeMap);
   if (passthroughResult.isErr()) {
     return err(toStyleErrors([passthroughResult.error]));
+  }
+
+  const draggingConstraints = new Map<string, string>();
+  for (const [path, shape] of nameShapeMap) {
+    const constraint = shape.passthrough.get("draggingConstraint");
+    if (constraint !== undefined && constraint.tag === "StrV") {
+      draggingConstraints.set(path, constraint.contents);
+    }
   }
 
   const renderGraph = buildRenderGraph(
@@ -4057,6 +4122,13 @@ export const compileStyleHelper = async (
     params,
     currentStageIndex: 0,
     optStages: optimizationStages.value,
+    interactivityInfo: {
+      inputIdxsByPath,
+      translatableShapePaths,
+      scalableShapePaths,
+      shapesByPath: nameShapeMap,
+      draggingConstraints,
+    },
   };
 
   log.info("init state from GenOptProblem", initState);

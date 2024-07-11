@@ -41,6 +41,48 @@ export default function Settings() {
           />
         </label>
       </div>
+      <div>
+        interactive mode (experimental) <br />
+        <input
+          type="radio"
+          name="interactivity"
+          checked={settings.contents.interactive === "Off"}
+          onChange={(e) => {
+            setSettings((settings) => ({
+              ...settings,
+              interactive: "Off",
+            }));
+          }}
+        />
+        <label>Off</label>
+        <br />
+        <input
+          type="radio"
+          name="interactivity"
+          checked={settings.contents.interactive === "EditMode"}
+          onChange={(e) => {
+            setSettings((settings) => ({
+              ...settings,
+              interactive: "EditMode",
+            }));
+          }}
+        />
+        <label>Edit Mode</label>
+        <br />
+        <input
+          type="radio"
+          name="interactivity"
+          checked={settings.contents.interactive === "PlayMode"}
+          onChange={(e) => {
+            setSettings((settings) => ({
+              ...settings,
+              interactive: "PlayMode",
+            }));
+          }}
+        />
+        <label>Play Mode</label>
+      </div>
+      {settings.contents.github === null && (
       {currentUser != null ? (
         <div style={{ margin: "10px" }}>
           {" "}

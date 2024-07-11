@@ -1,0 +1,6 @@
+{
+  "domain": "./rays.domain",
+  "style": ["./ellipse-rays.style"],
+  "substance": "./ellipse-rays.substance",
+  "variation": "TigerlilyTapir50387"
+}
