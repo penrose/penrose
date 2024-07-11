@@ -1,7 +1,7 @@
 import { DiagramBuilder } from "../builder/builder.js";
-import constraints from "../builder/constraints.ts";
-import objectives from "../builder/objectives.ts";
-import { canvas } from "../builder/utils.ts";
+import constraints from "../lib/constraints.js";
+import objectives from "../lib/objectives.js";
+import { canvas } from "../utils.js";
 
 export const sets = async () => {
   const {

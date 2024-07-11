@@ -1,5 +1,5 @@
 import { Num, Value, compDict } from "@penrose/core";
-import { Color, PathData, Vec2, VecN } from "./types.js";
+import { Color, PathData, Vec2, VecN } from "../types.js";
 
 const context = {
   makeInput: () => {

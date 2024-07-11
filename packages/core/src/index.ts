@@ -358,8 +358,12 @@ export {
   prettyCompiledSubstance,
   prettySubstance,
 } from "./compiler/Substance.js";
-export { mapShape, mapValueNumeric, compileCompGraph } from "./engine/EngineUtils.js";
 export { genGradient } from "./engine/Autodiff.js";
+export {
+  compileCompGraph,
+  mapShape,
+  mapValueNumeric,
+} from "./engine/EngineUtils.js";
 export { start } from "./engine/Optimizer.js";
 export { constrDict } from "./lib/Constraints.js";
 export { compDict } from "./lib/Functions.js";

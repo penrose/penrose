@@ -163,4 +163,66 @@ export const sortShapes = (
   );
 };
 
+export class CallbackLooper {
+  private messageChannel?: MessageChannel;
+  private messageChannelPromise?: Promise<void> | null;
+  private messageChannelResolve?: () => void | null;
+
+  private activeId = 0;
+  private running = false;
+  private queuer: (callback: () => unknown) => Promise<void>;
+
+  constructor(loopType: "MessageChannel" | "AnimationFrame") {
+    switch (loopType) {
+      case "MessageChannel":
+        this.messageChannel = new MessageChannel();
+        this.messageChannel!.port1.onmessage = () => {
+          this.messageChannelResolve!();
+          this.setPromiseAndResolve();
+        };
+        this.setPromiseAndResolve();
+        this.queuer = async (callback) => {
+          this.messageChannel!.port2.postMessage(null);
+          await this.messageChannelPromise!;
+          this.setPromiseAndResolve();
+          callback();
+        };
+        break;
+
+      case "AnimationFrame":
+        this.queuer = async (callback) => {
+          requestAnimationFrame(callback);
+        };
+        break;
+    }
+  }
+
+  setPromiseAndResolve = () => {
+    this.messageChannelPromise = new Promise((resolve) => {
+      this.messageChannelResolve = resolve;
+    });
+  };
+
+  loop = (callback: () => Promise<boolean>) => {
+    this.running = true;
+    const startingId = ++this.activeId;
+
+    const onFrame = async () => {
+      if (this.activeId === startingId) {
+        if (await callback()) {
+          this.queuer(onFrame);
+        } else {
+          this.running = false;
+        }
+      } // otherwise, we were interrupted by another loop call, so someone is
+      // running, hence don't turn `this.running` off
+    };
+    this.queuer(onFrame);
+  };
+
+  isRunning = () => this.running;
+
+  stop = () => this.loop(async () => false);
+}
+
 export { makeCanvas as canvas } from "@penrose/core";

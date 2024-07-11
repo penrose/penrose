@@ -16,8 +16,8 @@ import {
   Text,
   Vec2,
   VecN,
-} from "./types.js";
-import { toPenroseShape } from "./utils.js";
+} from "../types.js";
+import { toPenroseShape } from "../utils.js";
 
 type PenroseRectLike =
   | PenroseRectangle<Num>

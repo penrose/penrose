@@ -1,5 +1,6 @@
 import {
   Canvas,
+  InputInfo,
   InputMeta,
   Num,
   Shape as PenroseShape,
@@ -9,7 +10,6 @@ import {
   simpleContext,
   uniform,
 } from "@penrose/core";
-import { Diagram } from "../renderer/Renderer.js";
 import {
   Circle,
   CircleProps,
@@ -36,8 +36,9 @@ import {
   Substance,
   TextProps,
   Type,
-} from "./types.js";
-import { fromPenroseShape, sortShapes, toPenroseShape } from "./utils.js";
+} from "../types.ts";
+import { fromPenroseShape, sortShapes, toPenroseShape } from "../utils.js";
+import { Diagram } from "./diagram.js";
 
 export type NamedSamplingContext = {
   makeInput: (meta: InputMeta, name?: string) => Var;
@@ -51,8 +52,7 @@ export class DiagramBuilder {
   private substanceTypeMap: Map<Substance, Type> = new Map();
 
   private canvas: Canvas;
-  private inputs: Var[] = [];
-  private inputInits: ("Pending" | "Sampled")[] = [];
+  private inputs: InputInfo[] = [];
   private namedInputs: Map<string, number> = new Map();
   private samplingContext: NamedSamplingContext;
   private shapes: PenroseShape<Num>[] = [];
@@ -70,8 +70,7 @@ export class DiagramBuilder {
     this.samplingContext = {
       makeInput: (meta, name?) => {
         const newVar = createVar(meta);
-        this.inputs.push(newVar);
-        this.inputInits.push(meta.init.tag);
+        this.inputs.push({ handle: newVar, meta });
         if (name !== undefined) {
           this.namedInputs.set(name, this.inputs.length - 1);
         }
@@ -272,11 +271,10 @@ export class DiagramBuilder {
       canvas: this.canvas,
       variation: this.variation,
       inputs: this.inputs,
-      inputInits: this.inputInits,
       constraints: this.constraints,
       objectives: this.objectives,
       shapes: orderedShapes,
-      // namedInputs: this.namedInputs,
+      namedInputs: this.namedInputs,
     });
   };
 }
