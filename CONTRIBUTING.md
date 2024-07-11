@@ -415,6 +415,27 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 - Create a new [GitHub release][].
 - CI will run after the new release is created, automatically publishing packages to npm.
 
+### Pre-release
+
+To publish development releases:
+
+- Make sure all PRs for the upcoming release are merged. Switch to `main` and check `git status` to make sure it's clean and up-to-date.
+- Create the pre-release version without tagging or committing:
+
+```shell
+yarn lerna version --conventional-commits --conventional-prerelease --no-git-tag-version --no-push
+```
+
+- Run `yarn format` to clean up auto-generated file changes.
+- Create a new branch (`git switch --create release-X.Y.Z`) from main and commit the changes.
+- Publish the pre-release version:
+
+```
+yarn lerna publish from-package --pre-dist-tag develop
+```
+
+- Open a new PR with a title `chore: bump version to X.Y.Z` and merge after CI passes.
+
 [branch]: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
 [ci]: https://docs.github.com/en/actions
 [clone]: https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository
