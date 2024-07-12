@@ -92,7 +92,6 @@ export default function EditorPane({
   );
 
   const defaultExtensions = [
-    vim(),
     EditorView.lineWrapping,
     ResponsiveStyles,
     lintObject,
