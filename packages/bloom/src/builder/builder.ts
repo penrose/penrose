@@ -61,6 +61,7 @@ export class DiagramBuilder {
   private variation: string;
   private nextId = 0;
   private partialLayering: [string, string][] = [];
+  private pinnedInputs: Set<number> = new Set();
 
   constructor(canvas: Canvas, variation: string) {
     this.canvas = canvas;
@@ -193,7 +194,11 @@ export class DiagramBuilder {
     this.forallWhere(vars, () => true, func);
   };
 
-  vary = (name?: string, init?: number): Var => {
+  vary = (opts?: { name?: string; init?: number; pinned?: boolean }): Var => {
+    const name = opts?.name;
+    const init = opts?.init;
+    const pinned = opts?.pinned ?? false;
+
     const newVar = this.samplingContext.makeInput(
       {
         init: {
@@ -205,6 +210,10 @@ export class DiagramBuilder {
       },
       name,
     );
+
+    if (pinned) {
+      this.pinnedInputs.add(this.inputs.length - 1);
+    }
     return newVar;
   };
 
@@ -284,6 +293,7 @@ export class DiagramBuilder {
       objectives: this.objectives,
       shapes: orderedShapes,
       namedInputs: this.namedInputs,
+      pinnedInputs: this.pinnedInputs,
     });
   };
 }

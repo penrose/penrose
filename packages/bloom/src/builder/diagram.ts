@@ -28,6 +28,7 @@ export type DiagramData = {
   objectives: Num[];
   shapes: Shape<Num>[];
   namedInputs: Map<string, number>;
+  pinnedInputs: Set<number>;
 };
 
 export class Diagram {
@@ -100,7 +101,10 @@ export class Diagram {
       [
         "",
         {
-          inputMask: data.inputs.map(({ meta }) => meta.init.tag === "Sampled"),
+          inputMask: data.inputs.map(
+            ({ meta }, i) =>
+              meta.init.tag === "Sampled" && !data.pinnedInputs.has(i),
+          ),
           objMask: data.objectives.map(() => true),
           constrMask: data.constraints.map(() => true),
         },
