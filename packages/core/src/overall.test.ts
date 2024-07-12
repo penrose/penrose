@@ -26,7 +26,7 @@ predicate Intersecting(Set s1, Set s2)
 predicate Subset(Set s1, Set s2)
 `;
 
-// copied from `packages/examples/src/set-theory-domain/venn.style`
+// copied from `packages/examples/src/set-theory-domain/euler.style`
 const vennStyle = `canvas {
   width = 800
   height = 700
@@ -220,8 +220,8 @@ describe("Energy API", () => {
       const state = res.value;
       const smallerThanFns = state.constrFns.filter((c) => {
         return (
-          c.ast.expr.body.tag === "FunctionCall" &&
-          c.ast.expr.body.name.value === "disjoint"
+          c.ast.body.tag === "FunctionCall" &&
+          c.ast.body.name.value === "disjoint"
         );
       });
       const masks: ad.Masks = {

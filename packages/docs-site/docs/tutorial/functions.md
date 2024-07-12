@@ -14,7 +14,7 @@ In particular, we are visualizing vector addition. Below is the goal diagram for
 
 ## Starter Code
 
-👉 [**Open this online workspace**](pathname:///try/index.html?examples=tutorials%2Ftutorial3) in a separate tab to follow along!
+👉 <a href="/try/index.html?examples=tutorials%2Ftutorial3" target="_blank">**Open this online workspace**</a> in a separate tab to follow along!
 
 If everything is working, when you compile, you should see a vector space labeled `U` with its x-axis and y-axis in your Penrose window. It should look something like this:
 

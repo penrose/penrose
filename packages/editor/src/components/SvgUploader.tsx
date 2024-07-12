@@ -17,9 +17,15 @@ export default function SvgUploader() {
   );
 
   const handleChange = (svg: File) => {
-    if (!isCleanWorkspace(currentWorkspace)) {
+    if (
+      !isCleanWorkspace(currentWorkspace) &&
+      !confirm(
+        "You have unsaved changes. Are you sure you want to load this SVG?",
+      )
+    ) {
       return;
     }
+
     const reader = new FileReader();
     reader.readAsText(svg);
     reader.onabort = () => console.log("file reading was aborted");

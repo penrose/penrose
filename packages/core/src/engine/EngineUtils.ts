@@ -48,6 +48,7 @@ import {
   ListV,
   MatrixV,
   PathCmd,
+  PathDataListV,
   PathDataV,
   PtListV,
   ShapeListV,
@@ -163,6 +164,21 @@ function mapPathData<T, S>(f: (arg: T) => S, v: PathDataV<T>): PathDataV<S> {
   };
 }
 
+function mapPathDataList<T, S>(
+  f: (arg: T) => S,
+  v: PathDataListV<T>,
+): PathDataListV<S> {
+  return {
+    tag: "PathDataListV",
+    contents: v.contents.map((cmds) => {
+      return mapPathData(f, {
+        tag: "PathDataV",
+        contents: cmds,
+      }).contents;
+    }),
+  };
+}
+
 function mapColorInner<T, S>(f: (arg: T) => S, v: Color<T>): Color<S> {
   switch (v.tag) {
     case "RGBA":
@@ -181,7 +197,7 @@ function mapColor<T, S>(f: (arg: T) => S, v: ColorV<T>): ColorV<S> {
   };
 }
 
-function mapShape<T, S>(f: (arg: T) => S, v: Shape<T>): Shape<S> {
+export function mapShape<T, S>(f: (arg: T) => S, v: Shape<T>): Shape<S> {
   switch (v.shapeType) {
     case "Circle":
       return mapCircle(f, v);
@@ -481,6 +497,8 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
       return mapPathData(f, v);
     case "ShapeListV":
       return mapShapeList(f, v);
+    case "PathDataListV":
+      return mapPathDataList(f, v);
     case "ClipDataV":
       return mapClipData(f, v);
     // non-numeric Value types

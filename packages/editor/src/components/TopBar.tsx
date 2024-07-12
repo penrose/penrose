@@ -10,12 +10,22 @@ import {
 import {
   useCompileDiagram,
   useDownloadSvg,
+  useIsUnsaved,
+  useNewWorkspace,
   usePublishGist,
   useResampleDiagram,
   useSaveLocally,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
 import ExportButton from "./ExportButton.js";
+
+const UnsavedIcon = styled.div`
+  background-color: #dddddd;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-size: 10px;
+  color: #111111;
+`;
 
 const TitleBox = styled.div`
   padding: 5px 10px;
@@ -107,7 +117,9 @@ export default function TopBar() {
   const settings = useRecoilValue(settingsState);
   const saveLocally = useSaveLocally();
   const publishGist = usePublishGist();
-  const { running } = useRecoilValue(diagramWorkerState);
+  const { optimizing, compiling } = useRecoilValue(diagramWorkerState);
+  const isUnsaved = useIsUnsaved();
+  const newWorkspace = useNewWorkspace();
 
   return (
     <nav
@@ -132,6 +144,7 @@ export default function TopBar() {
           }}
         >
           <EditableTitle />
+          {isUnsaved() ? <UnsavedIcon>unsaved</UnsavedIcon> : ""}
           {workspaceMetadata.location.kind === "gist" && (
             <a
               style={{ textDecoration: "none", color: "inherit" }}
@@ -161,17 +174,19 @@ export default function TopBar() {
             settings.github !== null && (
               <BlueButton onClick={publishGist}>share</BlueButton>
             )}
+
+          <BlueButton onClick={newWorkspace}>new workspace</BlueButton>
         </div>
       )}
       <HeaderButtonContainer>
-        <BlueButton disabled={running} onClick={useDownloadSvg()}>
+        <BlueButton disabled={compiling} onClick={useDownloadSvg()}>
           save Penrose SVG
         </BlueButton>
         <ExportButton />
-        <BlueButton disabled={running} onClick={compileDiagram}>
+        <BlueButton disabled={compiling} onClick={compileDiagram}>
           compile ▶
         </BlueButton>
-        <BlueButton disabled={running} onClick={resampleDiagram}>
+        <BlueButton disabled={compiling} onClick={resampleDiagram}>
           resample
         </BlueButton>
       </HeaderButtonContainer>

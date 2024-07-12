@@ -1,0 +1,69 @@
+canvas {
+  width = 500
+  height = 500
+}
+
+global {
+  time = ?
+}
+
+-- assume only one for now
+forall Star s
+where s := Star (radius) {
+  s.icon = Circle {
+    center: (0, 0)
+    fillColor: #fd0
+    r: radius
+  }
+}
+
+forall Planet `Venus` {
+  `Venus`.icon = Circle {
+    fillColor: #ffbb00ff
+    r: 9
+    draggingConstraint: "const a = Math.atan2(y, x); return [107 * Math.cos(a), 107 * Math.sin(a)];"
+  }
+}
+
+forall Planet `Mercury` {
+  `Mercury`.icon = Circle {
+    fillColor: #684217ff
+    r: 4
+    draggingConstraint: "const a = Math.atan2(y, x); return [58 * Math.cos(a), 58 * Math.sin(a)];"
+  }
+}
+
+forall Planet `Earth` {
+  `Earth`.icon = Circle {
+    fillColor: #07b315ff
+    r: 10
+    draggingConstraint: "const a = Math.atan2(y, x); return [150 * Math.cos(a), 150 * Math.sin(a)];"
+  }
+}
+
+forall Planet `Mars` {
+  `Mars`.icon = Circle {
+    fillColor: #db5722ff
+    r: 5
+    draggingConstraint: "const a = Math.atan2(y, x); return [228 * Math.cos(a), 228 * Math.sin(a)];"
+  }
+}
+
+
+forall Planet p; Star s
+where p := Planet (s, period, orbitalRadius) {
+  p.orbit = Circle {
+    fillColor: #0000
+    strokeWidth: 1
+    strokeColor: #000
+    center: s.icon.center
+    r: orbitalRadius
+  }
+
+  p.orbit below p.icon
+
+  angle = global.time / period * 2 * MathPI()
+
+  ensure get(p.icon.center, 0) == orbitalRadius * cos(angle)
+  ensure get(p.icon.center, 1) == orbitalRadius * sin(angle)
+}

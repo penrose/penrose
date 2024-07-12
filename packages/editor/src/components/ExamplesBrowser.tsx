@@ -1,4 +1,5 @@
 import queryString from "query-string";
+import { memo } from "react";
 import { useRecoilValueLoadable } from "recoil";
 import styled from "styled-components";
 import { TrioWithPreview, exampleTriosState } from "../state/atoms.js";
@@ -77,7 +78,7 @@ const Example = ({
   );
 };
 
-export default function ExamplesBrowser() {
+const ExamplesBrowser = memo(() => {
   const examples = useRecoilValueLoadable(exampleTriosState);
   const loadExample = useLoadExampleWorkspace();
   if (examples.state !== "hasValue") {
@@ -96,4 +97,6 @@ export default function ExamplesBrowser() {
       ))}
     </ExampleContainer>
   );
-}
+});
+
+export default ExamplesBrowser;

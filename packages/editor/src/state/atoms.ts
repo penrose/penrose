@@ -1,9 +1,10 @@
 import {
-  compileDomain,
-  DomainEnv,
-  PenroseError,
-  PenroseWarning,
-} from "@penrose/core";
+  DomainCache,
+  SubstanceCache,
+  getDomainCache,
+  getSubstanceCache,
+} from "@penrose/components";
+import { PenroseError, PenroseWarning } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
@@ -12,19 +13,26 @@ import { debounce, range } from "lodash";
 import { RefObject } from "react";
 import toast from "react-hot-toast";
 import {
-  atom,
   AtomEffect,
   DefaultValue,
+  atom,
   selector,
   selectorFamily,
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
-import { RenderState } from "../worker/message.js";
-import OptimizerWorker from "../worker/OptimizerWorker.js";
+
+import {
+  DiagramID,
+  HistoryInfo,
+  HistoryLoc,
+  RenderState,
+} from "../optimizer/common.js";
+import Optimizer from "../optimizer/optimizer.js";
+
 import { generateVariation } from "./variation.js";
 
-export const optimizer = new OptimizerWorker();
+export const optimizer = await Optimizer.create();
 
 export const EDITOR_VERSION = 0.1;
 
@@ -189,35 +197,37 @@ const syncFilenamesEffect: AtomEffect<Workspace> = ({ onSet }) => {
   });
 };
 
-export const currentWorkspaceState = atom<Workspace>({
-  key: "currentWorkspace",
-  default: {
-    metadata: {
-      name: "Untitled Diagram",
-      id: uuid(),
-      lastModified: new Date().toISOString(),
-      editorVersion: 0.1,
-      location: { kind: "local", saved: false },
-      forkedFromGist: null,
+export const defaultWorkspaceState = (): Workspace => ({
+  metadata: {
+    name: "Untitled Diagram",
+    id: uuid(),
+    lastModified: new Date().toISOString(),
+    editorVersion: 0.1,
+    location: { kind: "local", saved: false },
+    forkedFromGist: null,
+  },
+  files: {
+    substance: {
+      name: ".substance",
+      contents: "",
     },
-    files: {
-      substance: {
-        name: ".substance",
-        contents: "",
-      },
-      style: {
-        name: ".style",
-        contents: `canvas {
+    style: {
+      name: ".style",
+      contents: `canvas {
   width = 400
   height = 400
 }`,
-      },
-      domain: {
-        name: ".domain",
-        contents: "",
-      },
+    },
+    domain: {
+      name: ".domain",
+      contents: "",
     },
   },
+});
+
+export const currentWorkspaceState = atom<Workspace>({
+  key: "currentWorkspace",
+  default: defaultWorkspaceState(),
   effects: [saveWorkspaceEffect, syncFilenamesEffect],
 });
 
@@ -271,15 +281,21 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
   },
 });
 
-export const domainCacheState = selector<DomainEnv | null>({
+export const domainCacheState = selector<DomainCache>({
   key: "domainCache",
   get: ({ get }) => {
     const domainProgram = get(fileContentsSelector("domain")).contents;
-    const compiledDomain = compileDomain(domainProgram);
-    if (compiledDomain.isOk()) {
-      return compiledDomain.value;
-    }
-    return null;
+    const domainCache = getDomainCache(domainProgram);
+    return domainCache;
+  },
+});
+
+export const substanceCacheState = selector<SubstanceCache>({
+  key: "substanceCache",
+  get: ({ get }) => {
+    const substanceProgram = get(fileContentsSelector("substance")).contents;
+    const substanceCache = getSubstanceCache(substanceProgram);
+    return substanceCache;
   },
 });
 
@@ -287,7 +303,6 @@ export type DiagramMetadata = {
   variation: string;
   stepSize: number;
   autostep: boolean;
-  interactive: boolean;
   excludeWarnings: string[];
   source: {
     domain: string;
@@ -300,7 +315,17 @@ export type Diagram = {
   state: RenderState | null;
   error: PenroseError | null;
   warnings: PenroseWarning[];
+  historyInfo: HistoryInfo | null;
+  diagramId: DiagramID | null;
+  historyLoc: HistoryLoc | null;
+  svg: SVGSVGElement | null;
   metadata: DiagramMetadata;
+};
+
+export type DiagramWorker = {
+  compiling: boolean;
+  resampling: boolean;
+  optimizing: boolean;
 };
 
 export type Canvas = {
@@ -320,11 +345,14 @@ export const diagramState = atom<Diagram>({
     state: null,
     error: null,
     warnings: [],
+    diagramId: null,
+    historyLoc: null,
+    svg: null,
+    historyInfo: null,
     metadata: {
       variation: generateVariation(),
       stepSize: 10000,
       autostep: true,
-      interactive: false,
       excludeWarnings: [],
       source: {
         substance: "",
@@ -345,15 +373,18 @@ export const layoutTimelineState = atom<LayoutTimeline>({
   default: [],
 });
 
-export const diagramWorkerState = atom<{
-  id: string;
-  running: boolean;
-}>({
+export const diagramWorkerState = atom<DiagramWorker>({
   key: "diagramWorkerState",
   default: {
-    id: "",
-    running: false,
+    compiling: false,
+    resampling: false,
+    optimizing: false,
   },
+});
+
+export const showCompileErrsState = atom<boolean>({
+  key: "showCompileErrsState",
+  default: false,
 });
 
 export type DiagramGrid = {
@@ -407,6 +438,16 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
       gridSize,
     }));
   },
+});
+
+export const diagramErrorSelector = selector<PenroseError | null>({
+  key: "diagramError",
+  get: ({ get }) => get(diagramState).error,
+});
+
+export const diagramWarningsSelector = selector<PenroseWarning[]>({
+  key: "diagramWarnings",
+  get: ({ get }) => get(diagramState).warnings,
 });
 
 export interface TrioWithPreview {
@@ -475,6 +516,7 @@ export type Settings = {
   github: LocalGithubUser | null;
   vimMode: boolean;
   debugMode: boolean;
+  interactive: "EditMode" | "PlayMode" | "Off";
 };
 
 const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
@@ -517,6 +559,12 @@ export const settingsState = atom<Settings>({
     vimMode: false,
     // debug mode is on by default in local dev mode
     debugMode: process.env.NODE_ENV === "development",
+    interactive: "Off",
   },
   effects: [settingsEffect, debugModeEffect],
+});
+
+export const codemirrorHistory = atom<boolean>({
+  key: "codemirrorHistory",
+  default: true,
 });

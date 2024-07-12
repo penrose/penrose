@@ -200,8 +200,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup
         uses: ./.github/actions/setup
-      - name: Run all core tests
-        run: yarn coverage
+      - name: Run all tests
+        run: yarn nx run-many -t test -p core components --verbose
 
   typedocs:
     runs-on: ubuntu-latest

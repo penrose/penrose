@@ -36,10 +36,13 @@ import {
   diagramState,
   fileContentsSelector,
   localFilesState,
-  optimizer,
   settingsState,
 } from "./state/atoms.js";
-import { useCheckURL, useCompileDiagram } from "./state/callbacks.js";
+import {
+  useCheckURL,
+  useCompileDiagram,
+  useIsUnsaved,
+} from "./state/callbacks.js";
 
 const mainRowLayout: IJsonRowNode = {
   type: "row",
@@ -87,7 +90,8 @@ const mainRowLayout: IJsonRowNode = {
     },
     {
       type: "tabset",
-      weight: process.env.NODE_ENV === "development" ? 75 : 50,
+      // controls size of diagram vs editor tab in layout. used to be 75 : 50
+      weight: process.env.NODE_ENV === "development" ? 25 : 50,
       children: [
         {
           type: "tab",
@@ -322,8 +326,19 @@ function App() {
       connectRoger();
     }
   }, []);
+  const isUnsaved = useIsUnsaved();
   useEffect(() => {
-    optimizer.init();
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isUnsaved()) {
+        // warn user if they try to navigate to a new URL while in draft state
+        event.preventDefault();
+        // Included for legacy support, e.g. Chrome/Edge < 119
+        event.returnValue = true;
+      } else {
+        return false;
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
   }, []);
 
   useEffect(() => {
@@ -353,6 +368,7 @@ function App() {
   if (localFiles.state !== "hasValue") {
     return <div>Loading local files...</div>;
   }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <TopBar />

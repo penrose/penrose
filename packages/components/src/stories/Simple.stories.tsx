@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Meta, StoryFn } from "@storybook/react";
 import { Simple } from "../Simple.js";
 import { continuousMap, error, oneSet } from "./PenrosePrograms.js";
 
@@ -12,10 +12,10 @@ export default {
   // argTypes: {
   //   backgroundColor: { control: 'color' },
   // },
-} as ComponentMeta<typeof Simple>;
+} as Meta<typeof Simple>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof Simple> = (args) => (
+const Template: StoryFn<typeof Simple> = (args) => (
   <div style={{ width: "50%", height: "50%" }}>
     <Simple {...args} />
   </div>

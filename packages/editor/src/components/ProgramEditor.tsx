@@ -3,26 +3,40 @@ import { useCallback } from "react";
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
 import {
   ProgramType,
-  diagramState,
+  codemirrorHistory,
+  diagramErrorSelector,
+  diagramWarningsSelector,
   domainCacheState,
   fileContentsSelector,
   settingsState,
-  workspaceMetadataSelector,
+  showCompileErrsState,
+  substanceCacheState,
 } from "../state/atoms.js";
 import { useCompileDiagram } from "../state/callbacks.js";
 export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   const [programState, setProgramState] = useRecoilState(
     fileContentsSelector(kind),
   );
-  const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const domainCache = useRecoilValue(domainCacheState);
+  const substanceCache = useRecoilValue(substanceCacheState);
+  const codemirrorHistoryState = useRecoilValue(codemirrorHistory);
   const compileDiagram = useCompileDiagram();
   const settings = useRecoilValueLoadable(settingsState);
-  const [diagram] = useRecoilState(diagramState);
-  const { error, warnings } = diagram;
+  const error = useRecoilValue(diagramErrorSelector);
+  const warnings = useRecoilValue(diagramWarningsSelector);
+
+  /*
+  When a user clicks compile, if there are compiler errors these are shown.
+  On edit, these are hidden and parser errors are shown.
+  showCompileErrs is set to true by useCompile and used by EditorPane and the
+  linter.
+  */
+  const [showCompileErrs, setShowCompileErrs] =
+    useRecoilState(showCompileErrsState);
   const onChange = useCallback(
     (v: string) => {
       setProgramState((state) => ({ ...state, contents: v }));
+      setShowCompileErrs(false);
     },
     [setProgramState],
   );
@@ -33,13 +47,17 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
     <EditorPane
       value={programState.contents}
       vimMode={settings.contents.vimMode}
+      onChange={onChange}
       languageType={kind}
       domainCache={domainCache}
-      onChange={onChange}
-      readOnly={workspaceMetadata.location.kind === "roger"}
-      onWrite={compileDiagram}
+      substanceCache={substanceCache}
       error={error}
+      darkMode={false}
       warnings={warnings}
+      showCompileErrs={showCompileErrs}
+      codemirrorHistoryState={codemirrorHistoryState}
+      readOnly={false}
+      onWrite={compileDiagram}
     />
   );
 }

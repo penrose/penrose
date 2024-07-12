@@ -1,6 +1,7 @@
 import { add, div, maxN, minN, sub } from "../engine/AutodiffFunctions.js";
 import * as BBox from "../engine/BBox.js";
 import * as ad from "../types/ad.js";
+import { isVar } from "../types/ad.js";
 import { unwrap } from "../utils/Util.js";
 import { Circle, CircleProps, sampleCircle } from "./Circle.js";
 import { Ellipse, EllipseProps, sampleEllipse } from "./Ellipse.js";
@@ -143,5 +144,61 @@ export const sampleShape = (
 // TODO: don't use a type predicate for this
 export const isShapeType = (shapeType: string): shapeType is ShapeType =>
   shapeSampler.has(shapeType);
+
+export const isTranslatable = (shape: Shape<ad.Num>): boolean => {
+  switch (shape.shapeType) {
+    case "Circle":
+    case "Ellipse":
+    case "Equation":
+    case "Image":
+    case "Rectangle":
+    case "Text":
+      return isVar(shape.center.contents[0]) && isVar(shape.center.contents[1]);
+
+    case "Line":
+      return (
+        isVar(shape.start.contents[0]) &&
+        isVar(shape.start.contents[1]) &&
+        isVar(shape.end.contents[0]) &&
+        isVar(shape.end.contents[1])
+      );
+
+    case "Group":
+    case "Path":
+      return false;
+
+    case "Polygon":
+    case "Polyline":
+      for (const point of shape.points.contents) {
+        if (!isVar(point[0]) || !isVar(point[1])) {
+          return false;
+        }
+      }
+      return true;
+  }
+};
+
+export const isScalable = (shape: Shape<ad.Num>): boolean => {
+  switch (shape.shapeType) {
+    case "Circle":
+      return isVar(shape.r.contents);
+
+    case "Ellipse":
+      return isVar(shape.rx.contents) && isVar(shape.ry.contents);
+
+    case "Image":
+    case "Rectangle":
+      return isVar(shape.width.contents) && isVar(shape.height.contents);
+
+    case "Equation":
+    case "Text":
+    case "Group":
+    case "Path":
+    case "Line":
+    case "Polygon":
+    case "Polyline":
+      return false;
+  }
+};
 
 //#endregion

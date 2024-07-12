@@ -58,7 +58,6 @@ const indexableFunctionDocs = () => {
     "## Computation\nn",
     ...compFuncs,
   ].join("\n\n");
-  console.log(markdown);
 
   return markdown;
 };

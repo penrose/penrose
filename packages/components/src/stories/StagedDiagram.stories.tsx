@@ -2,15 +2,15 @@ import vector from "@penrose/examples/dist/exterior-algebra/vector-wedge.trio";
 import geometry from "@penrose/examples/dist/geometry-domain/textbook_problems/c05p13.trio";
 import laplace from "@penrose/examples/dist/walk-on-spheres/laplace-estimator.trio.js";
 
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Meta, StoryFn } from "@storybook/react";
 import StagedDiagram from "../StagedDiagram";
 
 export default {
   title: "Example/StagedDiagram Component",
   component: StagedDiagram,
-} as ComponentMeta<typeof StagedDiagram>;
+} as Meta<typeof StagedDiagram>;
 
-const Template: ComponentStory<typeof StagedDiagram> = (args) => (
+const Template: StoryFn<typeof StagedDiagram> = (args) => (
   <div style={{ width: "50%" }}>
     <StagedDiagram {...args} />
   </div>

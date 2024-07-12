@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v4.0.0-alpha.0] (2024-05-07)
+
+### :rocket: New Feature
+
+- `--dump-metadata` in `roger` ([#1717](https://github.com/penrose/penrose/issues/1717)) ([98b96a5](https://github.com/penrose/penrose/commit/98b96a51a123d69e9525beda7f4b887f359be956))
+- dump SVG option in `roger` ([#1697](https://github.com/penrose/penrose/issues/1697)) ([243b306](https://github.com/penrose/penrose/commit/243b306946045e306180390303aff3347d037006))
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+
+### :house: Internal
+
+- delete deprecated file extensions from Roger ([#1675](https://github.com/penrose/penrose/issues/1675)) ([12ff3d0](https://github.com/penrose/penrose/commit/12ff3d069ed7b4478642a23e126cc08c45a32e7f))
+
 ## [v3.2.0](https://github.com/penrose/penrose/compare/v3.1.0...v3.2.0) (2023-08-08)
 
 ### :house: Internal
