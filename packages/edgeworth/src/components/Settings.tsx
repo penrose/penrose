@@ -698,10 +698,11 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
                     <Listing
                       language="domain"
                       src={this.state.domain}
+                      domain={this.state.domain}
                       width={"100%"}
                       height={"400px"}
-                      monacoOptions={{ theme: "vs", lineNumbers: "on" }}
                       readOnly={true}
+                      darkMode={false}
                     />
                   </AccordionBodyStyled>
                 </Accordion>
@@ -711,10 +712,11 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
                     <Listing
                       language="style"
                       src={this.state.style}
+                      domain={this.state.domain}
                       width={"100%"}
                       height={"400px"}
-                      monacoOptions={{ theme: "vs", lineNumbers: "on" }}
                       readOnly={true}
+                      darkMode={false}
                     />
                   </AccordionBodyStyled>
                 </Accordion>

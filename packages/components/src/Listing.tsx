@@ -6,32 +6,34 @@ import { getSubstanceCache } from "./editing/hooks/substance/getSubstanceCache";
 
 const Listing = ({
   domain,
-  substance,
+  src,
   width,
   height,
   darkMode,
   onChange,
+  language = "substance",
   readOnly = true,
 }: {
   domain: string;
-  substance: string;
+  src: string;
   width: string;
   height: string;
   onChange?(value: string): void;
   readOnly: boolean;
   darkMode: boolean;
+  language: "domain" | "style" | "substance";
 }) => {
   const [error, setError] = useState<PenroseError | null>(null);
   const [warnings, setWarnings] = useState<PenroseWarning[]>([]);
-  useEffect(() => {}, [domain, substance]);
+  useEffect(() => {}, [domain, src]);
   return (
     <EditorPane
-      value={substance}
+      value={src}
       readOnly={readOnly}
       onChange={onChange!}
-      languageType={"substance"}
+      languageType={language}
       domainCache={getDomainCache(domain)}
-      substanceCache={getSubstanceCache(substance)}
+      substanceCache={getSubstanceCache(src)}
       darkMode={darkMode}
       vimMode={false}
       error={error}
