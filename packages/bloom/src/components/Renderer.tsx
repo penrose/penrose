@@ -43,14 +43,5 @@ export default function Renderer(props: RendererProps) {
     };
   }, [optimizerLooper, renderLooper]);
 
-  return (
-    <div
-      style={{
-        position: "absolute",
-        width: "100%",
-        height: "100%",
-      }}
-      ref={canvasRef}
-    ></div>
-  );
+  return <div ref={canvasRef}></div>;
 }

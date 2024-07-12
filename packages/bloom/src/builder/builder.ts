@@ -55,7 +55,7 @@ export class DiagramBuilder {
   private inputs: InputInfo[] = [];
   private namedInputs: Map<string, number> = new Map();
   private samplingContext: NamedSamplingContext;
-  private shapes: PenroseShape<Num>[] = [];
+  private shapes: Shape[] = [];
   private constraints: Num[] = [];
   private objectives: Num[] = [];
   private variation: string;
@@ -94,7 +94,6 @@ export class DiagramBuilder {
             props.name = String(this.nextId++) + "_" + shapeType;
           }
           const penroseShape = this.sampleAndFillPenroseShape(shapeType, props);
-          this.shapes.push(penroseShape);
           if (penroseShape.ensureOnCanvas.contents) {
             this.ensure(
               constrDict.onCanvas.body(
@@ -104,15 +103,19 @@ export class DiagramBuilder {
               ).value,
             );
           }
-          return fromPenroseShape(penroseShape);
+          const shape = fromPenroseShape(penroseShape);
+          this.shapes.push(shape);
+          return shape;
         },
       });
     }
   };
 
-  private substance = (type: Type): Substance => {
+  substance = (type?: Type): Substance => {
     const newSubstance: Substance = {};
-    this.substanceTypeMap.set(newSubstance, type);
+    if (type) {
+      this.substanceTypeMap.set(newSubstance, type);
+    }
     return newSubstance;
   };
 
@@ -139,50 +142,55 @@ export class DiagramBuilder {
     return pred as Predicate;
   };
 
-  forall = (
+  forallWhere = (
     vars: SelectorVars,
+    where: (assigned: SelectorAssignment) => boolean,
     func: (assigned: SelectorAssignment, matchId: number) => void,
   ) => {
-    const varTypePairs: { name: string; type: Type }[] = Object.entries(
-      vars,
-    ).map(([v, t]) => ({
-      name: v,
-      type: t,
-    }));
-    const substances = [...this.substanceTypeMap.keys()];
-
-    const traverseSubstances = (
-      prevPairs: { name: string; subst: Substance }[],
-      nextPairs: { name: string; type: Type }[],
-      startI: number,
+    const traverse = (
+      pairsToAssign: { name: string; type: Type }[],
+      assignment: { name: string; substance: Substance }[],
       matches: number,
-    ): number => {
-      if (nextPairs.length === 0) {
-        const assignment: SelectorAssignment = {};
-        for (const { name, subst } of prevPairs) {
-          assignment[name] = subst;
-        }
-        func(assignment, matches);
-        return matches;
-      }
+    ) => {
+      if (pairsToAssign.length === 0) return 0;
 
-      for (let i = startI; i < substances.length; ++i) {
-        const subst = substances[i];
-        const type = this.substanceTypeMap.get(subst)!;
-        if (nextPairs[0].type === type) {
-          matches += traverseSubstances(
-            prevPairs.concat([{ name: nextPairs[0].name, subst }]),
-            nextPairs.slice(1),
-            i + 1,
-            matches,
-          );
+      for (const [subst, type] of this.substanceTypeMap) {
+        if (pairsToAssign[0].type === type) {
+          if (pairsToAssign.length === 1) {
+            const assignmentRecord: SelectorAssignment = {};
+            for (const { name, substance: assignedSubst } of assignment) {
+              assignmentRecord[name] = assignedSubst;
+            }
+            assignmentRecord[pairsToAssign[0].name] = subst;
+            if (where(assignmentRecord)) {
+              func(assignmentRecord, matches++);
+            }
+          } else {
+            const newAssignment = [
+              ...assignment,
+              { name: pairsToAssign[0].name, substance: subst },
+            ];
+            const newPairsToAssign = pairsToAssign.slice(1);
+            matches = traverse(newPairsToAssign, newAssignment, matches);
+          }
         }
       }
 
       return matches;
     };
 
-    traverseSubstances([], varTypePairs, 0, 0);
+    traverse(
+      Object.entries(vars).map(([name, type]) => ({ name, type })),
+      [],
+      0,
+    );
+  };
+
+  forall = (
+    vars: SelectorVars,
+    func: (assigned: SelectorAssignment, matchId: number) => void,
+  ) => {
+    this.forallWhere(vars, () => true, func);
   };
 
   vary = (name?: string, init?: number): Var => {
@@ -266,7 +274,8 @@ export class DiagramBuilder {
   };
 
   build = async (): Promise<Diagram> => {
-    const orderedShapes = sortShapes(this.shapes, this.partialLayering);
+    const penroseShapes = this.shapes.map((s) => toPenroseShape(s));
+    const orderedShapes = sortShapes(penroseShapes, this.partialLayering);
     return Diagram.create({
       canvas: this.canvas,
       variation: this.variation,

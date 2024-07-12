@@ -53,6 +53,21 @@ export const stateToSVG = async (
   return rendered;
 };
 
+export const fromPenroseColor = (colorV: Value.ColorV<Num>): Color => {
+  if (colorV.contents.tag === "NONE") {
+    return [0, 0, 0, 0];
+  } else {
+    return colorV.contents.contents;
+  }
+};
+
+export const toPenroseColor = (color: Color): Value.Color<Num> => {
+  return {
+    tag: "RGBA",
+    contents: color,
+  };
+};
+
 export const toPenroseShape = (
   shape: Partial<Shape> & Required<Pick<Shape, "shapeType">>,
   base?: Partial<PenroseShape<Num>>,
@@ -81,10 +96,7 @@ export const toPenroseShape = (
         break;
 
       case "ColorV":
-        resultV = colorV({
-          tag: "RGBA",
-          contents: value as Color,
-        });
+        resultV = colorV(toPenroseColor(value));
         break;
 
       case "BoolV":
@@ -134,7 +146,7 @@ export const fromPenroseShape = (penroseShape: PenroseShape<Num>): Shape => {
         break;
 
       case "ColorV":
-        _.set(shape, prop, value.contents.contents);
+        _.set(shape, prop, fromPenroseColor(value));
         break;
 
       // default, nothing

@@ -11,9 +11,10 @@ export type Vec3 = [Num, Num, Num];
 export type Color = Num[];
 export type VecN = Num[];
 
-export interface Named {
+export interface ShapeCommon {
   name: string;
   ensureOnCanvas: boolean;
+  pinned: boolean;
 }
 
 export interface Stroke {
@@ -92,53 +93,59 @@ export enum ShapeType {
 
 export type PathData = Value.PathCmd<Num>[];
 
-export interface Circle extends Named, Stroke, Fill, Center {
+export interface Circle extends ShapeCommon, Stroke, Fill, Center {
   shapeType: ShapeType.Circle;
   r: Num;
 }
 
-export interface Ellipse extends Named, Stroke, Fill, Center {
+export interface Ellipse extends ShapeCommon, Stroke, Fill, Center {
   shapeType: ShapeType.Ellipse;
   rx: Num;
   ry: Num;
 }
 
-export interface Equation extends Named, Fill, Center, Rect, Rotate, String {
+export interface Equation
+  extends ShapeCommon,
+    Fill,
+    Center,
+    Rect,
+    Rotate,
+    String {
   shapeType: ShapeType.Equation;
   ascent: Num;
   descent: Num;
 }
 
-export interface Image extends Named, Center, Rect, Rotate {
+export interface Image extends ShapeCommon, Center, Rect, Rotate {
   shapeType: ShapeType.Image;
   href: string;
   preserveAspectRatio: string;
 }
 
-export interface Line extends Named, Stroke, Arrow, Fill {
+export interface Line extends ShapeCommon, Stroke, Arrow, Fill {
   shapeType: ShapeType.Line;
   start: Vec2;
   end: Vec2;
   strokeLinecap: string;
 }
 
-export interface Path extends Named, Stroke, Fill, Arrow {
+export interface Path extends ShapeCommon, Stroke, Fill, Arrow {
   shapeType: ShapeType.Path;
   d: PathData;
   strokeLinecap: string;
 }
 
-export interface Polygon extends Named, Stroke, Fill, Scale, Poly {
+export interface Polygon extends ShapeCommon, Stroke, Fill, Scale, Poly {
   shapeType: ShapeType.Polygon;
 }
 
-export interface Polyline extends Named, Stroke, Scale, Poly {
+export interface Polyline extends ShapeCommon, Stroke, Scale, Poly {
   shapeType: ShapeType.Polyline;
   strokeLinecap: string;
 }
 
 export interface Rectangle
-  extends Named,
+  extends ShapeCommon,
     Stroke,
     Fill,
     Center,
@@ -149,7 +156,7 @@ export interface Rectangle
 }
 
 export interface Text
-  extends Named,
+  extends ShapeCommon,
     Stroke,
     Fill,
     Center,

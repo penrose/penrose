@@ -1,25 +1,11 @@
-import { Num, Value, compDict } from "@penrose/core";
+import { Num, compDict } from "@penrose/core";
 import { Color, PathData, Vec2, VecN } from "../types.js";
+import { fromPenroseColor, toPenroseColor } from "../utils.js";
 
 const context = {
   makeInput: () => {
     throw new Error("Dummy context was called");
   },
-};
-
-const mapColor = (colorV: Value.ColorV<Num>): Color => {
-  if (colorV.contents.tag === "NONE") {
-    return [0, 0, 0, 0];
-  } else {
-    return colorV.contents.contents;
-  }
-};
-
-const toPenroseColor = (color: Color): Value.Color<Num> => {
-  return {
-    tag: "RGBA",
-    contents: color,
-  };
 };
 
 const computation = {
@@ -58,7 +44,7 @@ const computation = {
    * @returns RGBA color
    */
   rgba: (r: Num, g: Num, b: Num, a: Num): Color =>
-    mapColor(compDict.rgba.body(context, r, g, b, a).value),
+    fromPenroseColor(compDict.rgba.body(context, r, g, b, a).value),
 
   /**
    * Select a color based on a level
@@ -68,7 +54,7 @@ const computation = {
    * @returns Selected color
    */
   selectColor: (color1: Color, color2: Color, level: Num): Color =>
-    mapColor(
+    fromPenroseColor(
       compDict.selectColor.body(
         context,
         toPenroseColor(color1),
@@ -86,13 +72,13 @@ const computation = {
    * @returns HSVA color
    */
   hsva: (h: Num, s: Num, v: Num, a: Num): Color =>
-    mapColor(compDict.hsva.body(context, h, s, v, a).value),
+    fromPenroseColor(compDict.hsva.body(context, h, s, v, a).value),
 
   /**
    * Return a paint of none (no paint)
    * @returns None color
    */
-  none: (): Color => mapColor(compDict.none.body(context).value),
+  none: (): Color => fromPenroseColor(compDict.none.body(context).value),
 
   /**
    * Index a point list using 1-based indexing.
