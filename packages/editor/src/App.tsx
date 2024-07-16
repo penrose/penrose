@@ -14,6 +14,7 @@ import {
   useRecoilCallback,
   useRecoilState,
   useRecoilValueLoadable,
+  useSetRecoilState,
 } from "recoil";
 import DiagramOptions from "./components/DiagramOptions.js";
 import DiagramPanel from "./components/DiagramPanel.js";
@@ -28,14 +29,17 @@ import StateInspector from "./components/StateInspector.js";
 import SvgUploader from "./components/SvgUploader.js";
 import TopBar from "./components/TopBar.js";
 import {
+  AppUser,
   Diagram,
   RogerState,
+  SavedWorkspaces,
   Workspace,
+  currentAppUser,
   currentRogerState,
   currentWorkspaceState,
   diagramState,
   fileContentsSelector,
-  localFilesState,
+  savedFilesState,
   settingsState,
 } from "./state/atoms.js";
 import {
@@ -43,6 +47,10 @@ import {
   useCompileDiagram,
   useIsUnsaved,
 } from "./state/callbacks.js";
+import {
+  authObject,
+  createSavedWorkspaceObject,
+} from "./utils/firebaseUtils.js";
 
 const mainRowLayout: IJsonRowNode = {
   type: "row",
@@ -171,6 +179,37 @@ function App() {
   const ws = useRef<WebSocket | null>(null);
   const [rogerState, setRogerState] =
     useRecoilState<RogerState>(currentRogerState);
+
+  const [appUserState, setAppUserState] =
+    useRecoilState<AppUser>(currentAppUser);
+
+  const setSavedWorkspaces =
+    useSetRecoilState<SavedWorkspaces>(savedFilesState);
+
+  /* We need this effect as authObject.currentUser doesn't update immediately
+   on change to auth state, so for the settings menu to update properly we
+   use AppUser recoil state 
+  */
+  useEffect(() => {
+    authObject.onAuthStateChanged((user) => {
+      // https://github.com/firebase/firebase-js-sdk/issues/5722
+      const userCopy = JSON.parse(JSON.stringify(user));
+      setAppUserState(userCopy);
+    });
+  }, []);
+
+  useEffect(() => {
+    async function populateSavedWorkspaces() {
+      if (authObject.currentUser != null) {
+        let savedSpaces = await createSavedWorkspaceObject(
+          authObject.currentUser.uid,
+        );
+        setSavedWorkspaces(savedSpaces);
+      }
+    }
+
+    populateSavedWorkspaces();
+  }, [authObject.currentUser]);
 
   const panelFactory = useCallback(
     (node: TabNode) => {
@@ -356,7 +395,7 @@ function App() {
   }, [isTabletOrMobile, isPortrait]);
 
   const checkURL = useCheckURL();
-  const localFiles = useRecoilValueLoadable(localFilesState);
+  const localFiles = useRecoilValueLoadable(savedFilesState);
   const settings = useRecoilValueLoadable(settingsState);
   useEffect(() => {
     // If settings is loaded

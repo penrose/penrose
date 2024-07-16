@@ -93,7 +93,7 @@ export const pathResolver = async (
     // TODO: publish images in the gist
     case "gist":
       return undefined;
-    case "local": {
+    case "stored": {
       const { resolver } = location;
       return resolver
         ? resolver(relativePath)

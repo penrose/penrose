@@ -1,15 +1,14 @@
-import { useCallback } from "react";
-import { useRecoilStateLoadable } from "recoil";
-import { settingsState } from "../state/atoms.js";
-import { useSignIn } from "../state/callbacks.js";
+import { useRecoilStateLoadable, useRecoilValue } from "recoil";
+import { currentAppUser, settingsState } from "../state/atoms.js";
+import { logInWrapper, signOutWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
 
 export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
-  const signIn = useSignIn();
-  const signOut = useCallback(() => {
-    setSettings((settings) => ({ ...settings, github: null }));
-  }, []);
+  const currentUser = useRecoilValue(currentAppUser);
+  const useLogin = logInWrapper();
+  const useLogout = signOutWrapper();
+
   if (settings.state !== "hasValue") {
     return <div>loading...</div>;
   }
@@ -83,20 +82,14 @@ export default function Settings() {
         />
         <label>Play Mode</label>
       </div>
-      {settings.contents.github === null && (
+
+      {currentUser != null ? (
         <div style={{ margin: "10px" }}>
-          <BlueButton onClick={signIn}>sign into GitHub</BlueButton>
+          <BlueButton onClick={useLogout}>Sign Out</BlueButton>
         </div>
-      )}
-      {settings.contents.github !== null && (
+      ) : (
         <div style={{ margin: "10px" }}>
-          <div>
-            signed into GitHub as{" "}
-            <span style={{ fontWeight: "bold" }}>
-              {settings.contents.github.username}
-            </span>
-          </div>
-          <BlueButton onClick={signOut}>sign out</BlueButton>
+          <BlueButton onClick={useLogin}> Login with GitHub </BlueButton>
         </div>
       )}
     </div>
