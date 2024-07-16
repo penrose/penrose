@@ -61,7 +61,7 @@ export default function SvgUploader() {
         ...currentWorkspace,
         metadata: {
           ...currentWorkspace.metadata,
-          location: { kind: "local" } as WorkspaceLocation,
+          location: { kind: "local", changesMade: false } as WorkspaceLocation,
           id: uuid(),
           name: svg.name.replace(".svg", ""),
         },

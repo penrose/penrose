@@ -51,7 +51,10 @@ export type WorkspaceLocation =
    * "local" used for unstored non-example workspaces, to distinguish for
    * save button functionality
    */
-  | { kind: "local" }
+  | {
+      kind: "local";
+      changesMade: boolean;
+    }
   | {
       /**
        * If file is explicitly saved to cloud storage
@@ -176,7 +179,18 @@ const markWorkspaceUnsavedEffect: AtomEffect<Workspace> = ({
               ...workspace,
               metadata: {
                 ...workspace.metadata,
-                location: { kind: "local" },
+                location: { kind: "local", changesMade: false },
+              } as WorkspaceMetadata,
+            };
+          });
+        } else if (newValue.metadata.location.kind == "local") {
+          setSelf((workspaceOrDefault) => {
+            const workspace = workspaceOrDefault as Workspace;
+            return {
+              ...workspace,
+              metadata: {
+                ...workspace.metadata,
+                location: { kind: "local", changesMade: true },
               } as WorkspaceMetadata,
             };
           });
@@ -213,7 +227,7 @@ export const defaultWorkspaceState = (): Workspace => ({
     id: uuid(),
     lastModified: Date.parse(new Date().toISOString()),
     editorVersion: 0.1,
-    location: { kind: "local" },
+    location: { kind: "local", changesMade: false },
     forkedFromGist: null,
   },
   files: {
