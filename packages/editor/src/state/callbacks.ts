@@ -435,7 +435,8 @@ export const isCleanWorkspace = (workspace: Workspace): boolean => {
   if (
     (workspace.metadata.location.kind === "stored" &&
       !workspace.metadata.location.saved) ||
-    workspace.metadata.location.kind == "local"
+    (workspace.metadata.location.kind == "local" &&
+      workspace.metadata.location.changesMade)
   ) {
     return false;
   } else {
