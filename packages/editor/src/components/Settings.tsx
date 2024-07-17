@@ -1,5 +1,6 @@
 import { useRecoilStateLoadable, useRecoilValue } from "recoil";
 import { currentAppUser, settingsState } from "../state/atoms.js";
+import { useRecoverAll } from "../state/callbacks.js";
 import { logInWrapper, signOutWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
 
@@ -8,6 +9,7 @@ export default function Settings() {
   const currentUser = useRecoilValue(currentAppUser);
   const useLogin = logInWrapper();
   const useLogout = signOutWrapper();
+  const recoverAll = useRecoverAll();
 
   if (settings.state !== "hasValue") {
     return <div>loading...</div>;
@@ -86,6 +88,11 @@ export default function Settings() {
       {currentUser != null ? (
         <div style={{ margin: "10px" }}>
           <BlueButton onClick={useLogout}>Sign Out</BlueButton>
+          <p>
+            We've migrated to cloud storage! Recover all legacy locally stored
+            diagrams:
+          </p>
+          <BlueButton onClick={recoverAll}>Recover All</BlueButton>
         </div>
       ) : (
         <div style={{ margin: "10px" }}>

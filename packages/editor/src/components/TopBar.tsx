@@ -189,13 +189,19 @@ export default function TopBar() {
               </AuthorBox>
             </a>
           )}
-          {currentWorkspace.metadata.location.kind == "local" && (
-            <BlueButton
-              onClick={() => saveNewWorkspace(currentWorkspace.metadata.id)}
-            >
-              save
-            </BlueButton>
-          )}
+          {currentWorkspace.metadata.location.kind == "local" &&
+            currentWorkspace.metadata.location.changesMade && (
+              <BlueButton
+                onClick={() =>
+                  saveNewWorkspace(
+                    currentWorkspace.metadata.id,
+                    currentWorkspace,
+                  )
+                }
+              >
+                save
+              </BlueButton>
+            )}
           {currentWorkspace.metadata.location.kind === "stored" &&
             !currentWorkspace.metadata.location.saved && (
               <BlueButton onClick={() => saveWorkspace()}>save</BlueButton>

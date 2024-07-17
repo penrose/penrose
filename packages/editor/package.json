@@ -49,6 +49,7 @@
     "color-name-list": "^8.38.0",
     "flexlayout-react": "^0.7.3",
     "localforage": "^1.10.0",
+    "localforage-getitems": "^1.4.2",
     "lodash": "^4.17.21",
     "query-string": "^7.1.1",
     "react": "^18.2.0",
