@@ -1070,7 +1070,8 @@ export const autosaveHook = () => {
 };
 
 /**
- * Traverse local storage and save to cloud storage
+ * Traverse local storage, notify user which diagrams are being
+ * restored, and save to cloud storage if user confirms
  */
 export const useRecoverAll = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
@@ -1078,14 +1079,66 @@ export const useRecoverAll = () =>
     const savedDiagrams = snapshot.getLoadable(savedFilesState)
       .contents as SavedWorkspaces;
 
-    // Get all locally saved items
-    localforage.getItems().then(function (results) {
-      // Loop over all results
-      Object.keys(results).forEach((key) => {
-        // Ignore non diagrams and diagrams already saved
-        if ("metadata" in results[key] && !(key in savedDiagrams)) {
-          saveNewLogic(key, results[key], set);
+    let names: string[] = [];
+    let data: { [key: string]: any } = {};
+
+    const results = await localforage.getItems();
+
+    Object.keys(results).forEach((key) => {
+      // Ignore non diagrams and diagrams already saved
+      if ("metadata" in results[key] && !(key in savedDiagrams)) {
+        data[key] = results[key];
+
+        const name = results[key]["metadata"]["name"];
+
+        if (name == undefined) {
+          toast.error(
+            "Error recovering, please seek support on Penrose Discord",
+          );
         }
-      });
+
+        names.push(name);
+      }
+    });
+
+    if (names.length == 0) {
+      toast.error("All diagrams already recovered");
+      return;
+    }
+
+    // Get user confirmation, list all diagrams to restore
+    const confirmation_message = `You will be recovering: ${names.join(
+      ", ",
+    )}. Proceed?`;
+
+    if (!confirm(confirmation_message)) {
+      return;
+    }
+
+    // User has confirmed, save diagrams to cloud storage
+    Object.keys(data).forEach((key) => {
+      const value = data[key];
+      saveNewLogic(key, value, set);
     });
   });
+
+/**
+ * Count all locally stored diagrams that are not in cloud storage
+ */
+export async function countLegacyDiagrams(savedDiagrams: SavedWorkspaces) {
+  try {
+    const results = await localforage.getItems();
+    let counter = 0;
+
+    Object.keys(results).forEach((key) => {
+      if ("metadata" in results[key] && !(key in savedDiagrams)) {
+        counter += 1;
+      }
+    });
+
+    return counter;
+  } catch (error) {
+    console.error("Error counting legacy diagrams:", error);
+    return 0;
+  }
+}
