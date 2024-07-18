@@ -177,7 +177,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       llmInput: "",
       llmRunning: false,
       currentTab: 0,
-      domainSelect: "",
+      domainSelect: Object.keys(domains)[0],
       presetSelect: "",
     };
   }

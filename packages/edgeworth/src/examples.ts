@@ -588,13 +588,4 @@ export const domains: PresetsByDomain = {
     presets.graph_6,
   ],
   "Undirected Graphs": [presets.graph_2, presets.graph_3, presets.graph_5],
-  Chemestry: [
-    presets.lewis_0,
-    presets.lewis_1,
-    presets.lewis_2,
-    presets.lewis_3,
-    presets.lewis_4,
-    presets.lewis_5,
-    presets.lewis_6,
-  ],
 };
