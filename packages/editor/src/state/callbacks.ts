@@ -1086,7 +1086,11 @@ export const useRecoverAll = () =>
 
     Object.keys(results).forEach((key) => {
       // Ignore non diagrams and diagrams already saved
-      if ("metadata" in results[key] && !(key in savedDiagrams)) {
+      if (
+        results[key].constructor.name == "Object" &&
+        "metadata" in results[key] &&
+        !(key in savedDiagrams)
+      ) {
         data[key] = results[key];
 
         const name = results[key]["metadata"]["name"];
@@ -1131,7 +1135,11 @@ export async function countLegacyDiagrams(savedDiagrams: SavedWorkspaces) {
     let counter = 0;
 
     Object.keys(results).forEach((key) => {
-      if ("metadata" in results[key] && !(key in savedDiagrams)) {
+      if (
+        results[key].constructor.name == "Object" &&
+        "metadata" in results[key] &&
+        !(key in savedDiagrams)
+      ) {
         counter += 1;
       }
     });
