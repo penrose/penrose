@@ -47,14 +47,21 @@ export default function SavedFilesBrowser() {
             {(currentWorkspace.metadata.location.kind !== "stored" ||
               !currentWorkspace.metadata.location.saved) && (
               <BlueButton
-                onClick={() => saveNewWorkspace(currentWorkspace.metadata.id)}
+                onClick={() =>
+                  saveNewWorkspace(
+                    currentWorkspace.metadata.id,
+                    currentWorkspace,
+                  )
+                }
               >
                 save current workspace
               </BlueButton>
             )}
             {currentWorkspace.metadata.location.kind === "stored" &&
               currentWorkspace.metadata.location.saved && (
-                <BlueButton onClick={() => saveNewWorkspace(uuid())}>
+                <BlueButton
+                  onClick={() => saveNewWorkspace(uuid(), currentWorkspace)}
+                >
                   duplicate workspace
                 </BlueButton>
               )}

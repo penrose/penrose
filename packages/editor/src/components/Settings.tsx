@@ -1,13 +1,30 @@
+import { useEffect, useState } from "react";
 import { useRecoilStateLoadable, useRecoilValue } from "recoil";
-import { currentAppUser, settingsState } from "../state/atoms.js";
+import {
+  currentAppUser,
+  savedFilesState,
+  settingsState,
+} from "../state/atoms.js";
+import { countLegacyDiagrams, useRecoverAll } from "../state/callbacks.js";
 import { logInWrapper, signOutWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
 
 export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
+  const [numLegacyDiagrams, setNumLegacyDiagrams] = useState<number>(0);
   const currentUser = useRecoilValue(currentAppUser);
   const useLogin = logInWrapper();
   const useLogout = signOutWrapper();
+  const recoverAll = useRecoverAll();
+  const savedDiagrams = useRecoilValue(savedFilesState);
+
+  useEffect(() => {
+    const set = async () => {
+      let num = await countLegacyDiagrams(savedDiagrams);
+      setNumLegacyDiagrams(num);
+    };
+    set();
+  }, [savedDiagrams]);
 
   if (settings.state !== "hasValue") {
     return <div>loading...</div>;
@@ -86,6 +103,13 @@ export default function Settings() {
       {currentUser != null ? (
         <div style={{ margin: "10px" }}>
           <BlueButton onClick={useLogout}>Sign Out</BlueButton>
+          <p>
+            We've migrated to cloud storage! You have {numLegacyDiagrams}{" "}
+            unrestored locally stored diagrams.
+          </p>
+          {numLegacyDiagrams > 0 && (
+            <BlueButton onClick={recoverAll}>Recover All</BlueButton>
+          )}
         </div>
       ) : (
         <div style={{ margin: "10px" }}>

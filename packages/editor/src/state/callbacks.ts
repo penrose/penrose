@@ -2,6 +2,8 @@ import { runtimeError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import localforage from "localforage";
+import "localforage-getitems";
 import { debounce } from "lodash";
 import queryString from "query-string";
 import { useCallback, useEffect, useRef } from "react";
@@ -809,67 +811,82 @@ export const useDeleteWorkspace = () =>
   );
 
 /**
+ * Helper function outside of recoil callback function for use in
+ * multiple callbacks. Saves currentWorkspace under diagramId to cloud
+ * storage and propogates to local state
+ */
+async function saveNewLogic(
+  diagramId: string,
+  currentWorkspace: Workspace,
+  set: any,
+) {
+  if (
+    authObject.currentUser != null &&
+    authObject.currentUser.uid != undefined
+  ) {
+    const modificationTime = Date.parse(new Date().toISOString());
+    // Save to cloud
+    const notif = toast.loading("saving...");
+    await setDoc(doc(db, authObject.currentUser.uid, diagramId), {
+      diagramId: diagramId,
+      name: currentWorkspace.metadata.name,
+      lastModified: modificationTime,
+      editorVersion: currentWorkspace.metadata.editorVersion,
+      substance: currentWorkspace.files.substance.contents,
+      style: currentWorkspace.files.style.contents,
+      domain: currentWorkspace.files.domain.contents,
+    })
+      .catch((error) => {
+        console.log(
+          `Error code: ${error.code}, Error message: ${error.message}`,
+        );
+        toast.error("Encountered an error");
+      })
+      // Update local state
+      .then(() => {
+        set(savedFilesState, (prevState: any) => ({
+          ...prevState,
+          [diagramId]: createWorkspaceObject(
+            currentWorkspace.metadata.name,
+            modificationTime,
+            diagramId,
+            currentWorkspace.metadata.editorVersion,
+            true,
+            currentWorkspace.files.substance.contents,
+            currentWorkspace.files.style.contents,
+            currentWorkspace.files.domain.contents,
+          ),
+        }));
+        set(currentWorkspaceState, (prevState: any) => ({
+          ...prevState,
+          metadata: {
+            ...prevState.metadata,
+            id: diagramId,
+            lastModified: modificationTime,
+            location: {
+              kind: "stored",
+              saved: true,
+            } as WorkspaceLocation,
+          },
+        }));
+        toast.dismiss(notif);
+      });
+  } else {
+    toast.error("Could not save workspace, please check login credentials");
+  }
+}
+
+/**
  * Used when a "local" workspace is saved for the first time
  * Also used for duplicate diagram, diagramId passed in as fresh uuid
  */
 export const useSaveNewWorkspace = () =>
-  useRecoilCallback(({ snapshot, set }) => async (diagramId: string) => {
-    if (
-      authObject.currentUser != null &&
-      authObject.currentUser.uid != undefined
-    ) {
-      const currentWorkspace = snapshot.getLoadable(
-        currentWorkspaceState,
-      ).contents;
-
-      const modificationTime = Date.parse(new Date().toISOString());
-      // Save to cloud
-      const notif = toast.loading("saving...");
-      await setDoc(doc(db, authObject.currentUser.uid, diagramId), {
-        diagramId: diagramId,
-        name: currentWorkspace.metadata.name,
-        lastModified: modificationTime,
-        editorVersion: currentWorkspace.metadata.editorVersion,
-        substance: currentWorkspace.files.substance.contents,
-        style: currentWorkspace.files.style.contents,
-        domain: currentWorkspace.files.domain.contents,
-      })
-        .catch((error) => {
-          console.log(
-            `Error code: ${error.code}, Error message: ${error.message}`,
-          );
-          toast.error("Encountered an error");
-        })
-        // Update local state
-        .then(() => {
-          set(savedFilesState, (prevState) => ({
-            ...prevState,
-            [diagramId]: createWorkspaceObject(
-              currentWorkspace.metadata.name,
-              modificationTime,
-              diagramId,
-              currentWorkspace.metadata.editorVersion,
-              true,
-              currentWorkspace.files.substance.contents,
-              currentWorkspace.files.style.contents,
-              currentWorkspace.files.domain.contents,
-            ),
-          }));
-          set(currentWorkspaceState, (prevState) => ({
-            ...prevState,
-            metadata: {
-              ...prevState.metadata,
-              id: diagramId,
-              lastModified: modificationTime,
-              location: { kind: "stored", saved: true } as WorkspaceLocation,
-            },
-          }));
-          toast.dismiss(notif);
-        });
-    } else {
-      toast.error("Could not save workspace, please check login credentials");
-    }
-  });
+  useRecoilCallback(
+    ({ set }) =>
+      async (diagramId: string, currentWorkspace: Workspace) => {
+        saveNewLogic(diagramId, currentWorkspace, set);
+      },
+  );
 
 export const useSaveWorkspace = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
@@ -978,9 +995,8 @@ export const saveShortcutHook = () => {
   const handleShortcut = useRecoilCallback(
     ({ snapshot }) =>
       async (event: KeyboardEvent) => {
-        const currentWorkspace = snapshot.getLoadable(
-          currentWorkspaceState,
-        ).contents;
+        const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
+          .contents as Workspace;
         if (event.repeat) return;
         // Cmd+s or Ctrl+s
         if ((event.metaKey || event.ctrlKey) && event.key === "s") {
@@ -992,7 +1008,7 @@ export const saveShortcutHook = () => {
             saveWorkspace();
           } else if (currentWorkspace.metadata.location.kind == "local") {
             event.preventDefault();
-            saveNewWorkspace(uuid());
+            saveNewWorkspace(uuid(), currentWorkspace);
           }
         }
       },
@@ -1052,3 +1068,77 @@ export const autosaveHook = () => {
     currentWorkspace.files.domain.contents,
   ]);
 };
+
+/**
+ * Traverse local storage, notify user which diagrams are being
+ * restored, and save to cloud storage if user confirms
+ */
+export const useRecoverAll = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    // Get all cloud storage saved diagrams
+    const savedDiagrams = snapshot.getLoadable(savedFilesState)
+      .contents as SavedWorkspaces;
+
+    let names: string[] = [];
+    let data: { [key: string]: any } = {};
+
+    const results = await localforage.getItems();
+
+    Object.keys(results).forEach((key) => {
+      // Ignore non diagrams and diagrams already saved
+      if ("metadata" in results[key] && !(key in savedDiagrams)) {
+        data[key] = results[key];
+
+        const name = results[key]["metadata"]["name"];
+
+        if (name == undefined) {
+          toast.error(
+            "Error recovering, please seek support on Penrose Discord",
+          );
+        }
+
+        names.push(name);
+      }
+    });
+
+    if (names.length == 0) {
+      toast.error("All diagrams already recovered");
+      return;
+    }
+
+    // Get user confirmation, list all diagrams to restore
+    const confirmation_message = `You will be recovering: ${names.join(
+      ", ",
+    )}. Proceed?`;
+
+    if (!confirm(confirmation_message)) {
+      return;
+    }
+
+    // User has confirmed, save diagrams to cloud storage
+    Object.keys(data).forEach((key) => {
+      const value = data[key];
+      saveNewLogic(key, value, set);
+    });
+  });
+
+/**
+ * Count all locally stored diagrams that are not in cloud storage
+ */
+export async function countLegacyDiagrams(savedDiagrams: SavedWorkspaces) {
+  try {
+    const results = await localforage.getItems();
+    let counter = 0;
+
+    Object.keys(results).forEach((key) => {
+      if ("metadata" in results[key] && !(key in savedDiagrams)) {
+        counter += 1;
+      }
+    });
+
+    return counter;
+  } catch (error) {
+    console.error("Error counting legacy diagrams:", error);
+    return 0;
+  }
+}
