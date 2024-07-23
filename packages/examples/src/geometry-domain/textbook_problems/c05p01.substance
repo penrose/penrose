@@ -1,33 +1,8 @@
 -- name in registry: midsegment-triangles
 Point D, E, F, G, H, J, K
 Let DEF := Triangle(D, E, F)
-Let DF := Segment(D, F)
-On(G, DF)
-Let EF := Segment(E, F)
-On(J, EF)
-
-Let GJ := Segment(G, J)
-
-Let FJ := Segment(F, J)
-Let EJ := Segment(E, J)
--- EqualLengthMarker(EJ, FJ)
-EqualLength(EJ, FJ)
-
-Let GD := Segment(G, D)
-Let GF := Segment(G, F)
--- EqualLengthMarker(GD, GF)
-EqualLength(GD, GF)
-
-On(H, FJ)
-On(K, GF)
-Let FK := Segment(F, K)
-Let GK := Segment(G, K)
-EqualLength(GK, FK)
-
-Let HF := Segment(H, F)
-Let HJ := Segment(H, J)
-EqualLength(HF, HJ)
-Let HK := Segment(H, K)
-
+Let GJF := Triangle(G, J, F)
+Segment GJ := MidSegment(DEF, G, J)  -- TODO add markers when attribute changes are implemented
+Segment HK := MidSegment(GJF, H, K)
 Angle aGFJ := InteriorAngle(G, F, J)
 AutoLabel D, E, F, G, H, J, K

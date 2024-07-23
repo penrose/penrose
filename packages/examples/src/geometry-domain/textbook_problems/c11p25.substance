@@ -11,6 +11,6 @@ Segment DA := Chord(c, D, A)
 Segment DB := Diameter(c, D, B)
 Segment AC := Diameter(c, A, C)
 Let ABCD := Quadrilateral(A, B, C, D)
-ParallelMarker(AB, DC)
+ParallelMarker1(AB, DC)
 Parallel(AB, DC)
 AutoLabel A, B, C, D, O
