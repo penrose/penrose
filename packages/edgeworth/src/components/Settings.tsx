@@ -139,7 +139,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   constructor(props: SettingsProps) {
     super(props);
 
-    const key = "Molecules";
+    const key = "Geometry";
     const preset = domains[key][0];
     const domain = preset.domain;
     const style = preset.style;
