@@ -28,6 +28,10 @@ import { Refresh } from "./Grid.js";
 import animalNameList from "animals";
 import colorNameList from "color-name-list/dist/colornames.json";
 
+import seedrandom from "seedrandom";
+
+const rng = seedrandom("const");
+
 // all one-word colors
 const colors: string[] = colorNameList
   .map(({ name }) => name)
@@ -38,12 +42,7 @@ const animals: string[] = animalNameList.words
   .filter((animal: string) => /^[a-z]+$/.test(animal))
   .map((animal: string) => animal.charAt(0).toUpperCase() + animal.slice(1));
 
-// min and max are both inclusive
-const randInt = (min: number, max: number) =>
-  Math.floor(Math.random() * (max + 1 - min)) + min;
-
-const choose = (list: string[]) =>
-  list[Math.floor(Math.random() * list.length)];
+const choose = (list: string[]) => list[Math.floor(rng() * list.length)];
 
 export const generateVariation = (): string => {
   return `${choose(colors)}${choose(animals)}`;
