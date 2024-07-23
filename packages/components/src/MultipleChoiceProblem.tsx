@@ -137,12 +137,12 @@ export default function (props: MultiChoiceProblemProps) {
   const diagrams = props.diagrams.map(
     ({ domain, style, substance, variation, answer }, i) => (
       <ProblemChoice
-        key={`choice-${i}`}
         domain={domain}
         style={style}
         substance={substance}
         variation={variation}
         index={i}
+        key={`problem-choice-${i}`}
         answer={answer}
         showAnswer={showAns}
         onSelect={(i) => {
