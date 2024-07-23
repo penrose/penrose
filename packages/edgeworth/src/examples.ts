@@ -39,16 +39,27 @@ import phosphorustrichloride from "@penrose/examples/dist/molecules/phosphorustr
 import xenontetroxide from "@penrose/examples/dist/molecules/xenontetroxide.substance";
 import { SynthesizerSetting } from "./synthesis/Synthesizer.js";
 
+type DomainName =
+  | "Geometry"
+  | "Molecules"
+  | "Directed Graphs"
+  | "Undirected Graphs";
+
 export interface Preset {
   displayName: string;
   prompt: string;
   substance: string;
   domain: string;
+  domainName: DomainName;
   style: string;
   setting: SynthesizerSetting;
 }
 interface PresetCollection {
   [s: string]: Preset;
+}
+
+interface PresetsByDomain {
+  [s: string]: Preset[];
 }
 
 const lewisParams: SynthesizerSetting = {
@@ -155,55 +166,13 @@ const graphParams: SynthesizerSetting = {
   },
 };
 
-export const domains: PresetCollection = {
-  geometryDomain: {
-    displayName: "Geometry",
-    prompt: "",
-    substance: "",
-    domain: geometryDomain,
-    style: euclideanStyle,
-    setting: {
-      ...geometryParams,
-    },
-  },
-  moleculesDomain: {
-    displayName: "Molecules",
-    prompt: "",
-    substance: "",
-    domain: moleculesDomain,
-    style: lewisStyle,
-    setting: {
-      ...lewisParams,
-    },
-  },
-  undirectedGraphDomain: {
-    displayName: "Undirected Graphs",
-    prompt: "",
-    substance: "",
-    domain: simpleGraphDomain,
-    style: simpleGraphStyle,
-    setting: {
-      ...graphParams,
-    },
-  },
-  directedGraphDomain: {
-    displayName: "Directed Graphs",
-    prompt: "",
-    substance: "",
-    domain: simpleDirectedGraphDomain,
-    style: simpleDirectedGraphStyle,
-    setting: {
-      ...graphParams,
-    },
-  },
-};
-
 export const presets: PresetCollection = {
   c01p01: {
     displayName: "c01p01: Collinear Points",
     prompt:
       "In which of the following diagrams are points $B$, $D$, $E$ collinear?",
     substance: c01p01,
+    domainName: "Geometry",
     domain: geometryDomain,
     style: euclideanStyle,
     setting: {
@@ -217,6 +186,7 @@ export const presets: PresetCollection = {
     substance: c01p10,
     domain: geometryDomain,
     style: euclideanStyle,
+    domainName: "Geometry",
     setting: {
       ...geometryParams,
     },
@@ -227,6 +197,7 @@ export const presets: PresetCollection = {
       "In which of the following diagrams is the statement $\\angle ADC=2(m \\angle ADB)$ true?",
     substance: c02p01,
     domain: geometryDomain,
+    domainName: "Geometry",
     style:
       euclideanStyle +
       `
@@ -244,6 +215,7 @@ export const presets: PresetCollection = {
       "Which diagram illustrates $\\angle JKM$ and $\\angle KML$ as alternate interior angles?",
     substance: c03p01,
     domain: geometryDomain,
+    domainName: "Geometry",
     style:
       euclideanStyle +
       `
@@ -263,6 +235,7 @@ where a := InteriorAngle(p, q, r) {
       "In which of the following diagrams are triangles $\\triangle DEC$ an $\\triangle DEA$ congruent?",
     substance: c04p01,
     domain: geometryDomain,
+    domainName: "Geometry",
     style:
       euclideanStyle +
       `
@@ -289,6 +262,7 @@ forall Point \`D\`, \`E\`, \`A\` {
       "In which of these diagrams, can you find the value of $\\angle BCE$ given the value of $x$?",
     substance: c04p12,
     domain: geometryDomain,
+    domainName: "Geometry",
     style: euclideanStyle,
     setting: {
       ...geometryParams,
@@ -300,6 +274,7 @@ forall Point \`D\`, \`E\`, \`A\` {
       "Which diagram shows that $HK$ is a midsegment of $\\triangle GJF$?",
     substance: c05p01,
     domain: geometryDomain,
+    domainName: "Geometry",
     style: euclideanStyle,
     setting: {
       ...geometryParams,
@@ -310,6 +285,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Which diagram shows $P$ as the incenter of $\\triangle JKL$?",
     substance: c05p13,
     domain: geometryDomain,
+    domainName: "Geometry",
     style: euclideanStyle,
     setting: {
       ...geometryParams,
@@ -321,6 +297,7 @@ forall Point \`D\`, \`E\`, \`A\` {
       "Which of the following diagrams shows that $JKLM$ is a parallelogram?",
     substance: c06p06,
     domain: geometryDomain,
+    domainName: "Geometry",
     style: euclideanStyle,
     setting: {
       ...geometryParams,
@@ -331,6 +308,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "In which of the following diagrams is $ABCD$ a parallelogram?",
     substance: c07p06,
     domain: geometryDomain,
+    domainName: "Geometry",
     style: euclideanStyle,
     setting: {
       ...geometryParams,
@@ -342,6 +320,7 @@ forall Point \`D\`, \`E\`, \`A\` {
       "In which of the following diagrams is $G$ the orthocenter of $\\triangle FGH$?",
     substance: c07p10,
     domain: geometryDomain,
+    domainName: "Geometry",
     style: euclideanStyle,
     setting: {
       ...geometryParams,
@@ -352,6 +331,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "In which of the following diagrams are the two triangles similar?",
     substance: c07p22,
     domain: geometryDomain,
+    domainName: "Geometry",
     style: euclideanStyle,
     setting: {
       ...geometryParams,
@@ -363,6 +343,7 @@ forall Point \`D\`, \`E\`, \`A\` {
       "In which of the following diagrams is $\\triangle PQR$ similar to $\\triangle TSR$?",
     substance: c08p08,
     domain: geometryDomain,
+    domainName: "Geometry",
     style: euclideanStyle,
     setting: {
       ...geometryParams,
@@ -374,6 +355,7 @@ forall Point \`D\`, \`E\`, \`A\` {
       "In which of the following diagrams is $\\triangle DEF$ congruent to $\\triangle ABC$?",
     substance: c10p08,
     domain: geometryDomain,
+    domainName: "Geometry",
     style: euclideanStyle,
     setting: {
       ...geometryParams,
@@ -385,6 +367,7 @@ forall Point \`D\`, \`E\`, \`A\` {
       "Which of the following diagrams is the length of $PS$ represented by $\\frac{PQ \\times PR}{PU}$?",
     substance: c11p07,
     domain: geometryDomain,
+    domainName: "Geometry",
     style: euclideanStyle,
     setting: {
       ...geometryParams,
@@ -395,6 +378,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "In which of the following diagrams are $AD = BC$?",
     substance: c11p25,
     domain: geometryDomain,
+    domainName: "Geometry",
     style: euclideanStyle,
     setting: {
       ...geometryParams,
@@ -406,6 +390,7 @@ forall Point \`D\`, \`E\`, \`A\` {
       "In which of the following diagrams is $\\triangle ABC$ congruent to $\\triangle BCD$?",
     substance: c12p20,
     domain: geometryDomain,
+    domainName: "Geometry",
     style: euclideanStyle,
     setting: {
       ...geometryParams,
@@ -416,6 +401,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Choose the correct Lewis structure for $\\mathrm{HCN}$.",
     substance: hydrogencyanide,
     domain: moleculesDomain,
+    domainName: "Molecules",
     style: lewisStyle,
     setting: {
       ...lewisParams,
@@ -426,6 +412,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Choose the correct Lewis structure for $\\mathrm{CH_4}$.",
     substance: methane,
     domain: moleculesDomain,
+    domainName: "Molecules",
     style: lewisStyle,
     setting: {
       ...lewisParams,
@@ -436,6 +423,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Choose the correct Lewis structure for $\\mathrm{PCl_3}$.",
     substance: phosphorustrichloride,
     domain: moleculesDomain,
+    domainName: "Molecules",
     style: lewisStyle,
     setting: {
       ...lewisParams,
@@ -446,6 +434,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Choose the correct Lewis structure for $\\mathrm{XeO_4}$.",
     substance: xenontetroxide,
     domain: moleculesDomain,
+    domainName: "Molecules",
     style: lewisStyle,
     setting: {
       ...lewisParams,
@@ -456,6 +445,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Choose the correct Lewis structure for $\\mathrm{COCl_2}$.",
     substance: phosgene,
     domain: moleculesDomain,
+    domainName: "Molecules",
     style: lewisStyle,
     setting: {
       ...lewisParams,
@@ -466,6 +456,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Choose the correct Lewis structure for $\\mathrm{N_2}$.",
     substance: nitrogen,
     domain: moleculesDomain,
+    domainName: "Molecules",
     style: lewisStyle,
     setting: {
       ...lewisParams,
@@ -476,6 +467,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Choose the correct Lewis structure for $\\mathrm{N_2H_4}$.",
     substance: hydrazine,
     domain: moleculesDomain,
+    domainName: "Molecules",
     style: lewisStyle,
     setting: {
       ...lewisParams,
@@ -486,6 +478,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Which of the following diagrams are bipartite graphs?",
     substance: sec2ex22,
     domain: simpleGraphDomain,
+    domainName: "Undirected Graphs",
     style: simpleGraphStyle,
     setting: {
       ...graphParams,
@@ -496,6 +489,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Which of the following diagrams are self-complementary graphs?",
     substance: sec3ex50,
     domain: simpleGraphDomain,
+    domainName: "Undirected Graphs",
     style: simpleGraphStyle,
     setting: {
       ...graphParams,
@@ -506,6 +500,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Which diagram has an Euler circuit?",
     substance: sec5ex21,
     domain: simpleDirectedGraphDomain,
+    domainName: "Directed Graphs",
     style: simpleDirectedGraphStyle,
     setting: {
       ...graphParams,
@@ -516,6 +511,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Which diagram has an Euler circuit?",
     substance: sec5ex18,
     domain: simpleDirectedGraphDomain,
+    domainName: "Directed Graphs",
     style: simpleDirectedGraphStyle,
     setting: {
       ...graphParams,
@@ -526,6 +522,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Which of the following diagrams are bipartite graphs?",
     substance: sec2eg9,
     domain: simpleGraphDomain,
+    domainName: "Undirected Graphs",
     style: simpleGraphStyle,
     setting: {
       ...graphParams,
@@ -536,6 +533,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Which of the following diagrams are strongly connected graphs?",
     substance: sec4ex12b,
     domain: simpleDirectedGraphDomain,
+    domainName: "Directed Graphs",
     style: simpleDirectedGraphStyle,
     setting: {
       ...graphParams,
@@ -546,9 +544,48 @@ forall Point \`D\`, \`E\`, \`A\` {
     prompt: "Which diagram has a Hamilton circuit?",
     substance: sec5ex47d,
     domain: simpleGraphDomain,
+    domainName: "Undirected Graphs",
     style: simpleGraphStyle,
     setting: {
       ...graphParams,
     },
   },
+};
+
+export const domains: PresetsByDomain = {
+  Molecules: [
+    presets.lewis_0,
+    presets.lewis_1,
+    presets.lewis_2,
+    presets.lewis_3,
+    presets.lewis_4,
+    presets.lewis_5,
+    presets.lewis_6,
+  ],
+  Geometry: [
+    presets.c01p01,
+    presets.c01p10,
+    presets.c02p01,
+    presets.c03p01,
+    presets.c04p01,
+    presets.c04p12,
+    presets.c05p01,
+    presets.c05p13,
+    presets.c06p06,
+    presets.c07p06,
+    presets.c07p10,
+    presets.c07p22,
+    presets.c08p08,
+    presets.c10p08,
+    presets.c11p07,
+    presets.c11p25,
+    presets.c12p20,
+  ],
+  "Directed Graphs": [
+    presets.graph_0,
+    presets.graph_1,
+    presets.graph_4,
+    presets.graph_6,
+  ],
+  "Undirected Graphs": [presets.graph_2, presets.graph_3, presets.graph_5],
 };
