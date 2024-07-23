@@ -1,3 +1,5 @@
+import Chip from "@material-ui/core/Chip";
+
 import {
   Accordion,
   AccordionDetails,
@@ -44,12 +46,7 @@ const choose = (list: string[]) =>
   list[Math.floor(Math.random() * list.length)];
 
 export const generateVariation = (): string => {
-  const numDigits = randInt(3, 5);
-  const digits: number[] = [];
-  for (let i = 0; i < numDigits; i++) {
-    digits.push(randInt(0, 9));
-  }
-  return `${choose(colors)}${choose(animals)}${digits.join("")}`;
+  return `${choose(colors)}${choose(animals)}`;
 };
 
 interface StmtType {
@@ -298,7 +295,9 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
             </AccordionBodyStyled>
           </Accordion>
         </SettingContainer>
-        <br />
+        <ButtonContainer>
+          <Chip label={`variation seed: ${this.state.seed}`} disabled />
+        </ButtonContainer>
         <ButtonContainer>
           <Button
             onClick={this.onGenerateClick}
