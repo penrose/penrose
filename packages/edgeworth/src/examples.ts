@@ -1,5 +1,5 @@
-import euclideanStyle from "@penrose/examples/dist/geometry-domain/euclidean.style";
-import geometryDomain from "@penrose/examples/dist/geometry-domain/geometry.domain";
+import euclideanStyle from "@penrose/examples/dist/geometry-domain/euclidean.min.style";
+import geometryDomain from "@penrose/examples/dist/geometry-domain/geometry.min.domain";
 import c01p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c01p01.substance";
 import c01p10 from "@penrose/examples/dist/geometry-domain/textbook_problems/c01p10.substance";
 import c02p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c02p01.substance";
