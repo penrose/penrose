@@ -180,6 +180,7 @@ export default function EditorPane({
         maxWidth={maxWidth}
         minHeight={minHeight}
         minWidth={minWidth}
+        readOnly={readOnly}
       />
       <div
         ref={statusBarRef}
