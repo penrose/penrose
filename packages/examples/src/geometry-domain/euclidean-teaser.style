@@ -216,7 +216,7 @@ with Point p; Point q {
 }
 
 forall Linelike l1, l2 -- should this work with rays and lines?
-where ParallelMarker(l1, l2) {
+where ParallelMarker1(l1, l2) {
   l1.tick1 = Path {
     d : pathFromPoints("open", chevron(l1.icon, 20.))
     strokeWidth : 2.0
@@ -432,7 +432,7 @@ where EqualAngle(a, b) {
 }
 
 forall Angle a
-where Right(a) {
+where RightUnmarked(a) {
   -- ensure perpendicular(a.p, a.q, a.r)
   vec2 u = a.p - a.q
   vec2 v = a.r - a.q
@@ -721,6 +721,20 @@ with Point p; Point q; Point r; Point s {
 }
 
 --FUNCTIONS
+forall Segment s
+with Triangle T; Point p, q, r, a, b
+where s := MidSegment(T, a, b); T := Triangle(p, q, r) {
+  override a.vec = midpoint(q.vec, r.vec)
+  override b.vec = midpoint(r.vec, p.vec)
+  override s.icon = Line {
+    start : a.vec
+    end : b.vec
+    strokeColor : s.color
+    strokeWidth : const.strokeWidth
+    style : "solid"
+  }
+}
+
 forall Point p
 where p := Midpoint(l)
 with Linelike l {
@@ -774,7 +788,7 @@ forall Circle c {
 }
 
 forall Circle c
-where c := Circle(p, q)
+where c := CircleR(p, q)
 with Point p, q {
   override c.radius = vdist(p.vec, q.vec)
   override c.vec = p.icon.center

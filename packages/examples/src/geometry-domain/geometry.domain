@@ -61,23 +61,49 @@ constructor Quadrilateral(Point p, Point q, Point r, Point s) -- This function c
 -- Point A, B, C, D
 -- Quadrilateral quadrilateralABCD := Quadrilateral(A, B, C, D)
 -- AutoLabel A, B, C, D
-constructor Circle(Point center, Point radius) -> Circle -- This constructor creates a circle from a center point and a radius point. Example usage: 
+constructor CircleR(Point center, Point radius) -> Circle -- This constructor creates a circle from a center point and a radius point. Example usage: 
 -- Point A, B
--- Circle circleAB := Circle(A, B)
+-- Circle circleAB := CircleR(A, B)
 -- AutoLabel A, B
 
 -- ~~~~~~~~~~~~~~~~ FUNCTIONS ~~~~~~~~~~~~~~~~
+-- Lines and Points
+function Bisector(Angle) -> Ray -- This function creates a ray as the angle bisector of an angle. Example usage: 
+-- Point A, B, C
+-- Angle angleABC
+-- angleABC := InteriorAngle(A, B, C)
+-- Ray bisectorABC := Bisector(angleABC)
+-- AutoLabel A, B, C, bisectorABC
+function PerpendicularBisector(Segment, Point) -> Segment -- This function creates a perpendicular bisector from a line segment. Example usage: 
+-- Point A, B, C
+-- Segment AB
+-- AB := Segment(A, B)
+-- Segment perpendicularBisectorAB := PerpendicularBisector(AB, C)
+-- AutoLabel A, B, C
+function PerpendicularBisectorLabelPts(Segment, Point, Point) -> Segment -- This function creates a perpendicular bisector from a segment to bisect, a base point, and a direction point. Example usage: 
+-- Point A, B, C, D, d
+-- Segment AB, CD
+-- AB := Segment(A, B)
+-- CD := Segment(C, D)
+-- PerpendicularBisectorLabelPts(AB, C, d)
+-- AutoLabel A, B, C, D, d
+
 -- Polygons/Shapes
+function MidSegment(Triangle, Point, Point) -> Segment -- This function creates a midsegment from a triangle and two points on the triangle. Example usage: 
+-- Point A, B, C, D, E
+-- Triangle triangleABC := Triangle(A, B, C)
+-- Segment midsegmentDE := MidSegment(triangleABC, D, E)
+-- AutoLabel A, B, C, D, E
 function Radius(Circle c, Point p) -> Segment -- This function creates a radius from a circle and a point on the circle. Example usage: 
 -- Point A, B
 -- Circle circleAB
--- circleAB := Circle(A, B)
+-- circleAB := CircleR(A, B)
 -- Segment radiusAB := Radius(circleAB, B)
 -- AutoLabel A, B
 function Chord(Circle c, Point p, Point q) -> Segment -- This function creates a chord from a circle and two points on the circle. Example usage: 
 -- Point A, B, C
 -- Circle circleAB
--- circleAB := Circle(A, B)
+-- circleAB := CircleR(A, B)
 -- Segment chordAC := Chord(circleAB, A, C)
 -- AutoLabel A, B, C
 function Diameter(Circle c, Point p, Point q) -> Segment -- This function creates a diameter from a circle and two points. Example usage: 
@@ -87,6 +113,12 @@ function Diameter(Circle c, Point p, Point q) -> Segment -- This function create
 -- Segment diameterAC := Diameter(circleAB, A, B)
 -- AutoLabel A, B
 
+-- Unimplemented
+-- function Sum(Angle, Angle) -> Angle
+-- function Intersection(Linelike, Linelike) -> Point
+-- function Altitude(Triangle, Angle) -> Segment
+-- function Endpoint(Segment) -> Point
+
 -- ~~~~~~~~~~~~~~~~ PREDICATES ~~~~~~~~~~~~~~~~
 -- Lines and Points
 predicate On(Point, Linelike) -- This predicate makes a point be on a line. Example usage: 
@@ -94,6 +126,12 @@ predicate On(Point, Linelike) -- This predicate makes a point be on a line. Exam
 -- Line lineAB
 -- lineAB := Line(A, B)
 -- On(A, lineAB)
+-- AutoLabel A, B
+predicate In(Point, Plane) -- This predicate makes a point be in a plane. Example usage: 
+-- Point A, B
+-- Plane planeAB
+-- planeAB := Plane(A, B)
+-- In(A, planeAB)
 -- AutoLabel A, B
 predicate Midpoint(Linelike, Point) -- This predicate makes a point be the midpoint of a line. Example usage: 
 -- Point A, B, C
@@ -107,15 +145,15 @@ predicate Collinear(Point, Point, Point) -- This predicate makes three points co
 -- AB := Segment(A, B)
 -- BC := Segment(B, C)
 -- Collinear(A, B, C)
-predicate ParallelMarker(Linelike, Linelike) -- This predicate marks two lines parallel. Only use if Parallel precedes it. Example usage: 
+predicate ParallelMarker1(Linelike, Linelike) -- This predicate marks two lines parallel. Only use if Parallel precedes it. Example usage: 
 -- Point A, B, C, D
 -- Line lineAB, lineCD
 -- lineAB := Line(A, B)
 -- lineCD := Line(C, D)
 -- Parallel(lineAB, lineCD)
--- ParallelMarker(lineAB, lineCD)
+-- ParallelMarker1(lineAB, lineCD)
 -- AutoLabel A, B, C, D
-symmetric predicate EqualLengthMarker(Linelike, Linelike) -- This predicate only marks two segments with a tick indicating that they have equal length. Only use if EqualLength precedes it. Example usage: 
+predicate EqualLengthMarker(Linelike, Linelike) -- This predicate only marks two segments with a tick indicating that they have equal length. Only use if EqualLength precedes it. Example usage: 
 -- Point A, B, C, D
 -- Segment segmentAB, segmentCD
 -- segmentAB := Segment(A, B)
@@ -157,11 +195,11 @@ predicate RightMarked(Angle) -- This predicate makes an angle right and marks it
 -- angleABC := InteriorAngle(A, B, C)
 -- RightMarked(angleABC)
 -- AutoLabel A, B, C
-predicate Right(Angle) -- This predicate makes an angle right and does not mark it with a square. Example usage: 
+predicate RightUnmarked(Angle) -- This predicate makes an angle right and does not mark it with a square. Example usage: 
 -- Point A, B, C
 -- Angle angleABC
 -- angleABC := InteriorAngle(A, B, C)
--- Right(angleABC)
+-- RightUnmarked(angleABC)
 -- AutoLabel A, B, C
 predicate AngleBisector(Angle, Linelike) -- This predicate makes a ray be the angle bisector of an angle. Example usage: 
 -- Point A, B, C
@@ -171,7 +209,7 @@ predicate AngleBisector(Angle, Linelike) -- This predicate makes a ray be the an
 -- rayABC := Ray(A, B)
 -- AngleBisector(angleABC, rayABC)
 -- AutoLabel A, B, C
-symmetric predicate EqualAngleMarker(Angle, Angle) -- This predicate only marks two angles with a tick indicating that they have equal measure. Only use if EqualAngle precedes it. Example usage: 
+predicate EqualAngleMarker(Angle, Angle) -- This predicate only marks two angles with a tick indicating that they have equal measure. Only use if EqualAngle precedes it. Example usage: 
 -- Point A, B, C, D, E, F
 -- Angle angleABC, angleDEF
 -- angleABC := InteriorAngle(A, B, C)
@@ -197,13 +235,10 @@ predicate Parallelogram(Quadrilateral) -- This predicate makes a quadrilateral a
 predicate OnCircle(Circle, Point) -- This predicate makes a point be on a circle. Example usage: 
 -- Point A, B, C
 -- Circle circleAB
--- circleAB := Circle(A, B)
+-- circleAB := CircleR(A, B)
 -- OnCircle(circleAB, C)
 -- AutoLabel A, B, C
 predicate CircleCenter(Circle, Point) -- Do not use.
-
-
--- ~~~~~~~~~~~~~~~~ Advanced ~~~~~~~~~~~~~~~~
 predicate Incenter(Point, Triangle) -- This predicate makes a point be the incenter of a triangle. Example usage: 
 -- Point A, B, C, D
 -- Triangle triangleABC
@@ -228,29 +263,3 @@ predicate Circumcenter(Point, Triangle) -- This predicate makes a point be the c
 -- triangleABC := Triangle(A, B, C)
 -- Circumcenter(D, triangleABC)
 -- AutoLabel A, B, C, D
-
-function Bisector(Angle) -> Ray -- This function creates a ray as the angle bisector of an angle. Example usage: 
--- Point A, B, C
--- Angle angleABC
--- angleABC := InteriorAngle(A, B, C)
--- Ray bisectorABC := Bisector(angleABC)
--- AutoLabel A, B, C, bisectorABC
-function PerpendicularBisector(Segment, Point) -> Segment -- This function creates a perpendicular bisector from a line segment. Example usage: 
--- Point A, B, C
--- Segment AB
--- AB := Segment(A, B)
--- Segment perpendicularBisectorAB := PerpendicularBisector(AB, C)
--- AutoLabel A, B, C
-function PerpendicularBisectorLabelPts(Segment, Point, Point) -> Segment -- This function creates a perpendicular bisector from a segment to bisect, a base point, and a direction point. Example usage: 
--- Point A, B, C, D, d
--- Segment AB, CD
--- AB := Segment(A, B)
--- CD := Segment(C, D)
--- PerpendicularBisectorLabelPts(AB, C, d)
--- AutoLabel A, B, C, D, d
-predicate In(Point, Plane) -- This predicate makes a point be in a plane. Example usage: 
--- Point A, B
--- Plane planeAB
--- planeAB := Plane(A, B)
--- In(A, planeAB)
--- AutoLabel A, B
