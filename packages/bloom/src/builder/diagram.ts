@@ -16,6 +16,7 @@ import {
   step,
 } from "@penrose/core";
 import consola, { LogLevels } from "consola";
+import { DragConstraint } from "../types.js";
 import { stateToSVG } from "../utils.js";
 
 const log = consola.create({ level: LogLevels.warn }).withTag("diagram");
@@ -27,8 +28,10 @@ export type DiagramData = {
   constraints: Num[];
   objectives: Num[];
   shapes: Shape<Num>[];
+  idShapeMap: Map<string, Shape<Num>>;
   namedInputs: Map<string, number>;
   pinnedInputs: Set<number>;
+  dragIdsAndConstrs: Map<string, DragConstraint>;
 };
 
 export class Diagram {
@@ -131,12 +134,13 @@ export class Diagram {
       gradient: await genGradient(inputVars, data.objectives, data.constraints),
       computeShapes: await compileCompGraph(inputVars, data.shapes),
       interactivityInfo: {
-        // TODO: create actual interactivity info
         inputIdxsByPath: new Map(),
-        translatableShapePaths: new Set(),
+        translatableShapePaths: new Set(data.dragIdsAndConstrs.keys()),
         scalableShapePaths: new Set(),
+        // currently, penrose ide needs dragging constrants to be part of state,
+        // but we keep track separately
         draggingConstraints: new Map(),
-        shapesByPath: new Map(),
+        shapesByPath: data.idShapeMap,
       },
     };
 

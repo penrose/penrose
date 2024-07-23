@@ -3,21 +3,19 @@ import {
   StagedConstraints,
   compileTrio,
   finalStage,
+  getAllInteractiveIdxs,
   insertPending,
   isOptimized,
   nextStage,
   resample as penroseResample,
+  scaleVaryingValues,
   start,
   step,
+  translateVaryingValues,
 } from "@penrose/core";
 import consola from "consola";
 import { cloneDeep } from "lodash";
 import { Result } from "true-myth";
-import {
-  getAllInteractiveIdxs,
-  scaleVaryingValues,
-  translateVaryingValues,
-} from "../utils/interactionUtils.js";
 import {
   CompileRequestData,
   CompileResult,

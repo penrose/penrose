@@ -1,5 +1,13 @@
-import { PenroseState, State, Value } from "@penrose/core";
-import { min } from "lodash";
+import {
+  Canvas,
+  InteractivityInfo,
+  LabelCache,
+  PenroseState,
+  Shape,
+  State,
+  Value,
+} from "@penrose/core";
+import _ from "lodash";
 
 export type InteractionCommon = {
   path: string;
@@ -24,6 +32,20 @@ export type ChangePin = {
 
 export type Interaction = Translation | Scale | ChangePin;
 
+export type PartialInteractivityInfo = Pick<
+  InteractivityInfo,
+  "translatableShapePaths" | "scalableShapePaths" | "draggingConstraints"
+>;
+
+/** Minimal state needed for rendering */
+export type RenderState = {
+  canvas: Canvas;
+  shapes: Shape<number>[];
+  labelCache: LabelCache;
+  variation: string;
+  interactivityInfo: PartialInteractivityInfo;
+};
+
 const valueIsVectorNumeric = (
   val: Value.Value<number | undefined>,
 ): val is Value.ListV<number> | Value.TupV<number> | Value.VectorV<number> => {
@@ -38,6 +60,41 @@ const valueIsVectorNumeric = (
   }
 
   return true;
+};
+
+/**
+ * Converts screen to relative SVG coords
+ * Thanks to
+ * https://www.petercollingridge.co.uk/tutorials/svg/interxactive/dragging/
+ * @param e
+ * @param CTM
+ */
+export const getScreenToSvgPosition = (
+  { clientX, clientY }: { clientX: number; clientY: number },
+  CTM: DOMMatrix | null,
+): { x: number; y: number } => {
+  if (CTM !== null) {
+    return new DOMPoint(clientX, clientY).matrixTransform(CTM.inverse());
+  }
+  return { x: 0, y: 0 };
+};
+
+export const getSvgBBox = (
+  elem: SVGElement,
+  parentSVG: SVGSVGElement,
+): DOMRect => {
+  const bbox = elem.getBoundingClientRect();
+  const ctmInv = parentSVG.getScreenCTM()!.inverse();
+  const topLeft = new DOMPoint(bbox.left, bbox.top);
+  const bottomRight = new DOMPoint(bbox.right, bbox.bottom);
+  const topLeftSVG = topLeft.matrixTransform(ctmInv);
+  const bottomRightSVG = bottomRight.matrixTransform(ctmInv);
+  return new DOMRect(
+    topLeftSVG.x,
+    topLeftSVG.y,
+    bottomRightSVG.x - topLeftSVG.x,
+    bottomRightSVG.y - topLeftSVG.y,
+  );
 };
 
 export const getTranslatedInputsIdxs = (
@@ -258,36 +315,6 @@ export const getScalingInputIdxs = (info: ScalingInfo): number[] => {
   }
 };
 
-export const makeScaleCallback = (
-  info: ScalingInfo,
-  state: PenroseState,
-): ((sx: number, sy: number, state: PenroseState) => void) => {
-  switch (info.tag) {
-    case "RadiusScaling": {
-      const start = state.varyingValues[info.rIdx];
-      return (sx, sy, state) => {
-        state.varyingValues[info.rIdx] = start * min([sx, sy])!;
-      };
-    }
-
-    case "WidthHeightScaling": {
-      const start = [
-        state.varyingValues[info.widthIdx],
-        state.varyingValues[info.heightIdx],
-      ];
-      return (sx: number, sy: number, state: PenroseState) => {
-        state.varyingValues[info.widthIdx] = start[0] * sx;
-        state.varyingValues[info.heightIdx] = start[1] * sy;
-      };
-    }
-
-    case "PointsScaling": {
-      // TODO: points scaling
-      throw new Error("Points scaling not implemented");
-    }
-  }
-};
-
 /**
  * Scale the values in `parentVaryingValues` and return a copy of `recentVaryingValues` with the
  * edited indices replaced
@@ -311,7 +338,7 @@ export const scaleVaryingValues = (
   switch (info.tag) {
     case "RadiusScaling": {
       const start = parentVaryingValues[info.rIdx];
-      res[info.rIdx] = start * min([sx, sy])!;
+      res[info.rIdx] = start * _.min([sx, sy])!;
       break;
     }
 
@@ -346,3 +373,205 @@ export const getAllInteractiveIdxs = (
     : [];
   return new Set(scaling.concat(translating));
 };
+
+export const preventSelection = (e: Event) => {
+  e.preventDefault();
+};
+
+export const makeTranslateOnMouseDown =
+  (
+    diagramSVG: SVGSVGElement,
+    elem: SVGElement,
+    state: RenderState,
+    path: string,
+    translate: (path: string, dx: number, dy: number) => Promise<void>,
+    constraint?: ([x, y]: [number, number]) => [number, number],
+    onMouseUp?: (e: MouseEvent) => void,
+  ) =>
+  (e: MouseEvent) => {
+    const svgParent = diagramSVG.parentElement!;
+
+    window.addEventListener("selectstart", preventSelection);
+    const prevCursor = document.body.style.cursor;
+    document.body.style.cursor = "grabbing";
+    elem.style.cursor = "grabbing";
+
+    const CTM = diagramSVG.getScreenCTM();
+    const { x: startX, y: startY } = getScreenToSvgPosition(e, CTM);
+
+    const {
+      width: bboxW,
+      height: bboxH,
+      x: bboxX,
+      y: bboxY,
+    } = getSvgBBox(elem, diagramSVG);
+
+    const approxCenterX = bboxX + bboxW / 2;
+    const approxCenterY = bboxY + bboxH / 2;
+    const approxInitDeltaX = startX - approxCenterX;
+    const approxInitDeltaY = startY - approxCenterY;
+
+    let dx = 0,
+      dy = 0;
+    let queuedMouseMove: () => void = () => {};
+    let readyForMouseMove = true;
+
+    const onMouseMove = async (e: MouseEvent) => {
+      if (!readyForMouseMove) {
+        queuedMouseMove = () => onMouseMove(e);
+        return;
+      }
+
+      const viewBox = diagramSVG.viewBox;
+      const svgWidth = viewBox.baseVal.width;
+      const svgHeight = viewBox.baseVal.height;
+
+      let { x, y } = getScreenToSvgPosition(e, CTM);
+      if (constraint) {
+        [x, y] = constraint([
+          x - approxInitDeltaX - svgWidth / 2,
+          -(y - approxInitDeltaY) + svgHeight / 2,
+        ]);
+        x = x + approxInitDeltaX + svgWidth / 2;
+        y = -(y - svgHeight / 2) + approxInitDeltaY;
+      }
+
+      const minX = startX - bboxX;
+      const maxX = state.canvas.width - (bboxX + bboxW - startX);
+      const minY = startY - bboxY;
+      const maxY = state.canvas.height - (bboxY + bboxH - startY);
+
+      const constrainedX = _.clamp(x, minX, maxX);
+      const constrainedY = _.clamp(y, minY, maxY);
+      dx = constrainedX - startX;
+      dy = startY - constrainedY;
+
+      readyForMouseMove = false;
+      await translate(path, dx, dy);
+      readyForMouseMove = true;
+
+      const toRun = queuedMouseMove;
+      queuedMouseMove = () => {};
+      toRun();
+    };
+
+    const onMouseUp_ = (e: MouseEvent) => {
+      svgParent.removeEventListener("mouseup", onMouseUp_);
+      svgParent.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("selectstart", preventSelection);
+      document.body.style.cursor = prevCursor;
+      elem.style.cursor = "grab";
+      translate(path, dx, dy);
+      onMouseUp?.(e);
+    };
+
+    svgParent.addEventListener("mouseup", onMouseUp_);
+    svgParent.addEventListener("mousemove", onMouseMove);
+  };
+
+export const makeScaleOnMouseDown =
+  (
+    diagramSVG: SVGSVGElement,
+    elem: SVGElement,
+    state: RenderState,
+    path: string,
+    corner: "topLeft" | "topRight" | "bottomLeft" | "bottomRight",
+    scale: (path: string, sx: number, sy: number) => Promise<void>,
+  ) =>
+  (e: MouseEvent) => {
+    const svgParent = diagramSVG.parentElement!;
+
+    window.addEventListener("selectstart", preventSelection);
+
+    const CTM = diagramSVG.getScreenCTM();
+    const { x: startMouseX, y: startMouseY } = getScreenToSvgPosition(e, CTM);
+
+    const {
+      width: bboxW,
+      height: bboxH,
+      x: bboxX,
+      y: bboxY,
+    } = getSvgBBox(elem, diagramSVG);
+
+    let minMouseX: number,
+      maxMouseX: number,
+      minMouseY: number,
+      maxMouseY: number;
+    let left: boolean, top: boolean;
+
+    const leftMargin = bboxX;
+    const rightMargin = state.canvas.width - (bboxX + bboxW);
+    const xMargin = _.min([leftMargin, rightMargin])!;
+
+    const topMargin = bboxY;
+    const bottomMargin = state.canvas.height - (bboxY + bboxH);
+    const yMargin = _.min([topMargin, bottomMargin])!;
+
+    switch (corner) {
+      case "topLeft":
+      case "bottomLeft":
+        minMouseX = startMouseX - xMargin;
+        maxMouseX = startMouseX + bboxW / 2;
+        left = true;
+        break;
+
+      case "topRight":
+      case "bottomRight":
+        minMouseX = startMouseX - bboxW / 2;
+        maxMouseX = startMouseX + xMargin;
+        left = false;
+        break;
+    }
+
+    switch (corner) {
+      case "topLeft":
+      case "topRight":
+        minMouseY = startMouseY - yMargin;
+        maxMouseY = startMouseY + bboxH / 2;
+        top = true;
+        break;
+
+      case "bottomLeft":
+      case "bottomRight":
+        minMouseY = startMouseY - bboxH / 2;
+        maxMouseY = startMouseY + yMargin;
+        top = false;
+        break;
+    }
+
+    let sx = 1,
+      sy = 1;
+    let queuedMouseMove: () => void = () => {};
+    let readyForMouseMove = true;
+
+    const onMouseMove = async (e: MouseEvent) => {
+      if (!readyForMouseMove) {
+        queuedMouseMove = () => onMouseMove(e);
+        return;
+      }
+
+      const { x, y } = getScreenToSvgPosition(e, CTM);
+      const constrainedX = _.clamp(x, minMouseX, maxMouseX);
+      const constrainedY = _.clamp(y, minMouseY, maxMouseY);
+      sx = ((constrainedX - startMouseX) * (left ? -1 : 1) * 2 + bboxW) / bboxW;
+      sy = ((constrainedY - startMouseY) * (top ? -1 : 1) * 2 + bboxH) / bboxH;
+
+      readyForMouseMove = false;
+      await scale(path, sx, sy);
+      readyForMouseMove = true;
+
+      const toRun = queuedMouseMove;
+      queuedMouseMove = () => {};
+      toRun();
+    };
+
+    const onMouseUp = () => {
+      svgParent.removeEventListener("mouseup", onMouseUp);
+      svgParent.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("selectstart", preventSelection);
+      scale(path, sx, sy);
+    };
+
+    svgParent.addEventListener("mouseup", onMouseUp);
+    svgParent.addEventListener("mousemove", onMouseMove);
+  };

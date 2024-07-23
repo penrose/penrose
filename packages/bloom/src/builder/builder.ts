@@ -5,7 +5,6 @@ import {
   Num,
   Shape as PenroseShape,
   Var,
-  constrDict,
   sampleShape,
   simpleContext,
   uniform,
@@ -13,6 +12,7 @@ import {
 import {
   Circle,
   CircleProps,
+  DragConstraint,
   Ellipse,
   EllipseProps,
   Equation,
@@ -56,13 +56,20 @@ export class DiagramBuilder {
   private namedInputs: Map<string, number> = new Map();
   private samplingContext: NamedSamplingContext;
   private shapes: Shape[] = [];
+  private shapeIds: Map<Shape, string> = new Map();
   private constraints: Num[] = [];
   private objectives: Num[] = [];
   private variation: string;
   private nextId = 0;
   private partialLayering: [string, string][] = [];
   private pinnedInputs: Set<number> = new Set();
+  private dragIdsAndConstrs: Map<string, DragConstraint> = new Map();
 
+  /**
+   * Create a new diagram builder.
+   * @param canvas Local dimensions of the SVG. If you find that you need thinner lines, tru increasing these dimensions.
+   * @param variation Randomness seed
+   */
   constructor(canvas: Canvas, variation: string) {
     this.canvas = canvas;
     this.variation = variation;
@@ -82,6 +89,9 @@ export class DiagramBuilder {
     this.defineShapeMethods();
   }
 
+  /**
+   * Fill all shape methods
+   */
   private defineShapeMethods = () => {
     const firstLetterLower = (s: string) => {
       return s.charAt(0).toLowerCase() + s.slice(1);
@@ -91,27 +101,44 @@ export class DiagramBuilder {
     for (const shapeType of shapeTypes) {
       Object.defineProperty(this, firstLetterLower(shapeType), {
         value: (props: Partial<ShapeProps> = {}): Shape => {
+          const id = String(this.nextId++) + "_" + shapeType;
           if (!("name" in props)) {
-            props.name = String(this.nextId++) + "_" + shapeType;
+            props.name = id;
           }
-          const penroseShape = this.sampleAndFillPenroseShape(shapeType, props);
-          if (penroseShape.ensureOnCanvas.contents) {
-            this.ensure(
-              constrDict.onCanvas.body(
-                penroseShape,
-                this.canvas.width,
-                this.canvas.height,
-              ).value,
-            );
+          if ("drag" in props && props.drag) {
+            if ("dragConstraint" in props && props.dragConstraint) {
+              this.dragIdsAndConstrs.set(id, props.dragConstraint);
+            } else {
+              this.dragIdsAndConstrs.set(id, ([x, y]) => [x, y]);
+            }
           }
-          const shape = fromPenroseShape(penroseShape);
+
+          const sampledPenroseShapeProps = sampleShape(
+            shapeType,
+            this.samplingContext,
+            this.canvas,
+          );
+          // hacky: technically doesn't have path. But we never use it : |
+          const sampledPenroseShape: PenroseShape<Num> = {
+            ...sampledPenroseShapeProps,
+            shapeType,
+            passthrough: new Map(),
+          } as PenroseShape<Num>;
+
+          const shape = fromPenroseShape(sampledPenroseShape, props);
           this.shapes.push(shape);
+          this.shapeIds.set(shape, id);
           return shape;
         },
       });
     }
   };
 
+  /**
+   * Instantiate a new substance. If no type is given, this is identical to creating
+   * and empty object. If a type `T` is given, this method is equivalent to calling `T()`.
+   * @param type Type to instantiate
+   */
   substance = (type?: Type): Substance => {
     const newSubstance: Substance = {};
     if (type) {
@@ -120,6 +147,18 @@ export class DiagramBuilder {
     return newSubstance;
   };
 
+  /**
+   * Create a new substance type. The type object serves as a constructor for new
+   * substances:
+   *
+   * ```TS
+   * const Vector = type();
+   *
+   * const v1 = Vector();
+   * const v2 = Vector();
+   * ...
+   * ```
+   */
   type = (): Type => {
     const substance = this.substance.bind(this);
     return function t() {
@@ -127,6 +166,25 @@ export class DiagramBuilder {
     };
   };
 
+  /**
+   * Create a new predicate over substances.
+   *
+   * The returned predicate function can be used to declare relationships
+   * between substances (by calling the predicate) and to query existing relation
+   * (by calling the predicate's `.test` method):
+   *
+   *  ```TS
+   *  const Vector = type();
+   *  const Orthogonal = predicate();
+   *
+   *  const v1 = Vector();
+   *  const v2 = Vector();
+   *
+   *  Orthogonal.test(v1, v2); // returns false
+   *  Orthogonal(v1, v2);
+   *  Orthogonal.test(v1, v2); // returns true
+   *  ```
+   */
   predicate = (): Predicate => {
     const objSeqs: any[][] = [];
     const pred: Partial<Predicate> = (...objs: any[]) => {
@@ -217,25 +275,6 @@ export class DiagramBuilder {
     return newVar;
   };
 
-  private sampleAndFillPenroseShape = (
-    shapeType: ShapeType,
-    props: Partial<ShapeProps>,
-  ): PenroseShape<Num> => {
-    const penroseShapeBase = sampleShape(
-      shapeType,
-      this.samplingContext,
-      this.canvas,
-    );
-
-    return toPenroseShape(
-      {
-        ...props,
-        shapeType,
-      },
-      penroseShapeBase,
-    );
-  };
-
   // for typing only; dynamically generated
   /* eslint-disable @typescript-eslint/no-unused-vars */
   circle = (_props: Partial<CircleProps> = {}): Readonly<Circle> => {
@@ -283,8 +322,14 @@ export class DiagramBuilder {
   };
 
   build = async (): Promise<Diagram> => {
-    const penroseShapes = this.shapes.map((s) => toPenroseShape(s));
+    const idShapeMap = new Map<string, PenroseShape<Num>>();
+    const penroseShapes = this.shapes.map((s) => {
+      const penroseShape = toPenroseShape(s);
+      idShapeMap.set(this.shapeIds.get(s)!, penroseShape);
+      return penroseShape;
+    });
     const orderedShapes = sortShapes(penroseShapes, this.partialLayering);
+
     return Diagram.create({
       canvas: this.canvas,
       variation: this.variation,
@@ -292,8 +337,10 @@ export class DiagramBuilder {
       constraints: this.constraints,
       objectives: this.objectives,
       shapes: orderedShapes,
+      idShapeMap,
       namedInputs: this.namedInputs,
       pinnedInputs: this.pinnedInputs,
+      dragIdsAndConstrs: this.dragIdsAndConstrs,
     });
   };
 }

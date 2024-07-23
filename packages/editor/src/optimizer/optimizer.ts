@@ -1,12 +1,13 @@
 import {
+  Interaction,
   isPenroseError,
   LabelMeasurements,
   PenroseError,
+  RenderState,
   runtimeError,
 } from "@penrose/core";
 import consola from "consola";
 import { Result } from "true-myth";
-import { Interaction } from "../utils/interactionUtils.js";
 import Broker from "./broker.ts?worker";
 import {
   collectAndSeparateLabels,
@@ -34,7 +35,6 @@ import {
   notifyWorker,
   PollRequestData,
   PollResult,
-  RenderState,
   request,
   ResampleRequestData,
   ResampleResult,

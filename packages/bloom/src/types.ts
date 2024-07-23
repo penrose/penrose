@@ -1,4 +1,5 @@
 import { Num, Value } from "@penrose/core";
+import { Diagram } from "./builder/diagram.ts";
 
 export type Substance = Record<string, any>;
 export type Type = () => Substance;
@@ -11,10 +12,14 @@ export type Vec3 = [Num, Num, Num];
 export type Color = Num[];
 export type VecN = Num[];
 
+export type DragConstraint = (
+  [x, y]: [number, number],
+  diagram: Diagram,
+) => [number, number];
+
 export interface ShapeCommon {
   name: string;
   ensureOnCanvas: boolean;
-  pinned: boolean;
 }
 
 export interface Stroke {
@@ -66,6 +71,11 @@ export interface String {
   fontSize: string;
 }
 
+export interface Drag {
+  drag: boolean;
+  dragConstraint: DragConstraint;
+}
+
 export type Shape =
   | Circle
   | Ellipse
@@ -93,12 +103,12 @@ export enum ShapeType {
 
 export type PathData = Value.PathCmd<Num>[];
 
-export interface Circle extends ShapeCommon, Stroke, Fill, Center {
+export interface Circle extends ShapeCommon, Stroke, Fill, Center, Drag {
   shapeType: ShapeType.Circle;
   r: Num;
 }
 
-export interface Ellipse extends ShapeCommon, Stroke, Fill, Center {
+export interface Ellipse extends ShapeCommon, Stroke, Fill, Center, Drag {
   shapeType: ShapeType.Ellipse;
   rx: Num;
   ry: Num;
@@ -110,13 +120,14 @@ export interface Equation
     Center,
     Rect,
     Rotate,
-    String {
+    String,
+    Drag {
   shapeType: ShapeType.Equation;
   ascent: Num;
   descent: Num;
 }
 
-export interface Image extends ShapeCommon, Center, Rect, Rotate {
+export interface Image extends ShapeCommon, Center, Rect, Rotate, Drag {
   shapeType: ShapeType.Image;
   href: string;
   preserveAspectRatio: string;
@@ -162,7 +173,8 @@ export interface Text
     Center,
     Rect,
     Rotate,
-    String {
+    String,
+    Drag {
   shapeType: ShapeType.Text;
   visibility: string;
   fontFamily: string;
@@ -361,7 +373,7 @@ const PenroseTextTypes = {
   descent: "FloatV",
 };
 
-export const PenroseShapeType = new Map<ShapeType, any>([
+export const penroseShapeFieldTypes = new Map<ShapeType, any>([
   [ShapeType.Circle, PenroseCircleTypes],
   [ShapeType.Ellipse, PenroseEllipseTypes],
   [ShapeType.Equation, PenroseEquationTypes],

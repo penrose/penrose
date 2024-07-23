@@ -16,7 +16,13 @@ import {
   vectorV,
 } from "@penrose/core";
 import _ from "lodash";
-import { Color, PenroseShapeType, Shape, ShapeType } from "./types.js";
+import {
+  Color,
+  Shape,
+  ShapeProps,
+  ShapeType,
+  penroseShapeFieldTypes,
+} from "./types.js";
 export const stateToSVG = async (
   state: {
     canvas: Canvas;
@@ -73,12 +79,13 @@ export const toPenroseShape = (
   base?: Partial<PenroseShape<Num>>,
 ): PenroseShape<Num> => {
   const penroseShape: Partial<PenroseShape<Num>> = base ?? {};
+  const fieldTypes = penroseShapeFieldTypes.get(shape.shapeType)!;
 
   for (const [prop, value] of Object.entries(shape)) {
-    if (prop === "shapeType") continue;
+    if (prop === "shapeType" || fieldTypes[prop] === undefined) continue;
 
     let resultV: Value.Value<Num>;
-    switch (PenroseShapeType.get(shape.shapeType)![prop]) {
+    switch (penroseShapeFieldTypes.get(shape.shapeType)![prop]) {
       case "FloatV":
         resultV = floatV(value);
         break;
@@ -110,7 +117,7 @@ export const toPenroseShape = (
       default:
         throw new Error(
           `Unknown field type ${
-            PenroseShapeType.get(shape.shapeType)![prop]
+            penroseShapeFieldTypes.get(shape.shapeType)![prop]
           } for ${prop}`,
         );
     }
@@ -125,17 +132,24 @@ export const toPenroseShape = (
   } as PenroseShape<Num>;
 };
 
-export const fromPenroseShape = (penroseShape: PenroseShape<Num>): Shape => {
+export const fromPenroseShape = (
+  penroseShape: PenroseShape<Num>,
+  base?: Partial<ShapeProps>,
+): Shape => {
   if (penroseShape.shapeType === "Group") {
     throw new Error("Groups not yet supported in bloom");
   }
 
   const shape: Partial<Shape> = {
     shapeType: ShapeType[penroseShape.shapeType],
+    ...(base ?? {}),
   };
-  const shapeTypes = PenroseShapeType.get(ShapeType[penroseShape.shapeType])!;
+  const shapeTypes = penroseShapeFieldTypes.get(
+    ShapeType[penroseShape.shapeType],
+  )!;
 
   for (const [prop, value] of Object.entries(penroseShape)) {
+    if (prop in shape) continue;
     switch (shapeTypes[prop]) {
       case "FloatV":
       case "StrV":
