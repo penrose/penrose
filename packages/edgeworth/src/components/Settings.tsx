@@ -308,8 +308,9 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           </Button>
           <Button
             onClick={() => {
-              this.setState({ seed: generateVariation() });
-              this.onGenerateClick();
+              this.setState({ seed: generateVariation() }, () => {
+                this.onGenerateClick();
+              });
             }}
             color="primary"
             variant="contained"
