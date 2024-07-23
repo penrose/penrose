@@ -1,0 +1,6 @@
+{
+  "substance": "./edgeworth-tasks/sulfuric-acid.substance",
+  "style": ["./lewis.style"],
+  "domain": "./molecules.domain",
+  "variation": "SkyllaLyrebird080"
+}

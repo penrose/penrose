@@ -3,5 +3,5 @@
   "style": ["./euclidean.min.style"],
   "domain": "./geometry.min.domain",
   "variation": "JubeDeer8822",
-  "excludeWarnings": ["BBoxApproximationWarning"]
+  "excludeWarnings": ["BBoxApproximationWarning", "NoopDeleteWarning"]
 }

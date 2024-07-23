@@ -3,12 +3,12 @@ Hydrogen h3, h4
 Sulfur s1
 Oxygen o1, o2, o3, o4
 
-Bond b2 := MakeSingleBond(h3, o1)
-Bond b3 := MakeSingleBond(h4, o2)
-Bond b4 := MakeSingleBond(o1, s1)
-Bond b5 := MakeSingleBond(o2, s1)
-Bond b6 := MakeDoubleBond(o3, s1)
-Bond b7 := MakeDoubleBond(o4, s1)
+Bond b2 := SingleBond(h3, o1)
+Bond b3 := SingleBond(h4, o2)
+Bond b4 := SingleBond(o1, s1)
+Bond b5 := SingleBond(o2, s1)
+Bond b6 := DoubleBond(o3, s1)
+Bond b7 := DoubleBond(o4, s1)
 
 ZeroDots(h3)
 ZeroDots(h4)

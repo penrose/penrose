@@ -1,10 +1,10 @@
 Silicon s1
 Fluorine f1, f2, f3, f4
 
-Bond b1 := MakeSingleBond(s1, f1)
-Bond b2 := MakeSingleBond(s1, f2)
-Bond b3 := MakeSingleBond(s1, f3)
-Bond b4 := MakeSingleBond(s1, f4)
+Bond b1 := SingleBond(s1, f1)
+Bond b2 := SingleBond(s1, f2)
+Bond b3 := SingleBond(s1, f3)
+Bond b4 := SingleBond(s1, f4)
 
 SixDots(f1)
 SixDots(f2)

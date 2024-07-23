@@ -215,6 +215,9 @@
     "name": "Circle Example",
     "gallery": true
   },
+  "molecules/sulfuric-acid": {
+    "name": "Edgeworth Chemistry Example"
+  },
   "curve-examples/catmull-rom/catmull-rom": {
     "name": "Catmull-Rom Interpolation Test",
     "gallery": true

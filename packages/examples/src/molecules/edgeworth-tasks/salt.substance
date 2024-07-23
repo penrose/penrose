@@ -1,5 +1,5 @@
 Sodium s1
 Chlorine c1
 
-Bond b := MakeSingleBond(s1, c1)
+Bond b := SingleBond(s1, c1)
 SixDots(c1)

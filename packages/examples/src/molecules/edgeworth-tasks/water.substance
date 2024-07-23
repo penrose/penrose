@@ -1,5 +1,5 @@
 Oxygen o
 Hydrogen h1, h2
-Bond b1 := MakeSingleBond(h1, o)
-Bond b2 := MakeSingleBond(h2, o)
+Bond b1 := SingleBond(h1, o)
+Bond b2 := SingleBond(h2, o)
 FourDots(o)
