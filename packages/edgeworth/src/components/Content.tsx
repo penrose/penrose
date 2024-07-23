@@ -8,7 +8,6 @@ import {
 } from "@material-ui/core";
 import { MultipleChoiceProblem } from "@penrose/components";
 import {
-  compile,
   compileDomain,
   compileSubstance,
   PenroseState,
@@ -155,8 +154,6 @@ export class Content extends React.Component<ContentProps, ContentState> {
     });
   };
 
-  onPrompt = (prompt: string) => this.setState({ prompt });
-
   generateProgs = async (
     setting: SynthesizerSetting,
     seed: string,
@@ -191,31 +188,30 @@ export class Content extends React.Component<ContentProps, ContentState> {
         seed,
       );
       let progs = synth.generateSubstances(numPrograms);
-      while (true) {
-        console.log("checking if there are compiler errors", progs.length);
+      // while (true) {
+      //   const compiled = await Promise.all(
+      //     progs.map(async ({ src: substance }, i) => {
+      //       const res = await compile({
+      //         substance,
+      //         style: this.state.style,
+      //         domain: this.state.domain,
+      //         variation: `${i}`,
+      //       });
+      //       return res.isOk();
+      //     }),
+      //   );
+      //   const missing = numPrograms - compiled.filter((c) => c).length;
+      //   if (missing > 0) {
+      //     progs = progs.filter((_, i) => compiled[i]);
+      //     console.log(
+      //       `${missing} programs could not be compiled. Generating more programs to replace them.`,
+      //     );
+      //     progs.push(...synth.generateSubstances(missing));
+      //   } else {
+      //     break;
+      //   }
+      // }
 
-        const compiled = await Promise.all(
-          progs.map(async ({ src: substance }, i) => {
-            const res = await compile({
-              substance,
-              style: this.state.style,
-              domain: this.state.domain,
-              variation: `${i}`,
-            });
-            return res.isOk();
-          }),
-        );
-        const missing = numPrograms - compiled.filter((c) => c).length;
-        if (missing > 0) {
-          progs = progs.filter((_, i) => compiled[i]);
-          console.log(
-            `${missing} programs could not be compiled. Generating more programs to replace them.`,
-          );
-          progs.push(...synth.generateSubstances(missing));
-        } else {
-          break;
-        }
-      }
       const template = synth.getTemplate();
 
       // if the mutator actually runs, update the internal state
@@ -390,12 +386,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
         {/* NOTE: the Toolbar is used exclusively to space the content underneath the header of the page */}
         <Toolbar />
         <ContentSection>
-          <Settings
-            generateCallback={this.generateProgs}
-            onPrompt={(prompt) => this.setState({ prompt })}
-            defaultDomain={this.state.domain}
-            defaultStyle={this.state.style}
-          />
+          <Settings generateCallback={this.generateProgs} />
           <Problem
             correct={this.state.staged
               .filter(({ correct }) => correct)
