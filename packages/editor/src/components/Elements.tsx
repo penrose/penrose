@@ -19,3 +19,10 @@ export const LabelText = styled.label`
   font-size: 15px;
   margin: 8px;
 `;
+
+export const HeaderButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+`;

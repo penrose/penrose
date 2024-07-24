@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useMediaQuery } from "react-responsive";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
@@ -17,7 +18,7 @@ import {
   useSaveNewWorkspace,
   useSaveWorkspace,
 } from "../state/callbacks.js";
-import BlueButton from "./BlueButton.js";
+import { BlueButton } from "./BlueButton.js";
 
 const UnsavedIcon = styled.div`
   background-color: #dddddd;
@@ -67,10 +68,17 @@ const HeaderButtonContainer = styled.div`
   align-items: center;
 `;
 
+const ButtonsAlignment = styled.div<{ isMobile: boolean }>`
+  margin: ${(props) => (props.isMobile ? "0 0 0 auto" : "0")};
+`;
+
 function EditableTitle() {
   const [editing, setEditing] = useState(false);
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
   const saveWorkspace = useSaveWorkspace();
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const maxMobileTitleLen = 20;
+
   const onChange = useRecoilCallback(
     ({ set }) =>
       (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,7 +125,9 @@ function EditableTitle() {
   }
   return (
     <TitleBox onClick={() => setEditing(true)}>
-      {currentWorkspace.metadata.name}
+      {isMobile && currentWorkspace.metadata.name.length > maxMobileTitleLen
+        ? currentWorkspace.metadata.name.slice(0, maxMobileTitleLen) + "..."
+        : currentWorkspace.metadata.name}
     </TitleBox>
   );
 }
@@ -133,6 +143,7 @@ export default function TopBar() {
   const newWorkspace = useNewWorkspace();
   const saveWorkspace = useSaveWorkspace();
   const saveNewWorkspace = useSaveNewWorkspace();
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
   /**
    * These hooks are here because 1) In App, the call to get value of
@@ -162,6 +173,7 @@ export default function TopBar() {
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
+            width: "100%",
           }}
         >
           <EditableTitle />
@@ -187,40 +199,47 @@ export default function TopBar() {
               </AuthorBox>
             </a>
           )}
-          {currentWorkspace.metadata.location.kind == "local" &&
-            currentWorkspace.metadata.location.changesMade && (
-              <BlueButton
-                onClick={() =>
-                  saveNewWorkspace(
-                    currentWorkspace.metadata.id,
-                    currentWorkspace,
-                  )
-                }
-              >
-                save
-              </BlueButton>
-            )}
-          {currentWorkspace.metadata.location.kind === "stored" &&
-            !currentWorkspace.metadata.location.saved && (
-              <BlueButton onClick={() => saveWorkspace()}>save</BlueButton>
-            )}
-          {currentWorkspace.metadata.location.kind === "stored" &&
-            currentWorkspace.metadata.location.saved &&
-            settings.githubAccessToken !== null && (
-              <BlueButton onClick={publishGist}>share</BlueButton>
-            )}
+          <ButtonsAlignment isMobile={isMobile}>
+            {currentWorkspace.metadata.location.kind == "local" &&
+              currentWorkspace.metadata.location.changesMade && (
+                <BlueButton
+                  // isMobile={isMobile}
+                  onClick={() =>
+                    saveNewWorkspace(
+                      currentWorkspace.metadata.id,
+                      currentWorkspace,
+                    )
+                  }
+                >
+                  save
+                </BlueButton>
+              )}
+            {currentWorkspace.metadata.location.kind === "stored" &&
+              !currentWorkspace.metadata.location.saved && (
+                <BlueButton onClick={() => saveWorkspace()}>save</BlueButton>
+              )}
+            {currentWorkspace.metadata.location.kind === "stored" &&
+              currentWorkspace.metadata.location.saved &&
+              settings.githubAccessToken !== null && (
+                <BlueButton onClick={publishGist}>share</BlueButton>
+              )}
 
-          <BlueButton onClick={newWorkspace}>new workspace</BlueButton>
+            <BlueButton onClick={newWorkspace}>
+              new {!isMobile && "workspace"}
+            </BlueButton>
+          </ButtonsAlignment>
         </div>
       )}
-      <HeaderButtonContainer>
-        <BlueButton disabled={compiling} onClick={compileDiagram}>
-          compile ▶
-        </BlueButton>
-        <BlueButton disabled={compiling} onClick={resampleDiagram}>
-          resample
-        </BlueButton>
-      </HeaderButtonContainer>
+      {!isMobile && (
+        <HeaderButtonContainer>
+          <BlueButton disabled={compiling} onClick={compileDiagram}>
+            compile
+          </BlueButton>
+          <BlueButton disabled={compiling} onClick={resampleDiagram}>
+            resample
+          </BlueButton>
+        </HeaderButtonContainer>
+      )}
     </nav>
   );
 }

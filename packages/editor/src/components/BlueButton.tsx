@@ -27,6 +27,11 @@ export const BlueButton = styled.button<{}>`
 `;
 export default BlueButton;
 
+export const TopBarButton = styled(BlueButton)<{ isMobile: boolean }>`
+  display: flex;
+  justify-content: ${(props) => (props.isMobile ? "flex-end" : "flex-start")};
+`;
+
 export const BigBlueButton = styled(BlueButton)`
   padding: 10px 20px;
   margin: 10px;
