@@ -1,27 +1,46 @@
+import { allWarnings } from "@penrose/core";
+import localforage from "localforage";
 import { useEffect, useState } from "react";
-import { useRecoilStateLoadable, useRecoilValue } from "recoil";
+import { ObjectInspector } from "react-inspector";
+import Select from "react-select";
+import { useRecoilState, useRecoilStateLoadable, useRecoilValue } from "recoil";
 import {
   currentAppUser,
+  diagramGridState,
+  diagramMetadataSelector,
+  diagramState,
   savedFilesState,
   settingsState,
 } from "../state/atoms.js";
-import { countLegacyDiagrams, useRecoverAll } from "../state/callbacks.js";
+import {
+  countLegacyDiagrams,
+  useCompileDiagram,
+  useRecoverAll,
+} from "../state/callbacks.js";
 import { logInWrapper, signOutWrapper } from "../utils/firebaseUtils.js";
-import BlueButton from "./BlueButton.js";
+import { BlueButton, CenteredBlueButton } from "./BlueButton.js";
+import { BodyText, LabelText, SettingsHeader } from "./Elements.js";
 
 export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
   const [numLegacyDiagrams, setNumLegacyDiagrams] = useState<number>(0);
   const currentUser = useRecoilValue(currentAppUser);
+  const { state } = useRecoilValue(diagramState);
   const useLogin = logInWrapper();
   const useLogout = signOutWrapper();
   const recoverAll = useRecoverAll();
   const savedDiagrams = useRecoilValue(savedFilesState);
+  const [diagramMetadata, setDiagramMetadata] = useRecoilState(
+    diagramMetadataSelector,
+  );
+  const [{ gridSize }, setSettingsState] = useRecoilState(diagramGridState);
+  const compileDiagram = useCompileDiagram();
 
   useEffect(() => {
     const set = async () => {
       let num = await countLegacyDiagrams(savedDiagrams);
       setNumLegacyDiagrams(num);
+      localforage.setItem("balls", "xml tag lol");
     };
     set();
   }, [savedDiagrams]);
@@ -30,24 +49,22 @@ export default function Settings() {
     return <div>loading...</div>;
   }
   return (
-    <div>
+    <div style={{ margin: "10px" }}>
+      <SettingsHeader>General Settings</SettingsHeader>
+      {currentUser != null ? (
+        <div style={{ margin: "5px 0px" }}>
+          <BlueButton onClick={useLogout}>Sign Out</BlueButton>
+        </div>
+      ) : (
+        <div style={{ margin: "10px" }}>
+          <CenteredBlueButton onClick={useLogin}>
+            {" "}
+            Login with GitHub{" "}
+          </CenteredBlueButton>
+        </div>
+      )}
       <div>
-        <label>
-          debug mode{" "}
-          <input
-            type="checkbox"
-            checked={settings.contents.debugMode}
-            onChange={(e) =>
-              setSettings((state) => ({
-                ...state,
-                debugMode: e.target.checked,
-              }))
-            }
-          />
-        </label>
-      </div>
-      <div>
-        <label>
+        <LabelText>
           vim mode{" "}
           <input
             type="checkbox"
@@ -56,10 +73,36 @@ export default function Settings() {
               setSettings((state) => ({ ...state, vimMode: e.target.checked }))
             }
           />
-        </label>
+        </LabelText>
       </div>
+      <BodyText>exclude warnings: </BodyText>
+      <Select
+        options={allWarnings.map((tag) => ({ val: tag }))}
+        isMulti
+        isSearchable
+        getOptionLabel={({ val }) => val}
+        getOptionValue={({ val }) => val}
+        value={diagramMetadata.excludeWarnings.map((tag) => ({
+          val: tag,
+        }))}
+        onChange={(values) => {
+          setDiagramMetadata((metadata) => ({
+            ...metadata,
+            excludeWarnings: values.map((v) => v.val),
+          }));
+        }}
+        styles={{
+          control: (baseStyles, state) => ({
+            ...baseStyles,
+            fontSize: "12px",
+            margin: "5px 0px 0p",
+          }),
+        }}
+      />
       <div>
-        interactive mode (experimental) <br />
+        <BodyText>
+          interactive mode (experimental) <br />
+        </BodyText>
         <input
           type="radio"
           name="interactivity"
@@ -71,7 +114,7 @@ export default function Settings() {
             }));
           }}
         />
-        <label>Off</label>
+        <LabelText>Off</LabelText>
         <br />
         <input
           type="radio"
@@ -84,7 +127,7 @@ export default function Settings() {
             }));
           }}
         />
-        <label>Edit Mode</label>
+        <LabelText>Edit Mode</LabelText>
         <br />
         <input
           type="radio"
@@ -97,23 +140,74 @@ export default function Settings() {
             }));
           }}
         />
-        <label>Play Mode</label>
+        <LabelText>Play Mode</LabelText>
       </div>
 
-      {currentUser != null ? (
-        <div style={{ margin: "10px" }}>
-          <BlueButton onClick={useLogout}>Sign Out</BlueButton>
-          <p>
+      <SettingsHeader>Variation Settings</SettingsHeader>
+      <div>
+        <LabelText>
+          variation seed:
+          <input
+            style={{ margin: "5px 0px" }}
+            type="text"
+            value={diagramMetadata.variation}
+            onChange={(e) =>
+              setDiagramMetadata((metadata) => ({
+                ...metadata,
+                variation: e.target.value,
+              }))
+            }
+            onBlur={compileDiagram}
+          />
+        </LabelText>
+        <div>
+          <LabelText>
+            grid size:{" "}
+            <input
+              type="range"
+              min="1"
+              max="30"
+              value={gridSize}
+              onChange={(e) =>
+                setSettingsState((settings) => ({
+                  ...settings,
+                  gridSize: parseInt(e.target.value, 10),
+                }))
+              }
+            />
+            <output>{gridSize}</output>
+          </LabelText>
+          <div>
+            <BlueButton
+              style={{ margin: "5px 0px" }}
+              onClick={() => {
+                setDiagramMetadata((metadata) => ({
+                  ...metadata,
+                  autostep: !metadata.autostep,
+                }));
+              }}
+            >
+              autostep ({diagramMetadata.autostep ? "on" : "off"})
+            </BlueButton>
+          </div>
+        </div>
+      </div>
+
+      <SettingsHeader>State</SettingsHeader>
+      <div>
+        {state ? <ObjectInspector data={state} /> : <BodyText>empty</BodyText>}
+      </div>
+
+      {currentUser != null && (
+        <div>
+          <SettingsHeader>Misc</SettingsHeader>
+          <BodyText>
             We've migrated to cloud storage! You have {numLegacyDiagrams}{" "}
             unrestored locally stored diagrams.
-          </p>
+          </BodyText>
           {numLegacyDiagrams > 0 && (
             <BlueButton onClick={recoverAll}>Recover All</BlueButton>
           )}
-        </div>
-      ) : (
-        <div style={{ margin: "10px" }}>
-          <BlueButton onClick={useLogin}> Login with GitHub </BlueButton>
         </div>
       )}
     </div>

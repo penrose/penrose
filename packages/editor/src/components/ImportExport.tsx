@@ -8,8 +8,9 @@ import {
   diagramMetadataSelector,
 } from "../state/atoms.js";
 import { isCleanWorkspace, useCompileDiagram } from "../state/callbacks.js";
+import { BodyText } from "./Elements.js";
 
-export default function SvgUploader() {
+export default function ImportExport() {
   const [, setDiagramMetadata] = useRecoilState(diagramMetadataSelector);
   const compileDiagram = useCompileDiagram();
   const [currentWorkspace, setWorkspace] = useRecoilState(
@@ -103,10 +104,10 @@ export default function SvgUploader() {
       <div
         style={{ border: "2px dashed", borderColor: "darkgrey", padding: 10 }}
       >
-        <p>
+        <BodyText>
           <span style={{ textDecoration: "underline" }}>Upload</span> or drop a
           Penrose exported SVG here
-        </p>
+        </BodyText>
       </div>
     </FileUploader>
   );

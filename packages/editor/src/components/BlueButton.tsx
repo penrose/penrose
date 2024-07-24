@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const BlueButton = styled.button<{}>`
+export const BlueButton = styled.button<{}>`
   outline: none;
   display: inline-block;
   cursor: pointer;
@@ -48,4 +48,9 @@ export const SquareBlueButton = styled(BlueButton)`
     color: #ffffff;
     background-color: #40b4f7;
   }
+`;
+
+export const CenteredBlueButton = styled(BlueButton)`
+  display: block; /* Change to block to use margin auto */
+  margin: 0.3em auto; /* Center horizontally with margin auto */
 `;
