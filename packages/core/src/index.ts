@@ -431,3 +431,4 @@ export {
   vectorV,
   zip2,
 } from "./utils/Util.js";
+export { isVar } from "./types/ad.js";

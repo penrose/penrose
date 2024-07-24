@@ -82,7 +82,7 @@ const InteractiveWidget = memo((props: DragWidgetProps): JSX.Element => {
   const translateOnMouseDown = makeTranslateOnMouseDown(
     props.diagramSVG,
     props.elem,
-    props.state,
+    props.state.canvas,
     props.path,
     translate,
   );
@@ -149,7 +149,7 @@ const InteractiveWidget = memo((props: DragWidgetProps): JSX.Element => {
   const topLeftScaleMouseDown = makeScaleOnMouseDown(
     props.diagramSVG,
     props.elem,
-    props.state,
+    props.state.canvas,
     props.path,
     "topLeft",
     scale,
@@ -157,7 +157,7 @@ const InteractiveWidget = memo((props: DragWidgetProps): JSX.Element => {
   const topRightScaleMouseDown = makeScaleOnMouseDown(
     props.diagramSVG,
     props.elem,
-    props.state,
+    props.state.canvas,
     props.path,
     "topRight",
     scale,
@@ -165,7 +165,7 @@ const InteractiveWidget = memo((props: DragWidgetProps): JSX.Element => {
   const bottomLeftScaleMouseDown = makeScaleOnMouseDown(
     props.diagramSVG,
     props.elem,
-    props.state,
+    props.state.canvas,
     props.path,
     "bottomLeft",
     scale,
@@ -173,7 +173,7 @@ const InteractiveWidget = memo((props: DragWidgetProps): JSX.Element => {
   const bottomRightScaleMouseDown = makeScaleOnMouseDown(
     props.diagramSVG,
     props.elem,
-    props.state,
+    props.state.canvas,
     props.path,
     "bottomRight",
     scale,

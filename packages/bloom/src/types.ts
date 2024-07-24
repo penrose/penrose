@@ -33,7 +33,7 @@ export interface Fill {
   fillColor: Color;
 }
 
-export interface Center {
+export interface Center extends Drag {
   center: Vec2;
 }
 
@@ -62,7 +62,7 @@ export interface Scale {
   scale: Num;
 }
 
-export interface Poly {
+export interface Poly extends Drag {
   points: Vec2[];
 }
 
@@ -103,12 +103,12 @@ export enum ShapeType {
 
 export type PathData = Value.PathCmd<Num>[];
 
-export interface Circle extends ShapeCommon, Stroke, Fill, Center, Drag {
+export interface Circle extends ShapeCommon, Stroke, Fill, Center {
   shapeType: ShapeType.Circle;
   r: Num;
 }
 
-export interface Ellipse extends ShapeCommon, Stroke, Fill, Center, Drag {
+export interface Ellipse extends ShapeCommon, Stroke, Fill, Center {
   shapeType: ShapeType.Ellipse;
   rx: Num;
   ry: Num;
@@ -127,13 +127,13 @@ export interface Equation
   descent: Num;
 }
 
-export interface Image extends ShapeCommon, Center, Rect, Rotate, Drag {
+export interface Image extends ShapeCommon, Center, Rect, Rotate {
   shapeType: ShapeType.Image;
   href: string;
   preserveAspectRatio: string;
 }
 
-export interface Line extends ShapeCommon, Stroke, Arrow, Fill {
+export interface Line extends ShapeCommon, Stroke, Arrow, Fill, Drag {
   shapeType: ShapeType.Line;
   start: Vec2;
   end: Vec2;

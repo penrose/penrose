@@ -154,10 +154,11 @@ export const renderPlayModeInteractivity = (
       const mousedownListener = makeTranslateOnMouseDown(
         diagram.svg,
         member,
-        diagram.state,
+        diagram.state.canvas,
         path,
         translate,
         constraintFn,
+        undefined,
         onMouseUp,
       );
       member.setAttribute("pointer-events", "visiblePainted");

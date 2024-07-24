@@ -7,8 +7,10 @@ import {
   Var,
   sampleShape,
   simpleContext,
-  uniform,
+  uniform, IdxsByPath,
+  isVar,
 } from "@penrose/core";
+import constraints from "../lib/constraints.js";
 import {
   Circle,
   CircleProps,
@@ -35,7 +37,7 @@ import {
   ShapeType,
   Substance,
   TextProps,
-  Type,
+  Type, Vec2
 } from "../types.ts";
 import { fromPenroseShape, sortShapes, toPenroseShape } from "../utils.js";
 import { Diagram } from "./diagram.js";
@@ -53,17 +55,17 @@ export class DiagramBuilder {
 
   private canvas: Canvas;
   private inputs: InputInfo[] = [];
+  private varInputMap: Map<Var, number> = new Map();
   private namedInputs: Map<string, number> = new Map();
   private samplingContext: NamedSamplingContext;
   private shapes: Shape[] = [];
-  private shapeIds: Map<Shape, string> = new Map();
   private constraints: Num[] = [];
   private objectives: Num[] = [];
   private variation: string;
   private nextId = 0;
   private partialLayering: [string, string][] = [];
   private pinnedInputs: Set<number> = new Set();
-  private dragIdsAndConstrs: Map<string, DragConstraint> = new Map();
+  private dragNamesAndConstrs: Map<string, DragConstraint> = new Map();
 
   /**
    * Create a new diagram builder.
@@ -82,6 +84,7 @@ export class DiagramBuilder {
         if (name !== undefined) {
           this.namedInputs.set(name, this.inputs.length - 1);
         }
+        this.varInputMap.set(newVar, this.inputs.length - 1);
         return newVar;
       },
     };
@@ -101,16 +104,8 @@ export class DiagramBuilder {
     for (const shapeType of shapeTypes) {
       Object.defineProperty(this, firstLetterLower(shapeType), {
         value: (props: Partial<ShapeProps> = {}): Shape => {
-          const id = String(this.nextId++) + "_" + shapeType;
           if (!("name" in props)) {
-            props.name = id;
-          }
-          if ("drag" in props && props.drag) {
-            if ("dragConstraint" in props && props.dragConstraint) {
-              this.dragIdsAndConstrs.set(id, props.dragConstraint);
-            } else {
-              this.dragIdsAndConstrs.set(id, ([x, y]) => [x, y]);
-            }
+            props.name = String(this.nextId++) + "_" + shapeType;
           }
 
           const sampledPenroseShapeProps = sampleShape(
@@ -118,6 +113,7 @@ export class DiagramBuilder {
             this.samplingContext,
             this.canvas,
           );
+
           // hacky: technically doesn't have path. But we never use it : |
           const sampledPenroseShape: PenroseShape<Num> = {
             ...sampledPenroseShapeProps,
@@ -127,7 +123,6 @@ export class DiagramBuilder {
 
           const shape = fromPenroseShape(sampledPenroseShape, props);
           this.shapes.push(shape);
-          this.shapeIds.set(shape, id);
           return shape;
         },
       });
@@ -321,13 +316,94 @@ export class DiagramBuilder {
     this.partialLayering.push([below.name, above.name]);
   };
 
+  private addOnCanvasConstraints = () => {
+    for (const shape of this.shapes) {
+      if (shape.ensureOnCanvas) {
+        this.ensure(
+          constraints.onCanvas(shape, this.canvas.width, this.canvas.height),
+        );
+      }
+    }
+  }
+
+  private addDragConstraints = () => {
+    for (const shape of this.shapes) {
+      if ("drag" in shape && shape.drag) {
+        if (shape.dragConstraint) {
+          this.dragNamesAndConstrs.set(shape.name, shape.dragConstraint);
+        } else {
+          this.dragNamesAndConstrs.set(shape.name, ([x, y]) => [x, y]);
+        }
+      }
+    }
+  }
+
+  private getTranslatedInputIdxsByPath = () => {
+    const mapNum = (num: Num) => {
+      if (isVar(num)) {
+        return this.varInputMap.get(num);
+      }
+      return undefined;
+    }
+
+    const mapVec2 = (vec: Vec2): any => {
+      return {
+        tag: "Val",
+        contents: {
+          tag: "VectorV",
+          contents: vec.map(mapNum),
+        },
+      }
+    }
+
+    const inputIdxsByPath: IdxsByPath = new Map();
+    for (const shape of this.shapes) {
+      if ("drag" in shape && shape.drag) {
+        if ("center" in shape) {
+          const idxs = mapVec2(shape.center);
+          inputIdxsByPath.set(shape.name + ".center", idxs);
+        }
+
+        if ("start" in shape) {
+          const idxs = mapVec2(shape.start);
+          inputIdxsByPath.set(shape.name + ".start", idxs);
+        }
+
+        if ("end" in shape) {
+          const idxs = mapVec2(shape.end);
+          inputIdxsByPath.set(shape.name + ".end", idxs);
+        }
+
+        if ("points" in shape) {
+          const idxs = {
+            tag: "Val",
+            contents: {
+              tag: "ListV",
+              contents: shape.points.map(mapVec2),
+            },
+          };
+          inputIdxsByPath.set(shape.name + ".points", idxs as any);
+        }
+      }
+    }
+
+    return inputIdxsByPath;
+  }
+
+  private getNameShapeMap = () => {
+    const nameShapeMap = new Map<string, PenroseShape<Num>>();
+    for (const s of this.shapes) {
+      nameShapeMap.set(s.name, toPenroseShape(s));
+    }
+    return nameShapeMap;
+  }
+
   build = async (): Promise<Diagram> => {
-    const idShapeMap = new Map<string, PenroseShape<Num>>();
-    const penroseShapes = this.shapes.map((s) => {
-      const penroseShape = toPenroseShape(s);
-      idShapeMap.set(this.shapeIds.get(s)!, penroseShape);
-      return penroseShape;
-    });
+    this.addDragConstraints();
+    this.addOnCanvasConstraints();
+
+    const nameShapeMap = this.getNameShapeMap();
+    const penroseShapes = this.shapes.map((s) => toPenroseShape(s));
     const orderedShapes = sortShapes(penroseShapes, this.partialLayering);
 
     return Diagram.create({
@@ -337,10 +413,11 @@ export class DiagramBuilder {
       constraints: this.constraints,
       objectives: this.objectives,
       shapes: orderedShapes,
-      idShapeMap,
+      nameShapeMap,
       namedInputs: this.namedInputs,
       pinnedInputs: this.pinnedInputs,
-      dragIdsAndConstrs: this.dragIdsAndConstrs,
+      dragNamesAndConstrs: this.dragNamesAndConstrs,
+      inputIdxsByPath: this.getTranslatedInputIdxsByPath(),
     });
   };
 }

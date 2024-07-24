@@ -378,14 +378,29 @@ export const preventSelection = (e: Event) => {
   e.preventDefault();
 };
 
+/**
+ * Create a function which can be used a mousedown listener to translate a shape throughout a drag.
+ * @param diagramSVG SVG which the shape belongs to
+ * @param elem SVG element of the shape
+ * @param state Penrose state
+ * @param path Shape path
+ * @param translate Callback actually translate the shape each mousemove. If `relative`
+ *  is set, this function will be passed the `(dx, dy)` since the last from, and otherwise since
+ *  mousedown.
+ * @param constraint Optional function mapping the unconstrained mouse position to the constrained position
+ * @param onMouseUp Optional callback to run on mouseup
+ * @param relative Whether or not `translate` receives the delta since last frame (`true`_, or since mousedown
+ *  (`false`). Default `false`.
+ */
 export const makeTranslateOnMouseDown =
   (
     diagramSVG: SVGSVGElement,
     elem: SVGElement,
-    state: RenderState,
+    canvas: Canvas,
     path: string,
     translate: (path: string, dx: number, dy: number) => Promise<void>,
     constraint?: ([x, y]: [number, number]) => [number, number],
+    onMouseMove?: (e: MouseEvent) => void,
     onMouseUp?: (e: MouseEvent) => void,
   ) =>
   (e: MouseEvent) => {
@@ -416,9 +431,9 @@ export const makeTranslateOnMouseDown =
     let queuedMouseMove: () => void = () => {};
     let readyForMouseMove = true;
 
-    const onMouseMove = async (e: MouseEvent) => {
+    const onMouseMove_ = async (e: MouseEvent) => {
       if (!readyForMouseMove) {
-        queuedMouseMove = () => onMouseMove(e);
+        queuedMouseMove = () => onMouseMove_(e);
         return;
       }
 
@@ -437,12 +452,13 @@ export const makeTranslateOnMouseDown =
       }
 
       const minX = startX - bboxX;
-      const maxX = state.canvas.width - (bboxX + bboxW - startX);
+      const maxX = canvas.width - (bboxX + bboxW - startX);
       const minY = startY - bboxY;
-      const maxY = state.canvas.height - (bboxY + bboxH - startY);
+      const maxY = canvas.height - (bboxY + bboxH - startY);
 
       const constrainedX = _.clamp(x, minX, maxX);
       const constrainedY = _.clamp(y, minY, maxY);
+
       dx = constrainedX - startX;
       dy = startY - constrainedY;
 
@@ -453,11 +469,13 @@ export const makeTranslateOnMouseDown =
       const toRun = queuedMouseMove;
       queuedMouseMove = () => {};
       toRun();
+
+      onMouseMove?.(e);
     };
 
     const onMouseUp_ = (e: MouseEvent) => {
       svgParent.removeEventListener("mouseup", onMouseUp_);
-      svgParent.removeEventListener("mousemove", onMouseMove);
+      svgParent.removeEventListener("mousemove", onMouseMove_);
       window.removeEventListener("selectstart", preventSelection);
       document.body.style.cursor = prevCursor;
       elem.style.cursor = "grab";
@@ -466,14 +484,14 @@ export const makeTranslateOnMouseDown =
     };
 
     svgParent.addEventListener("mouseup", onMouseUp_);
-    svgParent.addEventListener("mousemove", onMouseMove);
+    svgParent.addEventListener("mousemove", onMouseMove_);
   };
 
 export const makeScaleOnMouseDown =
   (
     diagramSVG: SVGSVGElement,
     elem: SVGElement,
-    state: RenderState,
+    canvas: Canvas,
     path: string,
     corner: "topLeft" | "topRight" | "bottomLeft" | "bottomRight",
     scale: (path: string, sx: number, sy: number) => Promise<void>,
@@ -500,11 +518,11 @@ export const makeScaleOnMouseDown =
     let left: boolean, top: boolean;
 
     const leftMargin = bboxX;
-    const rightMargin = state.canvas.width - (bboxX + bboxW);
+    const rightMargin = canvas.width - (bboxX + bboxW);
     const xMargin = _.min([leftMargin, rightMargin])!;
 
     const topMargin = bboxY;
-    const bottomMargin = state.canvas.height - (bboxY + bboxH);
+    const bottomMargin = canvas.height - (bboxY + bboxH);
     const yMargin = _.min([topMargin, bottomMargin])!;
 
     switch (corner) {

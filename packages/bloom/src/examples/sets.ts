@@ -1,6 +1,6 @@
 import { DiagramBuilder } from "../builder/builder.js";
 import constraints from "../lib/constraints.js";
-import objectives from "../lib/objectives.js";
+import objectives from "../lib/objectives.ts";
 import { canvas } from "../utils.js";
 
 export const sets = async () => {
@@ -53,7 +53,10 @@ export const sets = async () => {
 
   // style
   forall({ s: Set }, ({ s }) => {
-    s.icon = circle();
+    s.icon = circle({
+      drag: true,
+    });
+
     s.text = equation({
       string: s.label,
       fontSize: "32px",

@@ -23,6 +23,7 @@ import {
   ShapeType,
   penroseShapeFieldTypes,
 } from "./types.js";
+
 export const stateToSVG = async (
   state: {
     canvas: Canvas;
@@ -35,6 +36,7 @@ export const stateToSVG = async (
     width: string;
     height: string;
     texLabels: boolean;
+    titleCache?: Map<string, SVGElement>;
   },
 ): Promise<SVGSVGElement> => {
   const { canvas, shapes, labelCache, variation } = state;
@@ -53,6 +55,7 @@ export const stateToSVG = async (
     namespace: "editor",
     texLabels: config.texLabels,
     pathResolver: config.pathResolver,
+    titleCache: config.titleCache,
   });
   rendered.setAttribute("width", config.width);
   rendered.setAttribute("height", config.height);

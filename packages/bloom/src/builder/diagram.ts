@@ -4,6 +4,7 @@ import {
   compileCompGraph,
   finalStage,
   genGradient,
+  getTranslatedInputsIdxs, IdxsByPath,
   InputInfo,
   insertPending,
   isOptimized,
@@ -13,13 +14,13 @@ import {
   PenroseState,
   Shape,
   start,
-  step,
+  step
 } from "@penrose/core";
 import consola, { LogLevels } from "consola";
 import { DragConstraint } from "../types.js";
 import { stateToSVG } from "../utils.js";
 
-const log = consola.create({ level: LogLevels.warn }).withTag("diagram");
+const log = consola.create({ level: LogLevels.info }).withTag("diagram");
 
 export type DiagramData = {
   canvas: Canvas;
@@ -28,26 +29,53 @@ export type DiagramData = {
   constraints: Num[];
   objectives: Num[];
   shapes: Shape<Num>[];
-  idShapeMap: Map<string, Shape<Num>>;
+  nameShapeMap: Map<string, Shape<Num>>;
   namedInputs: Map<string, number>;
   pinnedInputs: Set<number>;
-  dragIdsAndConstrs: Map<string, DragConstraint>;
+  dragNamesAndConstrs: Map<string, DragConstraint>;
+  inputIdxsByPath: IdxsByPath;
 };
 
 export class Diagram {
   private state: PenroseState;
 
+  /**
+   * Manually pinned indices (during construction or at runtime). These will remain
+   * pinned until unpinned manually.
+   * @private
+   */
+  private manuallyPinnedIndices = new Set<number>();
+
+  /**
+   * Map from shape ids to translatable inputs who have been temporarily pinned. These will be
+   * unpinned after the drag ends, were manually pinned as well.
+   * @private
+   */
+  private tempPinnedForDrag = new Map<string, number[][]>();
+  private draggingConstraints: Map<string, DragConstraint>;
+
   static create = async (data: DiagramData): Promise<Diagram> => {
-    return new Diagram(await Diagram.makeState(data));
+    return new Diagram(
+      await Diagram.makeState(data),
+      data.pinnedInputs,
+      data.dragNamesAndConstrs,
+    );
   };
 
-  private constructor(state: PenroseState) {
+  private constructor(
+    state: PenroseState,
+    pinnedInputs: Set<number>,
+    draggingConstraints: Map<string, DragConstraint>,
+  ) {
     this.state = state;
+    this.manuallyPinnedIndices = pinnedInputs;
+    this.draggingConstraints = draggingConstraints;
   }
 
   render = async () => {
     const shapes = this.state.computeShapes(this.state.varyingValues);
-    return await stateToSVG(
+    const titleCache = new Map<string, SVGElement>();
+    const svg = await stateToSVG(
       {
         canvas: this.state.canvas,
         shapes,
@@ -61,8 +89,14 @@ export class Diagram {
         width: "100%",
         height: "100%",
         texLabels: false,
+        titleCache,
       },
     );
+
+    return {
+      svg,
+      nameElemMap: titleCache,
+    };
   };
 
   optimizationStep = async () => {
@@ -95,6 +129,58 @@ export class Diagram {
       log.info("Optimization failed. Quitting without finishing...");
       return false;
     }
+  };
+
+  beginDrag = (name: string) => {
+    this.tempPinnedForDrag.set(name, getTranslatedInputsIdxs(name, this.state));
+    this.applyPins(this.state);
+  };
+
+  endDrag = (name: string) => {
+    this.tempPinnedForDrag.delete(name);
+    this.applyPins(this.state);
+  };
+
+  translate = (name: string, dx: number, dy: number) => {
+    if (!this.tempPinnedForDrag.has(name)) {
+      throw new Error(`Inputs were not pinned before translating ${name}`);
+    }
+
+    this.state.params = start(this.state.varyingValues.length);
+    this.state.currentStageIndex = 0;
+
+    const translatedIndices = this.tempPinnedForDrag.get(name)!;
+    for (const [xIdx, yIdx] of translatedIndices) {
+      this.state.varyingValues[xIdx] += dx;
+      this.state.varyingValues[yIdx] += dy;
+    }
+  };
+
+  getCanvas = () => ({ ...this.state.canvas });
+
+  getDraggingConstraints = () => new Map(this.draggingConstraints);
+
+  private applyPins = (state: PenroseState) => {
+    const inputMask = state.inputs.map(
+      ({ meta }, i) =>
+        meta.init.tag === "Sampled" && !this.manuallyPinnedIndices.has(i),
+    );
+    for (const [_, pinnedIndices] of this.tempPinnedForDrag) {
+      for (const [xIdx, yIdx] of pinnedIndices) {
+        inputMask[xIdx] = false;
+        inputMask[yIdx] = false;
+      }
+    }
+    state.constraintSets = new Map([
+      [
+        "",
+        {
+          inputMask,
+          objMask: state.constraintSets.values().next()!.value.objMask,
+          constrMask: state.constraintSets.values().next()!.value.constrMask,
+        },
+      ],
+    ]);
   };
 
   private static makeState = async (
@@ -134,13 +220,13 @@ export class Diagram {
       gradient: await genGradient(inputVars, data.objectives, data.constraints),
       computeShapes: await compileCompGraph(inputVars, data.shapes),
       interactivityInfo: {
-        inputIdxsByPath: new Map(),
-        translatableShapePaths: new Set(data.dragIdsAndConstrs.keys()),
+        inputIdxsByPath: data.inputIdxsByPath,
+        translatableShapePaths: new Set(data.dragNamesAndConstrs.keys()),
         scalableShapePaths: new Set(),
         // currently, penrose ide needs dragging constrants to be part of state,
         // but we keep track separately
         draggingConstraints: new Map(),
-        shapesByPath: data.idShapeMap,
+        shapesByPath: data.nameShapeMap,
       },
     };
 
