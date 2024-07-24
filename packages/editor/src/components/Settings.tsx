@@ -19,7 +19,7 @@ import {
 } from "../state/callbacks.js";
 import { logInWrapper, signOutWrapper } from "../utils/firebaseUtils.js";
 import { BlueButton, CenteredBlueButton } from "./BlueButton.js";
-import { BodyText, LabelText, SettingsHeader } from "./Elements.js";
+import { BodyText, HeaderText, LabelText } from "./Elements.js";
 
 export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
@@ -50,7 +50,7 @@ export default function Settings() {
   }
   return (
     <div style={{ margin: "10px" }}>
-      <SettingsHeader>General Settings</SettingsHeader>
+      <HeaderText>General Settings</HeaderText>
       {currentUser != null ? (
         <div style={{ margin: "5px 0px" }}>
           <BlueButton onClick={useLogout}>Sign Out</BlueButton>
@@ -143,7 +143,7 @@ export default function Settings() {
         <LabelText>Play Mode</LabelText>
       </div>
 
-      <SettingsHeader>Variation Settings</SettingsHeader>
+      <HeaderText>Variation Settings</HeaderText>
       <div>
         <LabelText>
           variation seed:
@@ -193,14 +193,14 @@ export default function Settings() {
         </div>
       </div>
 
-      <SettingsHeader>State</SettingsHeader>
+      <HeaderText>State</HeaderText>
       <div>
         {state ? <ObjectInspector data={state} /> : <BodyText>empty</BodyText>}
       </div>
 
       {currentUser != null && (
         <div>
-          <SettingsHeader>Misc</SettingsHeader>
+          <HeaderText>Misc</HeaderText>
           <BodyText>
             We've migrated to cloud storage! You have {numLegacyDiagrams}{" "}
             unrestored locally stored diagrams.

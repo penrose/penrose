@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const SettingsHeader = styled.h1`
+export const HeaderText = styled.h1`
   color: #333;
   text-align: center;
   text-decoration: underline;

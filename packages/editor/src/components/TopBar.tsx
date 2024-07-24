@@ -10,7 +10,6 @@ import {
   autosaveHook,
   saveShortcutHook,
   useCompileDiagram,
-  useDownloadSvg,
   useIsUnsaved,
   useNewWorkspace,
   usePublishGist,
@@ -19,7 +18,6 @@ import {
   useSaveWorkspace,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
-import ExportButton from "./ExportButton.js";
 
 const UnsavedIcon = styled.div`
   background-color: #dddddd;
@@ -216,10 +214,6 @@ export default function TopBar() {
         </div>
       )}
       <HeaderButtonContainer>
-        <BlueButton disabled={compiling} onClick={useDownloadSvg()}>
-          save Penrose SVG
-        </BlueButton>
-        <ExportButton />
         <BlueButton disabled={compiling} onClick={compileDiagram}>
           compile ▶
         </BlueButton>
