@@ -5952,24 +5952,6 @@ export const compDict = {
     },
     returns: realNT(),
   },
-
-  reverseShapeList: {
-    name: "reverseShapeList",
-    description: `Reverses a list of shapes`,
-    params: [
-      {
-        name: "list",
-        type: shapeListT(),
-      },
-    ],
-    body: (
-      _context: Context,
-      list: Shape<ad.Num>[],
-    ): MayWarn<ShapeListV<ad.Num>> => {
-      return noWarn(shapeListV(list.reverse()));
-    },
-    returns: shapeListT(),
-  },
 };
 
 const TeXifyHelper = (segments: string[]): string => {
