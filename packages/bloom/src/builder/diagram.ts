@@ -55,6 +55,7 @@ export class Diagram {
   private tempPinnedForDrag = new Map<string, number[][]>();
   private draggingConstraints: Map<string, DragConstraint>;
   private namedInputs: Map<string, number>;
+  private onInteraction = () => {};
 
   /**
    * Create a new renderable diagram. This should not be called directly; use
@@ -164,8 +165,8 @@ export class Diagram {
       throw new Error(`Inputs were not pinned before translating ${name}`);
     }
 
-    this.state.params = start(this.state.varyingValues.length);
-    this.state.currentStageIndex = 0;
+    this.onInteraction();
+    this.resetOptimization();
 
     const translatedIndices = this.tempPinnedForDrag.get(name)!;
     for (const [xIdx, yIdx] of translatedIndices) {
@@ -188,6 +189,8 @@ export class Diagram {
       throw new Error(`No input named ${name}`);
     }
     this.state.varyingValues[idx] = val;
+    this.resetOptimization();
+    this.onInteraction();
   };
 
   getPinned = (name: string) => {
@@ -209,11 +212,20 @@ export class Diagram {
       this.manuallyPinnedIndices.delete(idx);
     }
     this.applyPins(this.state);
+    this.resetOptimization();
+    this.onInteraction();
   };
 
   getCanvas = () => ({ ...this.state.canvas });
 
   getDraggingConstraints = () => new Map(this.draggingConstraints);
+
+  setOnInteraction = (fn: () => void) => (this.onInteraction = fn);
+
+  private resetOptimization = () => {
+    this.state.params = start(this.state.varyingValues.length);
+    this.state.currentStageIndex = 0;
+  };
 
   private applyPins = (state: PenroseState) => {
     const inputMask = state.inputs.map(

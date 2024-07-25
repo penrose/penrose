@@ -44,10 +44,7 @@ export default function Renderer(props: RendererProps) {
               };
             })(),
             ([x, y]) => draggingConstraints.get(name)!([x, y], props.diagram),
-            () => {
-              optimizerLooper.loop(optimizerLoop);
-              renderLooper.loop(renderLoop);
-            },
+            undefined,
             () => props.diagram.endDrag(name),
           );
           elem.addEventListener("mousedown", (e) => {
@@ -62,7 +59,14 @@ export default function Renderer(props: RendererProps) {
       canvasRef.current.appendChild(svg);
     }
     return optimizerLooper.isRunning();
-  }, [optimizerLooper, optimizerLoop, renderLooper, props.diagram]);
+  }, [optimizerLooper, props.diagram]);
+
+  useEffect(() => {
+    props.diagram.setOnInteraction(() => {
+      renderLooper.loop(renderLoop);
+      optimizerLooper.loop(optimizerLoop);
+    });
+  }, [optimizerLoop, optimizerLooper, props.diagram, renderLoop, renderLooper]);
 
   useEffect(() => {
     optimizerLooper.loop(optimizerLoop);
@@ -79,5 +83,5 @@ export default function Renderer(props: RendererProps) {
     };
   }, [optimizerLooper, renderLooper]);
 
-  return <div ref={canvasRef}></div>;
+  return <div ref={canvasRef} />;
 }
