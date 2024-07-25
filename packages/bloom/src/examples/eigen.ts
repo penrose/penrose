@@ -63,20 +63,26 @@ export const basisVectors = async () => {
   // we can associate data that is specific to each substance when we define it
   const ihat = BasisVector();
   ihat.label = "a_1";
+  ihat.canvasVec = [
+    vary({ init: 1 * xScale + origin[0], pinned: true }),
+    vary({ init: 0.2 * yScale + origin[1], pinned: true })
+  ];
   ihat.color = [0.2, 0.6, 0.86, 1];
 
   const jhat = BasisVector();
   jhat.label = "a_2";
+  jhat.canvasVec = [
+    vary({ init: 0.5 * xScale + origin[0], pinned: true }),
+    vary({ init: 1 * yScale + origin[1], pinned: true })
+  ];
   jhat.color = [0.18, 0.8, 0.44, 1];
 
   const numMappedPoints = 2;
   for (let i = 0; i < numMappedPoints; ++i) {
     const p = MappedPoint();
-
-    // varying but pinned nums are draggable but not optimized
     p.canvasV1 = [
-      vary({ init: i * 2, pinned: true }),
-      vary({ init: i * 2, pinned: true }),
+      vary({ init: (i + 1) * 1.5 * xScale + origin[0], pinned: true }),
+      vary({ init: (i + 1) * 1.5 * yScale + origin[1], pinned: true }),
     ];
   }
 
@@ -96,8 +102,6 @@ export const basisVectors = async () => {
       });
     }
   });
-
-
 
   // draw horizontal tick marks
   forallWhere(
@@ -142,11 +146,7 @@ export const basisVectors = async () => {
   );
 
   // draw all basis vectors
-  forall({ v: BasisVector }, ({ v }, i) => {
-    v.canvasVec = [
-      vary({ init: ((i + 1) % 2) * xScale + origin[0], pinned: true }),
-      vary({ init: (i % 2) * yScale + origin[1], pinned: true })
-    ];
+  forall({ v: BasisVector }, ({ v }) => {
     v.vec = ops.ewvvdiv(ops.vsub(v.canvasVec, origin), [xScale, yScale]);
 
     v.arrow = line({
@@ -171,7 +171,6 @@ export const basisVectors = async () => {
       fontSize: "24px",
       fillColor: v.color,
     });
-
 
     ensure(constraints.disjoint(v.text, v.arrow, 5));
     ensure(constraints.contains(v.handle, v.text));
@@ -226,6 +225,7 @@ export const basisVectors = async () => {
       fillColor: [0, 0, 0, 0.1],
       center: p.canvasV1,
       drag: true,
+      dragConstraint: ([x, y]) => [Math.max(origin[0], x), Math.max(origin[1], y)],
     });
 
     ensure(constraints.disjoint(p.text1, p.icon1, 5));

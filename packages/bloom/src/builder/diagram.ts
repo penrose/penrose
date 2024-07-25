@@ -53,12 +53,19 @@ export class Diagram {
    */
   private tempPinnedForDrag = new Map<string, number[][]>();
   private draggingConstraints: Map<string, DragConstraint>;
+  private namedInputs: Map<string, number>;
 
+  /**
+   * Create a new renderable diagram. This should not be called directly; use
+   * `DiagramBuilder.prototype.build` instead.
+   * @param data
+   */
   static create = async (data: DiagramData): Promise<Diagram> => {
     return new Diagram(
       await Diagram.makeState(data),
       data.pinnedInputs,
       data.dragNamesAndConstrs,
+      data.namedInputs,
     );
   };
 
@@ -66,12 +73,17 @@ export class Diagram {
     state: PenroseState,
     pinnedInputs: Set<number>,
     draggingConstraints: Map<string, DragConstraint>,
+    namedInputs: Map<string, number>,
   ) {
     this.state = state;
     this.manuallyPinnedIndices = pinnedInputs;
     this.draggingConstraints = draggingConstraints;
+    this.namedInputs = namedInputs;
   }
 
+  /**
+   * Render an SVG of the current diagram state and a map of shape names to SVG elements.
+   */
   render = async () => {
     const shapes = this.state.computeShapes(this.state.varyingValues);
     const titleCache = new Map<string, SVGElement>();
@@ -99,6 +111,11 @@ export class Diagram {
     };
   };
 
+  /**
+   * Take one optimization step. This will update the internal state of the diagram.
+   * @returns `true` if the optimization should continue, `false` if it should stop
+   * (i.e. when optimization converges or fails)
+   */
   optimizationStep = async () => {
     try {
       let i = 0;
@@ -155,6 +172,43 @@ export class Diagram {
       this.state.varyingValues[yIdx] += dy;
     }
   };
+
+  getVary = (name: string) => {
+    const idx = this.namedInputs.get(name);
+    if (idx === undefined) {
+      throw new Error(`No input named ${name}`);
+    }
+    return this.state.varyingValues[idx];
+  }
+
+  setVary = (name: string, val: number) => {
+    const idx = this.namedInputs.get(name);
+    if (idx === undefined) {
+      throw new Error(`No input named ${name}`);
+    }
+    this.state.varyingValues[idx] = val;
+  }
+
+  getPinned = (name: string) => {
+    const idx = this.namedInputs.get(name);
+    if (idx === undefined) {
+      throw new Error(`No input named ${name}`);
+    }
+    return this.manuallyPinnedIndices.has(idx);
+  }
+
+  setPinned = (name: string, pinned: boolean) => {
+    const idx = this.namedInputs.get(name);
+    if (idx === undefined) {
+      throw new Error(`No input named ${name}`);
+    }
+    if (pinned) {
+      this.manuallyPinnedIndices.add(idx);
+    } else {
+      this.manuallyPinnedIndices.delete(idx);
+    }
+    this.applyPins(this.state);
+  }
 
   getCanvas = () => ({ ...this.state.canvas });
 
