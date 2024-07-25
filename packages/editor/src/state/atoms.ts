@@ -4,7 +4,7 @@ import {
   getDomainCache,
   getSubstanceCache,
 } from "@penrose/components";
-import { PenroseError, PenroseWarning } from "@penrose/core";
+import { PenroseError, PenroseWarning, RenderState } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { User as FirebaseUser } from "firebase/auth";
@@ -23,12 +23,7 @@ import {
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
 
-import {
-  DiagramID,
-  HistoryInfo,
-  HistoryLoc,
-  RenderState,
-} from "../optimizer/common.js";
+import { DiagramID, HistoryInfo, HistoryLoc } from "../optimizer/common.js";
 import Optimizer from "../optimizer/optimizer.js";
 
 import { generateVariation } from "./variation.js";

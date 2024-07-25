@@ -1,0 +1,129 @@
+import { mul, ops } from "@penrose/core";
+import { useEffect, useState } from "react";
+import { DiagramBuilder } from "../builder/builder.ts";
+import { Diagram } from "../builder/diagram.ts";
+import Renderer from "../components/Renderer.tsx";
+import constraints from "../lib/constraints.ts";
+import objectives from "../lib/objectives.ts";
+import { canvas } from "../utils.ts";
+
+const graph = async () => {
+  const {
+    type,
+    predicate,
+    forall,
+    forallWhere,
+    circle,
+    line,
+    build,
+    layer,
+    encourage,
+    ensure,
+    vary,
+  } = new DiagramBuilder(canvas(400, 400), "");
+
+  // domain
+  const Node = type();
+  const Edge = type();
+
+  const Connects = predicate();
+  const Optional = predicate();
+
+  // substance
+  const numNodes = 30;
+  const numEdges = 20;
+
+  const nodes = [];
+  for (let i = 0; i < numNodes; ++i) {
+    const n = Node();
+    nodes.push(n);
+  }
+
+  for (let i = 0; i < numEdges; ++i) {
+    const e = Edge();
+    let a, b;
+    do {
+      const j = Math.floor(Math.random() * numNodes);
+      const k = Math.floor(Math.random() * numNodes);
+      if (k === j) continue;
+      a = nodes[j];
+      b = nodes[k];
+    } while (Connects.test(e, a, b) || Connects.test(e, b, a));
+
+    Connects(e, a, b);
+    if (Math.random() < 0.5) {
+      Optional(e);
+    }
+  }
+
+  // style
+  forall({ a: Node }, ({ a }) => {
+    a.icon = circle({
+      r: 5,
+      fillColor: [0, 0, 0, 1],
+      drag: true,
+    });
+  });
+
+  const optionalOpacity = vary({
+    name: "optionalOpacity",
+    init: 1,
+    pinned: true,
+  });
+  forallWhere(
+    { e: Edge, a: Node, b: Node },
+    ({ e, a, b }) => Connects.test(e, a, b),
+    ({ e, a, b }) => {
+      e.opacity = Optional.test(e) ? optionalOpacity : 1;
+
+      e.icon = line({
+        start: a.icon.center,
+        end: b.icon.center,
+        strokeColor: [0, 0, 0, e.opacity],
+        strokeWidth: 2,
+        strokeStyle: Optional.test(e) ? "dashed" : "solid",
+      });
+
+      const length = ops.vnorm(ops.vsub(a.icon.center, b.icon.center));
+      ensure(mul(e.opacity, constraints.equal(length, 100)));
+
+      layer(e.icon, a.icon);
+      layer(e.icon, b.icon);
+    },
+  );
+
+  // forall nodes, repell each other
+  forall({ a: Node, b: Node }, ({ a, b }) => {
+    encourage(objectives.repelPt(1, a.icon.center, b.icon.center));
+  });
+
+  return await build();
+};
+
+export default function GraphComponent() {
+  const [diagram, setDiagram] = useState<Diagram | null>(null);
+  const [optionalOpacity, setOptionalOpacity] = useState(1);
+
+  useEffect(() => {
+    graph().then(setDiagram);
+  }, []);
+
+  if (!diagram) {
+    return <div>Loading...</div>;
+  }
+
+  // create a renderer component rendering the diagram and a button to toggle the optional edges
+  return (
+    <div>
+      <button
+        onClick={() => {
+          diagram.setVary("optionalOpacity", 1 - optionalOpacity);
+          setOptionalOpacity(1 - optionalOpacity);
+        }}
+      >
+        Toggle Optional Edges
+      </button>
+      <Renderer diagram={diagram} />
+    </div>
+  );
+}

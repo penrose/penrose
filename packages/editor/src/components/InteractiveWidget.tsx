@@ -1,3 +1,8 @@
+import {
+  makeScaleOnMouseDown,
+  makeTranslateOnMouseDown,
+  RenderState,
+} from "@penrose/core";
 import React, {
   memo,
   MutableRefObject,
@@ -7,14 +12,9 @@ import React, {
   useState,
 } from "react";
 import { useSetRecoilState } from "recoil";
-import { DiagramID, HistoryLoc, RenderState } from "../optimizer/common.js";
+import { DiagramID, HistoryLoc } from "../optimizer/common.js";
 import { diagramState, diagramWorkerState } from "../state/atoms.js";
-import {
-  getRelativeBBox,
-  interactAndUpdate,
-  makeTranslateOnMouseDown,
-  useScaleOnMouseDown,
-} from "../utils/renderUtils.js";
+import { getRelativeBBox, interactAndUpdate } from "../utils/renderUtils.js";
 
 export interface DragWidgetProps {
   elem: SVGElement;
@@ -82,7 +82,7 @@ const InteractiveWidget = memo((props: DragWidgetProps): JSX.Element => {
   const translateOnMouseDown = makeTranslateOnMouseDown(
     props.diagramSVG,
     props.elem,
-    props.state,
+    props.state.canvas,
     props.path,
     translate,
   );
@@ -146,34 +146,34 @@ const InteractiveWidget = memo((props: DragWidgetProps): JSX.Element => {
     [mainCol],
   );
 
-  const topLeftScaleMouseDown = useScaleOnMouseDown(
+  const topLeftScaleMouseDown = makeScaleOnMouseDown(
     props.diagramSVG,
     props.elem,
-    props.state,
+    props.state.canvas,
     props.path,
     "topLeft",
     scale,
   );
-  const topRightScaleMouseDown = useScaleOnMouseDown(
+  const topRightScaleMouseDown = makeScaleOnMouseDown(
     props.diagramSVG,
     props.elem,
-    props.state,
+    props.state.canvas,
     props.path,
     "topRight",
     scale,
   );
-  const bottomLeftScaleMouseDown = useScaleOnMouseDown(
+  const bottomLeftScaleMouseDown = makeScaleOnMouseDown(
     props.diagramSVG,
     props.elem,
-    props.state,
+    props.state.canvas,
     props.path,
     "bottomLeft",
     scale,
   );
-  const bottomRightScaleMouseDown = useScaleOnMouseDown(
+  const bottomRightScaleMouseDown = makeScaleOnMouseDown(
     props.diagramSVG,
     props.elem,
-    props.state,
+    props.state.canvas,
     props.path,
     "bottomRight",
     scale,

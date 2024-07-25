@@ -1,6 +1,7 @@
 import {
   Canvas,
   collectLabels,
+  Interaction,
   InteractivityInfo,
   isPenroseError,
   LabelCache,
@@ -8,6 +9,7 @@ import {
   LabelMeasurements,
   mathjaxInit,
   Num,
+  PartialInteractivityInfo,
   PenroseError,
   PenroseWarning,
   Shape,
@@ -17,7 +19,6 @@ import {
 import { LogLevels } from "consola";
 import { pick } from "lodash";
 import { Result } from "true-myth";
-import { Interaction } from "../utils/interactionUtils.js";
 
 // Config
 
@@ -96,11 +97,6 @@ export type HistoryInfo = Map<StepSequenceID, StepSequenceInfo>;
 /** Type of a resolve for a promise waiting on a `MessageResult` */
 export type MessageResolve = (result: MessageResult) => void;
 
-export type PartialInteractivityInfo = Pick<
-  InteractivityInfo,
-  "translatableShapePaths" | "scalableShapePaths" | "draggingConstraints"
->;
-
 /**
  * A `RenderState`, but without rendered labels which cannot be sent across
  * threads. Use `layoutStateToRenderState` to combine with an `svgCache` to
@@ -110,15 +106,6 @@ export type LayoutState = {
   canvas: Canvas;
   shapes: Shape<number>[];
   labelMeasurements: LabelMeasurements;
-  variation: string;
-  interactivityInfo: PartialInteractivityInfo;
-};
-
-/** Minimal state needed for rendering */
-export type RenderState = {
-  canvas: Canvas;
-  shapes: Shape<number>[];
-  labelCache: LabelCache;
   variation: string;
   interactivityInfo: PartialInteractivityInfo;
 };

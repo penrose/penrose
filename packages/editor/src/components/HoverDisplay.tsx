@@ -1,5 +1,5 @@
+import { RenderState } from "@penrose/core";
 import { MutableRefObject, memo, useEffect, useState } from "react";
-import { RenderState } from "../optimizer/common.js";
 import { getRelativeBBox } from "../utils/renderUtils.js";
 
 export interface BBoxDisplayProps {
