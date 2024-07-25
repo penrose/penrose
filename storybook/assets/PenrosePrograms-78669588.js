@@ -1,4 +1,4 @@
-import{d as e,s as t,a as n}from"./vector-wedge.substance-2d2afd02.js";const o=`canvas {
+import{d as e,s as t,a as n}from"./vector-wedge.substance-92d42973.js";const o=`canvas {
   width = 800
   height = 700
 }
