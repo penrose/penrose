@@ -41,7 +41,7 @@ export default function Renderer(props: RendererProps) {
                 props.diagram.translate(path, dx - lastDx, dy - lastDy);
                 lastDx = dx;
                 lastDy = dy;
-              }
+              };
             })(),
             ([x, y]) => draggingConstraints.get(name)!([x, y], props.diagram),
             () => {

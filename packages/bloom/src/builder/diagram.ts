@@ -4,7 +4,8 @@ import {
   compileCompGraph,
   finalStage,
   genGradient,
-  getTranslatedInputsIdxs, IdxsByPath,
+  getTranslatedInputsIdxs,
+  IdxsByPath,
   InputInfo,
   insertPending,
   isOptimized,
@@ -14,7 +15,7 @@ import {
   PenroseState,
   Shape,
   start,
-  step
+  step,
 } from "@penrose/core";
 import consola, { LogLevels } from "consola";
 import { DragConstraint } from "../types.js";
@@ -179,7 +180,7 @@ export class Diagram {
       throw new Error(`No input named ${name}`);
     }
     return this.state.varyingValues[idx];
-  }
+  };
 
   setVary = (name: string, val: number) => {
     const idx = this.namedInputs.get(name);
@@ -187,7 +188,7 @@ export class Diagram {
       throw new Error(`No input named ${name}`);
     }
     this.state.varyingValues[idx] = val;
-  }
+  };
 
   getPinned = (name: string) => {
     const idx = this.namedInputs.get(name);
@@ -195,7 +196,7 @@ export class Diagram {
       throw new Error(`No input named ${name}`);
     }
     return this.manuallyPinnedIndices.has(idx);
-  }
+  };
 
   setPinned = (name: string, pinned: boolean) => {
     const idx = this.namedInputs.get(name);
@@ -208,7 +209,7 @@ export class Diagram {
       this.manuallyPinnedIndices.delete(idx);
     }
     this.applyPins(this.state);
-  }
+  };
 
   getCanvas = () => ({ ...this.state.canvas });
 

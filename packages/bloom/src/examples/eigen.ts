@@ -65,7 +65,7 @@ export const basisVectors = async () => {
   ihat.label = "a_1";
   ihat.canvasVec = [
     vary({ init: 1 * xScale + origin[0], pinned: true }),
-    vary({ init: 0.2 * yScale + origin[1], pinned: true })
+    vary({ init: 0.2 * yScale + origin[1], pinned: true }),
   ];
   ihat.color = [0.2, 0.6, 0.86, 1];
 
@@ -73,7 +73,7 @@ export const basisVectors = async () => {
   jhat.label = "a_2";
   jhat.canvasVec = [
     vary({ init: 0.5 * xScale + origin[0], pinned: true }),
-    vary({ init: 1 * yScale + origin[1], pinned: true })
+    vary({ init: 1 * yScale + origin[1], pinned: true }),
   ];
   jhat.color = [0.18, 0.8, 0.44, 1];
 
@@ -163,7 +163,10 @@ export const basisVectors = async () => {
       fillColor: [0, 0, 0, 0.1],
       center: v.canvasVec,
       drag: true,
-      dragConstraint: ([x, y]) => [Math.max(origin[0], x), Math.max(origin[1], y)],
+      dragConstraint: ([x, y]) => [
+        Math.max(origin[0], x),
+        Math.max(origin[1], y),
+      ],
     });
 
     v.text = equation({
@@ -225,7 +228,10 @@ export const basisVectors = async () => {
       fillColor: [0, 0, 0, 0.1],
       center: p.canvasV1,
       drag: true,
-      dragConstraint: ([x, y]) => [Math.max(origin[0], x), Math.max(origin[1], y)],
+      dragConstraint: ([x, y]) => [
+        Math.max(origin[0], x),
+        Math.max(origin[1], y),
+      ],
     });
 
     ensure(constraints.disjoint(p.text1, p.icon1, 5));

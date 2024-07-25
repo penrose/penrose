@@ -1,14 +1,15 @@
 import {
   Canvas,
+  IdxsByPath,
   InputInfo,
   InputMeta,
   Num,
   Shape as PenroseShape,
   Var,
+  isVar,
   sampleShape,
   simpleContext,
-  uniform, IdxsByPath,
-  isVar,
+  uniform,
 } from "@penrose/core";
 import constraints from "../lib/constraints.js";
 import {
@@ -37,7 +38,8 @@ import {
   ShapeType,
   Substance,
   TextProps,
-  Type, Vec2
+  Type,
+  Vec2,
 } from "../types.ts";
 import { fromPenroseShape, sortShapes, toPenroseShape } from "../utils.js";
 import { Diagram } from "./diagram.js";
@@ -324,7 +326,7 @@ export class DiagramBuilder {
         );
       }
     }
-  }
+  };
 
   private addDragConstraints = () => {
     for (const shape of this.shapes) {
@@ -336,7 +338,7 @@ export class DiagramBuilder {
         }
       }
     }
-  }
+  };
 
   private getTranslatedInputIdxsByPath = () => {
     const mapNum = (num: Num) => {
@@ -344,7 +346,7 @@ export class DiagramBuilder {
         return this.varInputMap.get(num);
       }
       return undefined;
-    }
+    };
 
     const mapVec2 = (vec: Vec2): any => {
       return {
@@ -353,8 +355,8 @@ export class DiagramBuilder {
           tag: "VectorV",
           contents: vec.map(mapNum),
         },
-      }
-    }
+      };
+    };
 
     const inputIdxsByPath: IdxsByPath = new Map();
     for (const shape of this.shapes) {
@@ -388,7 +390,7 @@ export class DiagramBuilder {
     }
 
     return inputIdxsByPath;
-  }
+  };
 
   private getNameShapeMap = () => {
     const nameShapeMap = new Map<string, PenroseShape<Num>>();
@@ -396,7 +398,7 @@ export class DiagramBuilder {
       nameShapeMap.set(s.name, toPenroseShape(s));
     }
     return nameShapeMap;
-  }
+  };
 
   build = async (): Promise<Diagram> => {
     this.addDragConstraints();
