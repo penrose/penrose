@@ -73,6 +73,7 @@ import {
   PathCmd,
   PathDataV,
   PtListV,
+  ShapeListV,
   StrV,
   TupV,
   VectorV,
@@ -103,6 +104,7 @@ import {
   realT,
   rectlikeT,
   shapeListT,
+  shapeListV,
   shapeT,
   strV,
   stringT,
@@ -5949,6 +5951,24 @@ export const compDict = {
       return noWarn(vectorV(arr));
     },
     returns: realNT(),
+  },
+
+  reverseShapeList: {
+    name: "reverseShapeList",
+    description: `Reverses a list of shapes`,
+    params: [
+      {
+        name: "list",
+        type: shapeListT(),
+      },
+    ],
+    body: (
+      _context: Context,
+      list: Shape<ad.Num>[],
+    ): MayWarn<ShapeListV<ad.Num>> => {
+      return noWarn(shapeListV(list.reverse()));
+    },
+    returns: shapeListT(),
   },
 };
 
