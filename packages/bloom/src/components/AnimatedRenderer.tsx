@@ -1,5 +1,5 @@
-import { Diagram } from "../builder/diagram.js";
 import { useEffect, useState } from "react";
+import { Diagram } from "../builder/diagram.js";
 import Renderer from "./Renderer.tsx";
 
 export interface AnimatedRendererProps {
@@ -20,7 +20,7 @@ export default function AnimatedRenderer(props: AnimatedRendererProps) {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      props.diagram.setVary("_time", performance.now() / 1000 - startTime);
+      props.diagram.setInput("_time", performance.now() / 1000 - startTime);
     }, 1000 / fps);
     return () => clearInterval(interval);
   }, [fps, startTime, props.diagram]);

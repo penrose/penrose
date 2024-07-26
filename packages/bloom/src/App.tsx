@@ -3,7 +3,6 @@ import EigenvectorDiagram from "./examples/eigen.tsx";
 import GraphComponent from "./examples/graph.tsx";
 import { sets } from "./examples/sets.ts";
 import { tire } from "./examples/tire.ts";
-import AnimatedRenderer from "./components/AnimatedRenderer.tsx";
 
 const setsDiagram = await sets();
 const tireDiagram = await tire();
@@ -43,13 +42,13 @@ function App() {
         >
           <GraphComponent />
         </div>
-        <div
-          style={{
-            minWidth: "30%",
-          }}
-        >
-          <AnimatedRenderer diagram={tireDiagram} />
-        </div>
+        {/*<div*/}
+        {/*  style={{*/}
+        {/*    minWidth: "30%",*/}
+        {/*  }}*/}
+        {/*>*/}
+        {/*  <AnimatedRenderer diagram={tireDiagram} />*/}
+        {/*</div>*/}
       </div>
     </>
   );

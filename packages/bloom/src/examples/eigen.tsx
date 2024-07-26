@@ -1,14 +1,24 @@
 import { add, div, mul, ops, sqrt } from "@penrose/core";
+import { useEffect, useMemo, useState } from "react";
 import { DiagramBuilder } from "../builder/builder.js";
-import constraints from "../lib/constraints.ts";
-import { Vec2 } from "../types.ts";
-import { canvas } from "../utils.js";
-import { useEffect, useState } from "react";
 import { Diagram } from "../builder/diagram.ts";
 import Renderer from "../components/Renderer.tsx";
-import { useSyncInputs } from "../lib/hooks.ts";
+import constraints from "../lib/constraints.ts";
+import { Input, useInputs } from "../lib/hooks.ts";
+import { Vec2 } from "../types.ts";
+import { canvas } from "../utils.js";
 
-const basisVectors = async (withEigenspace = false) => {
+const basisVectors = async (
+  inputs: {
+    ihatx: Input;
+    ihaty: Input;
+    jhatx: Input;
+    jhaty: Input;
+    px: Input;
+    py: Input;
+  },
+  withEigenspace = false,
+) => {
   const canvasWidth = 800,
     canvasHeight = 800;
 
@@ -22,8 +32,8 @@ const basisVectors = async (withEigenspace = false) => {
     forall,
     ensure,
     forallWhere,
-    vary,
     layer,
+    externalInput,
   } = new DiagramBuilder(canvas(canvasWidth, canvasHeight), "");
 
   // Misc constants
@@ -68,23 +78,23 @@ const basisVectors = async (withEigenspace = false) => {
   const ihat = BasisVector();
   ihat.label = "a_1";
   ihat.canvasVec = [
-    vary({ name: "ihat.x", init: 1 * xScale + origin[0], pinned: true }),
-    vary({ name: "ihat.y", init: 0.3 * yScale + origin[1], pinned: true }),
+    externalInput(inputs.ihatx, 1 * xScale + origin[0]),
+    externalInput(inputs.ihaty, 0.4 * yScale + origin[1]),
   ];
   ihat.color = [0.2, 0.6, 0.86, 1];
 
   const jhat = BasisVector();
   jhat.label = "a_2";
   jhat.canvasVec = [
-    vary({ name: "jhat.x", init: 0.1 * xScale + origin[0], pinned: true }),
-    vary({ name: "jhat.y", init: 1 * yScale + origin[1], pinned: true }),
+    externalInput(inputs.jhatx, 0.5 * xScale + origin[0]),
+    externalInput(inputs.jhaty, 1 * yScale + origin[1]),
   ];
   jhat.color = [0.18, 0.8, 0.44, 1];
 
   const p = MappedPoint();
   p.canvasV1 = [
-    vary({ name: "p.x", init: 1.5 * xScale + origin[0], pinned: true }),
-    vary({ name: "p.y", init: 1.5 * yScale + origin[1], pinned: true }),
+    externalInput(inputs.px, 1.5 * xScale + origin[0]),
+    externalInput(inputs.py, 1.5 * yScale + origin[1]),
   ];
 
   // Style
@@ -259,58 +269,43 @@ const basisVectors = async (withEigenspace = false) => {
 
     el1.vec = [
       div(
-        mul(-1,
+        mul(
+          -1,
           add(
-            add(
-              mul(-1, a),
-              d
-            ),
+            add(mul(-1, a), d),
             sqrt(
               add(
-                add(
-                  add(
-                    mul(a, a),
-                    mul(4, mul(b, c))
-                  ),
-                  mul(-2, mul(a, d))
-                ),
-                mul(d, d)
-              )
-            )
-          )
+                add(add(mul(a, a), mul(4, mul(b, c))), mul(-2, mul(a, d))),
+                mul(d, d),
+              ),
+            ),
+          ),
         ),
-        mul(2, c)
+        mul(2, c),
       ),
-      1
+      1,
     ];
 
     el2.vec = [
       div(
-        mul(-1,
+        mul(
+          -1,
           add(
-            add(
-              mul(-1, a),
-              d
-            ),
-            mul(-1,
+            add(mul(-1, a), d),
+            mul(
+              -1,
               sqrt(
                 add(
-                  add(
-                    add(
-                      mul(a, a),
-                      mul(4, mul(b, c))
-                    ),
-                    mul(-2, mul(a, d))
-                  ),
-                  mul(d, d)
-                )
-              )
-            )
-          )
+                  add(add(mul(a, a), mul(4, mul(b, c))), mul(-2, mul(a, d))),
+                  mul(d, d),
+                ),
+              ),
+            ),
+          ),
         ),
-        mul(2, c)
+        mul(2, c),
       ),
-      1
+      1,
     ];
 
     forall({ e: EigenspaceLine }, ({ e }, i) => {
@@ -348,40 +343,24 @@ export default function EigenvectorsDiagram() {
   const [diagram1, setDiagram1] = useState<Diagram | null>(null);
   const [diagram2, setDiagram2] = useState<Diagram | null>(null);
 
-  useSyncInputs([
-    [diagram1, "ihat.x"],
-    [diagram2, "ihat.x"],
-  ]);
+  const [ihatx, ihaty, jhatx, jhaty, px, py] = useInputs(6);
 
-  useSyncInputs([
-    [diagram1, "ihat.y"],
-    [diagram2, "ihat.y"],
-  ]);
-
-  useSyncInputs([
-    [diagram1, "jhat.x"],
-    [diagram2, "jhat.x"],
-  ]);
-
-  useSyncInputs([
-    [diagram1, "jhat.y"],
-    [diagram2, "jhat.y"],
-  ]);
-
-  useSyncInputs([
-    [diagram1, "p.x"],
-    [diagram2, "p.x"],
-  ]);
-
-  useSyncInputs([
-    [diagram1, "p.y"],
-    [diagram2, "p.y"],
-  ]);
+  const inputs = useMemo(
+    () => ({
+      ihatx,
+      ihaty,
+      jhatx,
+      jhaty,
+      px,
+      py,
+    }),
+    [ihatx, ihaty, jhatx, jhaty, px, py],
+  );
 
   useEffect(() => {
-    basisVectors(false).then(setDiagram1);
-    basisVectors(true).then(setDiagram2);
-  }, []);
+    basisVectors(inputs, false).then(setDiagram1);
+    basisVectors(inputs, true).then(setDiagram2);
+  }, [inputs]);
 
   if (!diagram1 || !diagram2) {
     return <div>Loading...</div>;

@@ -12,6 +12,7 @@ import {
   uniform,
 } from "@penrose/core";
 import constraints from "../lib/constraints.js";
+import { Input } from "../lib/hooks.ts";
 import {
   Circle,
   CircleProps,
@@ -51,6 +52,12 @@ export type NamedSamplingContext = {
 export type SelectorVars = Record<string, Type>;
 export type SelectorAssignment = Record<string, Substance>;
 
+export type InputOpts = {
+  name?: string;
+  init?: number;
+  pinned?: boolean;
+};
+
 /**
  * Construct a diagram with a Penrose-like API. You may find it useful to
  * destructure an object of this type:
@@ -83,6 +90,7 @@ export class DiagramBuilder {
   private partialLayering: [string, string][] = [];
   private pinnedInputs: Set<number> = new Set();
   private dragNamesAndConstrs: Map<string, DragConstraint> = new Map();
+  private externalInputs: Set<Input> = new Set();
 
   /**
    * Create a new diagram builder.
@@ -100,7 +108,7 @@ export class DiagramBuilder {
         this.inputs.push({ handle: newVar, meta });
         if (name !== undefined) {
           if (this.namedInputs.has(name)) {
-            throw new Error(`Duplicate vary name ${name}`);
+            throw new Error(`Duplicate input name ${name}`);
           }
           this.namedInputs.set(name, this.inputs.length - 1);
         }
@@ -111,7 +119,7 @@ export class DiagramBuilder {
 
     this.defineShapeMethods();
 
-    this.vary({ name: "_time", init: 0, pinned: true });
+    this.input({ name: "_time", init: 0, pinned: true });
   }
 
   /**
@@ -310,10 +318,10 @@ export class DiagramBuilder {
     this.internalForallWhere(vars, true, () => true, func);
   };
 
-  vary = (opts?: { name?: string; init?: number; pinned?: boolean }): Var => {
-    const name = opts?.name;
-    const init = opts?.init;
-    const pinned = opts?.pinned ?? false;
+  input = (info: InputOpts): Var => {
+    const name = info?.name;
+    const init = info?.init;
+    const pinned = info?.pinned ?? false;
 
     const newVar = this.samplingContext.makeInput(
       {
@@ -331,6 +339,15 @@ export class DiagramBuilder {
       this.pinnedInputs.add(this.inputs.length - 1);
     }
     return newVar;
+  };
+
+  externalInput = (input: Input, initOverride?: number) => {
+    this.externalInputs.add(input);
+    return this.input({
+      name: input.name,
+      init: initOverride ?? input.init,
+      pinned: true,
+    });
   };
 
   // for typing only; dynamically generated
@@ -380,16 +397,16 @@ export class DiagramBuilder {
   };
 
   time = () => {
-    return this.getVary("_time");
-  }
+    return this.getInput("_time");
+  };
 
-  getVary = (name: string) => {
+  getInput = (name: string) => {
     const idx = this.namedInputs.get(name);
     if (idx === undefined) {
       throw new Error(`No input named ${name}`);
     }
     return this.inputs[idx].handle;
-  }
+  };
 
   private addOnCanvasConstraints = () => {
     for (const shape of this.shapes) {
@@ -481,7 +498,7 @@ export class DiagramBuilder {
     const penroseShapes = this.shapes.map((s) => toPenroseShape(s));
     const orderedShapes = sortShapes(penroseShapes, this.partialLayering);
 
-    return Diagram.create({
+    const diagram = await Diagram.create({
       canvas: this.canvas,
       variation: this.variation,
       inputs: this.inputs,
@@ -494,5 +511,11 @@ export class DiagramBuilder {
       dragNamesAndConstrs: this.dragNamesAndConstrs,
       inputIdxsByPath: this.getTranslatedInputIdxsByPath(),
     });
+
+    for (const input of this.externalInputs) {
+      input.register(diagram);
+    }
+
+    return diagram;
   };
 }

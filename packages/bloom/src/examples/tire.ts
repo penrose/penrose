@@ -1,17 +1,10 @@
+import { add, cos, mul, sin } from "@penrose/core";
 import { DiagramBuilder } from "../builder/builder.js";
 import { canvas } from "../utils.js";
-import { add, cos, mul, ops, sin } from "@penrose/core";
-import { Vec2 } from "../types.ts";
 
 export const tire = async () => {
-  const {
-    circle,
-    rectangle,
-    build,
-    layer,
-    substance,
-    time,
-  } = new DiagramBuilder(canvas(800, 700), "abcd");
+  const { circle, rectangle, build, layer, substance, time } =
+    new DiagramBuilder(canvas(800, 700), "abcd");
 
   const angVel = 1;
   const numSpokePairs = 5;
@@ -35,7 +28,7 @@ export const tire = async () => {
   });
 
   for (let i = 0; i < numSpokePairs; ++i) {
-    const spokeAngle = add(2 * Math.PI / numSpokePairs * i, tire.angle);
+    const spokeAngle = add(((2 * Math.PI) / numSpokePairs) * i, tire.angle);
     tire[`spoke_${i}.1`] = rectangle({
       width: 300,
       height: 2,

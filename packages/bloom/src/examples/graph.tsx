@@ -19,7 +19,7 @@ const graph = async () => {
     layer,
     encourage,
     ensure,
-    vary,
+    input,
   } = new DiagramBuilder(canvas(400, 400), "");
 
   // domain
@@ -65,7 +65,7 @@ const graph = async () => {
     });
   });
 
-  const optionalOpacity = vary({
+  const optionalOpacity = input({
     name: "optionalOpacity",
     init: 1,
     pinned: true,

@@ -1,38 +1,54 @@
+import { useMemo } from "react";
 import { Diagram } from "../builder/diagram.ts";
-import { useEffect } from "react";
 
-/**
- * Syncs the inputs of a set of diagrams. When one diagram's input is changed,
- * all other diagrams' inputs are updated to match. This will cause a re-render
- * of the diagram's `Renderer` components, but not necessarily the calling component.
- *
- * @param inputs List of tuples of `[Diagram, inputName]` to sync. This input with name
- * `inputName` must be pinned. If `Diagram` is null, the tuple is ignored, as a convenience to
- * allow passing unloaded diagrams.
- */
-export const useSyncInputs = (inputs: [Diagram | null, string][]) => {
-  useEffect(() => {
-    const effects = new Map<Diagram, [string, (val: number) => void]>();
-    for (const [diagram, inputName] of inputs) {
-      if (!diagram) continue;
+export class Input {
+  public readonly tag = "Input";
+  public readonly name: string;
+  public readonly init?: number;
+
+  private diagrams = new Set<Diagram>();
+  private effectMap = new Map<Diagram, (val: number) => void>();
+
+  private static nextId = 0;
+
+  constructor(name?: string, init?: number) {
+    this.name = name ?? `_input_${Input.nextId++}`;
+    this.init = init;
+  }
+
+  private replaceEffects = () => {
+    for (const [diagram, effect] of this.effectMap) {
+      diagram.removeInputEffect(this.name, effect);
+    }
+    this.effectMap = new Map();
+    for (const diagram of this.diagrams) {
       const effect = (val: number) => {
-        for (const [otherDiagram, otherInputName] of inputs) {
-          if (!otherDiagram) continue;
-          if (otherDiagram == diagram) continue;
-          if (!otherDiagram.getPinned(otherInputName)) {
-            throw new Error("cannot sync unpinned inputs");
-          }
-          otherDiagram.setVary(otherInputName, val, false);
+        for (const otherDiagram of this.diagrams) {
+          if (otherDiagram === diagram) continue;
+          otherDiagram.setInput(this.name, val, false);
         }
       };
-      diagram.addVaryEffect(inputName, effect);
-      effects.set(diagram, [inputName,  effect]);
+      diagram.addInputEffect(this.name, effect);
+      this.effectMap.set(diagram, effect);
     }
+  };
 
-    return () => {
-      for (const [diagram, [name, effect]] of effects) {
-        diagram.removeVaryEffect(name, effect);
-      }
-    }
-  }, [inputs]);
+  register = (diagram: Diagram) => {
+    this.diagrams.add(diagram);
+    this.replaceEffects();
+  };
 }
+
+export const useInput = (name?: string, init?: number) => {
+  return useMemo(() => new Input(name, init), [name, init]);
+};
+
+export const useInputs = (n: number) => {
+  return useMemo(() => {
+    const inputs = [];
+    for (let i = 0; i < n; i++) {
+      inputs.push(new Input());
+    }
+    return inputs;
+  }, [n]);
+};
