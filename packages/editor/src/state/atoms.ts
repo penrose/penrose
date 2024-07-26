@@ -8,7 +8,7 @@ import { PenroseError, PenroseWarning } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { User as FirebaseUser } from "firebase/auth";
-import { Actions, BorderNode, TabNode } from "flexlayout-react";
+import { Actions, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
 import { RefObject } from "react";
@@ -535,7 +535,6 @@ export type GistMetadata = {
 export type Settings = {
   githubAccessToken: string | null;
   vimMode: boolean;
-  debugMode: boolean;
   interactive: "EditMode" | "PlayMode" | "Off";
 };
 
@@ -556,33 +555,14 @@ const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
   });
 };
 
-const debugModeEffect: AtomEffect<Settings> = ({ onSet }) => {
-  onSet((newValue, _, isReset) => {
-    layoutModel.visitNodes((node) => {
-      if (
-        node.getType() === "border" &&
-        (node as BorderNode).getClassName() === "debugBorder"
-      ) {
-        layoutModel.doAction(
-          Actions.updateNodeAttributes(node.getId(), {
-            show: newValue.debugMode,
-          }),
-        );
-      }
-    });
-  });
-};
-
 export const settingsState = atom<Settings>({
   key: "settings",
   default: {
     githubAccessToken: null,
     vimMode: false,
-    // debug mode is on by default in local dev mode
-    debugMode: process.env.NODE_ENV === "development",
     interactive: "Off",
   },
-  effects: [settingsEffect, debugModeEffect],
+  effects: [settingsEffect],
 });
 
 export const codemirrorHistory = atom<boolean>({
