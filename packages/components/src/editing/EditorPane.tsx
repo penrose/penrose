@@ -22,6 +22,7 @@ import {
 import DomainAutocomplete from "./hooks/domain/domainAutocomplete";
 import { getShapeDefs } from "./hooks/hooksUtils";
 import StyleAutocomplete from "./hooks/style/styleAutocomplete";
+import { wordHover } from "./hooks/style/styleTooltips";
 import SubstanceAutocomplete from "./hooks/substance/substanceAutocomplete";
 import { createLinter } from "./hooks/useLinter";
 import { domainLanguageSupport } from "./parser/domain/domainLanguage";
@@ -126,6 +127,7 @@ export default function EditorPane({
   const styleExtensions = [
     autocompletion({ override: [styleCompletionFn] }),
     styleLanguageSupport(),
+    wordHover,
   ].concat(defaultExtensions);
 
   let extensionsList =
