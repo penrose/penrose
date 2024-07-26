@@ -56,6 +56,7 @@ export class Diagram {
   private draggingConstraints: Map<string, DragConstraint>;
   private namedInputs: Map<string, number>;
   private onInteraction = () => {};
+  private varyEffects: Map<string, Set<(val: number, name: string) => void>> = new Map();
 
   /**
    * Create a new renderable diagram. This should not be called directly; use
@@ -129,6 +130,7 @@ export class Diagram {
       } else {
         // if we successfully took an optimization step
         const stepped = steppedState.value;
+        this.triggerVaryEffects(this.state.varyingValues, stepped.varyingValues);
         if (isOptimized(stepped) && !finalStage(stepped)) {
           // if we should go to the next layout stage
           this.state = nextStage(stepped);
@@ -168,11 +170,14 @@ export class Diagram {
     this.onInteraction();
     this.resetOptimization();
 
+
     const translatedIndices = this.tempPinnedForDrag.get(name)!;
+    const prevVaryingValues = [...this.state.varyingValues];
     for (const [xIdx, yIdx] of translatedIndices) {
       this.state.varyingValues[xIdx] += dx;
       this.state.varyingValues[yIdx] += dy;
     }
+    this.triggerVaryEffects(prevVaryingValues, this.state.varyingValues);
   };
 
   getVary = (name: string) => {
@@ -183,7 +188,7 @@ export class Diagram {
     return this.state.varyingValues[idx];
   };
 
-  setVary = (name: string, val: number) => {
+  setVary = (name: string, val: number, triggerEffects = true) => {
     const idx = this.namedInputs.get(name);
     if (idx === undefined) {
       throw new Error(`No input named ${name}`);
@@ -191,6 +196,11 @@ export class Diagram {
     this.state.varyingValues[idx] = val;
     this.resetOptimization();
     this.onInteraction();
+    if (triggerEffects && this.varyEffects.has(name)) {
+      for (const effect of this.varyEffects.get(name)!) {
+        effect(val, name);
+      }
+    }
   };
 
   getPinned = (name: string) => {
@@ -221,6 +231,37 @@ export class Diagram {
   getDraggingConstraints = () => new Map(this.draggingConstraints);
 
   setOnInteraction = (fn: () => void) => (this.onInteraction = fn);
+
+  addVaryEffect = (name: string, fn: (val: number, name: string) => void) => {
+    if (!this.namedInputs.has(name)) {
+      throw new Error(`No input named ${name}`);
+    }
+    if (!this.varyEffects.has(name)) {
+      this.varyEffects.set(name, new Set());
+    }
+    this.varyEffects.get(name)!.add(fn);
+  }
+
+  removeVaryEffect = (name: string, fn: (val: number, name: string) => void) => {
+    if (!this.varyEffects.has(name)) {
+      throw new Error(`No input named ${name}`);
+    }
+    this.varyEffects.get(name)!.delete(fn);
+  }
+
+  private triggerVaryEffects = (prevVaryingValues: number[], newVaryingValues: number[]) => {
+    for (const [name, effects] of this.varyEffects) {
+      if (name === "ihat.x") {
+        console.log("hi");
+      }
+      const idx = this.namedInputs.get(name)!;
+      if (prevVaryingValues[idx] !== newVaryingValues[idx]) {
+        for (const effect of effects) {
+          effect(newVaryingValues[idx], name);
+        }
+      }
+    }
+  }
 
   private resetOptimization = () => {
     this.state.params = start(this.state.varyingValues.length);

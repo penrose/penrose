@@ -1,10 +1,12 @@
 import Renderer from "./components/Renderer.tsx";
-import { basisVectors } from "./examples/eigen.ts";
+import EigenvectorDiagram from "./examples/eigen.tsx";
 import GraphComponent from "./examples/graph.tsx";
 import { sets } from "./examples/sets.ts";
+import { tire } from "./examples/tire.ts";
+import AnimatedRenderer from "./components/AnimatedRenderer.tsx";
 
 const setsDiagram = await sets();
-const basisVectorsDiagram = await basisVectors();
+const tireDiagram = await tire();
 
 function App() {
   return (
@@ -22,24 +24,31 @@ function App() {
       >
         <div
           style={{
-            minWidth: "33%",
+            minWidth: "30%",
           }}
         >
           <Renderer diagram={setsDiagram} />
         </div>
         <div
           style={{
-            minWidth: "33%",
+            minWidth: "30%",
           }}
         >
-          <Renderer diagram={basisVectorsDiagram} />
+          <EigenvectorDiagram />
         </div>
         <div
           style={{
-            minWidth: "33%",
+            minWidth: "30%",
           }}
         >
           <GraphComponent />
+        </div>
+        <div
+          style={{
+            minWidth: "30%",
+          }}
+        >
+          <AnimatedRenderer diagram={tireDiagram} />
         </div>
       </div>
     </>

@@ -99,6 +99,9 @@ export class DiagramBuilder {
         const newVar = createVar(meta);
         this.inputs.push({ handle: newVar, meta });
         if (name !== undefined) {
+          if (this.namedInputs.has(name)) {
+            throw new Error(`Duplicate vary name ${name}`);
+          }
           this.namedInputs.set(name, this.inputs.length - 1);
         }
         this.varInputMap.set(newVar, this.inputs.length - 1);
@@ -107,6 +110,8 @@ export class DiagramBuilder {
     };
 
     this.defineShapeMethods();
+
+    this.vary({ name: "_time", init: 0, pinned: true });
   }
 
   /**
@@ -373,6 +378,18 @@ export class DiagramBuilder {
   layer = (below: Shape, above: Shape) => {
     this.partialLayering.push([below.name, above.name]);
   };
+
+  time = () => {
+    return this.getVary("_time");
+  }
+
+  getVary = (name: string) => {
+    const idx = this.namedInputs.get(name);
+    if (idx === undefined) {
+      throw new Error(`No input named ${name}`);
+    }
+    return this.inputs[idx].handle;
+  }
 
   private addOnCanvasConstraints = () => {
     for (const shape of this.shapes) {

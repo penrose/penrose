@@ -5,6 +5,7 @@ import { CallbackLooper } from "../utils.js";
 
 export interface RendererProps {
   diagram: Diagram;
+  animated?: boolean;
 }
 
 export default function Renderer(props: RendererProps) {
@@ -20,12 +21,10 @@ export default function Renderer(props: RendererProps) {
   const renderLooper = useMemo(() => new CallbackLooper("AnimationFrame"), []);
 
   const optimizerLoop = useCallback(() => {
-    console.log("optimizing");
     return props.diagram.optimizationStep();
   }, [props.diagram]);
 
   const renderLoop = useCallback(async () => {
-    console.log("rendering");
     if (canvasRef.current) {
       const draggingConstraints = props.diagram.getDraggingConstraints();
       const canvas = props.diagram.getCanvas();
