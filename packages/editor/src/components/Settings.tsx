@@ -18,7 +18,7 @@ import {
   useRecoverAll,
 } from "../state/callbacks.js";
 import { logInWrapper, signOutWrapper } from "../utils/firebaseUtils.js";
-import { BlueButton, CenteredBlueButton } from "./BlueButton.js";
+import BlueButton from "./BlueButton.js";
 import { BodyText, HeaderText, LabelText } from "./Elements.js";
 
 export default function Settings() {
@@ -56,11 +56,8 @@ export default function Settings() {
           <BlueButton onClick={useLogout}>Sign Out</BlueButton>
         </div>
       ) : (
-        <div style={{ margin: "10px" }}>
-          <CenteredBlueButton onClick={useLogin}>
-            {" "}
-            Login with GitHub{" "}
-          </CenteredBlueButton>
+        <div style={{ margin: "5px 0px" }}>
+          <BlueButton onClick={useLogin}> Login with GitHub </BlueButton>
         </div>
       )}
       <div>

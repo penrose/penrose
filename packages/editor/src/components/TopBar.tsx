@@ -18,7 +18,7 @@ import {
   useSaveNewWorkspace,
   useSaveWorkspace,
 } from "../state/callbacks.js";
-import { BlueButton } from "./BlueButton.js";
+import BlueButton from "./BlueButton.js";
 
 const UnsavedIcon = styled.div`
   background-color: #dddddd;
