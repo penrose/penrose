@@ -6,3 +6,12 @@
     color: black;
   }
 }
+
+.hide-underline {
+  :visited {
+    text-decoration: none;
+  }
+  a {
+    text-decoration: none;
+  }
+}

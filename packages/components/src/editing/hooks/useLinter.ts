@@ -47,12 +47,16 @@ const getPos = (line: number, col: number, text: Text) => {
 const renderMarker = (
   message: string,
   languageType: "substance" | "style" | "domain",
+  isSyntaxErr: boolean,
 ) => {
   return (view: EditorView) => {
     let dom = document.createElement("div");
 
     let redirect = `https://penrose.cs.cmu.edu/docs/ref/${languageType}/overview`;
     dom.innerHTML = `<a href="${redirect}" target="_blank">` + message + "</a>";
+    if (!isSyntaxErr) {
+      dom.classList.add("hide-underline");
+    }
     return dom;
   };
 };
@@ -80,7 +84,7 @@ export const createLinter = (
             from: getPos(loc.range.start.line, loc.range.start.col, text),
             to: getPos(loc.range.end.line, loc.range.end.col, text),
             message: showError(err),
-            renderMessage: renderMarker(showError(err), languageType),
+            renderMessage: renderMarker(showError(err), languageType, false),
             severity: "error",
           }));
 
@@ -114,7 +118,7 @@ export const createLinter = (
                 from,
                 to,
                 severity: "error",
-                renderMessage: renderMarker("Syntax Error", languageType),
+                renderMessage: renderMarker("Syntax Error", languageType, true),
                 message: "Syntax Error",
               });
             }
