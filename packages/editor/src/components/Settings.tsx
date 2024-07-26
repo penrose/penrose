@@ -19,7 +19,7 @@ import {
 } from "../state/callbacks.js";
 import { logInWrapper, signOutWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
-import { BodyText, HeaderText, LabelText } from "./Elements.js";
+import StyleWrapper from "./StyleWrapper";
 
 export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
@@ -49,8 +49,8 @@ export default function Settings() {
     return <div>loading...</div>;
   }
   return (
-    <div style={{ margin: "10px" }}>
-      <HeaderText>General Settings</HeaderText>
+    <StyleWrapper style={{ margin: "10px" }}>
+      <h1>General Settings</h1>
       {currentUser != null ? (
         <div style={{ margin: "5px 0px" }}>
           <BlueButton onClick={useLogout}>Sign Out</BlueButton>
@@ -61,7 +61,7 @@ export default function Settings() {
         </div>
       )}
       <div>
-        <LabelText>
+        <label>
           vim mode{" "}
           <input
             type="checkbox"
@@ -70,9 +70,9 @@ export default function Settings() {
               setSettings((state) => ({ ...state, vimMode: e.target.checked }))
             }
           />
-        </LabelText>
+        </label>
       </div>
-      <BodyText>exclude warnings: </BodyText>
+      <p>exclude warnings: </p>
       <Select
         options={allWarnings.map((tag) => ({ val: tag }))}
         isMulti
@@ -97,9 +97,9 @@ export default function Settings() {
         }}
       />
       <div>
-        <BodyText>
+        <p>
           interactive mode (experimental) <br />
-        </BodyText>
+        </p>
         <input
           type="radio"
           name="interactivity"
@@ -111,7 +111,7 @@ export default function Settings() {
             }));
           }}
         />
-        <LabelText>Off</LabelText>
+        <label>Off</label>
         <br />
         <input
           type="radio"
@@ -124,7 +124,7 @@ export default function Settings() {
             }));
           }}
         />
-        <LabelText>Edit Mode</LabelText>
+        <label>Edit Mode</label>
         <br />
         <input
           type="radio"
@@ -137,12 +137,12 @@ export default function Settings() {
             }));
           }}
         />
-        <LabelText>Play Mode</LabelText>
+        <label>Play Mode</label>
       </div>
 
-      <HeaderText>Variation Settings</HeaderText>
+      <h1>Variation Settings</h1>
       <div>
-        <LabelText>
+        <label>
           variation seed:
           <input
             style={{ margin: "5px 0px" }}
@@ -156,9 +156,9 @@ export default function Settings() {
             }
             onBlur={compileDiagram}
           />
-        </LabelText>
+        </label>
         <div>
-          <LabelText>
+          <label>
             grid size:{" "}
             <input
               type="range"
@@ -173,7 +173,7 @@ export default function Settings() {
               }
             />
             <output>{gridSize}</output>
-          </LabelText>
+          </label>
           <div>
             <BlueButton
               style={{ margin: "5px 0px" }}
@@ -190,23 +190,21 @@ export default function Settings() {
         </div>
       </div>
 
-      <HeaderText>State</HeaderText>
-      <div>
-        {state ? <ObjectInspector data={state} /> : <BodyText>empty</BodyText>}
-      </div>
+      <h1>State</h1>
+      <div>{state ? <ObjectInspector data={state} /> : <p>empty</p>}</div>
 
       {currentUser != null && (
         <div>
-          <HeaderText>Misc</HeaderText>
-          <BodyText>
+          <h1>Misc</h1>
+          <p>
             We've migrated to cloud storage! You have {numLegacyDiagrams}{" "}
             unrestored locally stored diagrams.
-          </BodyText>
+          </p>
           {numLegacyDiagrams > 0 && (
             <BlueButton onClick={recoverAll}>Recover All</BlueButton>
           )}
         </div>
       )}
-    </div>
+    </StyleWrapper>
   );
 }

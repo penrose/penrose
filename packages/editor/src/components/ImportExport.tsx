@@ -18,7 +18,7 @@ import {
   useDownloadSvgTex,
   useDownloadTrio,
 } from "../state/callbacks.js";
-import { BodyText, HeaderText } from "./Elements.js";
+import StyleWrapper from "./StyleWrapper";
 
 const ExportCard = styled.div`
   background-color: #f5f5f5;
@@ -117,8 +117,8 @@ export default function ImportExport() {
   };
 
   return (
-    <div>
-      <HeaderText>Import</HeaderText>
+    <StyleWrapper>
+      <h1>Import</h1>
       <FileUploader
         handleChange={handleChange}
         name="file"
@@ -129,19 +129,19 @@ export default function ImportExport() {
         <div
           style={{ border: "2px dashed", borderColor: "darkgrey", padding: 10 }}
         >
-          <BodyText>
+          <p>
             <span style={{ textDecoration: "underline" }}>Upload</span> or drop
             a Penrose exported SVG here
-          </BodyText>
+          </p>
         </div>
       </FileUploader>
-      <HeaderText>Export</HeaderText>
+      <h1>Export</h1>
       <ExportCard onClick={useDownloadSvgTex()}>TeX SVG</ExportCard>
       <ExportCard onClick={useDownloadSvg()}>Penrose SVG</ExportCard>
       <ExportCard onClick={useDownloadTrio()}>Penrose Trio</ExportCard>
       <ExportCard onClick={useDownloadPng()}>PNG</ExportCard>
       <ExportCard onClick={useDownloadPdf()}>PDF</ExportCard>
       <ExportCard onClick={useCopyToClipboard()}>Copy to Clipboard</ExportCard>
-    </div>
+    </StyleWrapper>
   );
 }

@@ -30,7 +30,7 @@ import BlueButton from "./BlueButton.js";
 import InteractivityOverlay from "./InteractivityOverlay.js";
 import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
 
-export const HeaderButtonContainer = styled.div`
+const DiagramPanelButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -336,7 +336,7 @@ export default function DiagramPanel() {
         <LayoutTimelineSlider />
 
         {isMobile && (
-          <HeaderButtonContainer>
+          <DiagramPanelButtonContainer>
             <BlueButton
               disabled={workerState.compiling}
               onClick={compileDiagram}
@@ -349,7 +349,7 @@ export default function DiagramPanel() {
             >
               resample
             </BlueButton>
-          </HeaderButtonContainer>
+          </DiagramPanelButtonContainer>
         )}
       </div>
     </div>
