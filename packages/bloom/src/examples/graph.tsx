@@ -92,7 +92,7 @@ const graph = async () => {
     },
   );
 
-  // forall nodes, repell each other
+  // forall nodes, repel each other
   forall({ a: Node, b: Node }, ({ a, b }) => {
     encourage(objectives.repelPt(1, a.icon.center, b.icon.center));
   });

@@ -51,10 +51,25 @@ export type NamedSamplingContext = {
 export type SelectorVars = Record<string, Type>;
 export type SelectorAssignment = Record<string, Substance>;
 
+/**
+ * Construct a diagram with a Penrose-like API. You may find it useful to
+ * destructure an object of this type:
+ *
+ * ```TS
+ * const {
+ *   type,
+ *   predicate,
+ *   circle,
+ *   line,
+ *   ensure,
+ *   // ...
+ * } = new DiagramBuilder(canvas(400, 400), "seed");
+ * ```
+ */
 export class DiagramBuilder {
-  /** Substance/Domain stuff */
   private substanceTypeMap: Map<Substance, Type> = new Map();
-
+  private nextSubstanceId = 0;
+  private substanceIdMap: Map<Substance, number> = new Map();
   private canvas: Canvas;
   private inputs: InputInfo[] = [];
   private varInputMap: Map<Var, number> = new Map();
@@ -71,7 +86,7 @@ export class DiagramBuilder {
 
   /**
    * Create a new diagram builder.
-   * @param canvas Local dimensions of the SVG. If you find that you need thinner lines, tru increasing these dimensions.
+   * @param canvas Local dimensions of the SVG. If you find you need thinner lines, try increasing these dimensions.
    * @param variation Randomness seed
    */
   constructor(canvas: Canvas, variation: string) {
@@ -141,6 +156,7 @@ export class DiagramBuilder {
     if (type) {
       this.substanceTypeMap.set(newSubstance, type);
     }
+    this.substanceIdMap.set(newSubstance, this.nextSubstanceId++);
     return newSubstance;
   };
 
@@ -198,11 +214,21 @@ export class DiagramBuilder {
     return pred as Predicate;
   };
 
-  forallWhere = (
+  private internalForallWhere = (
     vars: SelectorVars,
+    deduplicate: boolean,
     where: (assigned: SelectorAssignment) => boolean,
     func: (assigned: SelectorAssignment, matchId: number) => void,
   ) => {
+    const visited = new Set<string>();
+
+    const matchString = (assigned: SelectorAssignment) => {
+      return Object.values(assigned)
+        .map((s) => this.substanceIdMap.get(s)!)
+        .sort()
+        .join("-");
+    };
+
     const traverse = (
       pairsToAssign: { name: string; type: Type }[],
       assignment: { name: string; substance: Substance }[],
@@ -211,7 +237,10 @@ export class DiagramBuilder {
       if (pairsToAssign.length === 0) return 0;
 
       for (const [subst, type] of this.substanceTypeMap) {
-        if (pairsToAssign[0].type === type) {
+        if (
+          pairsToAssign[0].type === type &&
+          !assignment.some((a) => a.substance === subst)
+        ) {
           if (pairsToAssign.length === 1) {
             const assignmentRecord: SelectorAssignment = {};
             for (const { name, substance: assignedSubst } of assignment) {
@@ -219,7 +248,13 @@ export class DiagramBuilder {
             }
             assignmentRecord[pairsToAssign[0].name] = subst;
             if (where(assignmentRecord)) {
-              func(assignmentRecord, matches++);
+              const str = matchString(assignmentRecord);
+              if (!deduplicate || !visited.has(str)) {
+                func(assignmentRecord, matches++);
+                if (deduplicate) {
+                  visited.add(str);
+                }
+              }
             }
           } else {
             const newAssignment = [
@@ -242,11 +277,32 @@ export class DiagramBuilder {
     );
   };
 
+  /**
+   * Iterate over all possible assignments of substances to variables, subject to condition `where`.
+   * This selection does NOT deduplicate assignments.
+   * @param vars
+   * @param where
+   * @param func
+   */
+  forallWhere = (
+    vars: SelectorVars,
+    where: (assigned: SelectorAssignment) => boolean,
+    func: (assigned: SelectorAssignment, matchId: number) => void,
+  ) => {
+    return this.internalForallWhere(vars, false, where, func);
+  };
+
+  /**
+   * Iterate over all possible assignments of substances to variables.
+   * This selection deduplicates assignments.
+   * @param vars
+   * @param func
+   */
   forall = (
     vars: SelectorVars,
     func: (assigned: SelectorAssignment, matchId: number) => void,
   ) => {
-    this.forallWhere(vars, () => true, func);
+    this.internalForallWhere(vars, true, () => true, func);
   };
 
   vary = (opts?: { name?: string; init?: number; pinned?: boolean }): Var => {
