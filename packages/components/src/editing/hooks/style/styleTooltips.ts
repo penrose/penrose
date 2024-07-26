@@ -4,6 +4,7 @@ import { compDict, constrDict, isKeyOf, objDict } from "@penrose/core";
 import Markdown from "markdown-it";
 import markdownItKatex from "markdown-it-katex";
 import {
+  convertShapeProps,
   extractText,
   getShapeDefs,
   toParamString,
@@ -122,7 +123,10 @@ export const wordHover = hoverTooltip((view, pos, side) => {
       );
 
       if (shapeName in shapeDefs && word in shapeDefs[shapeName]) {
-        let domElt = createShapePropDOM(word, shapeDefs[shapeName][word]);
+        let domElt = createShapePropDOM(
+          word,
+          convertShapeProps(shapeDefs[shapeName][word]),
+        );
         return createTooltip(start, end, domElt);
       }
     }

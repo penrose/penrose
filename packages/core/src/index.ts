@@ -407,3 +407,4 @@ export {
 } from "./utils/Util.js";
 
 export type { Shape } from "./shapes/Shapes.js";
+export { valueTypeDesc } from "./types/types.js";
