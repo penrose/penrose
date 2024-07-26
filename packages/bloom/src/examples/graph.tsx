@@ -102,7 +102,6 @@ const graph = async () => {
 
 export default function GraphComponent() {
   const [diagram, setDiagram] = useState<Diagram | null>(null);
-  const [optionalOpacity, setOptionalOpacity] = useState(1);
 
   useEffect(() => {
     graph().then(setDiagram);
@@ -117,8 +116,8 @@ export default function GraphComponent() {
     <div>
       <button
         onClick={() => {
+          const optionalOpacity = diagram.getVary("optionalOpacity");
           diagram.setVary("optionalOpacity", 1 - optionalOpacity);
-          setOptionalOpacity(1 - optionalOpacity);
         }}
       >
         Toggle Optional Edges

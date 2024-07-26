@@ -1,5 +1,5 @@
 import { makeTranslateOnMouseDown } from "@penrose/core";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Diagram } from "../builder/diagram.js";
 import { CallbackLooper } from "../utils.js";
 
@@ -9,6 +9,9 @@ export interface RendererProps {
 
 export default function Renderer(props: RendererProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  // hack to force re-render on interaction
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   const optimizerLooper = useMemo(
     () => new CallbackLooper("MessageChannel"),
@@ -65,8 +68,16 @@ export default function Renderer(props: RendererProps) {
     props.diagram.setOnInteraction(() => {
       renderLooper.loop(renderLoop);
       optimizerLooper.loop(optimizerLoop);
+      setForceUpdate(forceUpdate + 1);
     });
-  }, [optimizerLoop, optimizerLooper, props.diagram, renderLoop, renderLooper]);
+  }, [
+    forceUpdate,
+    optimizerLoop,
+    optimizerLooper,
+    props.diagram,
+    renderLoop,
+    renderLooper,
+  ]);
 
   useEffect(() => {
     optimizerLooper.loop(optimizerLoop);
