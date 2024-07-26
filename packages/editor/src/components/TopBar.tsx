@@ -72,7 +72,7 @@ const ButtonsAlignment = styled.div<{ isMobile: boolean }>`
   margin: ${(props) => (props.isMobile ? "0 0 0 auto" : "0")};
 `;
 
-const HelpIcon = styled.div`
+const HelpIcon = styled.a`
   width: 25px;
   height: 25px;
   border-radius: 50%;
@@ -84,10 +84,15 @@ const HelpIcon = styled.div`
   font-size: 12px;
   font-weight: bold;
   cursor: pointer;
+  text-decoration: none;
   :hover {
     border: 2px solid #049cdd;
     color: #049cdd;
     transition: 0.2s;
+  }
+  :visited {
+    color: #40b4f7;
+    text-decoration: none;
   }
 `;
 
@@ -257,7 +262,9 @@ export default function TopBar() {
           <BlueButton disabled={compiling} onClick={resampleDiagram}>
             resample
           </BlueButton>
-          <HelpIcon>?</HelpIcon>
+          <HelpIcon href="https://penrose.cs.cmu.edu/docs/ref" target="_blank">
+            ?
+          </HelpIcon>
         </HeaderButtonContainer>
       )}
     </nav>
