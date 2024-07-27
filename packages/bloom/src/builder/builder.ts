@@ -12,7 +12,6 @@ import {
   uniform,
 } from "@penrose/core";
 import constraints from "../lib/constraints.js";
-import { Input } from "../lib/hooks.ts";
 import {
   Circle,
   CircleProps,
@@ -37,6 +36,7 @@ import {
   Shape,
   ShapeProps,
   ShapeType,
+  SharedInput,
   Substance,
   TextProps,
   Type,
@@ -90,7 +90,7 @@ export class DiagramBuilder {
   private partialLayering: [string, string][] = [];
   private pinnedInputs: Set<number> = new Set();
   private dragNamesAndConstrs: Map<string, DragConstraint> = new Map();
-  private externalInputs: Set<Input> = new Set();
+  private externalInputs: Set<SharedInput> = new Set();
 
   /**
    * Create a new diagram builder.
@@ -341,7 +341,7 @@ export class DiagramBuilder {
     return newVar;
   };
 
-  externalInput = (input: Input, initOverride?: number) => {
+  sharedInput = (input: SharedInput, initOverride?: number) => {
     this.externalInputs.add(input);
     return this.input({
       name: input.name,
@@ -406,6 +406,35 @@ export class DiagramBuilder {
       throw new Error(`No input named ${name}`);
     }
     return this.inputs[idx].handle;
+  };
+
+  build = async (): Promise<Diagram> => {
+    this.addDragConstraints();
+    this.addOnCanvasConstraints();
+
+    const nameShapeMap = this.getNameShapeMap();
+    const penroseShapes = this.shapes.map((s) => toPenroseShape(s));
+    const orderedShapes = sortShapes(penroseShapes, this.partialLayering);
+
+    const diagram = await Diagram.create({
+      canvas: this.canvas,
+      variation: this.variation,
+      inputs: this.inputs,
+      constraints: this.constraints,
+      objectives: this.objectives,
+      shapes: orderedShapes,
+      nameShapeMap,
+      namedInputs: this.namedInputs,
+      pinnedInputs: this.pinnedInputs,
+      dragNamesAndConstrs: this.dragNamesAndConstrs,
+      inputIdxsByPath: this.getTranslatedInputIdxsByPath(),
+    });
+
+    for (const input of this.externalInputs) {
+      input.register(diagram);
+    }
+
+    return diagram;
   };
 
   private addOnCanvasConstraints = () => {
@@ -488,34 +517,5 @@ export class DiagramBuilder {
       nameShapeMap.set(s.name, toPenroseShape(s));
     }
     return nameShapeMap;
-  };
-
-  build = async (): Promise<Diagram> => {
-    this.addDragConstraints();
-    this.addOnCanvasConstraints();
-
-    const nameShapeMap = this.getNameShapeMap();
-    const penroseShapes = this.shapes.map((s) => toPenroseShape(s));
-    const orderedShapes = sortShapes(penroseShapes, this.partialLayering);
-
-    const diagram = await Diagram.create({
-      canvas: this.canvas,
-      variation: this.variation,
-      inputs: this.inputs,
-      constraints: this.constraints,
-      objectives: this.objectives,
-      shapes: orderedShapes,
-      nameShapeMap,
-      namedInputs: this.namedInputs,
-      pinnedInputs: this.pinnedInputs,
-      dragNamesAndConstrs: this.dragNamesAndConstrs,
-      inputIdxsByPath: this.getTranslatedInputIdxsByPath(),
-    });
-
-    for (const input of this.externalInputs) {
-      input.register(diagram);
-    }
-
-    return diagram;
   };
 }

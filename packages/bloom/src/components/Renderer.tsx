@@ -93,5 +93,12 @@ export default function Renderer(props: RendererProps) {
     };
   }, [optimizerLooper, renderLooper]);
 
-  return <div ref={canvasRef} />;
+  return (
+    <div
+      style={{
+        height: "100%",
+      }}
+      ref={canvasRef}
+    />
+  );
 }

@@ -113,11 +113,15 @@ export default function GraphComponent() {
 
   // create a renderer component rendering the diagram and a button to toggle the optional edges
   return (
-    <div>
+    <div
+      style={{
+        height: "90%",
+      }}
+    >
       <button
         onClick={() => {
-          const optionalOpacity = diagram.getVary("optionalOpacity");
-          diagram.setVary("optionalOpacity", 1 - optionalOpacity);
+          const optionalOpacity = diagram.getInput("optionalOpacity");
+          diagram.setInput("optionalOpacity", 1 - optionalOpacity);
         }}
       >
         Toggle Optional Edges

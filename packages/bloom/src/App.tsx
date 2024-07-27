@@ -1,5 +1,8 @@
+import { IJsonModel, Layout, Model, TabNode } from "flexlayout-react";
+import "flexlayout-react/style/light.css";
+import AnimatedRenderer from "./components/AnimatedRenderer.tsx";
 import Renderer from "./components/Renderer.tsx";
-import EigenvectorDiagram from "./examples/eigen.tsx";
+import EigenvectorsDiagram from "./examples/eigen.tsx";
 import GraphComponent from "./examples/graph.tsx";
 import { sets } from "./examples/sets.ts";
 import { tire } from "./examples/tire.ts";
@@ -7,51 +10,78 @@ import { tire } from "./examples/tire.ts";
 const setsDiagram = await sets();
 const tireDiagram = await tire();
 
+const layoutJson: IJsonModel = {
+  global: {},
+  borders: [],
+  layout: {
+    type: "row",
+    weight: 100,
+    children: [
+      {
+        type: "tabset",
+        weight: 50,
+        children: [
+          {
+            type: "tab",
+            name: "Sets",
+            component: "Sets",
+          },
+          {
+            type: "tab",
+            name: "Eigenvector",
+            component: "Eigenvector",
+          },
+          {
+            type: "tab",
+            name: "Graph",
+            component: "Graph",
+          },
+          {
+            type: "tab",
+            name: "Tire",
+            component: "Tire",
+          },
+        ],
+      },
+    ],
+  },
+};
+
+const model = Model.fromJson(layoutJson);
+
 function App() {
-  return (
-    <>
+  const factory = (node: TabNode) => {
+    let element: JSX.Element;
+    switch (node.getComponent()) {
+      case "Sets":
+        element = <Renderer diagram={setsDiagram} />;
+        break;
+
+      case "Eigenvector":
+        element = <EigenvectorsDiagram />;
+        break;
+
+      case "Graph":
+        element = <GraphComponent />;
+        break;
+
+      case "Tire":
+        element = <AnimatedRenderer diagram={tireDiagram} />;
+        break;
+    }
+
+    return (
       <div
         style={{
-          display: "flex",
-          flexWrap: "wrap",
-          position: "absolute",
-          justifyContent: "space-evenly",
-          alignItems: "center",
-          width: "100%",
           height: "100%",
         }}
       >
-        <div
-          style={{
-            minWidth: "30%",
-          }}
-        >
-          <Renderer diagram={setsDiagram} />
-        </div>
-        <div
-          style={{
-            minWidth: "30%",
-          }}
-        >
-          <EigenvectorDiagram />
-        </div>
-        <div
-          style={{
-            minWidth: "30%",
-          }}
-        >
-          <GraphComponent />
-        </div>
-        {/*<div*/}
-        {/*  style={{*/}
-        {/*    minWidth: "30%",*/}
-        {/*  }}*/}
-        {/*>*/}
-        {/*  <AnimatedRenderer diagram={tireDiagram} />*/}
-        {/*</div>*/}
+        {element!}
       </div>
-    </>
-  );
+    );
+  };
+
+  return <Layout model={model} factory={factory} />;
 }
 
 export default App;

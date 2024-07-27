@@ -4,18 +4,18 @@ import { DiagramBuilder } from "../builder/builder.js";
 import { Diagram } from "../builder/diagram.ts";
 import Renderer from "../components/Renderer.tsx";
 import constraints from "../lib/constraints.ts";
-import { Input, useInputs } from "../lib/hooks.ts";
-import { Vec2 } from "../types.ts";
+import { useSharedInputs } from "../lib/hooks.ts";
+import { SharedInput, Vec2 } from "../types.ts";
 import { canvas } from "../utils.js";
 
 const basisVectors = async (
   inputs: {
-    ihatx: Input;
-    ihaty: Input;
-    jhatx: Input;
-    jhaty: Input;
-    px: Input;
-    py: Input;
+    ihatx: SharedInput;
+    ihaty: SharedInput;
+    jhatx: SharedInput;
+    jhaty: SharedInput;
+    px: SharedInput;
+    py: SharedInput;
   },
   withEigenspace = false,
 ) => {
@@ -33,7 +33,7 @@ const basisVectors = async (
     ensure,
     forallWhere,
     layer,
-    externalInput,
+    sharedInput,
   } = new DiagramBuilder(canvas(canvasWidth, canvasHeight), "");
 
   // Misc constants
@@ -78,23 +78,23 @@ const basisVectors = async (
   const ihat = BasisVector();
   ihat.label = "a_1";
   ihat.canvasVec = [
-    externalInput(inputs.ihatx, 1 * xScale + origin[0]),
-    externalInput(inputs.ihaty, 0.4 * yScale + origin[1]),
+    sharedInput(inputs.ihatx, 1 * xScale + origin[0]),
+    sharedInput(inputs.ihaty, 0.4 * yScale + origin[1]),
   ];
   ihat.color = [0.2, 0.6, 0.86, 1];
 
   const jhat = BasisVector();
   jhat.label = "a_2";
   jhat.canvasVec = [
-    externalInput(inputs.jhatx, 0.5 * xScale + origin[0]),
-    externalInput(inputs.jhaty, 1 * yScale + origin[1]),
+    sharedInput(inputs.jhatx, 0.5 * xScale + origin[0]),
+    sharedInput(inputs.jhaty, 1 * yScale + origin[1]),
   ];
   jhat.color = [0.18, 0.8, 0.44, 1];
 
   const p = MappedPoint();
   p.canvasV1 = [
-    externalInput(inputs.px, 1.5 * xScale + origin[0]),
-    externalInput(inputs.py, 1.5 * yScale + origin[1]),
+    sharedInput(inputs.px, 1.5 * xScale + origin[0]),
+    sharedInput(inputs.py, 1.5 * yScale + origin[1]),
   ];
 
   // Style
@@ -343,7 +343,7 @@ export default function EigenvectorsDiagram() {
   const [diagram1, setDiagram1] = useState<Diagram | null>(null);
   const [diagram2, setDiagram2] = useState<Diagram | null>(null);
 
-  const [ihatx, ihaty, jhatx, jhaty, px, py] = useInputs(6);
+  const [ihatx, ihaty, jhatx, jhaty, px, py] = useSharedInputs(6);
 
   const inputs = useMemo(
     () => ({
@@ -370,8 +370,9 @@ export default function EigenvectorsDiagram() {
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",
         justifyContent: "space-evenly",
+        height: "100%",
       }}
     >
       <Renderer diagram={diagram1} />
