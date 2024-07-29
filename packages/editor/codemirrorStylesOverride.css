@@ -14,8 +14,9 @@
   a {
     text-decoration: none;
   }
+}
 
-  /* Styles CodeMirror tooltip */
+/* Styles CodeMirror tooltip */
 .tooltip {
   max-width: 500px;
   padding: 5px;
