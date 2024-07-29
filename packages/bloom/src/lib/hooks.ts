@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { SharedInput } from "../types.ts";
+
+import { SharedInput } from "../builder/builder.ts";
 
 export const useSharedInput = (name?: string, init?: number) => {
   return useMemo(() => new SharedInput(name, init), [name, init]);

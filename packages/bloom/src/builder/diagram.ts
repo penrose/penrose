@@ -191,7 +191,7 @@ export class Diagram {
     return this.state.varyingValues[idx];
   };
 
-  setInput = (name: string, val: number, triggerEffects = true) => {
+  setInput = (name: string, val: number) => {
     const idx = this.namedInputs.get(name);
     if (idx === undefined) {
       throw new Error(`No input named ${name}`);
@@ -199,7 +199,7 @@ export class Diagram {
     this.state.varyingValues[idx] = val;
     this.resetOptimization();
     this.onInteraction();
-    if (triggerEffects && this.inputEffects.has(name)) {
+    if (this.inputEffects.has(name)) {
       for (const effect of this.inputEffects.get(name)!) {
         effect(val, name);
       }

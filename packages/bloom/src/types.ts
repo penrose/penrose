@@ -9,6 +9,7 @@ export type Predicate = ((...objs: any[]) => void) & {
 
 export type Vec2 = [Num, Num];
 export type Vec3 = [Num, Num, Num];
+export type Vec4 = [Num, Num, Num, Num];
 export type Color = Num[];
 export type VecN = Num[];
 
@@ -385,40 +386,3 @@ export const penroseShapeFieldTypes = new Map<ShapeType, any>([
   [ShapeType.Rectangle, PenroseRectangleTypes],
   [ShapeType.Text, PenroseTextTypes],
 ]);
-
-export class SharedInput {
-  public readonly name: string;
-  public readonly init?: number;
-
-  private diagrams = new Set<Diagram>();
-  private effectMap = new Map<Diagram, (val: number) => void>();
-
-  private static nextId = 0;
-
-  constructor(name?: string, init?: number) {
-    this.name = name ?? `_input_${SharedInput.nextId++}`;
-    this.init = init;
-  }
-
-  private replaceEffects = () => {
-    for (const [diagram, effect] of this.effectMap) {
-      diagram.removeInputEffect(this.name, effect);
-    }
-    this.effectMap = new Map();
-    for (const diagram of this.diagrams) {
-      const effect = (val: number) => {
-        for (const otherDiagram of this.diagrams) {
-          if (otherDiagram === diagram) continue;
-          otherDiagram.setInput(this.name, val, false);
-        }
-      };
-      diagram.addInputEffect(this.name, effect);
-      this.effectMap.set(diagram, effect);
-    }
-  };
-
-  register = (diagram: Diagram) => {
-    this.diagrams.add(diagram);
-    this.replaceEffects();
-  };
-}

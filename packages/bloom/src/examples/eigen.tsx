@@ -1,11 +1,11 @@
 import { add, div, mul, ops, sqrt } from "@penrose/core";
 import { useEffect, useMemo, useState } from "react";
-import { DiagramBuilder } from "../builder/builder.js";
+import { DiagramBuilder, SharedInput } from "../builder/builder.js";
 import { Diagram } from "../builder/diagram.ts";
 import Renderer from "../components/Renderer.tsx";
 import constraints from "../lib/constraints.ts";
 import { useSharedInputs } from "../lib/hooks.ts";
-import { SharedInput, Vec2 } from "../types.ts";
+import { Vec2 } from "../types.ts";
 import { canvas } from "../utils.js";
 
 const basisVectors = async (

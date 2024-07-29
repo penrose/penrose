@@ -36,7 +36,6 @@ import {
   Shape,
   ShapeProps,
   ShapeType,
-  SharedInput,
   Substance,
   TextProps,
   Type,
@@ -57,6 +56,76 @@ export type InputOpts = {
   init?: number;
   pinned?: boolean;
 };
+
+export class SharedInput {
+  public readonly name: string;
+  public readonly init?: number;
+
+  private diagrams = new Set<Diagram>();
+  private effectMap = new Map<Diagram, (val: number) => void>();
+  private currVal: number | null = null;
+  private syncing: boolean = false;
+  private static nextId = 0;
+
+  constructor(name?: string, init?: number) {
+    this.name = name ?? `_input_${SharedInput.nextId++}`;
+    this.init = init;
+  }
+
+  set = (val: number) => {
+    this.currVal = val;
+    this.preventSyncing(() => {
+      for (const diagram of this.diagrams) {
+        diagram.setInput(this.name, val);
+      }
+    });
+  };
+
+  get = () => this.currVal;
+
+  private preventSyncing = (fn: () => void) => {
+    this.syncing = true;
+    fn();
+    this.syncing = false;
+  };
+
+  private replaceEffects = () => {
+    for (const [diagram, effect] of this.effectMap) {
+      diagram.removeInputEffect(this.name, effect);
+    }
+    this.effectMap = new Map();
+    for (const diagram of this.diagrams) {
+      const effect = (val: number) => {
+        if (this.syncing) return;
+        this.preventSyncing(() => {
+          this.currVal = val;
+          for (const otherDiagram of this.diagrams) {
+            if (otherDiagram === diagram) continue;
+            otherDiagram.setInput(this.name, val);
+          }
+        });
+      };
+      diagram.addInputEffect(this.name, effect);
+      this.effectMap.set(diagram, effect);
+    }
+  };
+
+  register = (diagram: Diagram) => {
+    this.diagrams.add(diagram);
+    this.replaceEffects();
+
+    if (this.currVal === null) {
+      // this must be the first diagram, so let's set the value to whatever
+      // the diagram initialized it to
+      this.currVal = diagram.getInput(this.name);
+    }
+
+    // performance: we don't need to sync the changes to other diagrams, since
+    // it's the current value. Using `withSyncing` will prevent
+    // the syncing effects from running
+    this.preventSyncing(() => diagram.setInput(this.name, this.currVal!));
+  };
+}
 
 /**
  * Construct a diagram with a Penrose-like API. You may find it useful to

@@ -5,7 +5,6 @@ import { CallbackLooper } from "../utils.js";
 
 export interface RendererProps {
   diagram: Diagram;
-  animated?: boolean;
 }
 
 export default function Renderer(props: RendererProps) {
