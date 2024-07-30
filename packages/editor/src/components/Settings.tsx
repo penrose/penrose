@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ObjectInspector } from "react-inspector";
 import Select from "react-select";
 import { useRecoilState, useRecoilStateLoadable, useRecoilValue } from "recoil";
+import styled from "styled-components";
 import {
   currentAppUser,
   diagramGridState,
@@ -19,7 +20,14 @@ import {
 } from "../state/callbacks.js";
 import { logInWrapper, signOutWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
+import SettingHeader from "./SettingHeader.js";
 import StyleWrapper from "./StyleWrapper";
+
+const Section = styled.div`
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  padding: 10px;
+`;
 
 export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
@@ -50,98 +58,104 @@ export default function Settings() {
   }
   return (
     <StyleWrapper style={{ margin: "10px" }}>
-      <h1>General Settings</h1>
-      {currentUser != null ? (
-        <div style={{ margin: "5px 0px" }}>
-          <BlueButton onClick={useLogout}>Sign Out</BlueButton>
+      <SettingHeader>General Settings</SettingHeader>
+      <Section>
+        {currentUser != null ? (
+          <div style={{ margin: "5px 0px" }}>
+            <BlueButton onClick={useLogout}>Sign Out</BlueButton>
+          </div>
+        ) : (
+          <div style={{ margin: "5px 0px" }}>
+            <BlueButton onClick={useLogin}> Login with GitHub </BlueButton>
+          </div>
+        )}
+        <div>
+          <label>
+            <p>
+              vim mode
+              <input
+                type="checkbox"
+                checked={settings.contents.vimMode}
+                onChange={(e) =>
+                  setSettings((state) => ({
+                    ...state,
+                    vimMode: e.target.checked,
+                  }))
+                }
+              />
+            </p>
+          </label>
         </div>
-      ) : (
-        <div style={{ margin: "5px 0px" }}>
-          <BlueButton onClick={useLogin}> Login with GitHub </BlueButton>
-        </div>
-      )}
-      <div>
-        <label>
-          vim mode{" "}
+        <p>exclude warnings: </p>
+        <Select
+          options={allWarnings.map((tag) => ({ val: tag }))}
+          isMulti
+          isSearchable
+          getOptionLabel={({ val }) => val}
+          getOptionValue={({ val }) => val}
+          value={diagramMetadata.excludeWarnings.map((tag) => ({
+            val: tag,
+          }))}
+          onChange={(values) => {
+            setDiagramMetadata((metadata) => ({
+              ...metadata,
+              excludeWarnings: values.map((v) => v.val),
+            }));
+          }}
+          styles={{
+            control: (baseStyles, state) => ({
+              ...baseStyles,
+              fontSize: "12px",
+              margin: "5px 0px 0p",
+            }),
+          }}
+        />
+        <div>
+          <p>
+            interactive mode (experimental) <br />
+          </p>
           <input
-            type="checkbox"
-            checked={settings.contents.vimMode}
-            onChange={(e) =>
-              setSettings((state) => ({ ...state, vimMode: e.target.checked }))
-            }
+            type="radio"
+            name="interactivity"
+            checked={settings.contents.interactive === "Off"}
+            onChange={(e) => {
+              setSettings((settings) => ({
+                ...settings,
+                interactive: "Off",
+              }));
+            }}
           />
-        </label>
-      </div>
-      <p>exclude warnings: </p>
-      <Select
-        options={allWarnings.map((tag) => ({ val: tag }))}
-        isMulti
-        isSearchable
-        getOptionLabel={({ val }) => val}
-        getOptionValue={({ val }) => val}
-        value={diagramMetadata.excludeWarnings.map((tag) => ({
-          val: tag,
-        }))}
-        onChange={(values) => {
-          setDiagramMetadata((metadata) => ({
-            ...metadata,
-            excludeWarnings: values.map((v) => v.val),
-          }));
-        }}
-        styles={{
-          control: (baseStyles, state) => ({
-            ...baseStyles,
-            fontSize: "12px",
-            margin: "5px 0px 0p",
-          }),
-        }}
-      />
-      <div>
-        <p>
-          interactive mode (experimental) <br />
-        </p>
-        <input
-          type="radio"
-          name="interactivity"
-          checked={settings.contents.interactive === "Off"}
-          onChange={(e) => {
-            setSettings((settings) => ({
-              ...settings,
-              interactive: "Off",
-            }));
-          }}
-        />
-        <label>Off</label>
-        <br />
-        <input
-          type="radio"
-          name="interactivity"
-          checked={settings.contents.interactive === "EditMode"}
-          onChange={(e) => {
-            setSettings((settings) => ({
-              ...settings,
-              interactive: "EditMode",
-            }));
-          }}
-        />
-        <label>Edit Mode</label>
-        <br />
-        <input
-          type="radio"
-          name="interactivity"
-          checked={settings.contents.interactive === "PlayMode"}
-          onChange={(e) => {
-            setSettings((settings) => ({
-              ...settings,
-              interactive: "PlayMode",
-            }));
-          }}
-        />
-        <label>Play Mode</label>
-      </div>
-
-      <h1>Variation Settings</h1>
-      <div>
+          <label>Off</label>
+          <br />
+          <input
+            type="radio"
+            name="interactivity"
+            checked={settings.contents.interactive === "EditMode"}
+            onChange={(e) => {
+              setSettings((settings) => ({
+                ...settings,
+                interactive: "EditMode",
+              }));
+            }}
+          />
+          <label>Edit Mode</label>
+          <br />
+          <input
+            type="radio"
+            name="interactivity"
+            checked={settings.contents.interactive === "PlayMode"}
+            onChange={(e) => {
+              setSettings((settings) => ({
+                ...settings,
+                interactive: "PlayMode",
+              }));
+            }}
+          />
+          <label>Play Mode</label>
+        </div>
+      </Section>
+      <SettingHeader>Variation Settings</SettingHeader>
+      <Section>
         <label>
           variation seed:
           <input
@@ -188,9 +202,9 @@ export default function Settings() {
             </BlueButton>
           </div>
         </div>
-      </div>
+      </Section>
 
-      <h1>State</h1>
+      <SettingHeader>State</SettingHeader>
       <div>{state ? <ObjectInspector data={state} /> : <p>empty</p>}</div>
 
       {currentUser != null && (

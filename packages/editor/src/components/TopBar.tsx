@@ -73,8 +73,8 @@ const ButtonsAlignment = styled.div<{ isMobile: boolean }>`
 `;
 
 const HelpIcon = styled.a`
-  width: 25px;
-  height: 25px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
   border: 2px solid #40b4f7;
   display: flex;
@@ -256,15 +256,15 @@ export default function TopBar() {
       )}
       {!isMobile && (
         <HeaderButtonContainer>
-          <BlueButton disabled={compiling} onClick={compileDiagram}>
-            compile
-          </BlueButton>
+          {/* <HelpIcon href="https://penrose.cs.cmu.edu/docs/ref" target="_blank">
+            ?
+          </HelpIcon> */}
           <BlueButton disabled={compiling} onClick={resampleDiagram}>
             resample
           </BlueButton>
-          <HelpIcon href="https://penrose.cs.cmu.edu/docs/ref" target="_blank">
-            ?
-          </HelpIcon>
+          <BlueButton disabled={compiling} onClick={compileDiagram}>
+            compile
+          </BlueButton>
         </HeaderButtonContainer>
       )}
     </nav>
