@@ -72,30 +72,6 @@ const ButtonsAlignment = styled.div<{ isMobile: boolean }>`
   margin: ${(props) => (props.isMobile ? "0 0 0 auto" : "0")};
 `;
 
-const HelpIcon = styled.a`
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  border: 2px solid #40b4f7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #40b4f7;
-  font-size: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  text-decoration: none;
-  :hover {
-    border: 2px solid #049cdd;
-    color: #049cdd;
-    transition: 0.2s;
-  }
-  :visited {
-    color: #40b4f7;
-    text-decoration: none;
-  }
-`;
-
 function EditableTitle() {
   const [editing, setEditing] = useState(false);
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
@@ -256,9 +232,6 @@ export default function TopBar() {
       )}
       {!isMobile && (
         <HeaderButtonContainer>
-          {/* <HelpIcon href="https://penrose.cs.cmu.edu/docs/ref" target="_blank">
-            ?
-          </HelpIcon> */}
           <BlueButton disabled={compiling} onClick={resampleDiagram}>
             resample
           </BlueButton>
