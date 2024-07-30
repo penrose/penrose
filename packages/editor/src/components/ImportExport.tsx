@@ -18,8 +18,7 @@ import {
   useDownloadSvgTex,
   useDownloadTrio,
 } from "../state/callbacks.js";
-import SettingHeader from "./SettingHeader.js";
-import StyleWrapper from "./StyleWrapper";
+import { SettingHeader, SettingText } from "./SettingElements.js";
 
 const DropZone = styled.div`
   border-color: #989898;
@@ -41,7 +40,7 @@ const ExportCard = styled.div`
   color: #353538;
 
   &:hover {
-    cursor: pointer; /* Change cursor to pointer on hover */
+    cursor: pointer;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 `;
@@ -130,7 +129,7 @@ export default function ImportExport() {
   };
 
   return (
-    <StyleWrapper>
+    <div>
       <SettingHeader>Import</SettingHeader>
       <FileUploader
         handleChange={handleChange}
@@ -140,10 +139,10 @@ export default function ImportExport() {
         label="Upload or drop a Penrose exported SVG here"
       >
         <DropZone>
-          <p>
+          <SettingText>
             <span style={{ textDecoration: "underline" }}>Upload</span> or drop
             a Penrose exported SVG here
-          </p>
+          </SettingText>
         </DropZone>
       </FileUploader>
       <SettingHeader>Export</SettingHeader>
@@ -153,6 +152,6 @@ export default function ImportExport() {
       <ExportCard onClick={useDownloadPng()}>PNG</ExportCard>
       <ExportCard onClick={useDownloadPdf()}>PDF</ExportCard>
       <ExportCard onClick={useCopyToClipboard()}>Copy to Clipboard</ExportCard>
-    </StyleWrapper>
+    </div>
   );
 }

@@ -1,5 +1,4 @@
 import { allWarnings } from "@penrose/core";
-import localforage from "localforage";
 import { useEffect, useState } from "react";
 import { ObjectInspector } from "react-inspector";
 import Select from "react-select";
@@ -20,13 +19,33 @@ import {
 } from "../state/callbacks.js";
 import { logInWrapper, signOutWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
-import SettingHeader from "./SettingHeader.js";
-import StyleWrapper from "./StyleWrapper";
+import { SettingHeader, SettingLabel, SettingText } from "./SettingElements.js";
 
 const Section = styled.div`
   background-color: #f5f5f5;
   border-radius: 10px;
   padding: 10px;
+`;
+
+const Checkbox = styled.input`
+  margin-left: 5px;
+  margin-bottom: 5px;
+  vertical-align: middle;
+`;
+
+const TextInput = styled.input`
+  border: 1px solid;
+  margin: 5px 0px;
+  color: #353538;
+  border-color: hsl(0, 0%, 80%);
+  border-radius: 4px;
+  outline: none;
+  font-size: 13px;
+  padding: 5px;
+
+  &:focus {
+    box-shadow: 0 0 0 1px #2584ff;
+  }
 `;
 
 export default function Settings() {
@@ -48,7 +67,6 @@ export default function Settings() {
     const set = async () => {
       let num = await countLegacyDiagrams(savedDiagrams);
       setNumLegacyDiagrams(num);
-      localforage.setItem("balls", "xml tag lol");
     };
     set();
   }, [savedDiagrams]);
@@ -57,36 +75,30 @@ export default function Settings() {
     return <div>loading...</div>;
   }
   return (
-    <StyleWrapper style={{ margin: "10px" }}>
-      <SettingHeader>General Settings</SettingHeader>
+    <div style={{ margin: "10px" }}>
+      <SettingHeader>General</SettingHeader>
       <Section>
         {currentUser != null ? (
-          <div style={{ margin: "5px 0px" }}>
-            <BlueButton onClick={useLogout}>Sign Out</BlueButton>
-          </div>
+          <BlueButton onClick={useLogout}>Sign Out</BlueButton>
         ) : (
-          <div style={{ margin: "5px 0px" }}>
-            <BlueButton onClick={useLogin}> Login with GitHub </BlueButton>
-          </div>
+          <BlueButton onClick={useLogin}> Login with GitHub </BlueButton>
         )}
-        <div>
-          <label>
-            <p>
-              vim mode
-              <input
-                type="checkbox"
-                checked={settings.contents.vimMode}
-                onChange={(e) =>
-                  setSettings((state) => ({
-                    ...state,
-                    vimMode: e.target.checked,
-                  }))
-                }
-              />
-            </p>
-          </label>
-        </div>
-        <p>exclude warnings: </p>
+        <SettingLabel>
+          <SettingText>
+            vim mode
+            <Checkbox
+              type="checkbox"
+              checked={settings.contents.vimMode}
+              onChange={(e) =>
+                setSettings((state) => ({
+                  ...state,
+                  vimMode: e.target.checked,
+                }))
+              }
+            />
+          </SettingText>
+        </SettingLabel>
+        <SettingText>exclude warnings: </SettingText>
         <Select
           options={allWarnings.map((tag) => ({ val: tag }))}
           isMulti
@@ -103,63 +115,80 @@ export default function Settings() {
             }));
           }}
           styles={{
-            control: (baseStyles, state) => ({
+            control: (baseStyles) => ({
               ...baseStyles,
-              fontSize: "12px",
-              margin: "5px 0px 0p",
+              fontSize: "13px",
+              minHeight: "30px",
+            }),
+
+            container: (baseStyles) => ({
+              ...baseStyles,
+              margin: "0 0 0 5px",
+            }),
+
+            option: (baseStyles) => ({
+              ...baseStyles,
+              fontSize: "13px",
+            }),
+
+            dropdownIndicator: (baseStyles) => ({
+              ...baseStyles,
+              padding: "3px",
+            }),
+
+            indicatorsContainer: (baseStyles) => ({
+              ...baseStyles,
+              padding: "3px",
             }),
           }}
         />
-        <div>
-          <p>
-            interactive mode (experimental) <br />
-          </p>
-          <input
-            type="radio"
-            name="interactivity"
-            checked={settings.contents.interactive === "Off"}
-            onChange={(e) => {
-              setSettings((settings) => ({
-                ...settings,
-                interactive: "Off",
-              }));
-            }}
-          />
-          <label>Off</label>
-          <br />
-          <input
-            type="radio"
-            name="interactivity"
-            checked={settings.contents.interactive === "EditMode"}
-            onChange={(e) => {
-              setSettings((settings) => ({
-                ...settings,
-                interactive: "EditMode",
-              }));
-            }}
-          />
-          <label>Edit Mode</label>
-          <br />
-          <input
-            type="radio"
-            name="interactivity"
-            checked={settings.contents.interactive === "PlayMode"}
-            onChange={(e) => {
-              setSettings((settings) => ({
-                ...settings,
-                interactive: "PlayMode",
-              }));
-            }}
-          />
-          <label>Play Mode</label>
-        </div>
+        <SettingText>
+          interactive mode (experimental) <br />
+        </SettingText>
+        <input
+          type="radio"
+          name="interactivity"
+          checked={settings.contents.interactive === "Off"}
+          onChange={(e) => {
+            setSettings((settings) => ({
+              ...settings,
+              interactive: "Off",
+            }));
+          }}
+        />
+        <SettingLabel>Off</SettingLabel>
+        <br />
+        <input
+          type="radio"
+          name="interactivity"
+          checked={settings.contents.interactive === "EditMode"}
+          onChange={(e) => {
+            setSettings((settings) => ({
+              ...settings,
+              interactive: "EditMode",
+            }));
+          }}
+        />
+        <SettingLabel>Edit Mode</SettingLabel>
+        <br />
+        <input
+          type="radio"
+          name="interactivity"
+          checked={settings.contents.interactive === "PlayMode"}
+          onChange={(e) => {
+            setSettings((settings) => ({
+              ...settings,
+              interactive: "PlayMode",
+            }));
+          }}
+        />
+        <SettingLabel>Play Mode</SettingLabel>
       </Section>
-      <SettingHeader>Variation Settings</SettingHeader>
+      <SettingHeader>Variations</SettingHeader>
       <Section>
-        <label>
+        <SettingText>
           variation seed:
-          <input
-            style={{ margin: "5px 0px" }}
+          <TextInput
             type="text"
             value={diagramMetadata.variation}
             onChange={(e) =>
@@ -170,55 +199,59 @@ export default function Settings() {
             }
             onBlur={compileDiagram}
           />
-        </label>
-        <div>
-          <label>
-            grid size:{" "}
-            <input
-              type="range"
-              min="1"
-              max="30"
-              value={gridSize}
-              onChange={(e) =>
-                setSettingsState((settings) => ({
-                  ...settings,
-                  gridSize: parseInt(e.target.value, 10),
-                }))
-              }
-            />
-            <output>{gridSize}</output>
-          </label>
-          <div>
-            <BlueButton
-              style={{ margin: "5px 0px" }}
-              onClick={() => {
-                setDiagramMetadata((metadata) => ({
-                  ...metadata,
-                  autostep: !metadata.autostep,
-                }));
-              }}
-            >
-              autostep ({diagramMetadata.autostep ? "on" : "off"})
-            </BlueButton>
-          </div>
-        </div>
+        </SettingText>
+        <SettingText>
+          grid size:{" "}
+          <input
+            style={{ width: "80%", margin: "0 8px 0 0" }}
+            type="range"
+            min="1"
+            max="30"
+            value={gridSize}
+            onChange={(e) =>
+              setSettingsState((settings) => ({
+                ...settings,
+                gridSize: parseInt(e.target.value, 10),
+              }))
+            }
+          />
+          <output style={{ position: "relative", bottom: "3px" }}>
+            {gridSize}
+          </output>
+        </SettingText>
+        <BlueButton
+          onClick={() => {
+            setDiagramMetadata((metadata) => ({
+              ...metadata,
+              autostep: !metadata.autostep,
+            }));
+          }}
+        >
+          autostep ({diagramMetadata.autostep ? "on" : "off"})
+        </BlueButton>
       </Section>
-
-      <SettingHeader>State</SettingHeader>
-      <div>{state ? <ObjectInspector data={state} /> : <p>empty</p>}</div>
 
       {currentUser != null && (
         <div>
-          <h1>Misc</h1>
-          <p>
-            We've migrated to cloud storage! You have {numLegacyDiagrams}{" "}
-            unrestored locally stored diagrams.
-          </p>
-          {numLegacyDiagrams > 0 && (
-            <BlueButton onClick={recoverAll}>Recover All</BlueButton>
-          )}
+          <SettingHeader>Misc</SettingHeader>
+          <Section>
+            <SettingText>
+              We've migrated to cloud storage! You have {numLegacyDiagrams}{" "}
+              unrestored locally stored diagrams.
+            </SettingText>
+            {numLegacyDiagrams > 0 && (
+              <BlueButton onClick={recoverAll}>Recover All</BlueButton>
+            )}
+          </Section>
         </div>
       )}
-    </StyleWrapper>
+
+      <SettingHeader>State</SettingHeader>
+      {state ? (
+        <ObjectInspector data={state} />
+      ) : (
+        <SettingText>empty</SettingText>
+      )}
+    </div>
   );
 }
