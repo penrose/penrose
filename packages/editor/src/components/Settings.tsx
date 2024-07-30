@@ -140,6 +140,7 @@ export default function Settings() {
             option: (baseStyles) => ({
               ...baseStyles,
               fontSize: "13px",
+              overflowWrap: "break-word",
             }),
 
             dropdownIndicator: (baseStyles) => ({
