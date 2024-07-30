@@ -9,7 +9,7 @@ export const SettingHeader = styled.h1`
   text-align: center;
 `;
 
-export const SettingText = styled.p`
+export const SettingText = styled.div`
   color: #353538;
   font-size: 15px;
   margin: 8px;

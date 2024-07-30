@@ -19,12 +19,20 @@ import {
 } from "../state/callbacks.js";
 import { logInWrapper, signOutWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
-import { SettingHeader, SettingLabel, SettingText } from "./SettingElements.js";
+import { SettingHeader, SettingLabel } from "./SettingElements.js";
 
 const Section = styled.div`
   background-color: #f5f5f5;
   border-radius: 10px;
   padding: 10px;
+`;
+
+const Item = styled.div`
+  color: #353538;
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  margin: 8px;
 `;
 
 const Checkbox = styled.input`
@@ -42,6 +50,7 @@ const TextInput = styled.input`
   outline: none;
   font-size: 13px;
   padding: 5px;
+	width: 100%
 
   &:focus {
     box-shadow: 0 0 0 1px #2584ff;
@@ -84,21 +93,23 @@ export default function Settings() {
           <BlueButton onClick={useLogin}> Login with GitHub </BlueButton>
         )}
         <SettingLabel>
-          <SettingText>
-            vim mode
-            <Checkbox
-              type="checkbox"
-              checked={settings.contents.vimMode}
-              onChange={(e) =>
-                setSettings((state) => ({
-                  ...state,
-                  vimMode: e.target.checked,
-                }))
-              }
-            />
-          </SettingText>
+          <Item>
+            <div>
+              vim mode
+              <Checkbox
+                type="checkbox"
+                checked={settings.contents.vimMode}
+                onChange={(e) =>
+                  setSettings((state) => ({
+                    ...state,
+                    vimMode: e.target.checked,
+                  }))
+                }
+              />
+            </div>
+          </Item>
         </SettingLabel>
-        <SettingText>exclude warnings: </SettingText>
+        <Item>exclude warnings: </Item>
         <Select
           options={allWarnings.map((tag) => ({ val: tag }))}
           isMulti
@@ -142,9 +153,9 @@ export default function Settings() {
             }),
           }}
         />
-        <SettingText>
+        <Item>
           interactive mode (experimental) <br />
-        </SettingText>
+        </Item>
         <input
           type="radio"
           name="interactivity"
@@ -186,7 +197,7 @@ export default function Settings() {
       </Section>
       <SettingHeader>Variations</SettingHeader>
       <Section>
-        <SettingText>
+        <Item>
           variation seed:
           <TextInput
             type="text"
@@ -199,8 +210,8 @@ export default function Settings() {
             }
             onBlur={compileDiagram}
           />
-        </SettingText>
-        <SettingText>
+        </Item>
+        <Item>
           grid size:{" "}
           <input
             style={{ width: "80%", margin: "0 8px 0 0" }}
@@ -218,7 +229,7 @@ export default function Settings() {
           <output style={{ position: "relative", bottom: "3px" }}>
             {gridSize}
           </output>
-        </SettingText>
+        </Item>
         <BlueButton
           onClick={() => {
             setDiagramMetadata((metadata) => ({
@@ -235,10 +246,10 @@ export default function Settings() {
         <div>
           <SettingHeader>Misc</SettingHeader>
           <Section>
-            <SettingText>
+            <Item>
               We've migrated to cloud storage! You have {numLegacyDiagrams}{" "}
               unrestored locally stored diagrams.
-            </SettingText>
+            </Item>
             {numLegacyDiagrams > 0 && (
               <BlueButton onClick={recoverAll}>Recover All</BlueButton>
             )}
@@ -247,11 +258,7 @@ export default function Settings() {
       )}
 
       <SettingHeader>State</SettingHeader>
-      {state ? (
-        <ObjectInspector data={state} />
-      ) : (
-        <SettingText>empty</SettingText>
-      )}
+      {state ? <ObjectInspector data={state} /> : <Item>empty</Item>}
     </div>
   );
 }
