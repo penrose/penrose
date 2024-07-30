@@ -1,7 +1,7 @@
-import { DiagramBuilder } from "../builder/builder.js";
-import constraints from "../lib/constraints.js";
-import objectives from "../lib/objectives.ts";
-import { canvas } from "../utils.js";
+import { DiagramBuilder } from "bloom/lib/core/builder.js";
+import constraints from "bloom/lib/core/constraints.js";
+import objectives from "bloom/lib/core/objectives.js";
+import { canvas } from "bloom/lib/core/utils.js";
 
 export const sets = async () => {
   const {

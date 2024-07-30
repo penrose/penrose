@@ -1,6 +1,6 @@
 import { Num, Line as PenroseLine, compDict } from "@penrose/core";
-import { Color, Line, PathData, Vec2, Vec3, Vec4, VecN } from "../types.js";
-import { fromPenroseColor, toPenroseColor, toPenroseShape } from "../utils.js";
+import { Color, Line, PathData, Vec2, Vec3, Vec4, VecN } from "./types.js";
+import { fromPenroseColor, toPenroseColor, toPenroseShape } from "./utils.js";
 
 const context = {
   makeInput: () => {

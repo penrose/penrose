@@ -1,12 +1,12 @@
 import { add, div, mul, ops, sqrt } from "@penrose/core";
+import { DiagramBuilder, SharedInput } from "bloom/lib/core/builder.js";
+import constraints from "bloom/lib/core/constraints.js";
+import { Diagram } from "bloom/lib/core/diagram.js";
+import { Vec2 } from "bloom/lib/core/types.js";
+import { canvas } from "bloom/lib/core/utils.js";
+import Renderer from "bloom/lib/react/Renderer.js";
+import { useSharedInputs } from "bloom/lib/react/hooks.js";
 import { useEffect, useMemo, useState } from "react";
-import { DiagramBuilder, SharedInput } from "../builder/builder.js";
-import { Diagram } from "../builder/diagram.ts";
-import Renderer from "../components/Renderer.tsx";
-import constraints from "../lib/constraints.ts";
-import { useSharedInputs } from "../lib/hooks.ts";
-import { Vec2 } from "../types.ts";
-import { canvas } from "../utils.js";
 
 const basisVectors = async (
   inputs: {

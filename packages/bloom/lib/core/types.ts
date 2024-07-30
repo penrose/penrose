@@ -1,5 +1,5 @@
 import { Num, Value } from "@penrose/core";
-import { Diagram } from "./builder/diagram.ts";
+import { Diagram } from "./diagram.js";
 
 export type Substance = Record<string, any>;
 export type Type = () => Substance;

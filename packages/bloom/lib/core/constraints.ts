@@ -1,6 +1,6 @@
 import { Num, Line as PenroseLine, constrDict } from "@penrose/core";
-import { Line, Shape, Vec2, VecN } from "../types.js";
-import { toPenroseShape } from "../utils.js";
+import { Line, Shape, Vec2, VecN } from "./types.js";
+import { toPenroseShape } from "./utils.js";
 
 const constraints = {
   /**

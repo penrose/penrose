@@ -11,7 +11,8 @@ import {
   simpleContext,
   uniform,
 } from "@penrose/core";
-import constraints from "../lib/constraints.js";
+import constraints from "./constraints.js";
+import { Diagram } from "./diagram.js";
 import {
   Circle,
   CircleProps,
@@ -40,9 +41,8 @@ import {
   TextProps,
   Type,
   Vec2,
-} from "../types.ts";
-import { fromPenroseShape, sortShapes, toPenroseShape } from "../utils.js";
-import { Diagram } from "./diagram.js";
+} from "./types.js";
+import { fromPenroseShape, sortShapes, toPenroseShape } from "./utils.js";
 
 export type NamedSamplingContext = {
   makeInput: (meta: InputMeta, name?: string) => Var;
@@ -480,6 +480,7 @@ export class DiagramBuilder {
   build = async (): Promise<Diagram> => {
     this.addDragConstraints();
     this.addOnCanvasConstraints();
+    this.makeLassoInputs();
 
     const nameShapeMap = this.getNameShapeMap();
     const penroseShapes = this.shapes.map((s) => toPenroseShape(s));
@@ -586,5 +587,9 @@ export class DiagramBuilder {
       nameShapeMap.set(s.name, toPenroseShape(s));
     }
     return nameShapeMap;
+  };
+
+  private makeLassoInputs = () => {
+    this.inputs.map((i) => this.input({ init: i.handle.val, pinned: true }));
   };
 }

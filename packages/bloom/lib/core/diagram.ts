@@ -10,16 +10,18 @@ import {
   insertPending,
   isOptimized,
   mathjaxInit,
+  mul,
   nextStage,
   Num,
+  ops,
   PenroseState,
   Shape,
   start,
   step,
+  toSVG,
 } from "@penrose/core";
 import consola, { LogLevels } from "consola";
-import { DragConstraint } from "../types.js";
-import { stateToSVG } from "../utils.js";
+import { DragConstraint } from "./types.js";
 
 const log = consola.create({ level: LogLevels.info }).withTag("diagram");
 
@@ -89,24 +91,15 @@ export class Diagram {
    * Render an SVG of the current diagram state and a map of shape names to SVG elements.
    */
   render = async () => {
-    const shapes = this.state.computeShapes(this.state.varyingValues);
     const titleCache = new Map<string, SVGElement>();
-    const svg = await stateToSVG(
-      {
-        canvas: this.state.canvas,
-        shapes,
-        labelCache: this.state.labelCache,
-        variation: this.state.variation,
+    const svg = await toSVG(
+      this.state,
+      async () => {
+        throw new Error("File loading not supported");
       },
-      {
-        pathResolver: async () => {
-          throw new Error("File loading not supported");
-        },
-        width: "100%",
-        height: "100%",
-        texLabels: false,
-        titleCache,
-      },
+      "",
+      false,
+      titleCache,
     );
 
     return {
@@ -150,8 +143,8 @@ export class Diagram {
       } else {
         return true;
       }
-    } catch (err: any) {
-      log.info("Optimization failed. Quitting without finishing...");
+    } catch (err: unknown) {
+      log.info(`Optimization failed: ${err}`);
       return false;
     }
   };
@@ -173,6 +166,7 @@ export class Diagram {
 
     this.onInteraction();
     this.resetOptimization();
+    this.setAndEnableLasso();
 
     const translatedIndices = this.tempPinnedForDrag.get(name)!;
     const prevVaryingValues = [...this.state.varyingValues];
@@ -199,6 +193,7 @@ export class Diagram {
     this.state.varyingValues[idx] = val;
     this.resetOptimization();
     this.onInteraction();
+    this.setAndEnableLasso();
     if (this.inputEffects.has(name)) {
       for (const effect of this.inputEffects.get(name)!) {
         effect(val, name);
@@ -227,6 +222,7 @@ export class Diagram {
     this.applyPins(this.state);
     this.resetOptimization();
     this.onInteraction();
+    this.setAndEnableLasso();
   };
 
   getCanvas = () => ({ ...this.state.canvas });
@@ -253,6 +249,15 @@ export class Diagram {
       throw new Error(`No input named ${name}`);
     }
     this.inputEffects.get(name)!.delete(fn);
+  };
+
+  private setAndEnableLasso = () => {
+    for (let i = 0; i < this.state.varyingValues.length / 2; ++i) {
+      this.state.varyingValues[i + this.state.varyingValues.length / 2] =
+        this.state.varyingValues[i];
+    }
+    const objMask = this.state.constraintSets.get("")!.objMask;
+    objMask[objMask.length - 1] = true;
   };
 
   private triggerInputEffects = (
@@ -303,6 +308,10 @@ export class Diagram {
   private static makeState = async (
     data: DiagramData,
   ): Promise<PenroseState> => {
+    // copy since we might append to
+    const constraints = data.constraints.slice();
+    const objectives = data.objectives.slice();
+
     const constraintSets = new Map([
       [
         "",
@@ -316,6 +325,18 @@ export class Diagram {
         },
       ],
     ]);
+
+    // add lasso term, disabled by default
+    objectives.push(
+      mul(
+        1000,
+        ops.vdist(
+          data.inputs.slice(0, data.inputs.length / 2).map((i) => i.handle),
+          data.inputs.slice(data.inputs.length / 2).map((i) => i.handle),
+        ),
+      ),
+    );
+    constraintSets.get("")!.objMask.push(false);
 
     const inputVars = data.inputs.map((i) => i.handle);
     const inputVals = inputVars.map((v) => v.val);
@@ -334,7 +355,7 @@ export class Diagram {
       currentStageIndex: 0,
       optStages: [""],
       params: start(data.inputs.length),
-      gradient: await genGradient(inputVars, data.objectives, data.constraints),
+      gradient: await genGradient(inputVars, objectives, constraints),
       computeShapes: await compileCompGraph(inputVars, data.shapes),
       interactivityInfo: {
         inputIdxsByPath: data.inputIdxsByPath,

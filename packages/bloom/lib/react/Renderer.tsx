@@ -1,7 +1,7 @@
 import { makeTranslateOnMouseDown } from "@penrose/core";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Diagram } from "../builder/diagram.js";
-import { CallbackLooper } from "../utils.js";
+import { Diagram } from "../core/diagram.js";
+import { CallbackLooper } from "../core/utils.js";
 
 export interface RendererProps {
   diagram: Diagram;
@@ -28,6 +28,9 @@ export default function Renderer(props: RendererProps) {
       const draggingConstraints = props.diagram.getDraggingConstraints();
       const canvas = props.diagram.getCanvas();
       const { svg, nameElemMap } = await props.diagram.render();
+      svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      svg.style.width = "100%";
+      svg.style.height = "100%";
       for (const [name, elem] of nameElemMap) {
         if (draggingConstraints.has(name)) {
           const translateFn = makeTranslateOnMouseDown(
@@ -95,6 +98,7 @@ export default function Renderer(props: RendererProps) {
   return (
     <div
       style={{
+        width: "100%",
         height: "100%",
       }}
       ref={canvasRef}

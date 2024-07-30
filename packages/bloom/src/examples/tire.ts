@@ -1,6 +1,6 @@
 import { add, cos, mul, sin } from "@penrose/core";
-import { DiagramBuilder } from "../builder/builder.js";
-import { canvas } from "../utils.js";
+import { DiagramBuilder } from "bloom/lib/core/builder.js";
+import { canvas } from "bloom/lib/core/utils.js";
 
 export const tire = async () => {
   const { circle, rectangle, build, layer, substance, time } =

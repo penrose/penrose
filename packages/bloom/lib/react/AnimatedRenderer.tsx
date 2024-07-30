@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Diagram } from "../builder/diagram.js";
-import { CallbackLooper } from "../utils.ts";
-import Renderer from "./Renderer.tsx";
+import { Diagram } from "../core/diagram.js";
+import { CallbackLooper } from "../core/utils.js";
+import Renderer from "./Renderer.js";
 
 export interface AnimatedRendererProps {
   diagram: Diagram;
