@@ -7,6 +7,7 @@ import {
   Shape as PenroseShape,
   Var,
   isVar,
+  mul,
   sampleShape,
   simpleContext,
   uniform,
@@ -160,15 +161,17 @@ export class DiagramBuilder {
   private pinnedInputs: Set<number> = new Set();
   private dragNamesAndConstrs: Map<string, DragConstraint> = new Map();
   private externalInputs: Set<SharedInput> = new Set();
+  private lassoStrength: number;
 
   /**
    * Create a new diagram builder.
    * @param canvas Local dimensions of the SVG. If you find you need thinner lines, try increasing these dimensions.
    * @param variation Randomness seed
    */
-  constructor(canvas: Canvas, variation: string) {
+  constructor(canvas: Canvas, variation: string, lassoStrength: number = 0) {
     this.canvas = canvas;
     this.variation = variation;
+    this.lassoStrength = lassoStrength;
 
     const { makeInput: createVar } = simpleContext(variation);
     this.samplingContext = {
@@ -387,7 +390,7 @@ export class DiagramBuilder {
     this.internalForallWhere(vars, true, () => true, func);
   };
 
-  input = (info: InputOpts): Var => {
+  input = (info?: InputOpts): Var => {
     const name = info?.name;
     const init = info?.init;
     const pinned = info?.pinned ?? false;
@@ -453,7 +456,10 @@ export class DiagramBuilder {
   };
   /* eslint-enable @typescript-eslint/no-unused-vars */
 
-  ensure = (constraint: Num) => {
+  ensure = (constraint: Num, weight?: number) => {
+    if (weight) {
+      constraint = mul(constraint, weight);
+    }
     this.constraints.push(constraint);
   };
 
@@ -480,7 +486,10 @@ export class DiagramBuilder {
   build = async (): Promise<Diagram> => {
     this.addDragConstraints();
     this.addOnCanvasConstraints();
-    this.makeLassoInputs();
+
+    if (this.lassoStrength !== 0) {
+      this.makeLassoInputs();
+    }
 
     const nameShapeMap = this.getNameShapeMap();
     const penroseShapes = this.shapes.map((s) => toPenroseShape(s));
@@ -498,6 +507,7 @@ export class DiagramBuilder {
       pinnedInputs: this.pinnedInputs,
       dragNamesAndConstrs: this.dragNamesAndConstrs,
       inputIdxsByPath: this.getTranslatedInputIdxsByPath(),
+      lassoStrength: this.lassoStrength,
     });
 
     for (const input of this.externalInputs) {
@@ -505,6 +515,12 @@ export class DiagramBuilder {
     }
 
     return diagram;
+  };
+
+  bindToInput = (num: Num, info?: InputOpts) => {
+    const inp = this.input(info);
+    this.ensure(constraints.equal(inp, num));
+    return inp;
   };
 
   private addOnCanvasConstraints = () => {
@@ -569,8 +585,8 @@ export class DiagramBuilder {
           const idxs = {
             tag: "Val",
             contents: {
-              tag: "ListV",
-              contents: shape.points.map(mapVec2),
+              tag: "LListV",
+              contents: shape.points.map((v) => v.map(mapNum)),
             },
           };
           inputIdxsByPath.set(shape.name + ".points", idxs as any);

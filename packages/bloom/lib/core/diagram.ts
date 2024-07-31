@@ -18,12 +18,12 @@ import {
   Shape,
   start,
   step,
-  toSVG,
 } from "@penrose/core";
 import consola, { LogLevels } from "consola";
 import { DragConstraint } from "./types.js";
+import { stateToSVG } from "./utils.ts";
 
-const log = consola.create({ level: LogLevels.info }).withTag("diagram");
+const log = consola.create({ level: LogLevels.warn }).withTag("diagram");
 
 export type DiagramData = {
   canvas: Canvas;
@@ -37,6 +37,7 @@ export type DiagramData = {
   pinnedInputs: Set<number>;
   dragNamesAndConstrs: Map<string, DragConstraint>;
   inputIdxsByPath: IdxsByPath;
+  lassoStrength: number;
 };
 
 export class Diagram {
@@ -60,6 +61,7 @@ export class Diagram {
   private onInteraction = () => {};
   private inputEffects: Map<string, Set<(val: number, name: string) => void>> =
     new Map();
+  private lassoEnabled: boolean;
 
   /**
    * Create a new renderable diagram. This should not be called directly; use
@@ -72,6 +74,7 @@ export class Diagram {
       data.pinnedInputs,
       data.dragNamesAndConstrs,
       data.namedInputs,
+      data.lassoStrength !== 0,
     );
   };
 
@@ -80,11 +83,13 @@ export class Diagram {
     pinnedInputs: Set<number>,
     draggingConstraints: Map<string, DragConstraint>,
     namedInputs: Map<string, number>,
+    lassoEnabled: boolean,
   ) {
     this.state = state;
     this.manuallyPinnedIndices = pinnedInputs;
     this.draggingConstraints = draggingConstraints;
     this.namedInputs = namedInputs;
+    this.lassoEnabled = lassoEnabled;
   }
 
   /**
@@ -92,15 +97,13 @@ export class Diagram {
    */
   render = async () => {
     const titleCache = new Map<string, SVGElement>();
-    const svg = await toSVG(
-      this.state,
-      async () => {
-        throw new Error("File loading not supported");
+    const svg = await stateToSVG(this.state, {
+      pathResolver: () => {
+        throw new Error("Path resolving not supported");
       },
-      "",
-      false,
+      texLabels: false,
       titleCache,
-    );
+    });
 
     return {
       svg,
@@ -166,7 +169,7 @@ export class Diagram {
 
     this.onInteraction();
     this.resetOptimization();
-    this.setAndEnableLasso();
+    if (this.lassoEnabled) this.setAndEnableLasso();
 
     const translatedIndices = this.tempPinnedForDrag.get(name)!;
     const prevVaryingValues = [...this.state.varyingValues];
@@ -193,7 +196,7 @@ export class Diagram {
     this.state.varyingValues[idx] = val;
     this.resetOptimization();
     this.onInteraction();
-    this.setAndEnableLasso();
+    if (this.lassoEnabled) this.setAndEnableLasso();
     if (this.inputEffects.has(name)) {
       for (const effect of this.inputEffects.get(name)!) {
         effect(val, name);
@@ -222,7 +225,7 @@ export class Diagram {
     this.applyPins(this.state);
     this.resetOptimization();
     this.onInteraction();
-    this.setAndEnableLasso();
+    if (this.lassoEnabled) this.setAndEnableLasso();
   };
 
   getCanvas = () => ({ ...this.state.canvas });
@@ -326,17 +329,19 @@ export class Diagram {
       ],
     ]);
 
-    // add lasso term, disabled by default
-    objectives.push(
-      mul(
-        1000,
-        ops.vdist(
-          data.inputs.slice(0, data.inputs.length / 2).map((i) => i.handle),
-          data.inputs.slice(data.inputs.length / 2).map((i) => i.handle),
+    if (data.lassoStrength !== 0) {
+      // add lasso term, disabled by default
+      objectives.push(
+        mul(
+          data.lassoStrength,
+          ops.vdist(
+            data.inputs.slice(0, data.inputs.length / 2).map((i) => i.handle),
+            data.inputs.slice(data.inputs.length / 2).map((i) => i.handle),
+          ),
         ),
-      ),
-    );
-    constraintSets.get("")!.objMask.push(false);
+      );
+      constraintSets.get("")!.objMask.push(false);
+    }
 
     const inputVars = data.inputs.map((i) => i.handle);
     const inputVals = inputVars.map((v) => v.val);

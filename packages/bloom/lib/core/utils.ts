@@ -1,7 +1,10 @@
 import {
   Graph,
   Num,
+  PathResolver,
   Shape as PenroseShape,
+  PenroseState,
+  RenderShapes,
   Value,
   boolV,
   colorV,
@@ -211,5 +214,36 @@ export class CallbackLooper {
 
   stop = () => this.loop(async () => false);
 }
+
+export const stateToSVG = async (
+  state: PenroseState,
+  config: {
+    pathResolver: PathResolver;
+    texLabels: boolean;
+    titleCache?: Map<string, SVGElement>;
+  },
+): Promise<SVGSVGElement> => {
+  const { canvas, labelCache, variation, computeShapes, varyingValues } = state;
+  const shapes = computeShapes(varyingValues);
+
+  // render the current frame
+  const rendered = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg",
+  );
+  rendered.setAttribute("version", "1.2");
+  rendered.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  rendered.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
+  await RenderShapes(shapes, rendered, {
+    labels: labelCache,
+    canvasSize: canvas.size,
+    variation,
+    namespace: "",
+    texLabels: config.texLabels,
+    pathResolver: config.pathResolver,
+    titleCache: config.titleCache,
+  });
+  return rendered;
+};
 
 export { makeCanvas as canvas } from "@penrose/core";

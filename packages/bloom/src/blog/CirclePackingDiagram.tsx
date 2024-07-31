@@ -18,7 +18,7 @@ const circlePackingDiagram = async (inputs: {
   const numCircles = 15;
 
   const { circle, ensure, type, forall, build, sharedInput, rectangle } =
-    new DiagramBuilder(canvas(width, height), "");
+    new DiagramBuilder(canvas(width, height), "", 1000);
 
   const circleRad = sharedInput(inputs.circleRad);
   const containerRad = sharedInput(inputs.containerRad);

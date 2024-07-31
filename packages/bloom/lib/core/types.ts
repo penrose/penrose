@@ -151,7 +151,7 @@ export interface Polygon extends ShapeCommon, Stroke, Fill, Scale, Poly {
   shapeType: ShapeType.Polygon;
 }
 
-export interface Polyline extends ShapeCommon, Stroke, Scale, Poly {
+export interface Polyline extends ShapeCommon, Stroke, Fill, Scale, Poly {
   shapeType: ShapeType.Polyline;
   strokeLinecap: string;
 }
@@ -338,6 +338,7 @@ const PenrosePolylineTypes = {
   ...PenroseStrokeTypes,
   ...PenroseScaleTypes,
   ...PenrosePolyTypes,
+  ...PenroseFillTypes,
   strokeLinecap: "StrV",
 };
 

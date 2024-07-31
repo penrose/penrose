@@ -8,7 +8,7 @@ import Renderer from "bloom/lib/react/Renderer.js";
 import { useSharedInputs } from "bloom/lib/react/hooks.js";
 import { useEffect, useMemo, useState } from "react";
 
-const basisVectors = async (
+export const basisVectors = async (
   inputs: {
     ihatx: SharedInput;
     ihaty: SharedInput;
@@ -370,9 +370,9 @@ export default function EigenvectorsDiagram() {
     <div
       style={{
         display: "flex",
-        flexDirection: "row",
+        flexDirection: "column",
         justifyContent: "space-evenly",
-        height: "100%",
+        width: "100%",
       }}
     >
       <Renderer diagram={diagram1} />
