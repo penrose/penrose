@@ -16,17 +16,15 @@ import {
   useRecoilValueLoadable,
   useSetRecoilState,
 } from "recoil";
-import DiagramOptions from "./components/DiagramOptions.js";
 import DiagramPanel from "./components/DiagramPanel.js";
 import ExamplesBrowser from "./components/ExamplesBrowser.js";
 import GridPanel from "./components/GridPanel.js";
+import ImportExport from "./components/ImportExport.js";
 import Opt from "./components/Opt.js";
 import ProgramEditor from "./components/ProgramEditor.js";
 import RogerPanel from "./components/RogerPanel.js";
 import SavedFilesBrowser from "./components/SavedBrowser.js";
 import Settings from "./components/Settings.js";
-import StateInspector from "./components/StateInspector.js";
-import SvgUploader from "./components/SvgUploader.js";
 import TopBar from "./components/TopBar.js";
 import {
   AppUser,
@@ -142,28 +140,14 @@ export const layoutModel = Model.fromJson({
         },
         {
           type: "tab",
-          name: "upload",
-          component: "svgUploader",
+          name: "import/export",
+          component: "importExport",
         },
         {
           type: "tab",
           name: "settings",
           component: "settingsPanel",
         },
-      ],
-    },
-    {
-      type: "border",
-      className: "debugBorder",
-      location: "right",
-      children: [
-        {
-          type: "tab",
-          name: "options",
-          component: "diagramOptions",
-        },
-        { type: "tab", name: "state", component: "stateInspector" },
-        // { type: "tab", name: "opt", component: "optInspector" },
       ],
     },
   ],
@@ -216,8 +200,8 @@ function App() {
       switch (node.getComponent()) {
         case "programEditor":
           return <ProgramEditor kind={node.getConfig().kind} />;
-        case "svgUploader":
-          return <SvgUploader />;
+        case "importExport":
+          return <ImportExport />;
         case "diagram":
           return <DiagramPanel />;
         case "grid":
@@ -228,10 +212,6 @@ function App() {
           return <ExamplesBrowser />;
         case "settingsPanel":
           return <Settings />;
-        case "diagramOptions":
-          return <DiagramOptions />;
-        case "stateInspector":
-          return <StateInspector />;
         case "optInspector":
           return <Opt />;
         case "rogerPanel":
