@@ -8,7 +8,7 @@ import { Plus } from "./Icons";
 const CmdCtrl = () => (
   <>
     <Keycap activeKey="Meta">⌘</Keycap>
-    <Keycap activeKey="Ctrl">⌃</Keycap>
+    <Keycap activeKey="Control">⌃</Keycap>
   </>
 );
 
@@ -109,13 +109,18 @@ const generalKeys: HotKey[] = [
     description: "Compile the current Penrose Trio",
   },
   {
-    keys: ["CmdCtrl", "S"],
+    keys: ["CmdCtrl", "s"],
     name: "Save",
     description: "Save the current Penrose Trio",
   },
 ];
 
 const editorKeys: HotKey[] = [
+  {
+    keys: ["CmdCtrl", "/"],
+    name: "Toggle comment",
+    description: "Toggle comment on the current line",
+  },
   {
     keys: ["CmdCtrl", "Shift", "["],
     name: "Fold block",
@@ -149,7 +154,6 @@ const keyUnicode: { [key: string]: string } = {
   ArrowLeft: "←",
   ArrowRight: "→",
   Escape: "⎋",
-  Control: "Ctrl",
   Meta: "⌘",
   Alt: "⌥",
 };
