@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
   currentWorkspaceState,
   diagramWorkerState,
   settingsState,
+  showKeybindingsState,
 } from "../state/atoms.js";
 import {
   autosaveHook,
@@ -19,7 +20,9 @@ import {
   useSaveWorkspace,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
-
+import Dropdown from "./Dropdown.js";
+import { Discord, Docs, Keyboard, Tutorial } from "./Icons.js";
+import Keybindings from "./Keybindings.js";
 const UnsavedIcon = styled.div`
   background-color: #dddddd;
   padding: 2px 4px;
@@ -66,6 +69,7 @@ const HeaderButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 0.3em;
 `;
 
 const ButtonsAlignment = styled.div<{ isMobile: boolean }>`
@@ -143,6 +147,8 @@ export default function TopBar() {
   const newWorkspace = useNewWorkspace();
   const saveWorkspace = useSaveWorkspace();
   const saveNewWorkspace = useSaveNewWorkspace();
+  const [showKeybindings, setShowKeybindings] =
+    useRecoilState(showKeybindingsState);
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
   /**
@@ -232,6 +238,30 @@ export default function TopBar() {
       )}
       {!isMobile && (
         <HeaderButtonContainer>
+          <Dropdown
+            items={[
+              {
+                text: "Do the tutorial",
+                link: "https://penrose.cs.cmu.edu/docs/tutorial/welcome",
+                icon: <Tutorial />,
+              },
+              {
+                text: "Read the docs",
+                link: "https://penrose.cs.cmu.edu/docs/ref",
+                icon: <Docs />,
+              },
+              {
+                text: "Community help",
+                link: "https://discord.gg/a7VXJU4dfR",
+                icon: <Discord />,
+              },
+              {
+                text: "View hotkeys",
+                icon: <Keyboard />,
+                onClick: () => setShowKeybindings(true),
+              },
+            ]}
+          />
           <BlueButton disabled={compiling} onClick={resampleDiagram}>
             resample
           </BlueButton>
@@ -240,6 +270,7 @@ export default function TopBar() {
           </BlueButton>
         </HeaderButtonContainer>
       )}
+      {showKeybindings && <Keybindings />}
     </nav>
   );
 }
