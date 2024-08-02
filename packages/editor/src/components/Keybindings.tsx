@@ -8,6 +8,7 @@ import { Plus } from "./Icons";
 const CmdCtrl = () => (
   <>
     <Keycap activeKey="Meta">⌘</Keycap>
+    <span style={{ marginRight: "0.4em" }}>/</span>
     <Keycap activeKey="Control">⌃</Keycap>
   </>
 );
@@ -102,7 +103,9 @@ type HotKey = {
   description: string;
 };
 
-const generalKeys: HotKey[] = [
+const generalKeys: HotKey[] = [];
+
+const editorKeys: HotKey[] = [
   {
     keys: ["CmdCtrl", "Enter"],
     name: "Compile",
@@ -113,23 +116,10 @@ const generalKeys: HotKey[] = [
     name: "Save",
     description: "Save the current Penrose Trio",
   },
-];
-
-const editorKeys: HotKey[] = [
   {
     keys: ["CmdCtrl", "/"],
     name: "Toggle comment",
     description: "Toggle comment on the current line",
-  },
-  {
-    keys: ["CmdCtrl", "Shift", "["],
-    name: "Fold block",
-    description: "Fold the current Style block",
-  },
-  {
-    keys: ["CmdCtrl", "Shift", "]"],
-    name: "Unfold block",
-    description: "Unfold the current Style block",
   },
   {
     keys: ["CmdCtrl", "Alt", "["],
@@ -217,9 +207,9 @@ export default () => {
   return (
     <ThemeProvider theme={theme}>
       <Container ref={overlayRef}>
-        <h1>General</h1>
-        <KeyTable hotkeys={generalKeys} />
-        <h1>Program Editor</h1>
+        {/* <h1>General</h1>
+        <KeyTable hotkeys={generalKeys} /> */}
+        <h1>Editor</h1>
         <p>
           Check out <code>defaultKeymap</code> and <code>standardKeymap</code>{" "}
           in the{" "}
@@ -230,7 +220,7 @@ export default () => {
         </p>
         <KeyTable hotkeys={editorKeys} />
         <h1>Vim Mode</h1>
-        Go to "settings" to enable Vim mode. Penrose's Vim mode is enabled by{" "}
+        Go to "settings" to enable Vim mode. Penrose's Vim mode is powered by{" "}
         <TableLink href="https://codemirror.net/doc/manual.html#vim">
           codemirror-vim
         </TableLink>
