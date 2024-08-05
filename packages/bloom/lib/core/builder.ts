@@ -463,8 +463,11 @@ export class DiagramBuilder {
     this.constraints.push(constraint);
   };
 
-  encourage = (objective: Num) => {
-    this.objectives.push(objective);
+  encourage = (objective: Num, weight?: number) => {
+    if (weight) {
+      objective = mul(objective, weight);
+    }
+    this.constraints.push(objective);
   };
 
   layer = (below: Shape, above: Shape) => {

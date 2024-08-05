@@ -9,7 +9,6 @@ import {
   InputInfo,
   insertPending,
   isOptimized,
-  mathjaxInit,
   mul,
   nextStage,
   Num,
@@ -20,8 +19,9 @@ import {
   step,
 } from "@penrose/core";
 import consola, { LogLevels } from "consola";
+import { mathjax } from "mathjax-full/js/mathjax";
 import { DragConstraint } from "./types.js";
-import { stateToSVG } from "./utils.ts";
+import { mathjaxInitWithHandler, stateToSVG } from "./utils.ts";
 
 const log = consola.create({ level: LogLevels.warn }).withTag("diagram");
 
@@ -374,8 +374,10 @@ export class Diagram {
     };
 
     const shapes = state.computeShapes(state.varyingValues);
-    const convert = mathjaxInit();
+    const { convert, handler } = mathjaxInitWithHandler();
     const labelCache = await collectLabels(shapes, convert);
+    mathjax.handlers.unregister(handler);
+
     if (labelCache.isErr()) {
       throw labelCache.error;
     }

@@ -370,9 +370,9 @@ export default function EigenvectorsDiagram() {
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",
         justifyContent: "space-evenly",
-        width: "100%",
+        height: "100%",
       }}
     >
       <Renderer diagram={diagram1} />

@@ -5,16 +5,25 @@ import {
   Shape as PenroseShape,
   PenroseState,
   RenderShapes,
+  Result,
   Value,
   boolV,
   colorV,
+  err,
   floatV,
+  ok,
   pathDataV,
   ptListV,
   strV,
   vectorV,
 } from "@penrose/core";
 import _ from "lodash";
+import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor";
+import { HTMLHandler } from "mathjax-full/js/handlers/html/HTMLHandler";
+import { TeX } from "mathjax-full/js/input/tex";
+import { AllPackages } from "mathjax-full/js/input/tex/AllPackages";
+import { mathjax } from "mathjax-full/js/mathjax";
+import { SVG } from "mathjax-full/js/output/svg";
 import {
   Color,
   Shape,
@@ -244,6 +253,46 @@ export const stateToSVG = async (
     titleCache: config.titleCache,
   });
   return rendered;
+};
+
+export const mathjaxInitWithHandler = () => {
+  const adaptor = browserAdaptor();
+  const handler = new HTMLHandler(adaptor);
+  mathjax.handlers.add(handler, 1);
+
+  const tex = new TeX({
+    packages: AllPackages,
+    macros: {
+      textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
+    },
+    inlineMath: [
+      ["$", "$"],
+      ["\\(", "\\)"],
+    ],
+    processEscapes: true,
+    // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
+    formatError: (jax: unknown, err: Error) => {
+      throw Error(err.message);
+    },
+  });
+  const svg = new SVG({ fontCache: "none" });
+  const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
+
+  const convert = (input: string): Result<HTMLElement, string> => {
+    // HACK: workaround for newlines. This workaround will force MathJax to always return the same heights regardless of the text content.
+    // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
+    // if(input) {
+    //   const newline_escaped = `\\displaylines{${input}}`;
+    // }
+    try {
+      const node = html.convert(input, {});
+      return ok(node.firstChild);
+    } catch (error: any) {
+      return err(error.message);
+    }
+  };
+
+  return { convert, handler };
 };
 
 export { makeCanvas as canvas } from "@penrose/core";
