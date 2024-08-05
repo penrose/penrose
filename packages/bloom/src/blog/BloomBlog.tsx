@@ -9,6 +9,7 @@ import { DiagramBuilder, canvas, useDiagram } from "../../lib";
 import constraints from "../../lib/core/constraints.ts";
 import Renderer from "../../lib/react/Renderer.tsx";
 import EigenvectorsDiagram from "../examples/eigen.tsx";
+import RaysComponent from "../examples/rays.tsx";
 import { sets } from "../examples/sets.ts";
 import CirclePackingDiagram from "./CirclePackingDiagram.tsx";
 import "./blog.css";
@@ -316,6 +317,7 @@ forallWhere(
       library of RoseJS.
       <h3>Getting started</h3>
       Check out our docs!
+      <RaysComponent />
     </div>
   );
 }

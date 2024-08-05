@@ -29,10 +29,12 @@ export default function Renderer(props: RendererProps) {
       const canvas = props.diagram.getCanvas();
       const { svg, nameElemMap } = await props.diagram.render();
       svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      svg.setAttribute("pointer-events", "none");
       svg.style.width = "100%";
       svg.style.height = "100%";
       for (const [name, elem] of nameElemMap) {
         if (draggingConstraints.has(name)) {
+          elem.setAttribute("pointer-events", "painted");
           const translateFn = makeTranslateOnMouseDown(
             svg,
             elem,

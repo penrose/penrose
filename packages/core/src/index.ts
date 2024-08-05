@@ -428,6 +428,7 @@ export {
   prettyPrintPath,
   ptListV,
   rgbaToHex,
+  shapeListV,
   strV,
   vectorV,
   zip2,

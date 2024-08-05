@@ -17,11 +17,14 @@ import { Diagram } from "./diagram.js";
 import {
   Circle,
   CircleProps,
+  Drag,
   DragConstraint,
   Ellipse,
   EllipseProps,
   Equation,
   EquationProps,
+  Group,
+  GroupProps,
   Image,
   ImageProps,
   Line,
@@ -122,7 +125,7 @@ export class SharedInput {
     }
 
     // performance: we don't need to sync the changes to other diagrams, since
-    // it's the current value. Using `withSyncing` will prevent
+    // it's the current value. Using `preventSyncing` will prevent
     // the syncing effects from running
     this.preventSyncing(() => diagram.setInput(this.name, this.currVal!));
   };
@@ -167,6 +170,8 @@ export class DiagramBuilder {
    * Create a new diagram builder.
    * @param canvas Local dimensions of the SVG. If you find you need thinner lines, try increasing these dimensions.
    * @param variation Randomness seed
+   * @param lassoStrength Strength of the optimizer's lasso term. Higher values encourage diagram continuity,
+   *   while lower values encourage reactivity. Default is 0.
    */
   constructor(canvas: Canvas, variation: string, lassoStrength: number = 0) {
     this.canvas = canvas;
@@ -224,6 +229,13 @@ export class DiagramBuilder {
           } as PenroseShape<Num>;
 
           const shape = fromPenroseShape(sampledPenroseShape, props);
+
+          if (shapeType === ShapeType.Group) {
+            const group = shape as Group;
+            const elements = new Set(group.shapes);
+            if (group.clipPath) elements.add(group.clipPath);
+            this.shapes = this.shapes.filter((s) => !elements.has(s));
+          }
           this.shapes.push(shape);
           return shape;
         },
@@ -454,6 +466,9 @@ export class DiagramBuilder {
   text = (_props: Partial<TextProps> = {}): Readonly<Text> => {
     throw new Error("Not filled");
   };
+  group = (_props: Partial<GroupProps> = {}): Readonly<Group> => {
+    throw new Error("Not filled");
+  };
   /* eslint-enable @typescript-eslint/no-unused-vars */
 
   ensure = (constraint: Num, weight?: number) => {
@@ -537,13 +552,23 @@ export class DiagramBuilder {
   };
 
   private addDragConstraints = () => {
+    const addDragConstraint = (shape: Drag & Shape) => {
+      if (shape.dragConstraint) {
+        this.dragNamesAndConstrs.set(shape.name, shape.dragConstraint);
+      } else {
+        this.dragNamesAndConstrs.set(shape.name, ([x, y]) => [x, y]);
+      }
+    };
+
     for (const shape of this.shapes) {
-      if ("drag" in shape && shape.drag) {
-        if (shape.dragConstraint) {
-          this.dragNamesAndConstrs.set(shape.name, shape.dragConstraint);
-        } else {
-          this.dragNamesAndConstrs.set(shape.name, ([x, y]) => [x, y]);
+      if (shape.shapeType === ShapeType.Group) {
+        for (const s of (shape as Group).shapes) {
+          if ("drag" in s && s.drag) {
+            addDragConstraint(s);
+          }
         }
+      } else if ("drag" in shape && shape.drag) {
+        addDragConstraint(shape);
       }
     }
   };
@@ -567,7 +592,7 @@ export class DiagramBuilder {
     };
 
     const inputIdxsByPath: IdxsByPath = new Map();
-    for (const shape of this.shapes) {
+    const applyShape = (shape: Shape) => {
       if ("drag" in shape && shape.drag) {
         if ("center" in shape) {
           const idxs = mapVec2(shape.center);
@@ -595,7 +620,13 @@ export class DiagramBuilder {
           inputIdxsByPath.set(shape.name + ".points", idxs as any);
         }
       }
-    }
+
+      if (shape.shapeType === ShapeType.Group) {
+        shape.shapes.map(applyShape);
+      }
+    };
+
+    this.shapes.map(applyShape);
 
     return inputIdxsByPath;
   };
@@ -604,6 +635,14 @@ export class DiagramBuilder {
     const nameShapeMap = new Map<string, PenroseShape<Num>>();
     for (const s of this.shapes) {
       nameShapeMap.set(s.name, toPenroseShape(s));
+      if (s.shapeType === ShapeType.Group) {
+        s.shapes.map((subshape) =>
+          nameShapeMap.set(subshape.name, toPenroseShape(subshape)),
+        );
+        if (s.clipPath) {
+          nameShapeMap.set(s.clipPath.name, toPenroseShape(s.clipPath));
+        }
+      }
     }
     return nameShapeMap;
   };

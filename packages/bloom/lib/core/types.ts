@@ -87,7 +87,8 @@ export type Shape =
   | Polygon
   | Polyline
   | Rectangle
-  | Text;
+  | Text
+  | Group;
 
 export enum ShapeType {
   Circle = "Circle",
@@ -100,6 +101,7 @@ export enum ShapeType {
   Polyline = "Polyline",
   Rectangle = "Rectangle",
   Text = "Text",
+  Group = "Group",
 }
 
 export type PathData = Value.PathCmd<Num>[];
@@ -192,6 +194,12 @@ export interface Text
   descent: Num;
 }
 
+export interface Group extends ShapeCommon {
+  shapeType: ShapeType.Group;
+  shapes: Shape[];
+  clipPath?: Exclude<Shape, Group>;
+}
+
 export type ShapeProps =
   | CircleProps
   | EllipseProps
@@ -202,7 +210,8 @@ export type ShapeProps =
   | PolygonProps
   | PolylineProps
   | RectangleProps
-  | TextProps;
+  | TextProps
+  | GroupProps;
 
 export type CircleProps = Omit<Circle, "shapeType">;
 export type EllipseProps = Omit<Ellipse, "shapeType">;
@@ -214,8 +223,9 @@ export type PolygonProps = Omit<Polygon, "shapeType">;
 export type PolylineProps = Omit<Polyline, "shapeType">;
 export type RectangleProps = Omit<Rectangle, "shapeType">;
 export type TextProps = Omit<Text, "shapeType">;
+export type GroupProps = Omit<Group, "shapeType">;
 
-const PenroseNamedTypes = {
+const PenroseCommonTypes = {
   name: "StrV",
   ensureOnCanvas: "BoolV",
 };
@@ -270,7 +280,7 @@ const PenroseStringTypes = {
 };
 
 const PenroseCircleTypes = {
-  ...PenroseNamedTypes,
+  ...PenroseCommonTypes,
   ...PenroseStrokeTypes,
   ...PenroseFillTypes,
   ...PenroseCenterTypes,
@@ -278,7 +288,7 @@ const PenroseCircleTypes = {
 };
 
 const PenroseEllipseTypes = {
-  ...PenroseNamedTypes,
+  ...PenroseCommonTypes,
   ...PenroseStrokeTypes,
   ...PenroseFillTypes,
   ...PenroseCenterTypes,
@@ -287,7 +297,7 @@ const PenroseEllipseTypes = {
 };
 
 const PenroseEquationTypes = {
-  ...PenroseNamedTypes,
+  ...PenroseCommonTypes,
   ...PenroseFillTypes,
   ...PenroseCenterTypes,
   ...PenroseRectTypes,
@@ -298,7 +308,7 @@ const PenroseEquationTypes = {
 };
 
 const PenroseImageTypes = {
-  ...PenroseNamedTypes,
+  ...PenroseCommonTypes,
   ...PenroseCenterTypes,
   ...PenroseRectTypes,
   ...PenroseRotateTypes,
@@ -307,7 +317,7 @@ const PenroseImageTypes = {
 };
 
 const PenroseLineTypes = {
-  ...PenroseNamedTypes,
+  ...PenroseCommonTypes,
   ...PenroseStrokeTypes,
   ...PenroseFillTypes,
   ...PenroseArrowTypes,
@@ -317,7 +327,7 @@ const PenroseLineTypes = {
 };
 
 const PenrosePathTypes = {
-  ...PenroseNamedTypes,
+  ...PenroseCommonTypes,
   ...PenroseStrokeTypes,
   ...PenroseFillTypes,
   ...PenroseArrowTypes,
@@ -326,7 +336,7 @@ const PenrosePathTypes = {
 };
 
 const PenrosePolygonTypes = {
-  ...PenroseNamedTypes,
+  ...PenroseCommonTypes,
   ...PenroseStrokeTypes,
   ...PenroseFillTypes,
   ...PenroseScaleTypes,
@@ -334,7 +344,7 @@ const PenrosePolygonTypes = {
 };
 
 const PenrosePolylineTypes = {
-  ...PenroseNamedTypes,
+  ...PenroseCommonTypes,
   ...PenroseStrokeTypes,
   ...PenroseScaleTypes,
   ...PenrosePolyTypes,
@@ -343,7 +353,7 @@ const PenrosePolylineTypes = {
 };
 
 const PenroseRectangleTypes = {
-  ...PenroseNamedTypes,
+  ...PenroseCommonTypes,
   ...PenroseStrokeTypes,
   ...PenroseFillTypes,
   ...PenroseCenterTypes,
@@ -353,7 +363,7 @@ const PenroseRectangleTypes = {
 };
 
 const PenroseTextTypes = {
-  ...PenroseNamedTypes,
+  ...PenroseCommonTypes,
   ...PenroseStrokeTypes,
   ...PenroseFillTypes,
   ...PenroseCenterTypes,
@@ -375,6 +385,12 @@ const PenroseTextTypes = {
   descent: "FloatV",
 };
 
+const PenroseGroupTypes = {
+  ...PenroseCommonTypes,
+  shapes: "ShapeListV",
+  clipPath: "ClipDataV",
+};
+
 export const penroseShapeFieldTypes = new Map<ShapeType, any>([
   [ShapeType.Circle, PenroseCircleTypes],
   [ShapeType.Ellipse, PenroseEllipseTypes],
@@ -386,4 +402,5 @@ export const penroseShapeFieldTypes = new Map<ShapeType, any>([
   [ShapeType.Polyline, PenrosePolylineTypes],
   [ShapeType.Rectangle, PenroseRectangleTypes],
   [ShapeType.Text, PenroseTextTypes],
+  [ShapeType.Group, PenroseGroupTypes],
 ]);

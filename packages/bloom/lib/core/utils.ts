@@ -8,12 +8,14 @@ import {
   Result,
   Value,
   boolV,
+  clipDataV,
   colorV,
   err,
   floatV,
   ok,
   pathDataV,
   ptListV,
+  shapeListV,
   strV,
   vectorV,
 } from "@penrose/core";
@@ -87,6 +89,25 @@ export const toPenroseShape = (
         resultV = pathDataV(value);
         break;
 
+      case "ShapeListV":
+        // do not simplify lambda: `toPenroseShape` has an optional arg which will
+        // be incorrectly filled by `.map(toPenroseShape)`
+        resultV = shapeListV(value.map((s: Shape) => toPenroseShape(s)));
+        break;
+
+      case "ClipDataV":
+        resultV = clipDataV(
+          value
+            ? {
+                tag: "Clip",
+                contents: toPenroseShape(value) as any,
+              }
+            : {
+                tag: "NoClip",
+              },
+        );
+        break;
+
       default:
         throw new Error(
           `Unknown field type ${
@@ -109,10 +130,6 @@ export const fromPenroseShape = (
   penroseShape: PenroseShape<Num>,
   base?: Partial<ShapeProps>,
 ): Shape => {
-  if (penroseShape.shapeType === "Group") {
-    throw new Error("Groups not yet supported in bloom");
-  }
-
   const shape: Partial<Shape> = {
     shapeType: ShapeType[penroseShape.shapeType],
     ...(base ?? {}),
@@ -136,6 +153,18 @@ export const fromPenroseShape = (
         _.set(shape, prop, fromPenroseColor(value));
         break;
 
+      case "ShapeListV":
+        _.set(shape, prop, value.map(fromPenroseShape));
+        break;
+
+      case "ClipDataV":
+        if (value.contents.tag === "NoClip") {
+          _.set(shape, prop, undefined);
+        } else {
+          _.set(shape, prop, fromPenroseShape(value.contents.contents));
+        }
+        break;
+
       // default, nothing
     }
   }
@@ -148,11 +177,24 @@ export const sortShapes = (
   partialLayering: [string, string][],
 ): PenroseShape<Num>[] => {
   const layerGraph = new Graph<string>();
-  for (const { name } of shapes) {
-    layerGraph.setNode(name.contents, undefined);
+  for (const shape of shapes) {
+    if (shape.shapeType === "Group") {
+      sortShapes(shape.shapes.contents, partialLayering);
+    }
+    layerGraph.setNode(shape.name.contents, undefined);
   }
   for (const [below, above] of partialLayering) {
-    layerGraph.setEdge({ i: below, j: above, e: undefined });
+    // if these are both part of the same group or in no group
+    if (layerGraph.hasNode(below) && layerGraph.hasNode(above)) {
+      layerGraph.setEdge({ i: below, j: above, e: undefined });
+    }
+
+    // if the use attempted to layer shapes that are in different groups
+    if (layerGraph.hasNode(below) || layerGraph.hasNode(above)) {
+      throw new Error(
+        `Cannot layer shapes ${below} and ${above} because they are in different groups.`,
+      );
+    }
   }
   const sortedNames = layerGraph.topsort();
   const nameIndices = new Map(sortedNames.map((name, i) => [name, i]));
