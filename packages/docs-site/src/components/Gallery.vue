@@ -65,17 +65,21 @@ export default {
             encodeURI(
               `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`,
             ),
-          ).then((svg) => {
-            if (svg.ok) {
-              svg.text().then((preview) => {
-                const croppedPreview = cropSVG(preview);
-                const trio = { id, preview: croppedPreview };
-                examples.value = examples.value.map((e) =>
-                  e.id === id ? { ...trio, preview: croppedPreview } : e,
-                );
-              });
-            }
-          });
+          )
+            .then((svg) => {
+              if (svg.ok) {
+                return svg.text();
+              } else {
+                return Promise.reject("Failed to fetch SVG");
+              }
+            })
+            .then((preview) => {
+              const croppedPreview = cropSVG(preview);
+              const trio = { id, preview: croppedPreview };
+              examples.value = examples.value.map((e) =>
+                e.id === id ? { ...trio, preview: croppedPreview } : e,
+              );
+            });
         }
       };
       load();
