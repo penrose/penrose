@@ -1,17 +1,23 @@
-import { Keycap } from "keycap";
 import { Fragment, useEffect, useRef } from "react";
 import { useRecoilState } from "recoil";
 import styled, { ThemeProvider } from "styled-components";
 import { showKeybindingsState } from "../state/atoms";
 import { Plus } from "./Icons";
 
-const CmdCtrl = () => (
-  <>
-    <Keycap activeKey="Meta">⌘</Keycap>
-    <span style={{ marginRight: "0.4em" }}>/</span>
-    <Keycap activeKey="Control">⌃</Keycap>
-  </>
-);
+const Keycap = styled.kbd`
+  min-height: 0.8em;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.15rem 0.275rem;
+  background-color: white;
+  border: 1px solid #e5e7eb; /* Equivalent to border-gray-200 */
+  font-family: monospace;
+  font-size: 0.875rem; /* Equivalent to text-sm */
+  color: #1f2937; /* Equivalent to text-gray-800 */
+  border-radius: 0.375rem; /* Equivalent to rounded-md */
+  box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.08);
+`;
 
 const Container = styled.div`
   position: absolute;
@@ -59,6 +65,14 @@ const TableRow = styled.tr`
   border-bottom: 1px solid ${({ theme }) => theme.borderGray};
 `;
 
+const TableHeader = styled.thead`
+  font-size: 0.75rem;
+  color: #374151;
+  text-transform: uppercase;
+  background-color: #f9fafb;
+  font-weight: 600;
+`;
+
 // Cell styling for table rows
 const TableCell = styled.td`
   padding: 0.75rem 1.5rem;
@@ -85,6 +99,7 @@ const TableLink = styled.a`
 
 const KeyBind = styled.span`
   display: flex;
+  align-items: center;
 `;
 
 const theme = {
@@ -98,40 +113,15 @@ const theme = {
 };
 
 type HotKey = {
-  keys: string[];
+  keys: {
+    mac: string[];
+    nonmac: string[];
+  };
   name: string;
   description: string;
 };
 
 const generalKeys: HotKey[] = [];
-
-const editorKeys: HotKey[] = [
-  {
-    keys: ["CmdCtrl", "Enter"],
-    name: "Compile",
-    description: "Compile the current Penrose Trio",
-  },
-  {
-    keys: ["CmdCtrl", "s"],
-    name: "Save",
-    description: "Save the current Penrose Trio",
-  },
-  {
-    keys: ["CmdCtrl", "/"],
-    name: "Toggle comment",
-    description: "Toggle comment on the current line",
-  },
-  {
-    keys: ["CmdCtrl", "Alt", "["],
-    name: "Fold all blocks",
-    description: "Fold all Style blocks",
-  },
-  {
-    keys: ["CmdCtrl", "Alt", "]"],
-    name: "Unfold all blocks",
-    description: "Unfold all Style blocks",
-  },
-];
 
 const keyUnicode: { [key: string]: string } = {
   Enter: "↵",
@@ -144,37 +134,85 @@ const keyUnicode: { [key: string]: string } = {
   ArrowLeft: "←",
   ArrowRight: "→",
   Escape: "⎋",
-  Meta: "⌘",
-  Alt: "⌥",
+  Command: "⌘",
+  Option: "⌥",
 };
 
-const renderKey = (key: string) => {
-  if (key === "CmdCtrl") {
-    return <CmdCtrl />;
-  } else
-    return (
-      <Keycap style={{ marginLeft: ".4em" }} activeKey={key}>
-        {Object.keys(keyUnicode).includes(key) ? keyUnicode[key] : key}
-      </Keycap>
-    );
-};
+const editorKeys: HotKey[] = [
+  {
+    keys: {
+      mac: [keyUnicode["Command"], "Enter"],
+      nonmac: ["Ctrl", "Enter"],
+    },
+    name: "Compile",
+    description: "Compile the current Penrose Trio",
+  },
+  {
+    keys: {
+      mac: [keyUnicode["Command"], "S"],
+      nonmac: ["Ctrl", "S"],
+    },
+    name: "Save",
+    description: "Save the current Penrose Trio",
+  },
+  {
+    keys: {
+      mac: [keyUnicode["Command"], "/"],
+      nonmac: ["Ctrl", "/"],
+    },
+    name: "Toggle comment",
+    description: "Toggle comment on the current line",
+  },
+  {
+    keys: {
+      mac: [keyUnicode["Command"], keyUnicode["Option"], "["],
+      nonmac: ["Ctrl", "Alt", "["],
+    },
+    name: "Fold all blocks",
+    description: "Fold all Style blocks",
+  },
+  {
+    keys: {
+      mac: [keyUnicode["Command"], keyUnicode["Option"], "]"],
+      nonmac: ["Ctrl", "Alt", "]"],
+    },
+    name: "Unfold all blocks",
+    description: "Unfold all Style blocks",
+  },
+];
 
 const KeyTable = ({ hotkeys }: { hotkeys: HotKey[] }) => (
   <TableContainer>
     <StyledTable>
+      <TableHeader>
+        <HeaderCellSpecial>Mac</HeaderCellSpecial>
+        <HeaderCellSpecial>Non-Mac</HeaderCellSpecial>
+        <HeaderCellSpecial>Name</HeaderCellSpecial>
+        <HeaderCellSpecial>Description</HeaderCellSpecial>
+      </TableHeader>
       <TableBody>
         {hotkeys.map(({ keys, name, description }) => (
           <TableRow>
-            <HeaderCellSpecial>
+            <TableCell>
               <KeyBind>
-                {keys.map(renderKey).map((key, index) => (
+                {keys.mac.map((key, index) => (
                   <Fragment key={index}>
-                    {key}
-                    {index < keys.length - 1 && <Plus />}
+                    <Keycap>{key}</Keycap>
+                    {index < keys.mac.length - 1 && <Plus />}
                   </Fragment>
                 ))}
               </KeyBind>
-            </HeaderCellSpecial>
+            </TableCell>
+            <TableCell>
+              <KeyBind>
+                {keys.nonmac.map((key, index) => (
+                  <Fragment key={index}>
+                    <Keycap>{key}</Keycap>
+                    {index < keys.nonmac.length - 1 && <Plus />}
+                  </Fragment>
+                ))}
+              </KeyBind>
+            </TableCell>
             <TableCell>{name}</TableCell>
             <TableCell>{description}</TableCell>
           </TableRow>

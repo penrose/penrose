@@ -4276,6 +4276,7 @@
   integrity sha512-IWfdwU7KDSm07Ty0PuA/W2JYoZ4iTj3TUQjkVsO/6U+4I1jN5lcR71ZEvRh52sDOERdnNhhHU57UITXz5jC1/w==
 
 "@rollup/rollup-darwin-arm64@4.9.5", "@rollup/rollup-win32-x64-msvc@4.9.5":
+  name "@rollup/rollup-darwin-arm64"
   version "4.9.5"
   resolved "https://registry.npmjs.org/@rollup/rollup-darwin-arm64/-/rollup-darwin-arm64-4.9.5.tgz"
   integrity sha512-ndoXeLx455FffL68OIUrVr89Xu1WLzAG4n65R8roDlCoYiQcGGg6MALvs2Ap9zs7AHg8mpHtMpwC8jBBjZrT/w==
@@ -11937,11 +11938,6 @@ katex@^0.6.0:
   integrity sha512-rS4mY3SvHYg5LtQV6RBcK0if7ur6plyEukAOV+jGGPqFImuzu8fHL6M752iBmRGoUyF0bhZbAPoezehn7xYksA==
   dependencies:
     match-at "^0.1.0"
-
-keycap@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/keycap/-/keycap-1.0.2.tgz#0a31be0383cc1be47be63fa961153304ac5c6ce2"
-  integrity sha512-XBFaz1p2JFvGZFiBA2RaytzqXCkkZ/VpfTPJm8p/VtugdGQhmM0A76GAtn23Aa3CKqOJvxweEaotRm2rqIeATQ==
 
 keytar@^7.7.0:
   version "7.9.0"

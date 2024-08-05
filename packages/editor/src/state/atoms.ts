@@ -139,7 +139,7 @@ export const autosaveTimerState = atom<AutosaveTimer>({
 
 export const showKeybindingsState = atom<boolean>({
   key: "showKeybindingsState",
-  default: false,
+  default: true,
 });
 
 /**
