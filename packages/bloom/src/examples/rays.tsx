@@ -1,46 +1,95 @@
+import { ops } from "@penrose/core";
 import { DiagramBuilder } from "bloom/lib/core/builder.js";
 import { canvas } from "bloom/lib/core/utils.js";
-import { useDiagram } from "../../lib";
+import { Shape, useDiagram } from "../../lib";
+import computation from "../../lib/core/computation.ts";
 import Renderer from "../../lib/react/Renderer.tsx";
 
 const raysDiagram = async () => {
-  const { rectangle, circle, group, build, input, layer } = new DiagramBuilder(
-    canvas(400, 400),
-    "",
-  );
+  const {
+    rectangle,
+    circle,
+    group,
+    build,
+    input,
+    layer,
+    type,
+    forall,
+    line,
+    polygon,
+  } = new DiagramBuilder(canvas(400, 400), "");
 
-  const r1 = rectangle({
-    width: 100,
-    height: 20,
-    center: [
-      input({ init: 0, pinned: true }),
-      input({ init: 0, pinned: true }),
-    ],
-    fillColor: [1, 0, 0, 0.5],
-    drag: true,
+  const Ray = type();
+
+  const Square = type();
+  const Triangle = type();
+  const Source = type();
+  const Ground = type();
+
+  const numRays = 100;
+  for (let i = 0; i < numRays; ++i) {
+    Ray();
+  }
+
+  Triangle();
+  Square();
+
+  const source = Source();
+  const ground = Ground();
+
+  forall({ g: Ground }, ({ g }) => {
+    g.level = -175;
+    g.icon = line({
+      start: [-200, g.level],
+      end: [200, g.level],
+      strokeWidth: 3,
+      strokeColor: [0, 0, 0, 0.5],
+    });
   });
 
-  const r2 = rectangle({
-    width: 100,
-    height: 20,
-    center: [
-      input({ init: 0, pinned: true }),
-      input({ init: 10, pinned: true }),
-    ],
-    fillColor: [0, 1, 0, 1],
-    drag: true,
+  forall({ s: Source }, ({ s }) => {
+    s.icon = circle({
+      center: [0, 175],
+      r: 3,
+      fillColor: [0, 0, 0, 1],
+    });
   });
 
-  // layer(r1, r2);
+  const shapes: Shape[] = [];
 
-  const c = circle({
-    r: 50,
-    center: [0, 0],
+  forall({ t: Triangle }, ({ t }) => {
+    t.icon = polygon({
+      points: [
+        [input(), input()],
+        [input(), input()],
+        [input(), input()],
+      ],
+    });
+
+    shapes.push(t.icon);
   });
 
-  const g = group({
-    shapes: [r2, r1],
-    clipPath: c,
+  forall({ s: Square }, ({ s }) => {
+    s.icon = rectangle({
+      drag: true,
+    });
+
+    shapes.push(s.icon);
+  });
+
+  group({
+    shapes,
+  });
+
+  forall({ r: Ray }, ({ r }, i) => {
+    const extendedToGround = [
+      ground.icon.start[0] +
+        ((ground.icon.end[0] - ground.icon.start[0]) * i) / (numRays - 1),
+      ground.level,
+    ];
+    r.vec = computation.normalize(
+      ops.vsub(extendedToGround, source.icon.center),
+    );
   });
 
   return await build();

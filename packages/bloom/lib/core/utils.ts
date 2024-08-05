@@ -188,9 +188,8 @@ export const sortShapes = (
     if (layerGraph.hasNode(below) && layerGraph.hasNode(above)) {
       layerGraph.setEdge({ i: below, j: above, e: undefined });
     }
-
     // if the use attempted to layer shapes that are in different groups
-    if (layerGraph.hasNode(below) || layerGraph.hasNode(above)) {
+    else if (layerGraph.hasNode(below) || layerGraph.hasNode(above)) {
       throw new Error(
         `Cannot layer shapes ${below} and ${above} because they are in different groups.`,
       );
