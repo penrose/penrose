@@ -184,6 +184,7 @@ export const useClearAutosave = (set: any, snapshot: any) => {
     set(autosaveTimerState, null);
   }
 };
+
 /*
  * See: https://github.com/uiwjs/react-codemirror/issues/405
  * Summary: Utilizing React Codemirror provides useful abstractions that

@@ -137,6 +137,11 @@ export const autosaveTimerState = atom<AutosaveTimer>({
   default: null,
 });
 
+export const showKeybindingsState = atom<boolean>({
+  key: "showKeybindingsState",
+  default: false,
+});
+
 /**
  * On any state change to a stored workspace, mark it as unsaved (debounced)
  * On any state change to an example workspace (i.e. title or content edit),
