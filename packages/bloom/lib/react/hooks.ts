@@ -4,7 +4,7 @@ import { SharedInput } from "../core/builder.js";
 import { Diagram } from "../core/diagram.js";
 
 export const useSharedInput = (name?: string, init?: number) => {
-  return useMemo(() => new SharedInput(name, init), [name, init]);
+  return useMemo(() => new SharedInput(init, name), [name, init]);
 };
 
 export const useSharedInputs = (n: number) => {
@@ -21,9 +21,17 @@ export const useDiagram = (buildFn: () => Promise<Diagram>) => {
   const [diagram, setDiagram] = useState<Diagram | null>(null);
 
   useEffect(() => {
-    (async () => {
-      setDiagram(await buildFn());
+    let thisDiagram: Diagram | null = null;
+    const hasSet = (async () => {
+      thisDiagram = await buildFn();
+      setDiagram(thisDiagram);
     })();
+    return () => {
+      (async () => {
+        await hasSet;
+        thisDiagram!.discard();
+      })();
+    };
   }, [buildFn]);
 
   return diagram;

@@ -12,7 +12,7 @@ import {
   simpleContext,
   uniform,
 } from "@penrose/core";
-import constraints from "./constraints.js";
+import * as constraints from "./constraints.js";
 import { Diagram } from "./diagram.js";
 import {
   Circle,
@@ -58,7 +58,7 @@ export type SelectorAssignment = Record<string, Substance>;
 export type InputOpts = {
   name?: string;
   init?: number;
-  pinned?: boolean;
+  optimized?: boolean;
 };
 
 export class SharedInput {
@@ -69,11 +69,13 @@ export class SharedInput {
   private effectMap = new Map<Diagram, (val: number) => void>();
   private currVal: number | null = null;
   private syncing: boolean = false;
+  private optimized: boolean;
   private static nextId = 0;
 
-  constructor(name?: string, init?: number) {
+  constructor(init?: number, optimized = false, name?: string) {
     this.name = name ?? `_input_${SharedInput.nextId++}`;
     this.init = init;
+    this.optimized = optimized;
   }
 
   set = (val: number) => {
@@ -86,6 +88,8 @@ export class SharedInput {
   };
 
   get = () => this.currVal;
+
+  getOptimized = () => this.optimized;
 
   private preventSyncing = (fn: () => void) => {
     this.syncing = true;
@@ -128,6 +132,11 @@ export class SharedInput {
     // it's the current value. Using `preventSyncing` will prevent
     // the syncing effects from running
     this.preventSyncing(() => diagram.setInput(this.name, this.currVal!));
+  };
+
+  unregister = (diagram: Diagram) => {
+    this.diagrams.delete(diagram);
+    this.replaceEffects();
   };
 }
 
@@ -196,7 +205,7 @@ export class DiagramBuilder {
 
     this.defineShapeMethods();
 
-    this.input({ name: "_time", init: 0, pinned: true });
+    this.input({ name: "_time", init: 0, optimized: false });
   }
 
   /**
@@ -405,7 +414,7 @@ export class DiagramBuilder {
   input = (info?: InputOpts): Var => {
     const name = info?.name;
     const init = info?.init;
-    const pinned = info?.pinned ?? false;
+    const pinned = !(info?.optimized ?? true);
 
     const newVar = this.samplingContext.makeInput(
       {
@@ -430,7 +439,7 @@ export class DiagramBuilder {
     return this.input({
       name: input.name,
       init: initOverride ?? input.init,
-      pinned: true,
+      optimized: input.getOptimized(),
     });
   };
 
@@ -526,6 +535,7 @@ export class DiagramBuilder {
       dragNamesAndConstrs: this.dragNamesAndConstrs,
       inputIdxsByPath: this.getTranslatedInputIdxsByPath(),
       lassoStrength: this.lassoStrength,
+      sharedInputs: this.externalInputs,
     });
 
     for (const input of this.externalInputs) {
@@ -648,6 +658,8 @@ export class DiagramBuilder {
   };
 
   private makeLassoInputs = () => {
-    this.inputs.map((i) => this.input({ init: i.handle.val, pinned: true }));
+    this.inputs.map((i) =>
+      this.input({ init: i.handle.val, optimized: false }),
+    );
   };
 }

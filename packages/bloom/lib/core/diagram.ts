@@ -20,6 +20,7 @@ import {
 } from "@penrose/core";
 import consola, { LogLevels } from "consola";
 import { mathjax } from "mathjax-full/js/mathjax";
+import { SharedInput } from "./builder.ts";
 import { DragConstraint } from "./types.js";
 import { mathjaxInitWithHandler, stateToSVG } from "./utils.ts";
 
@@ -38,6 +39,7 @@ export type DiagramData = {
   dragNamesAndConstrs: Map<string, DragConstraint>;
   inputIdxsByPath: IdxsByPath;
   lassoStrength: number;
+  sharedInputs: Set<SharedInput>;
 };
 
 export class Diagram {
@@ -62,6 +64,7 @@ export class Diagram {
   private inputEffects: Map<string, Set<(val: number, name: string) => void>> =
     new Map();
   private lassoEnabled: boolean;
+  private sharedInputs = new Set<SharedInput>();
 
   /**
    * Create a new renderable diagram. This should not be called directly; use
@@ -75,6 +78,7 @@ export class Diagram {
       data.dragNamesAndConstrs,
       data.namedInputs,
       data.lassoStrength !== 0,
+      data.sharedInputs,
     );
   };
 
@@ -84,12 +88,14 @@ export class Diagram {
     draggingConstraints: Map<string, DragConstraint>,
     namedInputs: Map<string, number>,
     lassoEnabled: boolean,
+    sharedInputs = new Set<SharedInput>(),
   ) {
     this.state = state;
     this.manuallyPinnedIndices = pinnedInputs;
     this.draggingConstraints = draggingConstraints;
     this.namedInputs = namedInputs;
     this.lassoEnabled = lassoEnabled;
+    this.sharedInputs = sharedInputs;
   }
 
   /**
@@ -204,20 +210,20 @@ export class Diagram {
     }
   };
 
-  getPinned = (name: string) => {
+  getOptimized = (name: string) => {
     const idx = this.namedInputs.get(name);
     if (idx === undefined) {
       throw new Error(`No input named ${name}`);
     }
-    return this.manuallyPinnedIndices.has(idx);
+    return !this.manuallyPinnedIndices.has(idx);
   };
 
-  setPinned = (name: string, pinned: boolean) => {
+  setOptimized = (name: string, optimized: boolean) => {
     const idx = this.namedInputs.get(name);
     if (idx === undefined) {
       throw new Error(`No input named ${name}`);
     }
-    if (pinned) {
+    if (!optimized) {
       this.manuallyPinnedIndices.add(idx);
     } else {
       this.manuallyPinnedIndices.delete(idx);
@@ -252,6 +258,12 @@ export class Diagram {
       throw new Error(`No input named ${name}`);
     }
     this.inputEffects.get(name)!.delete(fn);
+  };
+
+  discard = () => {
+    for (const input of this.sharedInputs) {
+      input.unregister(this);
+    }
   };
 
   private setAndEnableLasso = () => {

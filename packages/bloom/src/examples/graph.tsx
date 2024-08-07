@@ -1,9 +1,8 @@
 import { mul, ops } from "@penrose/core";
 import { DiagramBuilder } from "bloom/lib/core/builder.js";
-import constraints from "bloom/lib/core/constraints.js";
 import { Diagram } from "bloom/lib/core/diagram.js";
-import objectives from "bloom/lib/core/objectives.js";
 import { canvas } from "bloom/lib/core/utils.js";
+import { constraints, objectives } from "bloom/lib/index.ts";
 import Renderer from "bloom/lib/react/Renderer.js";
 import { useEffect, useState } from "react";
 
@@ -68,7 +67,7 @@ const graph = async () => {
   const optionalOpacity = input({
     name: "optionalOpacity",
     init: 1,
-    pinned: true,
+    optimized: false,
   });
   forallWhere(
     { e: Edge, a: Node, b: Node },

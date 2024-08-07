@@ -1,6 +1,5 @@
 import { mul, ops } from "@penrose/core";
-import { DiagramBuilder, canvas } from "../../lib";
-import constraints from "../../lib/core/constraints.ts";
+import { DiagramBuilder, canvas, constraints } from "../../lib";
 
 export const reflection = async (userInput: string) => {
   const db = new DiagramBuilder(canvas(800, 400), "");
@@ -29,12 +28,12 @@ export const reflection = async (userInput: string) => {
   const handleRad = 40;
 
   start.center = [
-    input({ init: -300, pinned: true }),
-    input({ init: 100, pinned: true }),
+    input({ init: -300, optimized: false }),
+    input({ init: 100, optimized: false }),
   ];
   end.center = [
-    input({ init: 300, pinned: true }),
-    input({ init: 100, pinned: true }),
+    input({ init: 300, optimized: false }),
+    input({ init: 100, optimized: false }),
   ];
 
   forall({ e: Endpoint }, ({ e }) => {

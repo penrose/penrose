@@ -1,3 +1,4 @@
+import { constraints } from "bloom/lib/index.ts";
 import MarkdownIt from "markdown-it";
 import mdMJ from "markdown-it-mathjax3";
 import { highlight, languages } from "prismjs";
@@ -6,7 +7,6 @@ import "prismjs/themes/prism.css";
 import { useCallback, useState } from "react";
 import Editor from "react-simple-code-editor";
 import { DiagramBuilder, canvas, useDiagram } from "../../lib";
-import constraints from "../../lib/core/constraints.ts";
 import Renderer from "../../lib/react/Renderer.tsx";
 import EigenvectorsDiagram from "../examples/eigen.tsx";
 import RaysComponent from "../examples/rays.tsx";
@@ -310,6 +310,7 @@ forallWhere(
       Bloom integrates tightly with React, providing rendering components and
       custom hooks to streamline diagram development. Compiled Bloom diagrams
       also provide a programmatic API for live site integration:
+      <RaysComponent />
       <h4>Differentiable Programming</h4>
       Bloom leverages the differentiable programming model of Penrose, allowing
       efficient and stable calculation of gradients for optimization. We expose
@@ -317,7 +318,6 @@ forallWhere(
       library of RoseJS.
       <h3>Getting started</h3>
       Check out our docs!
-      <RaysComponent />
     </div>
   );
 }

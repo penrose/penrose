@@ -1,4 +1,4 @@
-import constraints from "bloom/lib/core/constraints.js";
+import { constraints } from "bloom/lib/index.ts";
 import { useCallback } from "react";
 import {
   DiagramBuilder,
