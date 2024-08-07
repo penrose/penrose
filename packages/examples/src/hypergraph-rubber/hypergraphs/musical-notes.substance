@@ -1,0 +1,76 @@
+-- Nodes
+
+Node C  -- C
+Node D  -- D
+Node E  -- E
+Node F  -- F
+Node G  -- G
+Node A  -- A
+Node B  -- B
+Node Csharp  -- C♯
+Node Dsharp  -- D♯
+Node Fsharp  -- F♯
+Node Gsharp  -- G♯
+Node Asharp  -- A♯
+
+-- Labels
+
+Label C "C"
+Label D "D"
+Label E "E"
+Label F "F"
+Label G "G"
+Label A "A"
+Label B "B"
+Label Csharp "C♯"
+Label Dsharp "D♯"
+Label Fsharp "F♯"
+Label Gsharp "G♯"
+Label Asharp "A♯"
+
+-- Hyperedges (Scales)
+
+Hyperedge CMajor -- C Major
+
+isIn(C, CMajor)
+isIn(D, CMajor)
+isIn(E, CMajor)
+isIn(F, CMajor)
+isIn(G, CMajor)
+isIn(A, CMajor)
+isIn(B, CMajor)
+notIn(Csharp, CMajor)
+notIn(Dsharp, CMajor)
+notIn(Fsharp, CMajor)
+notIn(Gsharp, CMajor)
+notIn(Asharp, CMajor)
+
+Hyperedge CMinor -- C Minor
+
+isIn(C, CMinor)
+isIn(D, CMinor)
+isIn(Dsharp, CMinor)
+isIn(F, CMinor)
+isIn(G, CMinor)
+isIn(Gsharp, CMinor)
+isIn(Asharp, CMinor)
+notIn(E, CMinor)
+notIn(A, CMinor)
+notIn(B, CMinor)
+notIn(Csharp, CMinor)
+notIn(Fsharp, CMinor)
+
+Hyperedge GMajor -- G Major
+
+isIn(G, GMajor)
+isIn(A, GMajor)
+isIn(B, GMajor)
+isIn(C, GMajor)
+isIn(D, GMajor)
+isIn(E, GMajor)
+isIn(Fsharp, GMajor)
+notIn(Csharp, GMajor)
+notIn(Dsharp, GMajor)
+notIn(Gsharp, GMajor)
+notIn(Asharp, GMajor)
+notIn(F, GMajor)

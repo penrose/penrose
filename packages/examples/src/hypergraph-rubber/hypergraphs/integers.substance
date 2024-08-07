@@ -1,0 +1,46 @@
+-- Nodes
+
+Node One  -- 𝟙
+Node Two  -- 𝟚
+Node Three  -- 𝟛
+Node Four  -- 𝟜
+Node Five  -- 𝟝
+Node Six  -- 𝟞
+
+-- Labels
+
+Label One "𝟙"
+Label Two "𝟚"
+Label Three "𝟛"
+Label Four "𝟜"
+Label Five "𝟝"
+Label Six "𝟞"
+
+-- Hyperedges (Properties)
+
+Hyperedge EvenNumbers -- Even Numbers
+
+isIn(Two, EvenNumbers)
+isIn(Four, EvenNumbers)
+isIn(Six, EvenNumbers)
+notIn(One, EvenNumbers)
+notIn(Three, EvenNumbers)
+notIn(Five, EvenNumbers)
+
+Hyperedge OddNumbers -- Odd Numbers
+
+isIn(One, OddNumbers)
+isIn(Three, OddNumbers)
+isIn(Five, OddNumbers)
+notIn(Two, OddNumbers)
+notIn(Four, OddNumbers)
+notIn(Six, OddNumbers)
+
+Hyperedge PrimeNumbers -- Prime Numbers
+
+isIn(Two, PrimeNumbers)
+isIn(Three, PrimeNumbers)
+isIn(Five, PrimeNumbers)
+notIn(One, PrimeNumbers)
+notIn(Four, PrimeNumbers)
+notIn(Six, PrimeNumbers)
