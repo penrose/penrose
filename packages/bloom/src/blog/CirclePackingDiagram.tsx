@@ -73,8 +73,8 @@ const circlePackingDiagram = async (inputs: {
 export default function CirclePackingDiagram() {
   const defaultContRad = 150;
   const defaultCircRad = 20;
-  const containerRad = useSharedInput(undefined, defaultContRad);
-  const circleRad = useSharedInput(undefined, defaultCircRad);
+  const containerRad = useSharedInput(defaultContRad);
+  const circleRad = useSharedInput(defaultCircRad);
 
   const diagram = useDiagram(
     useCallback(

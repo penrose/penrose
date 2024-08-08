@@ -3,18 +3,20 @@ import { useEffect, useMemo, useState } from "react";
 import { SharedInput } from "../core/builder.js";
 import { Diagram } from "../core/diagram.js";
 
-export const useSharedInput = (name?: string, init?: number) => {
-  return useMemo(() => new SharedInput(init, name), [name, init]);
-};
-
-export const useSharedInputs = (n: number) => {
-  return useMemo(() => {
-    const inputs = [];
-    for (let i = 0; i < n; i++) {
-      inputs.push(new SharedInput());
-    }
-    return inputs;
-  }, [n]);
+export const useSharedInput = (
+  init?: number,
+  optimized = false,
+  name?: string,
+) => {
+  const [val, setVal] = useState(init ?? 0);
+  const input = useMemo(
+    () => new SharedInput(init, optimized, name),
+    [init, optimized, name],
+  );
+  useEffect(() => {
+    input.addEffect(setVal);
+  }, [input]);
+  return input;
 };
 
 export const useDiagram = (buildFn: () => Promise<Diagram>) => {

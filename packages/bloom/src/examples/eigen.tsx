@@ -1,26 +1,18 @@
 import { add, div, mul, ops, sqrt } from "@penrose/core";
-import { DiagramBuilder, SharedInput } from "bloom/lib/core/builder.js";
-import { Diagram } from "bloom/lib/core/diagram.js";
+import { DiagramBuilder } from "bloom/lib/core/builder.js";
 import { Vec2 } from "bloom/lib/core/types.js";
 import { canvas } from "bloom/lib/core/utils.js";
-import { constraints } from "bloom/lib/index.ts";
+import { constraints, useDiagram } from "bloom/lib/index.ts";
 import Renderer from "bloom/lib/react/Renderer.js";
-import { useSharedInputs } from "bloom/lib/react/hooks.js";
-import { useEffect, useMemo, useState } from "react";
+import MarkdownIt from "markdown-it";
+import mdMJ from "markdown-it-mathjax3";
+import { useCallback, useEffect, useState } from "react";
 
-export const basisVectors = async (
-  inputs: {
-    ihatx: SharedInput;
-    ihaty: SharedInput;
-    jhatx: SharedInput;
-    jhaty: SharedInput;
-    px: SharedInput;
-    py: SharedInput;
-  },
-  withEigenspace = false,
-) => {
-  const canvasWidth = 800,
-    canvasHeight = 800;
+const md = MarkdownIt().use(mdMJ);
+
+export const basisVectors = async (withEigenspace = false) => {
+  const canvasWidth = 400,
+    canvasHeight = 400;
 
   const {
     type,
@@ -33,7 +25,8 @@ export const basisVectors = async (
     ensure,
     forallWhere,
     layer,
-    sharedInput,
+    bindToInput,
+    input,
   } = new DiagramBuilder(canvas(canvasWidth, canvasHeight), "");
 
   // Misc constants
@@ -78,23 +71,23 @@ export const basisVectors = async (
   const ihat = BasisVector();
   ihat.label = "a_1";
   ihat.canvasVec = [
-    sharedInput(inputs.ihatx, 1 * xScale + origin[0]),
-    sharedInput(inputs.ihaty, 0.4 * yScale + origin[1]),
+    input({ init: 1 * xScale + origin[0], optimized: false }),
+    input({ init: 0.4 * yScale + origin[1], optimized: false }),
   ];
   ihat.color = [0.2, 0.6, 0.86, 1];
 
   const jhat = BasisVector();
   jhat.label = "a_2";
   jhat.canvasVec = [
-    sharedInput(inputs.jhatx, 0.5 * xScale + origin[0]),
-    sharedInput(inputs.jhaty, 1 * yScale + origin[1]),
+    input({ init: 0.5 * xScale + origin[0], optimized: false }),
+    input({ init: 1 * yScale + origin[1], optimized: false }),
   ];
   jhat.color = [0.18, 0.8, 0.44, 1];
 
   const p = MappedPoint();
   p.canvasV1 = [
-    sharedInput(inputs.px, 1.5 * xScale + origin[0]),
-    sharedInput(inputs.py, 1.5 * yScale + origin[1]),
+    input({ init: 1.5 * xScale + origin[0], optimized: false }),
+    input({ init: 1.5 * yScale + origin[1], optimized: false }),
   ];
 
   // Style
@@ -191,6 +184,11 @@ export const basisVectors = async (
     ensure(constraints.greaterThan(v.vec[0], origin[0]));
     ensure(constraints.greaterThan(v.vec[1], origin[1]));
   });
+
+  bindToInput(ihat.vec[0], { name: "ihat.x" });
+  bindToInput(ihat.vec[1], { name: "ihat.y" });
+  bindToInput(jhat.vec[0], { name: "jhat.x" });
+  bindToInput(jhat.vec[1], { name: "jhat.y" });
 
   // draw points, their maps, and dots between them
   forall({ p: MappedPoint }, ({ p }, n) => {
@@ -308,6 +306,11 @@ export const basisVectors = async (
       1,
     ];
 
+    bindToInput(el1.vec[0], { name: "s1.x" });
+    bindToInput(el1.vec[1], { name: "s1.y" });
+    bindToInput(el2.vec[0], { name: "s2.x" });
+    bindToInput(el2.vec[1], { name: "s2.y" });
+
     forall({ e: EigenspaceLine }, ({ e }, i) => {
       e.icon = line({
         start: origin,
@@ -340,29 +343,30 @@ export const basisVectors = async (
 };
 
 export default function EigenvectorsDiagram() {
-  const [diagram1, setDiagram1] = useState<Diagram | null>(null);
-  const [diagram2, setDiagram2] = useState<Diagram | null>(null);
-
-  const [ihatx, ihaty, jhatx, jhaty, px, py] = useSharedInputs(6);
-
-  const inputs = useMemo(
-    () => ({
-      ihatx,
-      ihaty,
-      jhatx,
-      jhaty,
-      px,
-      py,
-    }),
-    [ihatx, ihaty, jhatx, jhaty, px, py],
-  );
+  const diagram = useDiagram(useCallback(() => basisVectors(true), []));
+  const [ihatx, setIhatx] = useState(0);
+  const [ihaty, setIhaty] = useState(0);
+  const [jhatx, setJhatx] = useState(0);
+  const [jhaty, setJhaty] = useState(0);
+  const [s1x, setS1x] = useState(0);
+  const [s1y, setS1y] = useState(0);
+  const [s2x, setS2x] = useState(0);
+  const [s2y, setS2y] = useState(0);
 
   useEffect(() => {
-    basisVectors(inputs, false).then(setDiagram1);
-    basisVectors(inputs, true).then(setDiagram2);
-  }, [inputs]);
+    if (diagram) {
+      diagram.addInputEffect("ihat.x", setIhatx);
+      diagram.addInputEffect("ihat.y", setIhaty);
+      diagram.addInputEffect("jhat.x", setJhatx);
+      diagram.addInputEffect("jhat.y", setJhaty);
+      diagram.addInputEffect("s1.x", setS1x);
+      diagram.addInputEffect("s1.y", setS1y);
+      diagram.addInputEffect("s2.x", setS2x);
+      diagram.addInputEffect("s2.y", setS2y);
+    }
+  }, [diagram]);
 
-  if (!diagram1 || !diagram2) {
+  if (!diagram) {
     return <div>Loading...</div>;
   }
 
@@ -375,8 +379,55 @@ export default function EigenvectorsDiagram() {
         height: "100%",
       }}
     >
-      <Renderer diagram={diagram1} />
-      <Renderer diagram={diagram2} />
+      <div
+        style={{
+          width: "50%",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <Renderer diagram={diagram} />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
+          justifyContent: "center",
+          width: "50%",
+        }}
+      >
+        <p
+          dangerouslySetInnerHTML={{
+            __html: md.render(
+              `$$A = \\begin{bmatrix} ${ihatx.toFixed(2)} & ${jhatx.toFixed(
+                2,
+              )} \\\\ ${ihaty.toFixed(2)} & ${jhaty.toFixed(
+                2,
+              )} \\end{bmatrix}$$`,
+            ),
+          }}
+        ></p>
+        {/* create column vectors for s1 and s2 */}
+        <p
+          dangerouslySetInnerHTML={{
+            __html: md.render(
+              `$$s_1 = \\begin{bmatrix} ${s1x.toFixed(2)} \\\\ ${s1y.toFixed(
+                2,
+              )} \\end{bmatrix}$$`,
+            ),
+          }}
+        ></p>
+        <p
+          dangerouslySetInnerHTML={{
+            __html: md.render(
+              `$$s_2 = \\begin{bmatrix} ${s2x.toFixed(2)} \\\\ ${s2y.toFixed(
+                2,
+              )} \\end{bmatrix}$$`,
+            ),
+          }}
+        ></p>
+      </div>
     </div>
   );
 }

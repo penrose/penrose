@@ -67,6 +67,7 @@ export class SharedInput {
 
   private diagrams = new Set<Diagram>();
   private effectMap = new Map<Diagram, (val: number) => void>();
+  private valEffects = new Set<(val: number) => void>();
   private currVal: number | null = null;
   private syncing: boolean = false;
   private optimized: boolean;
@@ -79,7 +80,7 @@ export class SharedInput {
   }
 
   set = (val: number) => {
-    this.currVal = val;
+    this.setValNoSyncing(val);
     this.preventSyncing(() => {
       for (const diagram of this.diagrams) {
         diagram.setInput(this.name, val);
@@ -87,9 +88,24 @@ export class SharedInput {
     });
   };
 
+  addEffect = (fn: (val: number) => void) => {
+    this.valEffects.add(fn);
+  };
+
+  removeEffect = (fn: (val: number) => void) => {
+    this.valEffects.delete(fn);
+  };
+
   get = () => this.currVal;
 
   getOptimized = () => this.optimized;
+
+  private setValNoSyncing = (val: number) => {
+    this.currVal = val;
+    for (const effect of this.valEffects) {
+      effect(val);
+    }
+  };
 
   private preventSyncing = (fn: () => void) => {
     this.syncing = true;
@@ -106,7 +122,7 @@ export class SharedInput {
       const effect = (val: number) => {
         if (this.syncing) return;
         this.preventSyncing(() => {
-          this.currVal = val;
+          this.setValNoSyncing(val);
           for (const otherDiagram of this.diagrams) {
             if (otherDiagram === diagram) continue;
             otherDiagram.setInput(this.name, val);
