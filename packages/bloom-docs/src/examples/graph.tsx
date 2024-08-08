@@ -1,9 +1,12 @@
+import {
+  Diagram,
+  DiagramBuilder,
+  canvas,
+  constraints,
+  objectives,
+} from "@penrose/bloom";
+import Renderer from "@penrose/bloom/dist/react/Renderer";
 import { mul, ops } from "@penrose/core";
-import { DiagramBuilder } from "bloom/lib/core/builder.js";
-import { Diagram } from "bloom/lib/core/diagram.js";
-import { canvas } from "bloom/lib/core/utils.js";
-import { constraints, objectives } from "bloom/lib/index.ts";
-import Renderer from "bloom/lib/react/Renderer.js";
 import { useEffect, useState } from "react";
 
 const graph = async () => {

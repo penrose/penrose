@@ -1,3 +1,13 @@
+import {
+  Diagram,
+  DiagramBuilder,
+  SharedInput,
+  Vec2,
+  canvas,
+  constraints,
+  useSharedInputs,
+} from "@penrose/bloom";
+import Renderer from "@penrose/bloom/dist/react/Renderer";
 import { add, div, mul, ops, sqrt } from "@penrose/core";
 import { DiagramBuilder } from "bloom/lib/core/builder.js";
 import { Vec2 } from "bloom/lib/core/types.js";

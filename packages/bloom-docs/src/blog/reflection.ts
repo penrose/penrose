@@ -1,5 +1,5 @@
+import { DiagramBuilder, canvas, constraints } from "@penrose/bloom";
 import { mul, ops } from "@penrose/core";
-import { DiagramBuilder, canvas, constraints } from "../../lib";
 
 export const reflection = async (userInput: string) => {
   const db = new DiagramBuilder(canvas(800, 400), "");

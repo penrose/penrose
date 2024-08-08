@@ -1,6 +1,9 @@
-import { DiagramBuilder } from "bloom/lib/core/builder.js";
-import { canvas } from "bloom/lib/core/utils.js";
-import { constraints, objectives } from "bloom/lib/index.ts";
+import {
+  DiagramBuilder,
+  canvas,
+  constraints,
+  objectives,
+} from "@penrose/bloom";
 
 export const sets = async () => {
   const {

@@ -1,9 +1,15 @@
+import {
+  DiagramBuilder,
+  Shape,
+  SharedInput,
+  canvas,
+  normalize,
+  rayIntersect,
+  useDiagram,
+} from "@penrose/bloom";
+import Renderer from "@penrose/bloom/dist/react/Renderer";
 import { hexToRgba, ops } from "@penrose/core";
-import { DiagramBuilder, SharedInput } from "bloom/lib/core/builder.js";
-import { canvas } from "bloom/lib/core/utils.js";
 import { useCallback, useState } from "react";
-import { Shape, normalize, rayIntersect, useDiagram } from "../../lib";
-import Renderer from "../../lib/react/Renderer.tsx";
 
 const raysDiagram = async (
   squareCenters: [SharedInput, SharedInput][],

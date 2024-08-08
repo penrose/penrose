@@ -19,12 +19,12 @@ import {
   step,
 } from "@penrose/core";
 import consola, { LogLevels } from "consola";
-import { mathjax } from "mathjax-full/js/mathjax";
-import { SharedInput } from "./builder.ts";
+import { mathjax } from "mathjax-full/js/mathjax.js";
+import { SharedInput } from "./builder.js";
 import { DragConstraint } from "./types.js";
-import { mathjaxInitWithHandler, stateToSVG } from "./utils.ts";
+import { mathjaxInitWithHandler, stateToSVG } from "./utils.js";
 
-const log = consola.create({ level: LogLevels.warn }).withTag("diagram");
+const log = consola.create({ level: LogLevels.info }).withTag("diagram");
 
 export type DiagramData = {
   canvas: Canvas;

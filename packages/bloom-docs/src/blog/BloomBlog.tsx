@@ -1,4 +1,10 @@
-import { constraints } from "bloom/lib/index.ts";
+import {
+  DiagramBuilder,
+  canvas,
+  constraints,
+  useDiagram,
+} from "@penrose/bloom";
+import Renderer from "@penrose/bloom/dist/react/Renderer.js";
 import MarkdownIt from "markdown-it";
 import mdMJ from "markdown-it-mathjax3";
 import { highlight, languages } from "prismjs";
@@ -6,14 +12,12 @@ import "prismjs/components/prism-typescript";
 import "prismjs/themes/prism.css";
 import { useCallback, useState } from "react";
 import Editor from "react-simple-code-editor";
-import { DiagramBuilder, canvas, useDiagram } from "../../lib";
-import Renderer from "../../lib/react/Renderer.tsx";
-import EigenvectorsDiagram from "../examples/eigen.tsx";
-import RaysComponent from "../examples/rays.tsx";
-import { sets } from "../examples/sets.ts";
-import CirclePackingDiagram from "./CirclePackingDiagram.tsx";
+import EigenvectorsDiagram from "../examples/eigen.js";
+import RaysComponent from "../examples/rays.js";
+import { sets } from "../examples/sets.js";
+import CirclePackingDiagram from "./CirclePackingDiagram.js";
 import "./blog.css";
-import { reflection } from "./reflection.ts";
+import { reflection } from "./reflection.js";
 
 const md = MarkdownIt().use(mdMJ);
 

@@ -1,13 +1,22 @@
 {
-  "name": "bloom",
+  "name": "@penrose/bloom",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
+  "license": "MIT",
+  "files": [
+    "dist/**/*.d.ts",
+    "dist/**/*.js",
+    "!dist/**/*.test.js",
+    "!dist/**/*.test.d.ts"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --p ./tsconfig-build.json && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "build": "tsc",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "nx": {
     "targets": {
@@ -31,8 +40,7 @@
   "dependencies": {
     "@penrose/core": "^4.0.0-alpha.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "vite-plugin-top-level-await": "^1.4.2"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/prismjs": "^1.26.4",
@@ -40,14 +48,11 @@
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
-    "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "prismjs": "^1.29.0",
     "react-simple-code-editor": "^0.14.1",
-    "typescript": "^5.2.2",
-    "vite": "^5.3.4",
-    "vite-plugin-dts": "^4.0.0-beta.1"
+    "typescript": "^5.2.2"
   }
 }
