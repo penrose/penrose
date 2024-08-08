@@ -4,12 +4,12 @@ import { SharedInput } from "../core/builder.js";
 import { Diagram } from "../core/diagram.js";
 
 export const useSharedInput = (name?: string, init?: number) => {
-  return useMemo(() => new SharedInput(init, name), [name, init]);
+  return useMemo(() => new SharedInput(init, true, name), [name, init]);
 };
 
 export const useSharedInputs = (n: number) => {
   return useMemo(() => {
-    const inputs = [];
+    const inputs: SharedInput[] = [];
     for (let i = 0; i < n; i++) {
       inputs.push(new SharedInput());
     }

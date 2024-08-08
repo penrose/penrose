@@ -312,7 +312,7 @@ export const mathjaxInitWithHandler = () => {
     ],
     processEscapes: true,
     // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
-    formatError: (jax: unknown, err: Error) => {
+    formatError: (_: unknown, err: Error) => {
       throw Error(err.message);
     },
   });
