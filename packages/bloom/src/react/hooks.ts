@@ -4,7 +4,7 @@ import { SharedInput } from "../core/builder.js";
 import { Diagram } from "../core/diagram.js";
 
 export const useSharedInput = (name?: string, init?: number) => {
-  return useMemo(() => new SharedInput(init, true, name), [name, init]);
+  return useMemo(() => new SharedInput(init, false, name), [name, init]);
 };
 
 export const useSharedInputs = (n: number) => {

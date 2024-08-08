@@ -20,12 +20,12 @@ import {
   vectorV,
 } from "@penrose/core";
 import _ from "lodash";
-import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor";
-import { HTMLHandler } from "mathjax-full/js/handlers/html/HTMLHandler";
-import { TeX } from "mathjax-full/js/input/tex";
-import { AllPackages } from "mathjax-full/js/input/tex/AllPackages";
-import { mathjax } from "mathjax-full/js/mathjax";
-import { SVG } from "mathjax-full/js/output/svg";
+import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
+import { HTMLHandler } from "mathjax-full/js/handlers/html/HTMLHandler.js";
+import { TeX } from "mathjax-full/js/input/tex.js";
+import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
+import { mathjax } from "mathjax-full/js/mathjax.js";
+import { SVG } from "mathjax-full/js/output/svg.js";
 import {
   Color,
   Shape,
