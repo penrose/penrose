@@ -223,6 +223,11 @@ export default defineConfig({
         activeMatch: "/docs/tutorial",
       },
       { text: "Docs", link: "/docs/ref", activeMatch: "/docs/ref" },
+      {
+        text: "Bloom",
+        link: "/docs/bloom/hello_diagram",
+        activeMatch: "/docs/bloom",
+      },
       { text: "Blog", link: "/blog", activeMatch: "/blog" },
       { text: "Team", link: "/docs/team" },
       { text: "Editor", link: "/try/index.html", target: "_blank" },
