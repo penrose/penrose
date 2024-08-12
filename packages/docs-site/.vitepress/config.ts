@@ -63,7 +63,7 @@ const indexableFunctionDocs = () => {
 };
 
 // https://github.com/vuejs/vitepress/issues/529#issuecomment-1151186631
-const customElements = [
+export const customElements = [
   "math",
   "maction",
   "maligngroup",
@@ -411,6 +411,15 @@ export default defineConfig({
         },
       ],
       "/blog": [
+        {
+          text: "August 2024",
+          items: [
+            {
+              text: "Announcing Bloom",
+              link: "/blog/bloom",
+            },
+          ],
+        },
         {
           text: "August 2023",
           items: [

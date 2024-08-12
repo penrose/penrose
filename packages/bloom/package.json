@@ -51,8 +51,6 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
-    "prismjs": "^1.29.0",
-    "react-simple-code-editor": "^0.14.1",
     "typescript": "^5.2.2"
   }
 }

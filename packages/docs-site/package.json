@@ -48,7 +48,12 @@
   "dependencies": {
     "@penrose/components": "^4.0.0-alpha.0",
     "@penrose/examples": "^4.0.0-alpha.0",
-    "veaury": "^2.3.11"
+    "@types/prismjs": "^1.26.4",
+    "prismjs": "^1.29.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-simple-code-editor": "^0.14.1",
+    "veaury": "^2.4.3"
   },
   "devDependencies": {
     "@penrose/core": "^4.0.0-alpha.0",
@@ -56,12 +61,15 @@
     "@penrose/roger": "^4.0.0-alpha.0",
     "@tailwindcss/typography": "^0.5.4",
     "@types/markdown-it": "^12.2.3",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-vue": "^5.1.2",
+    "@vitejs/plugin-vue-jsx": "^4.0.0",
     "chalk": "^3.0.0",
     "markdown-it": "^13.0.1",
     "markdown-it-katex": "^2.0.3",
     "shikiji": "^0.10.0-beta.6",
     "shx": "^0.3.3",
     "tailwindcss": "^3.1.8",
-    "vitepress": "^1.0.0-rc.39"
+    "vitepress": "^1.3"
   }
 }

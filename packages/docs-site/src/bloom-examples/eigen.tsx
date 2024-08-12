@@ -1,19 +1,12 @@
 import {
-  Diagram,
   DiagramBuilder,
-  SharedInput,
   Vec2,
   canvas,
   constraints,
-  useSharedInputs,
+  useDiagram,
 } from "@penrose/bloom";
-import Renderer from "@penrose/bloom/dist/react/Renderer";
+import Renderer from "@penrose/bloom/dist/react/Renderer.js";
 import { add, div, mul, ops, sqrt } from "@penrose/core";
-import { DiagramBuilder } from "bloom/lib/core/builder.js";
-import { Vec2 } from "bloom/lib/core/types.js";
-import { canvas } from "bloom/lib/core/utils.js";
-import { constraints, useDiagram } from "bloom/lib/index.ts";
-import Renderer from "bloom/lib/react/Renderer.js";
 import MarkdownIt from "markdown-it";
 import mdMJ from "markdown-it-mathjax3";
 import { useCallback, useEffect, useState } from "react";

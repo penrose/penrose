@@ -1,7 +1,13 @@
-import { DiagramBuilder, canvas, constraints } from "@penrose/bloom";
+import {
+  DiagramBuilder,
+  canvas,
+  constraints,
+  useDiagram,
+} from "@penrose/bloom";
+import Renderer from "@penrose/bloom/dist/react/Renderer.js";
 import { mul, ops } from "@penrose/core";
 
-export const reflection = async (userInput: string) => {
+export const reflection = async () => {
   const db = new DiagramBuilder(canvas(800, 400), "");
   const { type, line, circle, build, input, ensure, forall } = db;
 
@@ -71,7 +77,9 @@ export const reflection = async (userInput: string) => {
     r.normVec = ops.vnormalize(ops.vsub(r.end, r.start));
   });
 
-  eval(userInput);
+  const r1y = ray1.normVec[1];
+  const r2y = ray2.normVec[1];
+  ensure(constraints.equal(r1y, mul(-1, r2y)));
 
   const r1x = ray1.normVec[0];
   const r2x = ray2.normVec[0];
@@ -79,3 +87,21 @@ export const reflection = async (userInput: string) => {
 
   return await build();
 };
+
+export default function ReflectionDiagram() {
+  const reflectionDiagram = useDiagram(reflection);
+
+  if (!reflectionDiagram) {
+    return <div>Loading...</div>;
+  }
+  return (
+    <div
+      style={{
+        marginTop: "2em",
+        height: "20em",
+      }}
+    >
+      <Renderer diagram={reflectionDiagram} />
+    </div>
+  );
+}
