@@ -299,7 +299,7 @@ export const stateToSVG = async (
 export const mathjaxInitWithHandler = () => {
   const adaptor = browserAdaptor();
   const handler = new HTMLHandler(adaptor);
-  mathjax.handlers.add(handler, 1);
+  mathjax.handlers.add(handler, 10);
 
   const tex = new TeX({
     packages: AllPackages,

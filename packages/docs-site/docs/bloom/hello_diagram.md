@@ -1,11 +1,12 @@
 # Hello, Diagram
+
 ---
 
-Welcome! We’re excited you’ve decided to try Bloom. These series of tutorials will walk you through everything you need 
-to start making beautiful interactive diagrams directly in React. This first chapter will give a high level overview 
+Welcome! We’re excited you’ve decided to try Bloom. These series of tutorials will walk you through everything you need
+to start making beautiful interactive diagrams directly in React. This first chapter will give a high level overview
 of the process of diagramming and rendering.
 
-These tutorials expect that you have some proficiency with JavaScript and React, plus a teeny bit of linear algebra, 
+These tutorials expect that you have some proficiency with JavaScript and React, plus a teeny bit of linear algebra,
 though we’ll keep that to a minimum. They _do not_ assume you have any experience with Penrose, though if you do,
 you’ll likely find the concepts familiar.
 
@@ -15,43 +16,32 @@ Here’s what we’re working towards:
 
 ### Building the Diagram
 
-The first step in using Bloom is to create a `DiagramBuilder` object. This object contains methods allowing you to 
+The first step in using Bloom is to create a `DiagramBuilder` object. This object contains methods allowing you to
 declare types, substances, style selectors, shapes, constraints, and everything else you need to build your diagram.
 When we're done, well call `.build()` to get the diagram object.
 
-You’ll almost certainly want to wrap the process of building your diagram it’s own function, which we’ll call later 
+You’ll almost certainly want to wrap the process of building your diagram it’s own function, which we’ll call later
 when we render the diagram:
 
 ```typescript
 const buildMyDiagram = async () => {
-  const db = new DiagramBuilder(
-    canvas(400, 400),
-    ""
-  );
-  
-  const {
-      type,
-      predicate,
-      circle,
-      line,
-      build,
-      forall,
-      forallWhere,
-      ensure,
-  } = db;
+  const db = new DiagramBuilder(canvas(400, 400), "");
+
+  const { type, predicate, circle, line, build, forall, forallWhere, ensure } =
+    db;
 
   // diagramming goes here!
 
   return await build();
-}
+};
 ```
 
-It’s not strictly necessary to destructure the `DiagramBuilder` methods, but it’s convenient, and for the remainder of 
-these tutorials we assume that every method we need has been destructured. We do recommend keeping a reference to the 
+It’s not strictly necessary to destructure the `DiagramBuilder` methods, but it’s convenient, and for the remainder of
+these tutorials we assume that every method we need has been destructured. We do recommend keeping a reference to the
 original `db` variable like above, in case you want to pass it to a helper function.
 
 On to the diagramming! Our diagram needs to have two circles, and an arrow connecting them. While we could declare those
-shapes right away, Bloom encourages you to first declare the abstract objects in your scene, and define rules to style 
+shapes right away, Bloom encourages you to first declare the abstract objects in your scene, and define rules to style
 those objects. This leads to better reusability, better readability, and often fewer bugs.
 
 ```typescript
@@ -65,13 +55,12 @@ const arrow = Arrow();
 Connects(arrow, p1, p2);
 ```
 
-This code declares to Bloom that we have two kinds of objects in our scene: `Point`s and `Arrow`s. We also have a possible 
-relationship `Connects`. We then instantiate two points into two substances, `p1` and `p2`, an arrow `arrow`, and 
-specify that `arrow` connects `p1` to `p2`. Predicates are untyped, so we could have put any objects in any order into 
+This code declares to Bloom that we have two kinds of objects in our scene: `Point`s and `Arrow`s. We also have a possible
+relationship `Connects`. We then instantiate two points into two substances, `p1` and `p2`, an arrow `arrow`, and
+specify that `arrow` connects `p1` to `p2`. Predicates are untyped, so we could have put any objects in any order into
 `Connects`; we just need to make sure we’re consistent when we style this relationship later.
 
 The final step is to ‘style’ these constructs:
-
 
 ```typescript
 const pointRad = 50;
@@ -93,13 +82,13 @@ forallWhere(
   const pStart = ops.vmul(pointRad + pointMargin, pqNorm); // vector from p to line start
   const start = ops.vadd(p.icon.center, pStart); // line start
   const end = ops.vsub(q.icon.center, pStart);  // line end
-  
+
   a.icon = line({
     start,
     end,
     endArrowhead: "straight",
   });
-  
+
   ensure(constraints.greaterThan(
     ops.vdist(p.icon.center, q.icon.center),
     2 * (pointRad + pointMargin)
@@ -113,9 +102,9 @@ Let’s go through this piece by piece.
 forall({ p : Point }, ({ p }) => {
 ```
 
-The `forall` method takes in a ‘selector’ of substances: in the first case, we’re selecting over all individual `Point`s 
-and naming them `p` (via `{ p : Point }`).  We then pass a function taking in an ‘assignment’ to this selection, which in 
-this case we expect to run on every Point, and from there we’re free to style however we like. In this case, we create 
+The `forall` method takes in a ‘selector’ of substances: in the first case, we’re selecting over all individual `Point`s
+and naming them `p` (via `{ p : Point }`). We then pass a function taking in an ‘assignment’ to this selection, which in
+this case we expect to run on every Point, and from there we’re free to style however we like. In this case, we create
 a circle of radius pointRad, and store it in a field of the point we call `p`.
 
 ```typescript
@@ -124,8 +113,8 @@ p.icon = circle({
 )};
 ```
 
-`icon` is not a special name in any way; we could have named it `shape` or circle or anything we like. In fact, simply 
-for the purposes of drawing the circle, we don’t even need to store it. The following would still draw a circle for 
+`icon` is not a special name in any way; we could have named it `shape` or circle or anything we like. In fact, simply
+for the purposes of drawing the circle, we don’t even need to store it. The following would still draw a circle for
 every point:
 
 ```typescript
@@ -137,7 +126,7 @@ forall({ p : Point }, ({ p }) => {
 });
 ```
 
-However, storing the circle in p.icon allows us to access the circle in future selections. Also note that there are 
+However, storing the circle in p.icon allows us to access the circle in future selections. Also note that there are
 lots more fields of circle we didn’t fill in, such as `center`, `fillColor`, etc. All shape fields are optional in Bloom,
 and if left out either have a default value or are randomly sampled. You can check out these defaults (and the available
 shapes) in the Penrose documentation. These fields also correspond closely with the SVG spec.
@@ -148,9 +137,10 @@ forallWhere(
 ({ a, p, q }) => Connects.test(a, p, q),
 ({ a, p, q }) => {
 ```
-`forallWhere` selects over substances just like forall, except only assignments which satisfy a boolean predicate 
+
+`forallWhere` selects over substances just like forall, except only assignments which satisfy a boolean predicate
 are passed to your styling function. In this case, we test whether we previously declared that `a`, `p`, `q` have the
-relationship `Connects`. We declared this for exactly one such triple, so we can expect our styling function to run 
+relationship `Connects`. We declared this for exactly one such triple, so we can expect our styling function to run
 only once with `a === arrow`, `p === p1`, and `q === p2`.
 
 ```typescript
@@ -158,14 +148,14 @@ const pq = ops.vsub(q.icon.center, p.icon.center); // vector from p to q
 const pqNorm = ops.vnormalize(pq); // direction from p to q
 const pStart = ops.vmul(pointRad + pointMargin, pqNorm); // vector from p to line start
 const start = ops.vadd(p.icon.center, pStart); // line start
-const end = ops.vsub(q.icon.center, pStart);  // line end
+const end = ops.vsub(q.icon.center, pStart); // line end
 ```
 
-If you refer back to the diagram at the top of this article, you can see we want our arrow to lie on the line 
-connecting the centers of `p` and `q`, but with a padding between the circle and the endpoints of the arrow. 
-So we take the vector connecting them (`pq`), normalize it to get the unit length direction (`pqNorm`), multiply it by 
-`pointRad` + `pointMargin` to get the vector from `p` to the start of the arrow `pStart`. Adding `pStart` to `p` gets us the start 
-of the arrow, and subtracting `pStart` from `q` gets us the end. All of these vector operations are part of the Penrose API, 
+If you refer back to the diagram at the top of this article, you can see we want our arrow to lie on the line
+connecting the centers of `p` and `q`, but with a padding between the circle and the endpoints of the arrow.
+So we take the vector connecting them (`pq`), normalize it to get the unit length direction (`pqNorm`), multiply it by
+`pointRad` + `pointMargin` to get the vector from `p` to the start of the arrow `pStart`. Adding `pStart` to `p` gets us the start
+of the arrow, and subtracting `pStart` from `q` gets us the end. All of these vector operations are part of the Penrose API,
 in the exported `ops` dictionary.
 
 Drawing the arrow is now self-explanatory:
@@ -178,8 +168,8 @@ a.icon = line({
 });
 ```
 
-The final aspect to consider is that we don’t want the user to drag the points too close to each other, or else the 
-arrow disappears. We can tell the optimizer to ensure this is the case by demanding that the distance between the 
+The final aspect to consider is that we don’t want the user to drag the points too close to each other, or else the
+arrow disappears. We can tell the optimizer to ensure this is the case by demanding that the distance between the
 points is greater than the sum of their radii and padding:
 
 ```typescript
@@ -198,14 +188,14 @@ diagram and the `Renderer` component to display it. Here's an example:
 
 ```typescript
 export const MyDiagramComponent = () => {
-const diagram = useDiagram(buildMyDiagram);
+  const diagram = useDiagram(buildMyDiagram);
 
-if (!diagram) return <div>Loading...</div>;
-else return <Renderer diagram={diagram} />;
-}
+  if (!diagram) return <div>Loading...</div>;
+  else return <Renderer diagram={diagram} />;
+};
 ```
 
-`useDiagram` runs your building function and stores the built diagram as a React state (it also sets up some callbacks 
-or live site integration, so simply memoizing your diagram won’t always do what you expect). Diagram building is 
-asynchronous though, so until it is built, diagram will be null–hence the null check. `Renderer` starts a render loop 
+`useDiagram` runs your building function and stores the built diagram as a React state (it also sets up some callbacks
+or live site integration, so simply memoizing your diagram won’t always do what you expect). Diagram building is
+asynchronous though, so until it is built, diagram will be null–hence the null check. `Renderer` starts a render loop
 and sets up interaction callbacks for your diagram.
