@@ -24,7 +24,7 @@ import { SharedInput } from "./builder.js";
 import { DragConstraint } from "./types.js";
 import { mathjaxInitWithHandler, stateToSVG } from "./utils.js";
 
-const log = consola.create({ level: LogLevels.info }).withTag("diagram");
+const log = consola.create({ level: LogLevels.warn }).withTag("diagram");
 
 export type DiagramData = {
   canvas: Canvas;
@@ -280,9 +280,6 @@ export class Diagram {
     newVaryingValues: number[],
   ) => {
     for (const [name, effects] of this.inputEffects) {
-      if (name === "ihat.x") {
-        console.log("hi");
-      }
       const idx = this.namedInputs.get(name)!;
       if (prevVaryingValues[idx] !== newVaryingValues[idx]) {
         for (const effect of effects) {

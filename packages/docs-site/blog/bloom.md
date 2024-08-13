@@ -14,15 +14,15 @@ const CirclePacking = applyReactInVue(CirclePackingReact);
 
 # Bloom
 
-Optimization based interactive diagramming, directly in JavaScript
+Optimization-driven interactive diagramming, directly in JavaScript
 
 _powered by Penrose_
 
 ---
 
 We are excited to announce Bloom, an open-source JavaScript library for interactive diagram creation.
-Bloom uses simple, readable constructs and differentiable programming to generate
-beautiful and extensible diagrams.
+Bloom builds on top of Penrose to provide the same declarative language, while adding new constructs for interaction
+and site integration. 
 
 <Eigen/>
 
@@ -49,8 +49,7 @@ uncommenting the <code>disjoint</code> constraint, and watch what happens!
 Much of the language we use to describe diagrams involves either
 constraints we would like to satisfy, or objectives we would like to
 maximize. For example, we might specify that two polygons must be
-“touching”, or that two circles are “near” to each other. Penrose, a
-system for generating diagrams from plaintext, lets the user describe
+“touching”, or that two circles are “near” to each other. Penrose lets the user describe
 their diagrams using an extensive library of these descriptions, and then
 optimizes the diagram to satisfy them. Bloom builds on this, allowing you
 to describe these diagrams directly in JavaScript, and continuously
@@ -128,6 +127,7 @@ define substances, use loops in styling selectors, and much more.
 We recommend sticking to the process above, however : )
 
 ### React Integration
+
 Bloom integrates tightly with React, providing rendering components and
 custom hooks to streamline diagram development. Compiled Bloom diagrams
 also provide a programmatic API for live site integration:
@@ -136,4 +136,4 @@ also provide a programmatic API for live site integration:
 
 ### Getting started
 
-Check out our docs!
+That's just the beginning: check out our docs for an extended tutorial. We're excited to se what you build!

@@ -269,6 +269,26 @@ export default defineConfig({
           ],
         },
       ],
+      "/docs/bloom": [
+        {
+          text: "Bloom",
+          items: [
+            { text: "Hello, Diagram", link: "/docs/bloom/hello_diagram" },
+            {
+              text: "Procedural Diagramming and Optimization",
+              link: "/docs/bloom/optimization",
+            },
+            {
+              text: "Interactivity",
+              link: "/docs/bloom/interactivity",
+            },
+            {
+              text: "Site Integration",
+              link: "/docs/bloom/site_integration",
+            },
+          ],
+        },
+      ],
       "/docs/ref": [
         {
           text: "Reference",
