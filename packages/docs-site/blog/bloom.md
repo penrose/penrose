@@ -11,23 +11,16 @@ authors:
 ---
 
 <script setup>
-import Eigen from "../src/bloom-examples/Eigen.vue"
-// TODO: port the rest of these components
-// import * as veaury from "veaury"
-// import EigenReact from "../src/bloom-examples/eigen.tsx";
-// import CirclesReact from "../src/bloom-examples/circles.tsx";
-// import RaysReact from "../src/bloom-examples/rays.tsx";
-// import ReflectionReact from "../src/bloom-examples/reflection.tsx";
-
-// const Circles = veaury.applyReactInVue(CirclesReact);
-// const RaysComponent = veaury.applyReactInVue(RaysReact);
-// const Reflection = veaury.applyReactInVue(ReflectionReact);
-// const CirclePacking = veaury.applyReactInVue(CirclePackingReact);
+import Eigen from "../src/bloom-examples/Eigen.vue";
+import Reflection from "../src/bloom-examples/Reflection.vue";
+import Circles from "../src/bloom-examples/Circles.vue";
+import CirclePacking from "../src/bloom-examples/CirclePacking.vue";
+import Rays from "../src/bloom-examples/Rays.vue";
 </script>
 
 <BlogMeta />
 
-Optimization-driven interactive diagramming, directly in JavaScript
+Interactive, optimization-driven diagramming in JavaScript
 
 _powered by Penrose_
 
@@ -55,7 +48,7 @@ interaction.
 Below is a short Bloom program drawing a couple of circles. Try
 uncommenting the <code>disjoint</code> constraint, and watch what happens!
 
-<!-- <Circles /> -->
+<Circles />
 
 ### Optimization-Driven
 
@@ -73,7 +66,13 @@ mirror, no matter where the user drags each endpoint. We _could_
 calculate the _exact_ intersection such that the $y$ coordinate of the
 ray is reversed, but why not let the optimizer do the work?
 
-<!-- <Reflection /> -->
+```typescript
+const r1y = ray1.normVec[1];
+const r2y = ray2.normVec[1];
+ensure(constraints.equal(r1y, mul(-1, r2y)));
+```
+
+<Reflection />
 
 Here’s another example: to prevent objects from overlapping as we drag
 them around, you would typically need to specify a complex interaction of
@@ -81,7 +80,7 @@ forces, update rules, and collision detection. With Bloom, you can let the
 optimizer handle this with the <code>disjoint</code> constraint:
 
 <div style="display: flex; flex-direction: row; justify-content: space-evenly; height: 30em">
-<!-- <CirclePacking /> -->
+<CirclePacking />
 </div>
 
 ### Declarative
@@ -147,7 +146,7 @@ Bloom integrates tightly with React, providing rendering components and
 custom hooks to streamline diagram development. Compiled Bloom diagrams
 also provide a programmatic API for live site integration:
 
-<!-- <RaysComponent /> -->
+<Rays />
 
 ### Getting started
 

@@ -1,11 +1,11 @@
 import {
   DiagramBuilder,
+  Renderer,
   Vec2,
   canvas,
   constraints,
   useDiagram,
 } from "@penrose/bloom";
-import Renderer from "@penrose/bloom/dist/react/Renderer.js";
 import { add, div, mul, ops, sqrt } from "@penrose/core";
 import MarkdownIt from "markdown-it";
 import mdMJ from "markdown-it-mathjax3";

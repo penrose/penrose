@@ -1,5 +1,6 @@
 import {
   DiagramBuilder,
+  Renderer,
   Shape,
   SharedInput,
   canvas,
@@ -7,7 +8,6 @@ import {
   rayIntersect,
   useDiagram,
 } from "@penrose/bloom";
-import Renderer from "@penrose/bloom/dist/react/Renderer";
 import { hexToRgba, ops } from "@penrose/core";
 import { useCallback, useState } from "react";
 

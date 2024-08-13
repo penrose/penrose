@@ -1,12 +1,12 @@
 import {
   DiagramBuilder,
+  Renderer,
   SharedInput,
   canvas,
   constraints,
   useDiagram,
   useSharedInput,
 } from "@penrose/bloom";
-import Renderer from "@penrose/bloom/dist/react/Renderer.js";
 import { useCallback } from "react";
 
 const circlePackingDiagram = async (inputs: {

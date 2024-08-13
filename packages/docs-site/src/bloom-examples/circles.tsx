@@ -1,17 +1,26 @@
 import {
+  DiagramBuilder,
+  Renderer,
   canvas,
   constraints,
-  DiagramBuilder,
   useDiagram,
 } from "@penrose/bloom";
-import Renderer from "@penrose/bloom/dist/react/Renderer.js";
 import * as prismjs from "prismjs";
 import "prismjs/components/prism-typescript.js";
 import "prismjs/themes/prism.css";
 import { useCallback, useState } from "react";
 import Editor from "react-simple-code-editor";
 
-const circleDiagramInput = `const Tiddlywink = type();
+const preamble = `
+const { DiagramBuilder, Renderer, canvas, useDiagram, constraints } = bloom;
+const db = new DiagramBuilder(canvas(800, 400), "", 10000);
+const { type, forall, circle, ensure } = db;`;
+
+const postamble = `
+return db.build();`;
+
+const circleDiagramInput = `
+const Tiddlywink = type();
 
 const tw1 = Tiddlywink();
 const tw2 = Tiddlywink();
@@ -34,11 +43,13 @@ forall({ tw1: Tiddlywink, tw2: Tiddlywink }, ({ tw1, tw2 }) => {
 });`;
 
 const build = async (circleInput: string) => {
-  const db = new DiagramBuilder(canvas(800, 200), "", 100);
-  const { type, forall, circle, ensure } = db;
-  constraints; // to force import for eval
-  eval(circleInput);
-  return await db.build();
+  const bloom: Record<string, any> = {};
+  bloom["DiagramBuilder"] = DiagramBuilder;
+  bloom["Renderer"] = Renderer;
+  bloom["canvas"] = canvas;
+  bloom["useDiagram"] = useDiagram;
+  bloom["constraints"] = constraints;
+  return new Function("bloom", preamble + circleInput + postamble)(bloom);
 };
 
 export default function CirclesDiagram() {

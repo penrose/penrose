@@ -1,10 +1,10 @@
 import {
   DiagramBuilder,
+  Renderer,
   canvas,
   constraints,
   useDiagram,
 } from "@penrose/bloom";
-import Renderer from "@penrose/bloom/dist/react/Renderer.js";
 import { mul, ops } from "@penrose/core";
 
 export const reflection = async () => {
