@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v4.0.0-alpha.1] (2024-07-11)
+
+### :rocket: New Feature
+
+- `DraggablePoint` in `solids` ([#1485](https://github.com/penrose/penrose/issues/1485)) ([165adfb](https://github.com/penrose/penrose/commit/165adfb170c87a44dd967a7e2d28f46b2e230935))
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+
+### :nail_care: Polish
+
+- integrate Rose ([#1636](https://github.com/penrose/penrose/issues/1636)) ([d7c1ef4](https://github.com/penrose/penrose/commit/d7c1ef4be11ac0251f026c755039bccc05818303))
+
+### :memo: Documentation
+
+- comment SolidJS `sample` function ([#1656](https://github.com/penrose/penrose/issues/1656)) ([68975e5](https://github.com/penrose/penrose/commit/68975e5519ee3ad9ba0e5b50bd9b2766fff2c543))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+
 ## [v4.0.0-alpha.0] (2024-05-07)
 
 ### :rocket: New Feature

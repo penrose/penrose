@@ -75,7 +75,7 @@ NumericExpression {
     Number |
     Identifier |
     (ArithOp<"-">) NumericExpression |
-    NumericExpression !times (ArithOp<"/"> | ArithOp<"%"> | ArithOp<"*"> | ArithOp<"^">) NumericExpression |
+    NumericExpression !times (ArithOp<"/"> | ArithOp<"%"> | ArithOp<"mod"> | ArithOp<"*"> | ArithOp<"^">) NumericExpression |
     NumericExpression !plus (ArithOp<"+" | "-">) NumericExpression |
     "(" NumericExpression ")"
 }

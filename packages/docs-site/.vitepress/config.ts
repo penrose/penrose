@@ -399,6 +399,10 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              text: "Interactivity (experimental)",
+              link: "/docs/ref/Interactivity",
+            },
           ],
         },
         {

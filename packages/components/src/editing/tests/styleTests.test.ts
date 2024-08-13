@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { getShapeDefs } from "../hooks/hooksUtils";
 import {
   getComputationFns,
-  getConstraints,
+  getConstraints_Objectives,
   getNamespaceDict,
   getShapeNames,
   selectorHeaderKws,
@@ -783,7 +783,9 @@ describe("Autocomplete", () => {
   const shapeDefns = getShapeDefs();
   const shapeNames = getShapeNames(shapeDefns).map((cmp) => cmp.label.trim());
   const computationFns = getComputationFns().map((cmp) => cmp.label.trim());
-  const constraints = getConstraints().map((cmp) => cmp.label.trim());
+  const constraints = getConstraints_Objectives().map((cmp) =>
+    cmp.label.trim(),
+  );
 
   test("ShapeProps Circle", async () => {
     const input = `canvas {

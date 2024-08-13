@@ -1,0 +1,9 @@
+Carbon c1
+Hydrogen h1, h2
+Oxygen o1
+
+Bond b1 := SingleBond(h1, c1)
+Bond b2 := SingleBond(h2, c1)
+Bond b3 := DoubleBond(o1, c1)
+
+FourDots(o1)

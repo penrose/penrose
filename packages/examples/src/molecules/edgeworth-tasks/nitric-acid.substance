@@ -1,0 +1,12 @@
+Oxygen o1, o2, o3 
+Hydrogen h1
+Nitrogen n1
+
+Bond b1 := SingleBond(h1, o1)
+Bond b2 := SingleBond(o1, n1)
+Bond b3 := DoubleBond(n1, o2)
+Bond b4 := SingleBond(n1, o3)
+
+FourDots(o1)
+FourDots(o2)
+SixDots(o3)

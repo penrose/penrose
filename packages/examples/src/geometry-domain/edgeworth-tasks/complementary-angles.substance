@@ -1,0 +1,22 @@
+Point A, B, C, D
+Let BC := Segment(B, C)
+Angle CAB := InteriorAngle(C, A, B)
+Angle CDB := InteriorAngle(C, D, B)
+Angle ACB := InteriorAngle(A, C, B)
+Angle CBD := InteriorAngle(C, B, D)
+EqualAngleMarker(ACB, CBD)
+RightMarked(CAB)
+RightMarked(CDB)
+Let AB := Segment(A, B)
+Let AC := Segment(A, C)
+Let CD := Segment(C, D)
+Let DB := Segment(D, B)
+EqualLengthMarker(AC, DB)
+EqualLength(AC, DB)
+ParallelMarker(AB, CD)
+Parallel(AB, CD)
+Point M
+On(M, BC)
+Let c := Circle(M, B)
+OnCircle(c, C)
+AutoLabel A, B, C, D
