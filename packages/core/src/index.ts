@@ -396,6 +396,7 @@ export type {
 export type { CompFunc } from "./types/functions.js";
 export * from "./types/state.js";
 export type { SubProg } from "./types/substance.js";
+export { valueTypeDesc } from "./types/types.js";
 export * as Value from "./types/value.js";
 export {
   collectLabels,
@@ -422,8 +423,8 @@ export {
   describeType,
   floatV,
   hexToRgba,
-  pathDataV,
   isKeyOf,
+  pathDataV,
   prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
@@ -434,5 +435,3 @@ export {
   vectorV,
   zip2,
 } from "./utils/Util.js";
-export type { Shape } from "./shapes/Shapes.js";
-export { valueTypeDesc } from "./types/types.js";
