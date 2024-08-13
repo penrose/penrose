@@ -5,6 +5,7 @@ import {
   sampleShape,
   shapeTypes,
   simpleContext,
+  valueTypeDesc,
 } from "@penrose/core";
 import { ShapeDefinitions } from "../types";
 
@@ -35,6 +36,54 @@ export const getShapeDefs = (): ShapeDefinitions => {
 
   return shapeProps;
 };
+
+/**
+ * Dict should be constrDict[key], compDict[key], or objDict[key].
+ * Takes a function name and returns a string
+ * functionName(param1:type1, param2:type2,...)
+ */
+export const toParamString = (dict: any, name: string) => {
+  if (!dict.params || !Array.isArray(dict.params)) {
+    return "";
+  }
+
+  const formattedParams = dict.params
+    .map((param: any) => {
+      let typeName = param.type.type;
+
+      if (typeName in valueTypeDesc) {
+        return `${param.name}: ${
+          valueTypeDesc[typeName as keyof typeof valueTypeDesc].symbol
+        }`;
+      }
+
+      return `${param.name}: ${typeName}`;
+    })
+
+    .join(", ");
+  return `${name}(${formattedParams})`;
+};
+
+// map is meant to conform to valueTypeDesc as closely as possible
+// VectorV is only used for center, start, and end. Hence R^2
+export const convertShapeProps = (prop: string): string => {
+  let map = {
+    StrV: "String",
+    ColorV: '"rgb" | "hsv"',
+    FloatV: "ℝ",
+    BoolV: "true | false",
+    VectorV: "ℝ²",
+    PathDataV: "PathData[]",
+    PtListV: "(ℝ²)ⁿ",
+  };
+
+  if (prop in map) {
+    return map[prop as keyof typeof map];
+  }
+
+  return prop;
+};
+
 export const goToParentX = (node: SyntaxNode, x: number) => {
   let i = 0;
   let nextParent: SyntaxNode | null = node;

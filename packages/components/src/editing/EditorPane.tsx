@@ -1,4 +1,5 @@
 import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
+
 import { lintGutter, linter } from "@codemirror/lint";
 import { Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
@@ -21,6 +22,7 @@ import {
 import DomainAutocomplete from "./hooks/domain/domainAutocomplete";
 import { getShapeDefs } from "./hooks/hooksUtils";
 import StyleAutocomplete from "./hooks/style/styleAutocomplete";
+import { wordHover } from "./hooks/style/styleTooltips";
 import SubstanceAutocomplete from "./hooks/substance/substanceAutocomplete";
 import { createLinter } from "./hooks/useLinter";
 import { domainLanguageSupport } from "./parser/domain/domainLanguage";
@@ -125,6 +127,7 @@ export default function EditorPane({
   const styleExtensions = [
     autocompletion({ override: [styleCompletionFn] }),
     styleLanguageSupport(),
+    wordHover,
   ].concat(defaultExtensions);
 
   let extensionsList =
@@ -158,7 +161,10 @@ export default function EditorPane({
     });
   }
 
-  if (vimMode) extensionsList.push(vim());
+  if (vimMode) {
+    // NOTE: need to make sure vim keybindings have the highest precedence whenever we're in vim mode
+    extensionsList.push(Prec.highest(vim()));
+  }
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
@@ -176,6 +182,7 @@ export default function EditorPane({
         maxWidth={maxWidth}
         minHeight={minHeight}
         minWidth={minWidth}
+        readOnly={readOnly}
       />
       <div
         ref={statusBarRef}

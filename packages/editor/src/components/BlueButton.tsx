@@ -10,7 +10,6 @@ const BlueButton = styled.button<{}>`
   color: #ffffff;
   background-color: #40b4f7;
   padding: 0.25em 0.3em 0.3em 0.3em;
-  margin: 0 0.3em 0 0.3em;
   user-select: none;
   border-radius: 6px;
   transition: 0.2s;

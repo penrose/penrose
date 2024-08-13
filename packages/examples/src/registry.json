@@ -215,6 +215,9 @@
     "name": "Circle Example",
     "gallery": true
   },
+  "molecules/sulfuric-acid": {
+    "name": "Edgeworth Chemistry Example"
+  },
   "curve-examples/catmull-rom/catmull-rom": {
     "name": "Catmull-Rom Interpolation Test",
     "gallery": true
@@ -565,6 +568,10 @@
   },
   "dataviz/residual": {
     "name": "Linear Regression Residuals",
+    "gallery": false
+  },
+  "geometry-domain/complementary-angles": {
+    "name": "Complementary angles",
     "gallery": false
   },
   "alloy-models/icicle-plot-file-system": {

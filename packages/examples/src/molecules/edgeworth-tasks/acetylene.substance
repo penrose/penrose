@@ -1,0 +1,6 @@
+Carbon c1, c2 
+Hydrogen h1, h2
+
+Bond b1 := SingleBond(h1, c1)
+Bond b2 := SingleBond(h2, c2)
+Bond b3 := TripleBond(c1, c2)

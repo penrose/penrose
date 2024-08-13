@@ -1,6 +1,8 @@
 import { isPenroseError, runtimeError, showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
+import { useMediaQuery } from "react-responsive";
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
+import styled from "styled-components";
 import {
   DiagramID,
   StepSequenceID,
@@ -18,13 +20,23 @@ import {
   settingsState,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
+import { useCompileDiagram, useResampleDiagram } from "../state/callbacks.js";
 import { pathResolver } from "../utils/downloadUtils.js";
 import {
   renderPlayModeInteractivity,
   stateToSVG,
 } from "../utils/renderUtils.js";
+import BlueButton from "./BlueButton.js";
 import InteractivityOverlay from "./InteractivityOverlay.js";
 import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
+
+const DiagramPanelButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  justify-content: space-around;
+`;
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -45,6 +57,10 @@ export default function DiagramPanel() {
 
   const currDiagramId = useRef<DiagramID | null>(null);
   const currStepSequenceId = useRef<StepSequenceID | null>(null);
+
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const compileDiagram = useCompileDiagram();
+  const resampleDiagram = useResampleDiagram();
 
   useEffect(() => {
     const cur = canvasRef.current;
@@ -220,6 +236,7 @@ export default function DiagramPanel() {
           flexDirection: "column",
           maxHeight: "100%",
           width: "100%",
+          marginBottom: "10px",
         }}
       >
         {state === null && (
@@ -317,6 +334,23 @@ export default function DiagramPanel() {
           ></iframe>
         )}
         <LayoutTimelineSlider />
+
+        {isMobile && (
+          <DiagramPanelButtonContainer>
+            <BlueButton
+              disabled={workerState.compiling}
+              onClick={compileDiagram}
+            >
+              compile
+            </BlueButton>
+            <BlueButton
+              disabled={workerState.compiling}
+              onClick={resampleDiagram}
+            >
+              resample
+            </BlueButton>
+          </DiagramPanelButtonContainer>
+        )}
       </div>
     </div>
   );

@@ -1,45 +1,78 @@
 import { useRecoilValue } from "recoil";
-import { localFilesState, workspaceMetadataSelector } from "../state/atoms.js";
+import { v4 as uuid } from "uuid";
 import {
-  useDeleteLocalFile,
-  useDuplicate,
+  currentAppUser,
+  currentWorkspaceState,
+  savedFilesState,
+} from "../state/atoms.js";
+import {
+  useDeleteWorkspace,
   useLoadLocalWorkspace,
-  useSaveLocally,
+  useSaveNewWorkspace,
 } from "../state/callbacks.js";
+import { logInWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
 import FileButton from "./FileButton.js";
 
 export default function SavedFilesBrowser() {
-  const localFiles = useRecoilValue(localFilesState);
-  const currentWorkspaceMetadata = useRecoilValue(workspaceMetadataSelector);
+  const savedFiles = useRecoilValue(savedFilesState);
+  const currentWorkspace = useRecoilValue(currentWorkspaceState);
   const loadWorkspace = useLoadLocalWorkspace();
-  const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
-  const saveLocally = useSaveLocally();
-  const duplicate = useDuplicate();
-  const onDelete = useDeleteLocalFile();
+  const onDelete = useDeleteWorkspace();
+  const saveNewWorkspace = useSaveNewWorkspace();
+  const useLogin = logInWrapper();
+  const currentUser = useRecoilValue(currentAppUser);
 
   return (
-    <div>
-      {Object.values(localFiles).map((file) => (
-        <FileButton
-          key={file.id}
-          onClick={() => loadWorkspace(file.id)}
-          isFocused={file.id === currentWorkspaceMetadata.id}
-          onDelete={() => onDelete(file)}
-        >
-          {file.name}
-        </FileButton>
-      ))}
-      <div>
-        {(workspaceMetadata.location.kind !== "local" ||
-          !workspaceMetadata.location.saved) && (
-          <BlueButton onClick={saveLocally}>save current workspace</BlueButton>
-        )}
-        {workspaceMetadata.location.kind === "local" &&
-          workspaceMetadata.location.saved && (
-            <BlueButton onClick={duplicate}>duplicate workspace</BlueButton>
-          )}
-      </div>
-    </div>
+    <>
+      {currentUser != null ? (
+        <div>
+          {Object.values(savedFiles)
+            // Display most recently modified at the top
+            .sort(
+              (file1, file2) =>
+                file2.metadata.lastModified - file1.metadata.lastModified,
+            )
+            .map((file) => (
+              <FileButton
+                key={file.metadata.id}
+                onClick={() => loadWorkspace(file.metadata.id)}
+                isFocused={file.metadata.id === currentWorkspace.metadata.id}
+                onDelete={() => onDelete(file.metadata)}
+              >
+                {file.metadata.name}
+              </FileButton>
+            ))}
+          <div>
+            {(currentWorkspace.metadata.location.kind !== "stored" ||
+              !currentWorkspace.metadata.location.saved) && (
+              <BlueButton
+                onClick={() =>
+                  saveNewWorkspace(
+                    currentWorkspace.metadata.id,
+                    currentWorkspace,
+                  )
+                }
+              >
+                save current workspace
+              </BlueButton>
+            )}
+            {currentWorkspace.metadata.location.kind === "stored" &&
+              currentWorkspace.metadata.location.saved && (
+                <BlueButton
+                  onClick={() => saveNewWorkspace(uuid(), currentWorkspace)}
+                >
+                  duplicate workspace
+                </BlueButton>
+              )}
+          </div>
+        </div>
+      ) : (
+        <div style={{ margin: "0.5em" }}>
+          <p>Please sign in to use saved diagrams!</p>
+          <BlueButton onClick={useLogin}> Login with GitHub </BlueButton>
+        </div>
+      )}
+    </>
   );
 }

@@ -24,7 +24,7 @@ const Template: StoryFn<typeof Listing> = (args) => (
 export const ContinuousMapDark = Template.bind({});
 ContinuousMapDark.args = {
   domain: continuousMap.domain,
-  substance: continuousMap.substance,
+  src: continuousMap.substance,
   darkMode: true,
   width: "400px",
   height: "300px",
@@ -33,7 +33,7 @@ ContinuousMapDark.args = {
 export const ContinuousMap = Template.bind({});
 ContinuousMap.args = {
   domain: continuousMap.domain,
-  substance: continuousMap.substance,
+  src: continuousMap.substance,
   width: "400px",
   height: "300px",
 };
@@ -41,7 +41,7 @@ ContinuousMap.args = {
 export const OneSet = Template.bind({});
 OneSet.args = {
   domain: continuousMap.domain,
-  substance: oneSet.substance,
+  src: oneSet.substance,
   width: "400px",
   height: "300px",
 };

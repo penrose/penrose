@@ -423,6 +423,7 @@ export {
   floatV,
   hexToRgba,
   pathDataV,
+  isKeyOf,
   prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
@@ -433,3 +434,5 @@ export {
   vectorV,
   zip2,
 } from "./utils/Util.js";
+export type { Shape } from "./shapes/Shapes.js";
+export { valueTypeDesc } from "./types/types.js";

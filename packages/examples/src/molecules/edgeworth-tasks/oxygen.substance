@@ -1,0 +1,4 @@
+Oxygen o1, o2
+Bond b := DoubleBond(o1, o2)
+FourDots(o1)
+FourDots(o2)

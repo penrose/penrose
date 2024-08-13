@@ -1,0 +1,24 @@
+Point A, B, C, Q
+Let AB := Segment(A, B)
+Let BC := Segment(B, C)
+Let CA := Segment(C, A)
+Point D, E, F
+Midpoint(AB, D)
+Midpoint(BC, E)
+Midpoint(CA, F)
+Let DA := Segment(D, A)
+Let DB := Segment(D, B)
+Let EB := Segment(E, B)
+Let EC := Segment(E, C)
+Let FC := Segment(C, F)
+Let FA := Segment(A, F)
+EqualLengthMarker(DA, DB)
+EqualLengthMarker(EB, EC)
+EqualLengthMarker(FC, FA)
+Let DC := Segment(D, C)
+Let EA := Segment(E, A)
+Let FB := Segment(F, B)
+On(Q, DC)
+On(Q, EA)
+
+AutoLabel A, B, C, Q

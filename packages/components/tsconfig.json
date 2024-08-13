@@ -7,7 +7,7 @@
     "declaration": true,
     "declarationMap": true,
     "outDir": "dist",
-    "moduleResolution": "node" // Monaco and styled-components break with ESM module resolution
+    "moduleResolution": "node"
   },
   "include": ["src"],
   "exclude": ["node_modules"]

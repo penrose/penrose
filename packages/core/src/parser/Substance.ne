@@ -196,7 +196,7 @@ let_bind -> "Let" __ identifier _ ":=" _ sub_expr {%
   }
 %}
 
-apply_predicate -> identifier _ "(" _ sepEndBy1[sub_arg_expr, ","] _ ")" {%
+apply_predicate -> identifier _ "(" _ sepEndBy[sub_arg_expr, ","] _ ")" {%
   ([name, , , , args]): ApplyPredicate<C> => ({
     ...nodeData,
     ...rangeFrom([name, ...args]),
