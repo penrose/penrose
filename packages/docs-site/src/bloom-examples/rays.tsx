@@ -167,9 +167,19 @@ export default function RaysComponent() {
         style={{
           marginTop: "1em",
           height: "100%,",
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
         }}
       >
         <button
+          style={{
+            backgroundColor: "rgb(226 232 240)",
+            padding: "5px 10px",
+            borderRadius: "5px",
+          }}
+          className="bg-red"
+          disabled={squareCenters.length >= 6}
           onClick={() =>
             setSquareCenters([
               ...squareCenters,

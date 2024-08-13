@@ -5,7 +5,7 @@ import {
   useDiagram,
 } from "@penrose/bloom";
 import Renderer from "@penrose/bloom/dist/react/Renderer.js";
-import { highlight, languages } from "prismjs";
+import * as prismjs from "prismjs";
 import "prismjs/components/prism-typescript.js";
 import "prismjs/themes/prism.css";
 import { useCallback, useState } from "react";
@@ -57,7 +57,9 @@ export default function CirclesDiagram() {
       <Editor
         value={circleInput}
         onValueChange={setCircleInput}
-        highlight={(value) => highlight(value, languages.ts, "ts")}
+        highlight={(value: string) =>
+          prismjs.highlight(value, prismjs.languages.ts, "ts")
+        }
         padding={"1em"}
         className={"editor"}
       />

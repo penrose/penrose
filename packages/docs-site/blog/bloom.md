@@ -1,10 +1,22 @@
+---
+title: "Bloom"
+date: 2024-08-16
+authors:
+  - author: Griffin Teller
+    github: "griffinteller"
+  - author: Wode Ni
+    github: "wodeni"
+  - author: Sam Estep
+    github: "samestep"
+---
+
 <script setup>
+import { applyReactInVue } from "veaury"
 import EigenReact from "../src/bloom-examples/eigen.tsx";
 import CirclesReact from "../src/bloom-examples/circles.tsx";
 import RaysReact from "../src/bloom-examples/rays.tsx";
 import ReflectionReact from "../src/bloom-examples/reflection.tsx";
 import CirclePackingReact from "../src/bloom-examples/circle_packing.tsx";
-import { applyReactInVue } from 'veaury';
 const Eigen = applyReactInVue(EigenReact);
 const Circles = applyReactInVue(CirclesReact);
 const RaysComponent = applyReactInVue(RaysReact);
@@ -12,7 +24,7 @@ const Reflection = applyReactInVue(ReflectionReact);
 const CirclePacking = applyReactInVue(CirclePackingReact);
 </script>
 
-# Bloom
+<BlogMeta />
 
 Optimization-driven interactive diagramming, directly in JavaScript
 
@@ -22,7 +34,7 @@ _powered by Penrose_
 
 We are excited to announce Bloom, an open-source JavaScript library for interactive diagram creation.
 Bloom builds on top of Penrose to provide the same declarative language, while adding new constructs for interaction
-and site integration. 
+and site integration.
 
 <Eigen/>
 
@@ -75,16 +87,18 @@ optimizer handle this with the <code>disjoint</code> constraint:
 
 Diagramming in Bloom closely mirrors the process in Penrose:
 
-  1. Define the types of objects (“substances”) and predicates between
-objects you’re going to use:
+1. Define the types of objects (“substances”) and predicates between
+   objects you’re going to use:
+
 ```typescript
 const Line = type();
 const Point = type();
 const IntersectAt = predicate();
 ```
 
-  2. Instantiate these substances and predicates according to what should
-show up in your diagram:
+2. Instantiate these substances and predicates according to what should
+   show up in your diagram:
+
 ```typescript
 const line1 = Line();
 const line2 = Line();
@@ -93,7 +107,7 @@ const intersection = Point();
 IntersectAt(line1, line2, intersection);
 ```
 
-  3. Define styling rules for substances, groups of them, and predicates:
+3. Define styling rules for substances, groups of them, and predicates:
 
 ```typescript
 forall({ l: Line }, ({ l }) => {
