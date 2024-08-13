@@ -49,6 +49,7 @@
     "@penrose/components": "^4.0.0-alpha.1",
     "@penrose/examples": "^4.0.0-alpha.1",
     "@types/prismjs": "^1.26.4",
+    "@penrose/bloom": "^4.0.0-alpha.1",
     "prismjs": "^1.29.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
