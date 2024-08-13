@@ -313,10 +313,15 @@ export const containsRects = (rect1: Vec2[], rect2: Vec2[], padding: Num = 0) =>
  * @param shapes List containing the top-left, top-right, bottom-right, bottom-left points (in that order) of the axis-aligned bounding box of a shape
  * @param padding Margin between bounding boxes of shapes (default: 0)
  */
-export const distributeHorizontally = (shapes: Shape[], padding: Num = 0) =>
+export const distributeHorizontally = (
+  shapes: Shape[],
+  padding: Num,
+  topToBottom: boolean,
+) =>
   constrDict.distributeHorizontally.body(
     shapes.map((shape) => toPenroseShape(shape)),
     padding,
+    topToBottom,
   ).value;
 
 /**
@@ -324,10 +329,15 @@ export const distributeHorizontally = (shapes: Shape[], padding: Num = 0) =>
  * @param shapes List containing the top-left, top-right, bottom-right, bottom-left points (in that order) of the axis-aligned bounding box of a shape
  * @param padding Margin between bounding boxes of shapes (default: 0)
  */
-export const distributeVertically = (shapes: Shape[], padding: Num = 0) =>
+export const distributeVertically = (
+  shapes: Shape[],
+  padding: Num,
+  topToBottom: boolean,
+) =>
   constrDict.distributeVertically.body(
     shapes.map((shape) => toPenroseShape(shape)),
     padding,
+    topToBottom,
   ).value;
 
 /**

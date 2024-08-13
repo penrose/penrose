@@ -6,6 +6,6 @@ export * as objectives from "./core/objectives.js";
 export * from "./core/types.js";
 export { canvas } from "./core/utils.js";
 
-export * from "./react/AnimatedRenderer.js";
-export * from "./react/Renderer.js";
+export { default as AnimatedRenderer } from "./react/AnimatedRenderer.js";
+export { default as Renderer } from "./react/Renderer.js";
 export * from "./react/hooks.js";

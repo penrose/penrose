@@ -1,11 +1,11 @@
 import {
   Diagram,
   DiagramBuilder,
+  Renderer,
   canvas,
   constraints,
   objectives,
 } from "@penrose/bloom";
-import Renderer from "@penrose/bloom/dist/react/Renderer";
 import { mul, ops } from "@penrose/core";
 import { useEffect, useState } from "react";
 
