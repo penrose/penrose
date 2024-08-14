@@ -57,7 +57,16 @@ export const toPenroseShape = (
   const fieldTypes = penroseShapeFieldTypes.get(shape.shapeType)!;
 
   for (const [prop, value] of Object.entries(shape)) {
-    if (prop === "shapeType" || fieldTypes[prop] === undefined) continue;
+    if (prop === "shapeType") continue;
+
+    // Exceptions: put up here. At some point, we should refactor the "fieldTypes"
+    // structure into a map associating field names too
+    if (shape.shapeType === ShapeType.Image && prop === "svg") {
+      _.set(penroseShape, "href", strV(value));
+      continue;
+    }
+
+    if (fieldTypes[prop] === undefined) continue;
 
     let resultV: Value.Value<Num>;
     switch (penroseShapeFieldTypes.get(shape.shapeType)![prop]) {
@@ -140,6 +149,16 @@ export const fromPenroseShape = (
 
   for (const [prop, value] of Object.entries(penroseShape)) {
     if (prop in shape) continue;
+
+    if (penroseShape.shapeType === "Image" && prop === "href") {
+      if (!("svg" in shape)) {
+        // either we're sampling or svg was not specified; either way
+        // we should leave blank
+        _.set(shape, "svg", "<svg></svg>");
+      }
+      continue;
+    }
+
     switch (shapeTypes[prop]) {
       case "FloatV":
       case "StrV":

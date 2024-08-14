@@ -104,9 +104,9 @@ export class Diagram {
   render = async () => {
     const titleCache = new Map<string, SVGElement>();
     const svg = await stateToSVG(this.state, {
-      pathResolver: () => {
-        throw new Error("Path resolving not supported");
-      },
+      // penrose expects path resolving to string, we pass the resolving on to the
+      // user. So the svg "href" at this point is already a raw svg string.
+      pathResolver: async (str) => str,
       texLabels: false,
       titleCache,
     });

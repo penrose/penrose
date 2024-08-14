@@ -132,7 +132,7 @@ export interface Equation
 
 export interface Image extends ShapeCommon, Center, Rect, Rotate {
   shapeType: ShapeType.Image;
-  href: string;
+  svg: string;
   preserveAspectRatio: string;
 }
 
