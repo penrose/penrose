@@ -9,6 +9,7 @@ export interface RendererProps {
 
 export default function Renderer(props: RendererProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
 
   // hack to force re-render on interaction
   const [forceUpdate, setForceUpdate] = useState(0);
@@ -34,7 +35,13 @@ export default function Renderer(props: RendererProps) {
       svg.style.height = "100%";
       for (const [name, elem] of nameElemMap) {
         if (draggingConstraints.has(name)) {
+          // get rid of tooltip
+          elem.insertBefore(
+            document.createElementNS("http://www.w3.org/2000/svg", "title"),
+            elem.firstChild,
+          );
           elem.setAttribute("pointer-events", "painted");
+          elem.setAttribute("cursor", dragging.current ? "grabbing" : "grab");
           const translateFn = makeTranslateOnMouseDown(
             svg,
             elem,
@@ -51,10 +58,14 @@ export default function Renderer(props: RendererProps) {
             })(),
             ([x, y]) => draggingConstraints.get(name)!([x, y], props.diagram),
             undefined,
-            () => props.diagram.endDrag(name),
+            () => {
+              props.diagram.endDrag(name);
+              dragging.current = false;
+            },
           );
           elem.addEventListener("mousedown", (e) => {
             props.diagram.beginDrag(name);
+            dragging.current = true;
             translateFn(e);
           });
         }

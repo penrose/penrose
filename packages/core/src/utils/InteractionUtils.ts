@@ -404,8 +404,6 @@ export const makeTranslateOnMouseDown =
     onMouseUp?: (e: MouseEvent) => void,
   ) =>
   (e: MouseEvent) => {
-    const svgParent = diagramSVG.parentElement!;
-
     window.addEventListener("selectstart", preventSelection);
     const prevCursor = document.body.style.cursor;
     document.body.style.cursor = "grabbing";
@@ -474,8 +472,8 @@ export const makeTranslateOnMouseDown =
     };
 
     const onMouseUp_ = (e: MouseEvent) => {
-      svgParent.removeEventListener("mouseup", onMouseUp_);
-      svgParent.removeEventListener("mousemove", onMouseMove_);
+      window.removeEventListener("mouseup", onMouseUp_);
+      window.removeEventListener("mousemove", onMouseMove_);
       window.removeEventListener("selectstart", preventSelection);
       document.body.style.cursor = prevCursor;
       elem.style.cursor = "grab";
@@ -483,8 +481,8 @@ export const makeTranslateOnMouseDown =
       onMouseUp?.(e);
     };
 
-    svgParent.addEventListener("mouseup", onMouseUp_);
-    svgParent.addEventListener("mousemove", onMouseMove_);
+    window.addEventListener("mouseup", onMouseUp_);
+    window.addEventListener("mousemove", onMouseMove_);
   };
 
 export const makeScaleOnMouseDown =
