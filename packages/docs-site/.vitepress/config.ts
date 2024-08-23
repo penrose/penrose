@@ -34,19 +34,19 @@ const indexableFunctionDocs = () => {
     return `${t.symbol}: ${t.description}`;
   };
   const compFuncs = Object.entries(compDict).map(([k, v]: any) => {
-    return `### ${v.name} {#computation-${v.name.toLowerCase()}}\n\n${
+    return `### ${v.name} {#computation-${v.name}}\n\n${
       v.description
     }\n\n**Returns:** ${showReturn(
       v.returns,
     )}\n\n**Parameters:**\n\n${showParams(v.params)}`;
   });
   const objectives = Object.entries(objDict).map(([k, v]: any) => {
-    return `### ${v.name} {#objective-${v.name.toLowerCase()}}\n\n${
+    return `### ${v.name} {#objective-${v.name}}\n\n${
       v.description
     }\n\n**Parameters:**\n\n${showParams(v.params)}`;
   });
   const constraints = Object.entries(constrDict).map(([k, v]: any) => {
-    return `### ${v.name} {#constraint-${v.name.toLowerCase()}}\n\n${
+    return `### ${v.name} {#constraint-${v.name}}\n\n${
       v.description
     }\n\n**Parameters:**\n\n${showParams(v.params)}`;
   });
