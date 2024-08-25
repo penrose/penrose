@@ -1,0 +1,83 @@
+%YAML 1.2
+---
+name: Penrose Domain
+scope: source.domain
+file_extensions:
+  - domain
+
+variables:
+  name: \w+
+
+contexts:
+  main:
+    - include: comment
+    - include: string
+
+    - match: \b(type)\s+({{name}})(\s*(<:)\s*({{name}}))?
+      captures:
+        1: keyword.declaration.type.domain
+        2: entity.name.type.domain
+        4: keyword.operator.assignment.subtype.domain
+        5: storage.type.domain
+
+    - match: \b(predicate|constructor|function)\s+({{name}})\s*\(
+      captures:
+        1: keyword.declaration.domain
+        2: entity.name.function.domain
+      push:
+        - meta_scope: source.definition.function.domain
+        - match: ({{name}})(\s+({{name}}))?(?=[,\)])
+          captures:
+            1: storage.type.domain
+            3: variable.parameter.domain
+        - match: \)(\s*(->)\s*({{name}}))?
+          captures:
+            3: storage.type.domain
+          pop: true
+
+    - match: \b(notation)\s+ #(")
+      captures:
+        1: keyword.declaration.syntax.domain
+        2: string.quoted.double.notation.domain
+      # push:
+      #   - match: '"'
+      #     scope: string.quoted.double.notation.domain
+      #     pop: true
+      #   - include: scope:source.substance
+
+    - match: \b(value)\s+({{name}})(\s*(:)\s*({{name}}))?
+      captures:
+        1: keyword.declaration.syntax.domain
+        2: entity.name.constant.domain
+        4: keyword.operator.assignment.value.domain
+        5: storage.type.domain
+
+    - match: \b(symmetric)\b
+      scope: storage.modifier.domain
+
+    - match: (<:)
+      scope: keyword.operator.assignment.subtype.domain
+    - match: (~)
+      scope: keyword.operator.assignment.syntax.domain
+    - match: (:)
+      scope: keyword.operator.assignment.value.domain
+
+  comment:
+    - match: --
+      scope: comment.line.domain
+      push:
+        - meta_scope: comment.line.domain
+        - match: \b(TODO|FIXME|XXX|NOTE)\b
+          scope: comment.keyword.domain
+        - match: $
+          pop: true
+
+  string:
+    - match: '"'
+      scope: string.quoted.double.domain
+      push:
+        - meta_scope: string.quoted.double.domain
+        - match: \\.
+          scope: constant.character.escape.domain
+        - match: '"'
+          pop: true
