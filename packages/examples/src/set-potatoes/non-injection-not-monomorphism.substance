@@ -1,0 +1,80 @@
+-- $$A = \{ a, b, c \}$$
+-- $$B = \{ 1, 2    \}$$
+-- $$Z = \{ x, y    \}$$
+-- $$f : A \to B = \{ (a, 1), (b, 1), (c, 2) \} \text{, not injective}$$
+-- 
+-- $$g_1 : Z \to A = \{ (x, a), (y, c) \}$$
+-- $$g_2 : Z \to A = \{ (x, b), (y, c) \}$$
+-- 
+-- $$f \circ g_1 = f \circ g_2 = \{(x, 1), (y, 2)\} \in (Z \to B)$$
+
+Set Z1, Z2, A, B
+Relation f, g1, g2
+Element A_a, A_b, A_c, Z1_x, Z1_y, Z2_x, Z2_y, B_1, B_2
+
+Arrow g1_xa := Relate(Z1_x, A_a)
+Arrow g1_yc := Relate(Z1_y, A_c)
+Arrow g2_xb := Relate(Z2_x, A_b)
+Arrow g2_yc := Relate(Z2_y, A_c)
+Arrow f_a1  := Relate(A_a,  B_1)
+Arrow f_b1  := Relate(A_b,  B_1)
+Arrow f_c2  := Relate(A_c,  B_2)
+
+Label Z1 $Z$  -- $Z_1$
+Label Z2 $Z$  -- $Z_2$
+Label A $A$
+Label B $B$
+
+Label f $f$
+Label g1 $g_1$
+Label g2 $g_2$
+
+Label Z1_x $x$
+Label Z1_y $y$
+Label Z2_x $x$
+Label Z2_y $y$
+Label A_a $a$
+Label A_b $b$
+Label A_c $c$
+Label B_1 $1$
+Label B_2 $2$
+
+SetsAreRelated(Z1, g1, A)
+SetsAreRelated(Z2, g2, A)
+SetsAreRelated(A,  f,  B)
+
+SetHasElement(Z1, Z1_x)
+SetHasElement(Z1, Z1_y)
+SetHasElement(Z2, Z2_x)
+SetHasElement(Z2, Z2_y)
+SetHasElement(A, A_a)
+SetHasElement(A, A_b)
+SetHasElement(A, A_c)
+SetHasElement(B, B_1)
+SetHasElement(B, B_2)
+
+RelationHasArrow(g1, g1_xa)
+RelationHasArrow(g1, g1_yc)
+RelationHasArrow(g2, g2_xb)
+RelationHasArrow(g2, g2_yc)
+RelationHasArrow(f,  f_a1)
+RelationHasArrow(f,  f_b1)
+RelationHasArrow(f,  f_c2)
+
+ArrowRelatesElements(g1_xa, Z1_x, A_a)
+ArrowRelatesElements(g1_yc, Z1_y, A_c)
+ArrowRelatesElements(g2_xb, Z2_x, A_b)
+ArrowRelatesElements(g2_yc, Z2_y, A_c)
+ArrowRelatesElements(f_a1,  A_a,  B_1)
+ArrowRelatesElements(f_b1,  A_b,  B_1)
+ArrowRelatesElements(f_c2,  A_c,  B_2)
+
+RelationHasArrow(g1, g1_xa)
+RelationHasArrow(g1, g1_yc)
+RelationHasArrow(g2, g2_xb)
+RelationHasArrow(g2, g2_yc)
+RelationHasArrow(f,  f_a1)
+RelationHasArrow(f,  f_b1)
+RelationHasArrow(f,  f_c2)
+
+SetsShareDomainOrCodomain(Z1, Z2)
