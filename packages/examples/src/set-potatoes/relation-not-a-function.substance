@@ -1,11 +1,25 @@
 Set A
 Set B
 
-Point a
-Point x
-Point y
+Relation R
 
-SetHasPoint(A, a)
-SetHasPoint(B, x)
-SetHasPoint(B, y)
+Element a
+Element x
+Element y
 
+SetsAreRelated(A, B, R)
+
+SetHasElement(A, a)
+SetHasElement(B, x)
+SetHasElement(B, y)
+
+Arrow ax := Relate(a, x)
+Arrow ay := Relate(a, y)
+
+Relates(ax, a, x)
+Relates(ay, a, y)
+
+RelationHasArrow(R, ax)
+RelationHasArrow(R, ay)
+
+AutoLabel All

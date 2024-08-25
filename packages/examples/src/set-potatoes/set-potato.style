@@ -1,69 +1,161 @@
-canvas {
+canvas
+{
   width  = 800
   height = 700
 }
 
-Colors {
-   color black     = rgba(0, 0, 0, 1)
-   color white     = rgba(1, 1, 1, 1)
-   color clearGray = rgba(0, 0, 0, .2)
+Colors
+{
+	color black     = rgba(0, 0, 0, 1)
+	color white     = rgba(1, 1, 1, 1)
+	color clearGray = rgba(0, 0, 0, .2)
 }
 
-Global {
-   -- draw a box around the canvas (this box will 
-   -- also be used to constrain shapes to the canvas)
-   shape box = Rectangle {
-      center      : (0,0)
-      width       : canvas.width
-      height      : canvas.height
-      fillColor   : none()
-      strokeColor : Colors.clearGray
-      strokeWidth : 1
-   }
+Global
+{
+	-- draw a box around the canvas (this box will 
+	-- also be used to constrain shapes to the canvas)
+	shape box = Rectangle
+	{
+		center      : (0,0)
+		width       : canvas.width
+		height      : canvas.height
+		fillColor   : none()
+		strokeColor : Colors.clearGray
+		strokeWidth : 1
+	}
 
-   -- some additional parameters to get consistent styling throughout
-   scalar lineThickness = 1.5
-   scalar fontSize      = "9px"
-   string fontFamily    = "Linux Libertine"
+	-- some additional parameters to get consistent styling throughout
+	scalar lineThickness = 1.5
+	scalar fontSize      = "30px"
+	string fontFamily    = "Linux Libertine"
 
-   -- diagram spread
-   scalar pointR = 3
-   scalar pointW = 20
-   scalar pointH = 20
+	-- diagram spread
+	scalar pointR           = 3
+	scalar pointW           = 40
+	scalar pointH           = 20
+	scalar pointSpread      = 60
+	scalar setSpread        = 300
+	scalar setHeightPadding = 20
 }
 
-forall Point x {
-	x.name = ""
-	x.center = (?, ?)
-	x.icon = Circle {
-		name            : x.name
-		strokeWidth     : Global.lineThickness
-		strokeStyle     : "solid"
-		strokeColor     : Colors.black -- x color
-		-- fillColor       : Colors.black -- x.color
-		center          : x.center
-		r               : Global.pointR
+forall Element e
+{
+--	e.name = ""
+	e.center = (?, ?)  --Global.canvasCenter
+	e.icon = Circle
+	{
+--		name        : e.name
+		strokeWidth : Global.lineThickness
+		strokeStyle : "solid"
+		strokeColor : Colors.black -- e color
+--		fillColor   : Colors.black -- e.color
+		center      : e.center
+		r           : Global.pointR
+	}
+
+	e.text = Equation
+	{
+		string         : e.label
+		fillColor      : Colors.black
+		fontSize       : Global.fontSize
+		center         : (e.center[0] + 2, e.center[1] + e.icon.r + 15) 
+		ensureOnCanvas : false
 	}
 }
 
-forall Set x {
-	x.name = ""
-	x.center = (?, ?)
-	x.icon = Ellipse {
-		name            : x.name
+forall Set s
+{
+--	s.name = ""
+	s.center = (?, ?)  --Global.canvasCenter
+	s.icon = Ellipse
+	{
+--		name            : s.name
 		strokeWidth     : Global.lineThickness
 		strokeStyle     : "solid"
 		strokeColor     : Colors.black
-		-- fillColor       : sampled -- x.color
-		center          : x.center
+--		fillColor       : sampled -- s.color
+		center          : s.center
 		rx              : Global.pointW
-		ry              : x.size * Global.pointH
+		ry              : Global.pointSpread
 	}
-	x.size = 10
+
+	s.text = Equation
+	{
+		string         : s.label
+		fillColor      : Colors.black
+		fontSize       : Global.fontSize
+		center         : (s.center[0], s.center[1] + s.icon.ry + 30) 
+		ensureOnCanvas : false
+	}
 }
 
-forall Set S; Point p
-where SetHasPoint(S, p) {
-    ensure contains(p.icon, S.icon, 5.0)
-    p.icon above S.icon
+forall Arrow a
+{
+	a.icon = Line
+	{
+		strokeWidth  : Global.lineThickness
+		strokeColor  : Colors.black
+		start        : (?, ?)
+		end          : (?, ?)
+		endArrowhead : "concave"
+	}
+}
+
+forall Relation r
+{
+	r.text = Equation
+	{
+		string         : r.label
+		fillColor      : Colors.black
+		fontSize       : Global.fontSize
+		center         : (?, ?) 
+		ensureOnCanvas : false
+	}
+}
+
+
+
+forall Set S; Element e
+where SetHasElement(S, e)
+{
+	ensure contains(S.icon, e.icon, 50)
+	e.icon above S.icon
+}
+
+forall Set A, B; Relation R
+where SetsAreRelated(A, B, R)
+{
+	ensure lessThan (A.center[0], B.center[0], Global.setSpread)
+	ensure equal    (A.center[1], B.center[1]) 
+	ensure disjoint(A.icon, B.icon, Global.setSpread)
+	ensure equal(norm(R.text.center - (A.text.center + B.text.center) / 2), 0)
+}
+
+forall Arrow a; Element x, y
+where ArrowRelatesElements(a, x, y)
+{
+	ensure equal(norm(a.icon.start - x.icon.center), 0)
+	ensure equal(norm(a.icon.end   - y.icon.center), 0)
+}
+
+
+
+
+collect Element e into es
+where SetHasElement(s, e)
+foreach Set s
+{
+	points = listof icon from es
+	ensure distributeVertically(points, Global.pointSpread)
+	override s.icon.ry = (numberof es - 0.5) * Global.pointSpread + Global.setHeightPadding
+	avgCenter = averagePoint(listof center from es)
+	ensure equal(avgCenter[1], s.center[1])
+}
+
+collect Set s into ss
+{
+	ensure distributeHorizontally(listof icon from ss, Global.setSpread)
+	avgCenter = averagePoint(listof center from ss)
+	ensure equal(norm(avgCenter - Global.box.center), 0)
 }
