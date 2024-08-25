@@ -1,0 +1,87 @@
+-- $$B = \{ 1, 2, 3 \}$$
+-- $$A = \{ a, b    \}$$
+-- $$f : B \to A = \{ (1, a), (2, a), (3, b) \} \text{, surjective}$$
+-- 
+-- $$g_1 : A \to B = \{(a, 1), (b, 3) \}$$
+-- $$g_2 : A \to B = \{(a, 2), (b, 3) \}$$
+-- 
+-- $$f \circ g_1 = f \circ g_2 = id_A$$
+
+Set A0
+Set A1
+Set A2
+Set B
+
+Relation g1
+Relation g2
+Relation f
+
+Element A0_a
+Element A0_b
+Element A1_a
+Element A1_b
+Element A2_a
+Element A2_b
+Element B_1
+Element B_2
+Element B_3
+
+Label A0 $A$  -- $A_0$
+Label A1 $A$  -- $A_1$
+Label A2 $A$  -- $A_2$
+Label B $B$
+
+Label g1 $g_1$
+Label g2 $g_2$
+Label f $f$
+
+Label A0_a $a$
+Label A0_b $b$
+Label A1_a $a$
+Label A1_b $b$
+Label A2_a $a$
+Label A2_b $b$
+Label B_1 $1$
+Label B_2 $2$
+Label B_3 $3$
+
+
+SetsAreRelated(A0, g1, B)
+SetsAreRelated(A1, g2, B)
+SetsAreRelated(B,  f,  A2)
+
+SetHasElement(A0, A0_a)
+SetHasElement(A0, A0_b)
+SetHasElement(A1, A1_a)
+SetHasElement(A1, A1_b)
+SetHasElement(A2, A2_a)
+SetHasElement(A2, A2_b)
+SetHasElement(B,  B_1)
+SetHasElement(B,  B_2)
+SetHasElement(B,  B_3)
+
+Arrow g1_a1 := Relate(A0_a, B_1)
+Arrow g1_b3 := Relate(A0_b, B_3)
+Arrow g2_a2 := Relate(A1_a, B_2)
+Arrow g2_b3 := Relate(A1_b, B_3)
+Arrow f_1a  := Relate(B_1, A2_a)
+Arrow f_2a  := Relate(B_2, A2_a)
+Arrow f_3b  := Relate(B_3, A2_b)
+
+ArrowRelatesElements(g1_a1, A0_a, B_1)
+ArrowRelatesElements(g1_b3, A0_b, B_3)
+ArrowRelatesElements(g2_a2, A1_a, B_2)
+ArrowRelatesElements(g2_b3, A1_b, B_3)
+ArrowRelatesElements(f_1a,  B_1, A2_a)
+ArrowRelatesElements(f_2a,  B_2, A2_a)
+ArrowRelatesElements(f_3b,  B_3, A2_b)
+
+RelationHasArrow(g1, g1_a1)
+RelationHasArrow(g1, g1_b3)
+RelationHasArrow(g2, g2_a2)
+RelationHasArrow(g2, g2_b3)
+RelationHasArrow(f,  f_1a)
+RelationHasArrow(f,  f_2a)
+RelationHasArrow(f,  f_3b)
+
+SetsShareDomainOrCodomain(A0, A1)
