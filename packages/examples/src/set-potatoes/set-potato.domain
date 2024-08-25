@@ -7,7 +7,9 @@ constructor Relate(Element p1, Element p2) -> Arrow
 
 predicate ArrowRelatesElements(Arrow a, Element p1, Element p2)
 
-predicate SetsAreRelated(Set s1, Set s2, Relation r)  -- to ensure that set centers are horizontally spread out
+predicate SetsAreRelated(Set s1, Relation r, Set s2)  -- to ensure that set centers are horizontally spread out
 predicate Related(Element p1, Element p2) -- draw arrow
 predicate SetHasElement(Set s, Element p1)  -- ensure appropriate overlap and sharing of center.x
 predicate RelationHasArrow(Relation r, Arrow a)
+
+predicate SetsShareDomainOrCodomain(Set s1, Set s2)

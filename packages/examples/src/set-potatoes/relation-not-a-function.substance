@@ -7,7 +7,7 @@ Element a
 Element x
 Element y
 
-SetsAreRelated(A, B, R)
+SetsAreRelated(A, R, B)
 
 SetHasElement(A, a)
 SetHasElement(B, x)
@@ -16,8 +16,8 @@ SetHasElement(B, y)
 Arrow ax := Relate(a, x)
 Arrow ay := Relate(a, y)
 
-Relates(ax, a, x)
-Relates(ay, a, y)
+ArrowRelatesElements(ax, a, x)
+ArrowRelatesElements(ay, a, y)
 
 RelationHasArrow(R, ax)
 RelationHasArrow(R, ay)
