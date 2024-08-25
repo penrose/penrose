@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [react({ jsxRuntime: "classic" }), topLevelAwait()],
   worker: {
     format: "es",
-    plugins: [topLevelAwait()],
+    plugins: () => [topLevelAwait()],
   },
   build: { target: "esnext" },
   optimizeDeps: {
@@ -18,16 +18,10 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    headers: {
-      "Cross-Origin-Embedder-Policy": "require-corp",
-      "Cross-Origin-Opener-Policy": "same-origin",
-    },
+    headers: { "Cross-Origin-Opener-Policy": "same-origin-allow-popups" },
   },
   preview: {
-    headers: {
-      "Cross-Origin-Embedder-Policy": "require-corp",
-      "Cross-Origin-Opener-Policy": "same-origin",
-    },
+    headers: { "Cross-Origin-Opener-Policy": "same-origin-allow-popups" },
   },
   resolve: {
     preserveSymlinks: true,

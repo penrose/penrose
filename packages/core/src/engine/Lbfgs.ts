@@ -129,7 +129,7 @@ export interface Info {
   /** Data about previous steps. */
   state: State;
 
-  /** The objective value at the current point. */
+  /** The objective value at the previous point. */
   fx: number;
 
   /** The preconditioned descent direction. */

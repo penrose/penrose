@@ -14,32 +14,41 @@ import {
   useRecoilCallback,
   useRecoilState,
   useRecoilValueLoadable,
+  useSetRecoilState,
 } from "recoil";
-import DiagramOptions from "./components/DiagramOptions.js";
 import DiagramPanel from "./components/DiagramPanel.js";
 import ExamplesBrowser from "./components/ExamplesBrowser.js";
 import GridPanel from "./components/GridPanel.js";
+import ImportExport from "./components/ImportExport.js";
 import Opt from "./components/Opt.js";
 import ProgramEditor from "./components/ProgramEditor.js";
 import RogerPanel from "./components/RogerPanel.js";
 import SavedFilesBrowser from "./components/SavedBrowser.js";
 import Settings from "./components/Settings.js";
-import StateInspector from "./components/StateInspector.js";
-import SvgUploader from "./components/SvgUploader.js";
 import TopBar from "./components/TopBar.js";
 import {
+  AppUser,
   Diagram,
   RogerState,
+  SavedWorkspaces,
   Workspace,
+  currentAppUser,
   currentRogerState,
   currentWorkspaceState,
   diagramState,
   fileContentsSelector,
-  localFilesState,
-  optimizer,
+  savedFilesState,
   settingsState,
 } from "./state/atoms.js";
-import { useCheckURL, useCompileDiagram } from "./state/callbacks.js";
+import {
+  useCheckURL,
+  useCompileDiagram,
+  useIsUnsaved,
+} from "./state/callbacks.js";
+import {
+  authObject,
+  createSavedWorkspaceObject,
+} from "./utils/firebaseUtils.js";
 
 const mainRowLayout: IJsonRowNode = {
   type: "row",
@@ -87,7 +96,8 @@ const mainRowLayout: IJsonRowNode = {
     },
     {
       type: "tabset",
-      weight: process.env.NODE_ENV === "development" ? 75 : 50,
+      // controls size of diagram vs editor tab in layout. used to be 75 : 50
+      weight: process.env.NODE_ENV === "development" ? 25 : 50,
       children: [
         {
           type: "tab",
@@ -130,28 +140,14 @@ export const layoutModel = Model.fromJson({
         },
         {
           type: "tab",
-          name: "upload",
-          component: "svgUploader",
+          name: "import/export",
+          component: "importExport",
         },
         {
           type: "tab",
           name: "settings",
           component: "settingsPanel",
         },
-      ],
-    },
-    {
-      type: "border",
-      className: "debugBorder",
-      location: "right",
-      children: [
-        {
-          type: "tab",
-          name: "options",
-          component: "diagramOptions",
-        },
-        { type: "tab", name: "state", component: "stateInspector" },
-        // { type: "tab", name: "opt", component: "optInspector" },
       ],
     },
   ],
@@ -168,13 +164,44 @@ function App() {
   const [rogerState, setRogerState] =
     useRecoilState<RogerState>(currentRogerState);
 
+  const [appUserState, setAppUserState] =
+    useRecoilState<AppUser>(currentAppUser);
+
+  const setSavedWorkspaces =
+    useSetRecoilState<SavedWorkspaces>(savedFilesState);
+
+  /* We need this effect as authObject.currentUser doesn't update immediately
+   on change to auth state, so for the settings menu to update properly we
+   use AppUser recoil state 
+  */
+  useEffect(() => {
+    authObject.onAuthStateChanged((user) => {
+      // https://github.com/firebase/firebase-js-sdk/issues/5722
+      const userCopy = JSON.parse(JSON.stringify(user));
+      setAppUserState(userCopy);
+    });
+  }, []);
+
+  useEffect(() => {
+    async function populateSavedWorkspaces() {
+      if (authObject.currentUser != null) {
+        let savedSpaces = await createSavedWorkspaceObject(
+          authObject.currentUser.uid,
+        );
+        setSavedWorkspaces(savedSpaces);
+      }
+    }
+
+    populateSavedWorkspaces();
+  }, [authObject.currentUser]);
+
   const panelFactory = useCallback(
     (node: TabNode) => {
       switch (node.getComponent()) {
         case "programEditor":
           return <ProgramEditor kind={node.getConfig().kind} />;
-        case "svgUploader":
-          return <SvgUploader />;
+        case "importExport":
+          return <ImportExport />;
         case "diagram":
           return <DiagramPanel />;
         case "grid":
@@ -185,10 +212,6 @@ function App() {
           return <ExamplesBrowser />;
         case "settingsPanel":
           return <Settings />;
-        case "diagramOptions":
-          return <DiagramOptions />;
-        case "stateInspector":
-          return <StateInspector />;
         case "optInspector":
           return <Opt />;
         case "rogerPanel":
@@ -322,8 +345,19 @@ function App() {
       connectRoger();
     }
   }, []);
+  const isUnsaved = useIsUnsaved();
   useEffect(() => {
-    optimizer.init();
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isUnsaved()) {
+        // warn user if they try to navigate to a new URL while in draft state
+        event.preventDefault();
+        // Included for legacy support, e.g. Chrome/Edge < 119
+        event.returnValue = true;
+      } else {
+        return false;
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
   }, []);
 
   useEffect(() => {
@@ -341,7 +375,7 @@ function App() {
   }, [isTabletOrMobile, isPortrait]);
 
   const checkURL = useCheckURL();
-  const localFiles = useRecoilValueLoadable(localFilesState);
+  const localFiles = useRecoilValueLoadable(savedFilesState);
   const settings = useRecoilValueLoadable(settingsState);
   useEffect(() => {
     // If settings is loaded
@@ -353,6 +387,7 @@ function App() {
   if (localFiles.state !== "hasValue") {
     return <div>Loading local files...</div>;
   }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <TopBar />

@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Meta, StoryFn } from "@storybook/react";
 import Listing from "../Listing.js";
 import { continuousMap, oneSet } from "./PenrosePrograms.js";
 
@@ -12,10 +12,10 @@ export default {
   // argTypes: {
   //   backgroundColor: { control: 'color' },
   // },
-} as ComponentMeta<typeof Listing>;
+} as Meta<typeof Listing>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof Listing> = (args) => (
+const Template: StoryFn<typeof Listing> = (args) => (
   <div style={{ width: "100%", height: "100%" }}>
     <Listing {...args} />
   </div>
@@ -24,18 +24,16 @@ const Template: ComponentStory<typeof Listing> = (args) => (
 export const ContinuousMapDark = Template.bind({});
 ContinuousMapDark.args = {
   domain: continuousMap.domain,
-  substance: continuousMap.substance,
+  src: continuousMap.substance,
+  darkMode: true,
   width: "400px",
   height: "300px",
-  monacoOptions: {
-    theme: "vs-dark",
-  },
 };
 
 export const ContinuousMap = Template.bind({});
 ContinuousMap.args = {
   domain: continuousMap.domain,
-  substance: continuousMap.substance,
+  src: continuousMap.substance,
   width: "400px",
   height: "300px",
 };
@@ -43,7 +41,7 @@ ContinuousMap.args = {
 export const OneSet = Template.bind({});
 OneSet.args = {
   domain: continuousMap.domain,
-  substance: oneSet.substance,
+  src: oneSet.substance,
   width: "400px",
   height: "300px",
 };

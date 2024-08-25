@@ -110,7 +110,6 @@ where In(u,U) {
 
   ensure contains(U.background, u.arrow)
   ensure contains(U.background, u.text)
-  ensure minSize(u.arrow)
 
   layer u.text above u.stroke
   layer u.stroke above u.arrow

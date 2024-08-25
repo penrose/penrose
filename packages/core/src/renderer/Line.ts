@@ -134,7 +134,7 @@ const makeRoomForArrows = (
 
 const RenderLine = (
   shape: Line<number>,
-  { canvasSize, namespace, variation }: RenderProps,
+  { canvasSize, namespace, variation, titleCache }: RenderProps,
 ): SVGGElement => {
   const startArrowhead = getArrowhead(shape.startArrowhead.contents);
   const endArrowhead = getArrowhead(shape.endArrowhead.contents);
@@ -207,7 +207,7 @@ const RenderLine = (
     attrToNotAutoMap.push("endArrowhead");
   }
   elem.appendChild(line);
-  attrToNotAutoMap.push(...attrTitle(shape, elem));
+  attrToNotAutoMap.push(...attrTitle(shape, elem, titleCache));
 
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);

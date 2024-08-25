@@ -47,7 +47,14 @@ const generateProgs = (
     );
     let progs = synth.generateSubstances(numPrograms);
     const template = synth.getTemplate();
-    return [{ prog: template, ops: [] } as SynthesizedSubstance, ...progs];
+    return [
+      {
+        prog: template,
+        ops: [],
+        src: prettySubstance(template!),
+      } as SynthesizedSubstance,
+      ...progs,
+    ];
   }
 };
 

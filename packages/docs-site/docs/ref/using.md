@@ -1,10 +1,10 @@
 # Using Penrose
 
-Use our [online editor](pathname:///try/index.html) to start making diagrams in your browser now. To make diagrams locally, use [`roger`](#command-line-interface-roger), the command-line interface for Penrose.
+Use our <a href="/try/index.html" target="_blank">online editor</a> to start making diagrams in your browser now. To make diagrams locally, use [`roger`](#command-line-interface-roger), the command-line interface for Penrose.
 
 ## Online editor
 
-You can start creating diagrams by visiting the [online editor](pathname:///try/index.html).
+You can start creating diagrams by visiting the <a href="/try/index.html" target="_blank">online editor</a>.
 
 ![Penrose editor](/img/docs/editor.png)
 
@@ -79,7 +79,7 @@ npm i -g @penrose/roger
 ```json
 {
   "substance": "./tree.substance",
-  "style": ["./venn.style"],
+  "style": ["./euler.style"],
   "domain": "./setTheory.domain",
   "variation": "PlumvilleCapybara104"
 }

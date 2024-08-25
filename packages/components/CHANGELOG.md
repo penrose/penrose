@@ -3,6 +3,69 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v4.0.0-alpha.1] (2024-07-11)
+
+### :warning: BREAKING CHANGE
+
+- separate Substance environment and remove unused features (#1677)
+
+### :rocket: New Feature
+
+- Layout stage autocomplete + corresponding tests ([#1823](https://github.com/penrose/penrose/issues/1823)) ([d3a9369](https://github.com/penrose/penrose/commit/d3a93691e6d781e03d17a66e844d8444d316e993))
+- added cntrl/cmd+enter and :w to compile diagram ([#1822](https://github.com/penrose/penrose/issues/1822)) ([30ff1d6](https://github.com/penrose/penrose/commit/30ff1d621d83db680c3013b49f82aa4df934fc43))
+- codemirror migration ([#1798](https://github.com/penrose/penrose/issues/1798)) ([59d77f2](https://github.com/penrose/penrose/commit/59d77f22822cc28a32daf812f0b8c4b9e791786c))
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+- interactive widgets + programatically constrained dragging (experiemental) ([#1796](https://github.com/penrose/penrose/issues/1796)) ([d5f269e](https://github.com/penrose/penrose/commit/d5f269e9fd60740997033b93c2c99cf3a6926bdb))
+
+### :bug: Bug Fix
+
+- UI bugs in `edgeworth` ([#1706](https://github.com/penrose/penrose/issues/1706)) ([c255e39](https://github.com/penrose/penrose/commit/c255e39176c118662f91108ac9ab59682966acc6))
+- comment shortcut ([#1817](https://github.com/penrose/penrose/issues/1817)) ([d1ea504](https://github.com/penrose/penrose/commit/d1ea50448c5a835fdfeee0a0638342d07b5032e4))
+- prioritize vim keymaps in vim mode ([#1828](https://github.com/penrose/penrose/issues/1828)) ([39f88c4](https://github.com/penrose/penrose/commit/39f88c473ad09cb17c70e99606e2edb936a2a471))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+
+### :nail_care: Polish
+
+- simplified shared `Grid` and custom `Grid` in Edgeworth ([#1729](https://github.com/penrose/penrose/issues/1729)) ([a7c9d4d](https://github.com/penrose/penrose/commit/a7c9d4d5d8cc44b3544afb826da3a7002ef55cff))
+
+### :memo: Documentation
+
+- update vitepress and index function library ([#1704](https://github.com/penrose/penrose/issues/1704)) ([12b0442](https://github.com/penrose/penrose/commit/12b0442f78603fb619d615133acebfde8d319337))
+
+### :house: Internal
+
+- add default canvas block to `editor` ([#1674](https://github.com/penrose/penrose/issues/1674)) ([52f8fd2](https://github.com/penrose/penrose/commit/52f8fd28e1cfc22e0c9750f3c9cdc61e5f9a6591))
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- rename venn to euler diagrams ([#1756](https://github.com/penrose/penrose/issues/1756)) ([355b130](https://github.com/penrose/penrose/commit/355b130e044f613a6fab7abe55681ab5f0df4fee))
+- run components tests in CI ([#1815](https://github.com/penrose/penrose/issues/1815)) ([e164486](https://github.com/penrose/penrose/commit/e164486e4121e07f75fe816c138d2cf660073cd7))
+
+## [v4.0.0-alpha.0] (2024-05-07)
+
+### :warning: BREAKING CHANGE
+
+- separate Substance environment and remove unused features (#1677)
+
+### :rocket: New Feature
+
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+
+### :bug: Bug Fix
+
+- UI bugs in `edgeworth` ([#1706](https://github.com/penrose/penrose/issues/1706)) ([c255e39](https://github.com/penrose/penrose/commit/c255e39176c118662f91108ac9ab59682966acc6))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+
+### :nail_care: Polish
+
+- simplified shared `Grid` and custom `Grid` in Edgeworth ([#1729](https://github.com/penrose/penrose/issues/1729)) ([a7c9d4d](https://github.com/penrose/penrose/commit/a7c9d4d5d8cc44b3544afb826da3a7002ef55cff))
+
+### :memo: Documentation
+
+- update vitepress and index function library ([#1704](https://github.com/penrose/penrose/issues/1704)) ([12b0442](https://github.com/penrose/penrose/commit/12b0442f78603fb619d615133acebfde8d319337))
+
+### :house: Internal
+
+- add default canvas block to `editor` ([#1674](https://github.com/penrose/penrose/issues/1674)) ([52f8fd2](https://github.com/penrose/penrose/commit/52f8fd28e1cfc22e0c9750f3c9cdc61e5f9a6591))
+
 ## [v3.2.0](https://github.com/penrose/penrose/compare/v3.1.0...v3.2.0) (2023-08-08)
 
 ### :rocket: New Feature

@@ -12,7 +12,7 @@ import { makeIdsUnique } from "./util.js";
 
 const RenderImage = async (
   shape: Image<number>,
-  { canvasSize, pathResolver }: RenderProps,
+  { canvasSize, pathResolver, titleCache }: RenderProps,
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   // Keep track of which input properties we programatically mapped
@@ -27,6 +27,7 @@ const RenderImage = async (
   }
   attrToNotAutoMap.push("href");
   elem.innerHTML = rawSVG;
+
   // We assume the first svg element in the file is the one to display
   const svg = elem.querySelector("svg")!;
   // make sure the SVG has unique IDs so multiple diagrams can appear on the screen
@@ -35,7 +36,7 @@ const RenderImage = async (
   attrToNotAutoMap.push(...attrWH(shape, svg));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
-  attrToNotAutoMap.push(...attrTitle(shape, elem));
+  attrToNotAutoMap.push(...attrTitle(shape, elem, titleCache));
   svg.setAttribute("preserveAspectRatio", shape.preserveAspectRatio.contents);
   attrToNotAutoMap.push("preserveAspectRatio");
   // Directly Map across any "unknown" SVG properties

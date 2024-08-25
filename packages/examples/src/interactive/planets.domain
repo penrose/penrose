@@ -1,0 +1,5 @@
+type Star
+type Planet
+
+constructor Star (Number radius)
+constructor Planet (Star star, Number period, Number orbitalRadius)

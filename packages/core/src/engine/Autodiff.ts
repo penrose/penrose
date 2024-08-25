@@ -1,4 +1,4 @@
-import consola from "consola";
+import consola, { LogLevels } from "consola";
 import _ from "lodash";
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as rose from "rose";
@@ -111,9 +111,9 @@ export const fn = <const P extends readonly unknown[], const R>(
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
 // const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
-export const logAD = (consola as any)
-  .create({ level: (consola as any).LogLevel.Warn })
-  .withScope("Optimizer");
+export const logAD = consola
+  .create({ level: LogLevels.warn })
+  .withTag("Optimizer");
 
 export const EPS_DENOM = builtins.epsilon; // Avoid divide-by-zero in denominator
 

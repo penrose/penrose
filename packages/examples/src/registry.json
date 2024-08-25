@@ -1,6 +1,6 @@
 {
-  "set-theory-domain/tree-venn": {
-    "name": "Sets as Venn Diagram",
+  "set-theory-domain/tree-euler": {
+    "name": "Sets as Euler Diagram",
     "gallery": true
   },
   "set-theory-domain/tree-tree": {
@@ -23,8 +23,8 @@
     "name": "Quaternions as Cayley graph",
     "gallery": true
   },
-  "set-theory-domain/tree-venn-3d": {
-    "name": "Sets as Venn Diagram in 2.5D",
+  "set-theory-domain/tree-euler-3d": {
+    "name": "Sets as Euler Diagram in 2.5D",
     "gallery": true
   },
   "atoms-and-bonds/one-water-molecule": {
@@ -214,6 +214,9 @@
   "geometry-domain/textbook_problems/c11p12": {
     "name": "Circle Example",
     "gallery": true
+  },
+  "molecules/sulfuric-acid": {
+    "name": "Edgeworth Chemistry Example"
   },
   "curve-examples/catmull-rom/catmull-rom": {
     "name": "Catmull-Rom Interpolation Test",
@@ -555,6 +558,10 @@
     "name": "Iterated Functions System",
     "gallery": true
   },
+  "envelopes/nephroid": {
+    "name": "Nephroid as Envelope of Circles",
+    "gallery": true
+  },
   "dataviz/linearreg": {
     "name": "Linear Regression",
     "gallery": true
@@ -562,5 +569,25 @@
   "dataviz/residual": {
     "name": "Linear Regression Residuals",
     "gallery": false
+  },
+  "geometry-domain/complementary-angles": {
+    "name": "Complementary angles",
+    "gallery": false
+  },
+  "alloy-models/icicle-plot-file-system": {
+    "name": "File System Icicle Plot",
+    "gallery": false
+  },
+  "interactive/ellipse-rays": {
+    "name": "Ellipse Rays",
+    "gallery": true
+  },
+  "interactive/viewport": {
+    "name": "Viewport",
+    "gallery": true
+  },
+  "interactive/planets": {
+    "name": "Planets",
+    "gallery": true
   }
 }

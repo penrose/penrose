@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 interface Segment {
   label: string;
-  steps: number;
+  frames: number;
+  cumulativeFrames: number;
   color: string;
 }
 
@@ -47,26 +48,33 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
   disabled,
   onChange,
 }) => {
-  if (stages.length === 0) return null;
   // compute the step ranges for each stage
-  const stageRanges = stages.reduce(
-    (acc, stage, i) => [
-      ...acc,
-      {
-        start: i === 0 ? 0 : acc[i - 1].end,
-        end: i === 0 ? stage.steps : acc[i - 1].end + stage.steps,
-      },
-    ],
-    [] as { start: number; end: number }[],
-  );
+  let stageRanges = stages.map((stage, i) => ({
+    start: i === 0 ? 0 : stages[i - 1].cumulativeFrames,
+    end: stage.cumulativeFrames,
+  }));
+  if (stageRanges.length === 0) {
+    stageRanges = [{ start: 0, end: 0 }];
+  }
 
-  const totalSteps = stageRanges[stageRanges.length - 1].end;
-  const [value, setValue] = useState<number>(totalSteps - 1);
+  const [dragged, setDragged] = useState<boolean>(false);
+  const [value, setValue] = useState<number>(0);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDragged(true);
     const newValue = parseInt(e.target.value, 10);
     setValue(newValue);
     onChange(newValue);
   };
+
+  useEffect(() => {
+    if (disabled) {
+      setDragged(false);
+    }
+  }, [disabled]);
+
+  const totalFrames = stageRanges[stageRanges.length - 1].end;
+  const maxValue = totalFrames - 1;
+  const currValue = dragged ? value : maxValue;
 
   return (
     <SliderContainer>
@@ -74,16 +82,16 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
         disabled={disabled}
         type="range"
         min="0"
-        max={totalSteps - 1}
-        value={value}
+        max={maxValue}
+        value={currValue}
         onChange={handleChange}
       />
       <div>
         {stages.map((stage, index) => (
           <StageLabel
             key={index}
-            enabled={stageRanges[index].start <= value}
-            width={(stage.steps / totalSteps) * 100}
+            enabled={stageRanges[index].start <= currValue}
+            width={(stage.frames / (!!totalFrames ? totalFrames : 1)) * 100}
             color={stage.color}
           >
             {stage.label}

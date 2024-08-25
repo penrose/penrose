@@ -1,6 +1,6 @@
 # Domain
 
-A Domain schema describes the types of objects, as well as relations between these objects, that Penrose diagrams work with. For example, say we want to use Penrose to draw a Venn diagram that represents the relationship between mathematical sets. We can declare the following domain schema:
+A Domain schema describes the types of objects, as well as relations between these objects, that Penrose diagrams work with. For example, say we want to use Penrose to draw an Euler diagram that represents the relationship between mathematical sets. We can declare the following domain schema:
 
 ```domain
 type Set

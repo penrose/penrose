@@ -61,19 +61,25 @@ export default {
     onMounted(async () => {
       const load = async () => {
         for (const id of props.trios) {
-          const svg = await fetch(
+          fetch(
             encodeURI(
               `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`,
             ),
-          );
-          if (svg.ok) {
-            const preview = await svg.text();
-            const croppedPreview = cropSVG(preview);
-            const trio = { id, preview: croppedPreview };
-            examples.value = examples.value.map((e) =>
-              e.id === id ? { ...trio, preview: croppedPreview } : e,
-            );
-          }
+          )
+            .then((svg) => {
+              if (svg.ok) {
+                return svg.text();
+              } else {
+                return Promise.reject("Failed to fetch SVG");
+              }
+            })
+            .then((preview) => {
+              const croppedPreview = cropSVG(preview);
+              const trio = { id, preview: croppedPreview };
+              examples.value = examples.value.map((e) =>
+                e.id === id ? { ...trio, preview: croppedPreview } : e,
+              );
+            });
         }
       };
       load();

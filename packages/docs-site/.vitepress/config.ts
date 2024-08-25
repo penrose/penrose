@@ -46,7 +46,7 @@ const indexableFunctionDocs = () => {
     }\n\n**Parameters:**\n\n${showParams(v.params)}`;
   });
   const constraints = Object.entries(constrDict).map(([k, v]: any) => {
-    return `### ${v.name} {#constraint-${v.name.toLowerCase()}}\n\n${
+    return `### ${v.name} {#constraint-${v.name}}\n\n${
       v.description
     }\n\n**Parameters:**\n\n${showParams(v.params)}`;
   });
@@ -58,7 +58,6 @@ const indexableFunctionDocs = () => {
     "## Computation\nn",
     ...compFuncs,
   ].join("\n\n");
-  console.log(markdown);
 
   return markdown;
 };
@@ -374,6 +373,10 @@ export default defineConfig({
                   link: "/docs/ref/style/passthrough",
                 },
               ],
+            },
+            {
+              text: "Interactivity (experimental)",
+              link: "/docs/ref/Interactivity",
             },
           ],
         },

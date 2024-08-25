@@ -1,0 +1,11 @@
+-- substance name in registry: collinear
+
+Point A, B, C, D, E
+
+Let AC := Ray(A, C)
+Let BA := Line(B, A)
+Let CD := Line(C, D)
+Let BE := Line(B, E)
+
+
+AutoLabel A, B, C, D, E

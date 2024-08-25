@@ -1,69 +1,47 @@
-import MonacoEditor, { useMonaco } from "@monaco-editor/react";
-import { compileDomain } from "@penrose/core";
-import { editor } from "monaco-editor";
-import { useEffect } from "react";
-import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig.js";
-
-export const defaultMonacoOptions: editor.IStandaloneEditorConstructionOptions =
-  {
-    automaticLayout: true,
-    minimap: { enabled: false },
-    wordWrap: "on",
-    lineNumbers: "off",
-    fontSize: 16,
-    scrollbar: {
-      handleMouseWheel: true,
-    },
-    scrollBeyondLastLine: false,
-    renderLineHighlight: "none",
-  };
+import { PenroseError, PenroseWarning } from "@penrose/core";
+import { useEffect, useState } from "react";
+import EditorPane from "./editing/EditorPane";
+import { getDomainCache } from "./editing/hooks/domain/getDomainCache";
+import { getSubstanceCache } from "./editing/hooks/substance/getSubstanceCache";
 
 const Listing = ({
   domain,
-  substance,
+  src,
   width,
   height,
+  darkMode,
   onChange,
-  monacoOptions,
-  readOnly,
+  language = "substance",
+  readOnly = true,
 }: {
   domain: string;
-  substance: string;
+  src: string;
   width: string;
   height: string;
   onChange?(value: string): void;
-  monacoOptions?: editor.IStandaloneEditorConstructionOptions;
-  readOnly?: boolean;
+  readOnly: boolean;
+  darkMode: boolean;
+  language: "domain" | "style" | "substance";
 }) => {
-  const env = compileDomain(domain).unsafelyUnwrap();
-  const monaco = useMonaco();
-  useEffect(() => {
-    if (monaco) {
-      if (env) {
-        const dispose = SetupSubstanceMonaco(env)(monaco);
-        return () => {
-          // prevents duplicates
-          dispose();
-        };
-      }
-    }
-  }, [monaco, env]);
+  const [error, setError] = useState<PenroseError | null>(null);
+  const [warnings, setWarnings] = useState<PenroseWarning[]>([]);
+  useEffect(() => {}, [domain, src]);
   return (
-    <MonacoEditor
-      value={substance}
+    <EditorPane
+      value={src}
+      readOnly={readOnly}
+      onChange={onChange!}
+      languageType={language}
+      domainCache={getDomainCache(domain)}
+      substanceCache={getSubstanceCache(src)}
+      darkMode={darkMode}
+      vimMode={false}
+      error={error}
+      warnings={warnings}
+      codemirrorHistoryState={true}
+      showCompileErrs={false}
       width={width}
       height={height}
-      onChange={onChange ? (v) => onChange(v ?? "") : undefined}
-      defaultLanguage="substance"
-      options={
-        monacoOptions
-          ? {
-              ...defaultMonacoOptions,
-              ...monacoOptions,
-              readOnly: readOnly ?? true,
-            }
-          : defaultMonacoOptions
-      }
     />
   );
 };

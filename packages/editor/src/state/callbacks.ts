@@ -1,45 +1,63 @@
+import { runtimeError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
+import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import localforage from "localforage";
-import { range } from "lodash";
+import "localforage-getitems";
+import { debounce } from "lodash";
 import queryString from "query-string";
+import { useCallback, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
-import { useRecoilCallback } from "recoil";
+import {
+  RecoilState,
+  useRecoilCallback,
+  useRecoilState,
+  useRecoilValue,
+} from "recoil";
 import { v4 as uuid } from "uuid";
+import { isErr, showOptimizerError } from "../optimizer/common.js";
 import {
   DownloadPNG,
   DownloadSVG,
   pathResolver,
   zipTrio,
 } from "../utils/downloadUtils.js";
-import { stateToSVG } from "../utils/renderUtils.js";
-import { LayoutStats, RenderState } from "../worker/message.js";
 import {
+  authObject,
+  createWorkspaceObject,
+  db,
+  getDiagram,
+} from "../utils/firebaseUtils.js";
+import { stateToSVG } from "../utils/renderUtils.js";
+import {
+  AutosaveTimer,
   Canvas,
   Diagram,
-  DiagramGrid,
   DiagramMetadata,
   EDITOR_VERSION,
   GistMetadata,
-  LocalGithubUser,
   ProgramFile,
   RogerState,
+  SavedWorkspaces,
   Settings,
   TrioWithPreview,
   Workspace,
   WorkspaceLocation,
   WorkspaceMetadata,
+  autosaveTimerState,
   canvasState,
+  codemirrorHistory,
   currentRogerState,
   currentWorkspaceState,
-  diagramGridState,
+  defaultWorkspaceState,
   diagramMetadataSelector,
   diagramState,
   diagramWorkerState,
   fileContentsSelector,
-  localFilesState,
   optimizer,
+  savedFilesState,
   settingsState,
+  showCompileErrsState,
   workspaceMetadataSelector,
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
@@ -50,143 +68,183 @@ const _compileDiagram = async (
   domain: string,
   variation: string,
   excludeWarnings: string[],
-  set: any,
+  set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
 ) => {
+  // indicate that buttons should gray out for now
+  set(diagramWorkerState, (state) => ({
+    optimizing: false,
+    resampling: false,
+    compiling: true,
+  }));
+
   const compiling = toast.loading("Compiling...");
-  const onUpdate = (updatedState: RenderState, stats: LayoutStats) => {
-    set(diagramState, (state: Diagram): Diagram => {
-      return {
-        ...state,
-        error: null,
-        // TODO: warnings
-        // warnings: initialState.warnings,
-        metadata: {
-          ...state.metadata,
-          variation,
-          excludeWarnings,
-          source: {
-            domain,
-            substance,
-            style,
-          },
-        },
-        state: updatedState,
-      };
-    });
-
-    // TODO: update grid state too
-    set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
-      variations: range(gridSize).map((i) =>
-        i === 0 ? variation : generateVariation(),
-      ),
-      gridSize,
-    }));
-  };
-
-  const id = optimizer.run({
+  const compileResult = await optimizer.compile(
     domain,
     style,
     substance,
     variation,
-    onUpdate,
-    onError: (error) => {
-      toast.dismiss(compiling);
-      set(diagramState, (state: Diagram) => ({ ...state, error }));
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        running: false,
-      });
-    },
-    onComplete: () => {
-      toast.dismiss(compiling);
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        running: false,
-      });
-    },
-  });
+  );
+  toast.dismiss(compiling);
 
-  set(diagramWorkerState, {
-    ...diagramWorkerState,
-    id,
-    running: true,
-  });
+  // un-gray buttons
+  set(diagramWorkerState, () => ({
+    optimizing: false,
+    resampling: false,
+    compiling: false,
+  }));
 
-  // TODO: update grid state too
-  // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
-  //   variations: range(gridSize).map((i) =>
-  //     i === 0 ? variation : generateVariation(),
-  //   ),
-  //   gridSize,
-  // }));
+  if (isErr(compileResult)) {
+    // display error
+    set(diagramState, (diagram) => ({
+      ...diagram,
+      error: compileResult.error,
+    }));
+    return;
+  }
+
+  // get currently available step sequence id and history (should be exactly one
+  // id, and no history, currently)
+  const pollResult = await optimizer.poll(compileResult.value.diagramId);
+  if (isErr(pollResult)) {
+    set(diagramState, (diagram) => ({
+      ...diagram,
+      error: runtimeError(showOptimizerError(pollResult.error)),
+    }));
+    return;
+  }
+
+  // we've succesfully compiled, so we can update the diagram metadata, warnings, etc
+  set(diagramState, (diagram) => ({
+    ...diagram,
+    warnings: compileResult.value.warnings,
+    error: null,
+    historyInfo: pollResult.value,
+    diagramId: compileResult.value.diagramId,
+    // uses our assumption that there will only be one step sequence for a newly
+    // compiled diagram
+    historyLoc: {
+      sequenceId: pollResult.value.keys().next().value,
+      frame: 0,
+    },
+    metadata: {
+      ...diagram.metadata,
+      variation,
+      excludeWarnings,
+      source: {
+        substance,
+        style,
+        domain,
+      },
+    },
+  }));
+
+  set(diagramWorkerState, () => ({
+    compiling: false,
+    resampling: false,
+    optimizing: true,
+  }));
 };
 
-export const useCompileDiagram = () =>
-  useRecoilCallback(({ snapshot, set }) => async () => {
+export const useCompileDiagram = () => {
+  const workspace = useRecoilValue(currentWorkspaceState);
+  const metadata = useRecoilValue(diagramMetadataSelector);
+  return useRecoilCallback(
+    ({ snapshot, set }) =>
+      async () => {
+        set(showCompileErrsState, true);
+        const domainFile = workspace.files.domain.contents;
+        const substanceFile = workspace.files.substance.contents;
+        const styleFile = workspace.files.style.contents;
+        await _compileDiagram(
+          substanceFile,
+          styleFile,
+          domainFile,
+          metadata.variation,
+          metadata.excludeWarnings,
+          set,
+        );
+      },
+    [workspace, metadata],
+  );
+};
+
+export const useIsUnsaved = () =>
+  useRecoilCallback(({ snapshot, set }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
-    const domainFile = workspace.files.domain.contents;
-    const substanceFile = workspace.files.substance.contents;
-    const styleFile = workspace.files.style.contents;
-    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
-
-    await _compileDiagram(
-      substanceFile,
-      styleFile,
-      domainFile,
-      diagram.metadata.variation,
-      diagram.metadata.excludeWarnings,
-      set,
-    );
+    return !isCleanWorkspace(workspace);
   });
+
+export const useClearAutosave = (set: any, snapshot: any) => {
+  const autosaveTimer: AutosaveTimer = snapshot.getLoadable(autosaveTimerState)
+    .contents as AutosaveTimer;
+
+  if (autosaveTimer != null) {
+    clearTimeout(autosaveTimer);
+    set(autosaveTimerState, null);
+  }
+};
+
+/*
+ * See: https://github.com/uiwjs/react-codemirror/issues/405
+ * Summary: Utilizing React Codemirror provides useful abstractions that
+ * would be annoying to implement manually (namely onChange hook)
+ * Docs recommend clearing history by resetting State, but this would
+ * remove the React Codemirror state. This is a hacky workaround
+ */
+export const useResetEditorHistory = (set: any) => {
+  set(codemirrorHistory, false);
+  setTimeout(() => set(codemirrorHistory, true), 1);
+};
 
 export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram: Diagram = snapshot.getLoadable(diagramState)
       .contents as Diagram;
-    const id: string = snapshot.getLoadable(diagramWorkerState)
-      .contents as string;
-    if (diagram.state === null) {
+    if (diagram.diagramId === null) {
       toast.error("Cannot resample uncompiled diagram");
       return;
     }
+
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
-    optimizer.resample(
-      id,
+
+    const resampleResult = await optimizer.resample(
+      diagram.diagramId,
       variation,
-      (resampled) => {
-        set(diagramState, (state) => ({
-          ...state,
-          metadata: { ...state.metadata, variation },
-          state: resampled,
-        }));
-        // update grid state too
-        set(diagramGridState, ({ gridSize }) => ({
-          variations: range(gridSize).map((i) =>
-            i === 0 ? variation : generateVariation(),
-          ),
-          gridSize,
-        }));
-      },
-      () => {
-        toast.dismiss(resamplingLoading);
-      },
     );
-  });
+    toast.dismiss(resamplingLoading);
 
-const _saveLocally = (set: any) => {
-  const id = toast.loading("saving...");
-  set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
-    ...state,
-    location: { kind: "local", saved: true } as WorkspaceLocation,
-  }));
-  toast.dismiss(id);
-};
+    if (isErr(resampleResult)) {
+      set(diagramState, (diagram) => ({
+        ...diagram,
+        error: runtimeError(showOptimizerError(resampleResult.error)),
+      }));
+      return;
+    }
 
-export const useSaveLocally = () =>
-  useRecoilCallback(({ set }) => () => {
-    _saveLocally(set);
+    // resampling succeeded, so we know we're now optimizing
+    set(diagramWorkerState, () => ({
+      compiling: false,
+      optimizing: true,
+      resampling: false,
+    }));
+    set(diagramState, (diagram) => ({
+      ...diagram,
+      historyLoc: {
+        sequenceId: resampleResult.value,
+        frame: 0,
+      },
+      // on resample, only clear runtime errors
+      error:
+        diagram.error !== null && diagram.error.errorType !== "RuntimeError"
+          ? diagram.error
+          : null,
+      metadata: {
+        ...diagram.metadata,
+        variation,
+      },
+    }));
   });
 
 export const useDownloadTrio = () =>
@@ -212,6 +270,25 @@ export const useDownloadTrio = () =>
         "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
       );
     }
+  });
+
+export const useCopyToClipboard = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    const sub = workspace.files.substance.contents;
+    const sty = workspace.files.style.contents;
+    const dsl = workspace.files.domain.contents;
+    const concatenated = `-- .substance\n${sub}\n-- .style\n${sty}\n-- .domain\n${dsl}\n`;
+
+    navigator.clipboard
+      .writeText(concatenated)
+      .then(() => {
+        toast.success("Copied trio to clipboard!");
+      })
+      .catch(() => {
+        toast.error("Error could not copy");
+      });
   });
 
 export const useDownloadSvg = () =>
@@ -266,6 +343,7 @@ export const useDownloadSvgTex = () =>
             pathResolver(path, rogerState, metadata),
           width: state.canvas.width.toString(),
           height: state.canvas.height.toString(),
+          texLabels: true,
         });
         const domain = snapshot.getLoadable(fileContentsSelector("domain"))
           .contents as ProgramFile;
@@ -355,53 +433,62 @@ export const useDownloadPdf = () =>
     }
   });
 
-export const useDuplicate = () =>
-  useRecoilCallback(({ set }) => () => {
-    set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
-      ...state,
-      location: { kind: "local", saved: true } as WorkspaceLocation,
-      id: uuid(),
-    }));
-  });
-
 // returns true if there are no unsaved changes
 export const isCleanWorkspace = (workspace: Workspace): boolean => {
   if (
-    workspace.metadata.location.kind === "local" &&
-    !workspace.metadata.location.saved &&
-    !(
-      workspace.files.domain.contents === "" &&
-      workspace.files.substance.contents === ""
-    )
+    (workspace.metadata.location.kind === "stored" &&
+      !workspace.metadata.location.saved) ||
+    (workspace.metadata.location.kind == "local" &&
+      workspace.metadata.location.changesMade)
   ) {
-    return confirm("Your current workspace is unsaved. Overwrite it?");
+    return false;
+  } else {
+    return true;
   }
-  return true;
 };
 
 export const useLoadLocalWorkspace = () =>
   useRecoilCallback(({ set, snapshot }) => async (id: string) => {
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
-    if (!isCleanWorkspace(currentWorkspace)) {
-      return;
-    }
-    const loadedWorkspace = (await localforage.getItem(id)) as Workspace;
-    if (loadedWorkspace === null) {
-      console.error("Could not retrieve workspace", id);
-      toast.error(`Could not retrieve workspace ${id}`);
+    const currentSavedFilesState = snapshot.getLoadable(savedFilesState)
+      .contents as SavedWorkspaces;
+    if (
+      !isCleanWorkspace(currentWorkspace) &&
+      !confirm(
+        "You have unsaved changes. Are you sure you want to load a new workspace?",
+      )
+    ) {
       return;
     }
 
-    set(currentWorkspaceState, loadedWorkspace as Workspace);
-    await _compileDiagram(
-      loadedWorkspace.files.substance.contents,
-      loadedWorkspace.files.style.contents,
-      loadedWorkspace.files.domain.contents,
-      uuid(),
-      [],
-      set,
-    );
+    // Clear autosave to avoid race
+    useClearAutosave(set, snapshot);
+
+    let loadedWorkspace: Workspace | null;
+    if (id in currentSavedFilesState) {
+      loadedWorkspace = currentSavedFilesState[id];
+    } else {
+      /**
+       * Workspace missing from local state, search database instead.
+       * A fallback in case of some unforseen bug, I do not expect this
+       * branch to be reached
+       */
+      loadedWorkspace = await getDiagram(id);
+    }
+
+    if (loadedWorkspace != null) {
+      set(currentWorkspaceState, loadedWorkspace as Workspace);
+      await _compileDiagram(
+        loadedWorkspace.files.substance.contents,
+        loadedWorkspace.files.style.contents,
+        loadedWorkspace.files.domain.contents,
+        uuid(),
+        [],
+        set,
+      );
+      useResetEditorHistory(set);
+    }
   });
 
 export const useLoadExampleWorkspace = () =>
@@ -411,9 +498,18 @@ export const useLoadExampleWorkspace = () =>
         const currentWorkspace = snapshot.getLoadable(
           currentWorkspaceState,
         ).contents;
-        if (!isCleanWorkspace(currentWorkspace)) {
+        if (
+          !isCleanWorkspace(currentWorkspace) &&
+          !confirm(
+            "You have unsaved changes. Are you sure you want to load a gallery example?",
+          )
+        ) {
           return;
         }
+
+        // Clear autosave to avoid race
+        useClearAutosave(set, snapshot);
+
         const id = toast.loading("Loading example...");
         const { domain, style, substance, variation, excludeWarnings } =
           await meta.get();
@@ -427,7 +523,7 @@ export const useLoadExampleWorkspace = () =>
           metadata: {
             id: uuid(),
             name: meta.name!,
-            lastModified: new Date().toISOString(),
+            lastModified: Date.parse(new Date().toISOString()),
             editorVersion: EDITOR_VERSION,
             location: {
               kind: "example",
@@ -459,29 +555,37 @@ export const useLoadExampleWorkspace = () =>
           excludeWarnings,
           set,
         );
+
+        useResetEditorHistory(set);
       },
   );
+
+export const useNewWorkspace = () =>
+  useRecoilCallback(({ reset, set, snapshot }) => () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
+    if (
+      !isCleanWorkspace(workspace) &&
+      !confirm(`You have unsaved changes. Are you sure you want to create
+      a new workspace?`)
+    ) {
+      return;
+    }
+    // set rather than reset to generate new id to avoid id conflicts
+    set(currentWorkspaceState, () => defaultWorkspaceState());
+    reset(diagramState);
+    useResetEditorHistory(set);
+  });
 
 export const useCheckURL = () =>
   useRecoilCallback(({ set, snapshot, reset }) => async () => {
     const parsed = queryString.parse(window.location.search);
-    if (
-      "access_token" in parsed &&
-      "profile[login]" in parsed &&
-      "profile[avatar_url]" in parsed
-    ) {
-      // Signed into GitHub
-      set(settingsState, (state) => ({
-        ...state,
-        github: {
-          username: parsed["profile[login]"],
-          accessToken: parsed["access_token"],
-          avatar: parsed["profile[avatar_url]"],
-        } as LocalGithubUser,
-      }));
-    } else if ("gist" in parsed) {
+    if ("gist" in parsed) {
       // Loading a gist
-      const id = toast.loading("Loading gist...");
+      // Show loading notification only if not redirected from share
+      var id!: string;
+      if (!("pub" in parsed)) {
+        id = toast.loading("Loading gist...");
+      }
       const res = await fetch(
         `https://api.github.com/gists/${parsed["gist"]}`,
         {
@@ -490,7 +594,9 @@ export const useCheckURL = () =>
           },
         },
       );
-      toast.dismiss(id);
+      if (!("pub" in parsed)) {
+        toast.dismiss(id);
+      }
       if (res.status !== 200) {
         console.error(res);
         toast.error(`Could not load gist: ${res.statusText}`);
@@ -533,6 +639,17 @@ export const useCheckURL = () =>
         files,
       };
       set(currentWorkspaceState, workspace);
+
+      // Notification + save to clipboard if redirected from clicking share
+      if ("pub" in parsed) {
+        const gistParameter = queryString.stringify({ gist: parsed["gist"] });
+        const shareableURL = `${window.location.origin}${window.location.pathname}?${gistParameter}`;
+        navigator.clipboard.writeText(shareableURL).then(() => {
+          toast.success("Copied shareable link to clipboard");
+        });
+        // Hide pub query parameter from displayed URL
+        window.history.replaceState({}, document.title, shareableURL);
+      }
     } else if ("examples" in parsed) {
       const t = toast.loading("Loading example...");
       const id = parsed["examples"];
@@ -549,7 +666,7 @@ export const useCheckURL = () =>
         metadata: {
           id: uuid(),
           name: ex.name!,
-          lastModified: new Date().toISOString(),
+          lastModified: Date.parse(new Date().toISOString()),
           editorVersion: EDITOR_VERSION,
           location: {
             kind: "example",
@@ -591,17 +708,10 @@ export const usePublishGist = () =>
     const workspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
     const settings = snapshot.getLoadable(settingsState).contents as Settings;
-    if (settings.github === null) {
+    if (settings.githubAccessToken === null) {
       console.error(`Not authorized with GitHub`);
       toast.error(`Not authorized with GitHub`);
       return;
-    }
-    // save draft to a new workspace before redirecting to gist url
-    if (
-      workspace.metadata.location.kind === "local" &&
-      !workspace.metadata.location.saved
-    ) {
-      await _saveLocally(set);
     }
     const gistMetadata: GistMetadata = {
       name: workspace.metadata.name,
@@ -617,7 +727,7 @@ export const usePublishGist = () =>
       method: "POST",
       headers: {
         accept: "application/vnd.github.v3+json",
-        Authorization: `token ${settings.github.accessToken}`,
+        Authorization: `token ${settings.githubAccessToken}`,
       },
       body: JSON.stringify({
         description: workspace.metadata.name,
@@ -648,24 +758,13 @@ export const usePublishGist = () =>
       toast.error(`Could not publish gist: ${res.statusText} ${json.message}`);
       return;
     }
-    toast.success(`Published gist, redirecting...`);
-    window.location.search = queryString.stringify({ gist: json.id });
+    // Use query string (pub) to pass state to display notification on next page
+    const gistParameter = queryString.stringify({ gist: json.id, pub: true });
+    toast.success("Redirecting to gist...");
+    window.location.search = gistParameter;
   });
 
-const REDIRECT_URL =
-  process.env.NODE_ENV === "development"
-    ? "https://penrose-gh-auth-zeta.vercel.app/connect/github"
-    : "https://penrose-gh-auth.vercel.app/connect/github";
-export const useSignIn = () =>
-  useRecoilCallback(({ set, snapshot }) => () => {
-    const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
-    if (!isCleanWorkspace(workspace)) {
-      return;
-    }
-    window.location.replace(REDIRECT_URL);
-  });
-
-export const useDeleteLocalFile = () =>
+export const useDeleteWorkspace = () =>
   useRecoilCallback(
     ({ set, snapshot, reset }) =>
       async (workspaceMetadata: WorkspaceMetadata) => {
@@ -674,18 +773,381 @@ export const useDeleteLocalFile = () =>
         if (!shouldDelete) {
           return;
         }
-        const currentWorkspace = snapshot.getLoadable(
-          currentWorkspaceState,
-        ).contents;
-        // removes from index
-        set(localFilesState, (localFiles) => {
-          const { [id]: removedFile, ...newFiles } = localFiles;
-          return newFiles;
-        });
-        await localforage.removeItem(id);
-        if (currentWorkspace.metadata.id === id) {
-          reset(currentWorkspaceState);
+
+        // Delete from cloud storage
+        if (authObject.currentUser != null) {
+          const notif = toast.loading(`Deleting ${name}...`);
+          await deleteDoc(doc(db, authObject.currentUser.uid, id))
+            .catch((error) => {
+              toast.error(`Error deleting diagram: ${name}`);
+              console.log(
+                `Error code: ${error.code}, Error message: ${error.message}`,
+              );
+              toast.dismiss(notif);
+              return;
+            })
+            .then(() => {
+              // If successful, remove from local state
+              const currentWorkspace = snapshot.getLoadable(
+                currentWorkspaceState,
+              ).contents;
+              set(savedFilesState, (savedFiles) => {
+                const { [id]: removedFile, ...newFiles } = savedFiles;
+                return newFiles;
+              });
+
+              // Clear autosave to avoid race
+              useClearAutosave(set, snapshot);
+
+              if (currentWorkspace.metadata.id === id) {
+                // set rather than reset to generate new id to avoid id conflicts
+                set(currentWorkspaceState, () => defaultWorkspaceState());
+                reset(diagramState);
+              }
+              toast.dismiss(notif);
+              toast.success(`Deleted ${name}`);
+            });
         }
-        toast.success(`Removed ${name}`);
       },
   );
+
+/**
+ * Helper function outside of recoil callback function for use in
+ * multiple callbacks. Saves currentWorkspace under diagramId to cloud
+ * storage and propogates to local state
+ */
+async function saveNewLogic(
+  diagramId: string,
+  currentWorkspace: Workspace,
+  set: any,
+) {
+  if (
+    authObject.currentUser != null &&
+    authObject.currentUser.uid != undefined
+  ) {
+    const modificationTime = Date.parse(new Date().toISOString());
+    // Save to cloud
+    const notif = toast.loading("saving...");
+    await setDoc(doc(db, authObject.currentUser.uid, diagramId), {
+      diagramId: diagramId,
+      name: currentWorkspace.metadata.name,
+      lastModified: modificationTime,
+      editorVersion: currentWorkspace.metadata.editorVersion,
+      substance: currentWorkspace.files.substance.contents,
+      style: currentWorkspace.files.style.contents,
+      domain: currentWorkspace.files.domain.contents,
+    })
+      .catch((error) => {
+        console.log(
+          `Error code: ${error.code}, Error message: ${error.message}`,
+        );
+        toast.error("Encountered an error");
+      })
+      // Update local state
+      .then(() => {
+        set(savedFilesState, (prevState: any) => ({
+          ...prevState,
+          [diagramId]: createWorkspaceObject(
+            currentWorkspace.metadata.name,
+            modificationTime,
+            diagramId,
+            currentWorkspace.metadata.editorVersion,
+            true,
+            currentWorkspace.files.substance.contents,
+            currentWorkspace.files.style.contents,
+            currentWorkspace.files.domain.contents,
+          ),
+        }));
+        set(currentWorkspaceState, (prevState: any) => ({
+          ...prevState,
+          metadata: {
+            ...prevState.metadata,
+            id: diagramId,
+            lastModified: modificationTime,
+            location: {
+              kind: "stored",
+              saved: true,
+            } as WorkspaceLocation,
+          },
+        }));
+        toast.dismiss(notif);
+      });
+  } else {
+    toast.error("Could not save workspace, please check login credentials");
+  }
+}
+
+/**
+ * Used when a "local" workspace is saved for the first time
+ * Also used for duplicate diagram, diagramId passed in as fresh uuid
+ */
+export const useSaveNewWorkspace = () =>
+  useRecoilCallback(
+    ({ set }) =>
+      async (diagramId: string, currentWorkspace: Workspace) => {
+        saveNewLogic(diagramId, currentWorkspace, set);
+      },
+  );
+
+export const useSaveWorkspace = () =>
+  useRecoilCallback(({ snapshot, set }) => async () => {
+    const currentWorkspace: Workspace = snapshot.getLoadable(
+      currentWorkspaceState,
+    ).contents as Workspace;
+
+    /**
+     * Check exists because of autosave. In autosave, a metadata update race
+     * makes it so that checking if the workspace is not saved before calling
+     * this function infeasible. As such, we move the check into this
+     * function.
+     */
+    if (
+      currentWorkspace.metadata.location.kind == "stored" &&
+      currentWorkspace.metadata.location.saved
+    ) {
+      return;
+    }
+
+    if (
+      authObject.currentUser != null &&
+      authObject.currentUser.uid != undefined
+    ) {
+      // Check for overwriting conflicts by checking lastModified string
+      const storedDiagram = await getDoc(
+        doc(db, authObject.currentUser.uid, currentWorkspace.metadata.id),
+      );
+      if (storedDiagram.exists()) {
+        const storedDiagramData = storedDiagram.data();
+        if (
+          storedDiagramData.lastModified !=
+            currentWorkspace.metadata.lastModified &&
+          !confirm(
+            `Merge conflict detected. Are you sure you want to override saved 
+            changes?`,
+          )
+        ) {
+          return;
+        }
+      } else {
+        toast.error("Error saving workspace, this workspace does not exist");
+        return;
+      }
+      const notif = toast.loading("saving...");
+      const modificationTime = Date.parse(new Date().toISOString());
+      // Save to cloud
+      await updateDoc(
+        doc(db, authObject.currentUser.uid, currentWorkspace.metadata.id),
+        {
+          name: currentWorkspace.metadata.name,
+          lastModified: modificationTime,
+          editorVersion: currentWorkspace.metadata.editorVersion,
+          substance: currentWorkspace.files.substance.contents,
+          style: currentWorkspace.files.style.contents,
+          domain: currentWorkspace.files.domain.contents,
+        },
+      )
+        .catch((error) => {
+          console.log(
+            `Error code: ${error.code}, Error message: ${error.message}`,
+          );
+          toast.error("Encountered an error");
+        })
+        // Update local state
+        .then(() => {
+          set(savedFilesState, (prevState) => ({
+            ...prevState,
+            [currentWorkspace.metadata.id]: createWorkspaceObject(
+              currentWorkspace.metadata.name,
+              modificationTime,
+              currentWorkspace.metadata.id,
+              currentWorkspace.metadata.editorVersion,
+              true,
+              currentWorkspace.files.substance.contents,
+              currentWorkspace.files.style.contents,
+              currentWorkspace.files.domain.contents,
+            ),
+          }));
+          set(currentWorkspaceState, (prevState) => ({
+            ...prevState,
+            metadata: {
+              ...prevState.metadata,
+              lastModified: modificationTime,
+              location: { kind: "stored", saved: true } as WorkspaceLocation,
+            },
+          }));
+          toast.dismiss(notif);
+        });
+    } else {
+      toast.error("Could not save workspace, please check login credentials");
+    }
+  });
+
+/**
+ * Allows user to save workspace with ctrl+s or cmd+s
+ * If user in an "local" workspace (new workspace): Adds to saved workspaces
+ * If user in a "stored" workspace that's unsaved: Saves
+ * If user in an example, gist, or roger workspace: Does nothing
+ */
+export const saveShortcutHook = () => {
+  const saveWorkspace = useSaveWorkspace();
+  const saveNewWorkspace = useSaveNewWorkspace();
+
+  // Need useRecoilCallback for snapshot, otherwise currentWorkspace outdated
+  const handleShortcut = useRecoilCallback(
+    ({ snapshot }) =>
+      async (event: KeyboardEvent) => {
+        const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
+          .contents as Workspace;
+        if (event.repeat) return;
+        // Cmd+s or Ctrl+s
+        if ((event.metaKey || event.ctrlKey) && event.key === "s") {
+          if (
+            currentWorkspace.metadata.location.kind == "stored" &&
+            !currentWorkspace.metadata.location.saved
+          ) {
+            event.preventDefault();
+            saveWorkspace();
+          } else if (currentWorkspace.metadata.location.kind == "local") {
+            event.preventDefault();
+            saveNewWorkspace(uuid(), currentWorkspace);
+          }
+        }
+      },
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleShortcut, {
+      passive: false,
+    });
+
+    // Cleanup
+    return () => document.removeEventListener("keydown", handleShortcut);
+  }, []);
+};
+
+/**
+ * Autosaves every 4 seconds after a user has finished editing.
+ */
+export const autosaveHook = () => {
+  const currentWorkspace = useRecoilValue(currentWorkspaceState);
+  const isInitialRender = useRef(true);
+  const saveWorkspace = useSaveWorkspace();
+  const [autosaveTimerValue, autosaveTimerSetter] =
+    useRecoilState(autosaveTimerState);
+
+  /**
+   * useCallback necessary for debounce to work. Without debounce, every
+   * character entered will trigger the function.
+   */
+  const autosaveLogic = useCallback(
+    debounce(async () => {
+      // Reset autosave timer
+      if (autosaveTimerValue != null) {
+        clearTimeout(autosaveTimerValue);
+      }
+      // Set new timer, after 5 seconds have elapsed without edit
+      const newTimeoutId = setTimeout(() => {
+        if (currentWorkspace.metadata.location.kind == "stored") {
+          saveWorkspace();
+        }
+      }, 4000);
+      autosaveTimerSetter(newTimeoutId);
+    }, 500),
+    // So that updates to these values won't be reflected in execution
+    [autosaveTimerValue, currentWorkspace.metadata],
+  );
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    autosaveLogic();
+  }, [
+    currentWorkspace.files.substance.contents,
+    currentWorkspace.files.style.contents,
+    currentWorkspace.files.domain.contents,
+  ]);
+};
+
+/**
+ * Traverse local storage, notify user which diagrams are being
+ * restored, and save to cloud storage if user confirms
+ */
+export const useRecoverAll = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    // Get all cloud storage saved diagrams
+    const savedDiagrams = snapshot.getLoadable(savedFilesState)
+      .contents as SavedWorkspaces;
+
+    let names: string[] = [];
+    let data: { [key: string]: any } = {};
+
+    const results = await localforage.getItems();
+
+    Object.keys(results).forEach((key) => {
+      // Ignore non diagrams and diagrams already saved
+      if (
+        results[key].constructor.name == "Object" &&
+        "metadata" in results[key] &&
+        !(key in savedDiagrams)
+      ) {
+        data[key] = results[key];
+
+        const name = results[key]["metadata"]["name"];
+
+        if (name == undefined) {
+          toast.error(
+            "Error recovering, please seek support on Penrose Discord",
+          );
+        }
+
+        names.push(name);
+      }
+    });
+
+    if (names.length == 0) {
+      toast.error("All diagrams already recovered");
+      return;
+    }
+
+    // Get user confirmation, list all diagrams to restore
+    const confirmation_message = `You will be recovering: ${names.join(
+      ", ",
+    )}. Proceed?`;
+
+    if (!confirm(confirmation_message)) {
+      return;
+    }
+
+    // User has confirmed, save diagrams to cloud storage
+    Object.keys(data).forEach((key) => {
+      const value = data[key];
+      saveNewLogic(key, value, set);
+    });
+  });
+
+/**
+ * Count all locally stored diagrams that are not in cloud storage
+ */
+export async function countLegacyDiagrams(savedDiagrams: SavedWorkspaces) {
+  try {
+    const results = await localforage.getItems();
+    let counter = 0;
+
+    Object.keys(results).forEach((key) => {
+      if (
+        results[key].constructor.name == "Object" &&
+        "metadata" in results[key] &&
+        !(key in savedDiagrams)
+      ) {
+        counter += 1;
+      }
+    });
+
+    return counter;
+  } catch (error) {
+    console.error("Error counting legacy diagrams:", error);
+    return 0;
+  }
+}
