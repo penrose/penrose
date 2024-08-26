@@ -29,11 +29,11 @@ Element B_3
 Label A0 $A$  -- $A_0$
 Label A1 $A$  -- $A_1$
 Label A2 $A$  -- $A_2$
-Label B $B$
+Label B  $B$
 
 Label g1 $g_1$
 Label g2 $g_2$
-Label f $f$
+Label f  $f$
 
 Label A0_a $a$
 Label A0_b $b$
@@ -41,9 +41,9 @@ Label A1_a $a$
 Label A1_b $b$
 Label A2_a $a$
 Label A2_b $b$
-Label B_1 $1$
-Label B_2 $2$
-Label B_3 $3$
+Label B_1  $1$
+Label B_2  $2$
+Label B_3  $3$
 
 
 SetsAreRelated(A0, g1, B)
@@ -64,9 +64,9 @@ Arrow g1_a1 := Relate(A0_a, B_1)
 Arrow g1_b3 := Relate(A0_b, B_3)
 Arrow g2_a2 := Relate(A1_a, B_2)
 Arrow g2_b3 := Relate(A1_b, B_3)
-Arrow f_1a  := Relate(B_1, A2_a)
-Arrow f_2a  := Relate(B_2, A2_a)
-Arrow f_3b  := Relate(B_3, A2_b)
+Arrow f_1a  := Relate(B_1,  A2_a)
+Arrow f_2a  := Relate(B_2,  A2_a)
+Arrow f_3b  := Relate(B_3,  A2_b)
 
 ArrowRelatesElements(A0_a, g1_a1, B_1)
 ArrowRelatesElements(A0_b, g1_b3, B_3)

@@ -41,7 +41,7 @@ Global
 	scalar pointH               = 20
 	scalar pointSpread          = 60
 	scalar pointLabelVertOffset = 20
-	scalar setSpreadH           = 300 -- canvas.width / 5 -- 300
+	scalar setSpreadH           = 300 -- canvas.width / 5
 	scalar setSpreadV           = 50
 	scalar setHeightPadding     = 20
 	scalar setLabelVertOffset   = 20

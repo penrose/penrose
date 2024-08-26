@@ -24,15 +24,14 @@ Arrow g1f_y2 := Relate(Z1_y, B_2)
 Arrow g2f_x1 := Relate(Z2_x, B_1)
 Arrow g2f_y2 := Relate(Z2_y, B_2)
 
-
 Label Z1 $Z$  -- $Z_1$
 Label Z2 $Z$  -- $Z_2$
 Label A  $A$
 Label B  $B$
 
-Label f $f$
-Label g1 $g_1$
-Label g2 $g_2$
+Label f   $f$
+Label g1  $g_1$
+Label g2  $g_2$
 Label g1f $f \circ g_1$
 Label g2f $f \circ g_2$
 
@@ -86,18 +85,7 @@ ArrowRelatesElements(Z1_y, g1f_y2, B_2)
 ArrowRelatesElements(Z2_x, g2f_x1, B_1)
 ArrowRelatesElements(Z2_y, g2f_y2, B_2)
 
-RelationHasArrow(g1,  g1_xa)
-RelationHasArrow(g1,  g1_yc)
-RelationHasArrow(g2,  g2_xb)
-RelationHasArrow(g2,  g2_yc)
-RelationHasArrow(f,   f_a1)
-RelationHasArrow(f,   f_b1)
-RelationHasArrow(f,   f_c2)
-RelationHasArrow(g1f, g1f_x1)
-RelationHasArrow(g1f, g1f_y2)
-RelationHasArrow(g2f, g2f_x1)
-RelationHasArrow(g2f, g2f_y2)
-
 SetsShareDomainOrCodomain(Z1, Z2)
+
 SetOverlapsRelation(A, g1f)
 SetOverlapsRelation(A, g2f)

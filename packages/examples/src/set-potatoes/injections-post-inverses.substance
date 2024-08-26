@@ -26,6 +26,15 @@ Element B_1
 Element B_2
 Element B_3
 
+Arrow f_a2  := Relate(A2_a, B_2)
+Arrow f_b3  := Relate(A2_b, B_3)
+Arrow g1_1a := Relate(B_1,  A1_a)
+Arrow g1_2a := Relate(B_2,  A1_a)
+Arrow g1_3b := Relate(B_3,  A1_b)
+Arrow g2_1b := Relate(B_1,  A2_b)
+Arrow g2_2a := Relate(B_2,  A2_a)
+Arrow g2_3b := Relate(B_3,  A2_b)
+
 Label A0 $A$  -- $A_0$
 Label A1 $A$  -- $A_1$
 Label A2 $A$  -- $A_2$
@@ -45,8 +54,6 @@ Label B_1  $1$
 Label B_2  $2$
 Label B_3  $3$
 
-
-
 SetsAreRelated(A0, f,  B)
 SetsAreRelated(B,  g1, A1)
 SetsAreRelated(B,  g2, A2)
@@ -61,15 +68,14 @@ SetHasElement(B,  B_1)
 SetHasElement(B,  B_2)
 SetHasElement(B,  B_3)
 
-
-Arrow f_a2  := Relate(A2_a, B_2)
-Arrow f_b3  := Relate(A2_b, B_3)
-Arrow g1_1a := Relate(B_1,  A1_a)
-Arrow g1_2a := Relate(B_2,  A1_a)
-Arrow g1_3b := Relate(B_3,  A1_b)
-Arrow g2_1b := Relate(B_1,  A2_b)
-Arrow g2_2a := Relate(B_2,  A2_a)
-Arrow g2_3b := Relate(B_3,  A2_b)
+RelationHasArrow(f,  f_a2)
+RelationHasArrow(f,  f_b3)
+RelationHasArrow(g1, g1_1a)
+RelationHasArrow(g1, g1_2a)
+RelationHasArrow(g1, g1_3b)
+RelationHasArrow(g2, g2_1b)
+RelationHasArrow(g2, g2_2a)
+RelationHasArrow(g2, g2_3b)
 
 ArrowRelatesElements(A0_a, f_a2,  B_2)
 ArrowRelatesElements(A0_b, f_b3,  B_3)
@@ -79,14 +85,5 @@ ArrowRelatesElements(B_3,  g1_3b, A1_b)
 ArrowRelatesElements(B_1,  g2_1b, A2_b)
 ArrowRelatesElements(B_2,  g2_2a, A2_a)
 ArrowRelatesElements(B_3,  g2_3b, A2_b)
-
-RelationHasArrow(f,  f_a2)
-RelationHasArrow(f,  f_b3)
-RelationHasArrow(g1, g1_1a)
-RelationHasArrow(g1, g1_2a)
-RelationHasArrow(g1, g1_3b)
-RelationHasArrow(g2, g2_1b)
-RelationHasArrow(g2, g2_2a)
-RelationHasArrow(g2, g2_3b)
 
 SetsShareDomainOrCodomain(A1, A2)
