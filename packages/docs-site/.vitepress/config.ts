@@ -225,7 +225,7 @@ export default defineConfig({
       { text: "Docs", link: "/docs/ref", activeMatch: "/docs/ref" },
       {
         text: "Bloom",
-        link: "/docs/bloom/hello_diagram",
+        link: "/docs/bloom/getting_started",
         activeMatch: "/docs/bloom",
       },
       { text: "Blog", link: "/blog", activeMatch: "/blog" },

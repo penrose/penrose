@@ -13,8 +13,8 @@ you’ll likely find the concepts familiar.
 
 ### Creating a React App
 
-You'll need Node.js $\ge$ 18 and NPM $ge$ 8 before getting started, which you can find
-[here](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). Next, create new React app with the following command:
+You'll need node.js $\ge$ 18 and npm $\ge$ 8 before getting started, which you can find
+[here](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). Once those are installed, create new React app as follows:
 
 ```bash
 npm create vite@latest my-bloom-app -- --template react-ts
@@ -32,7 +32,7 @@ npm install @penrose/bloom
 
 ### Creating a component
 
-At this point you'll probably want to remove all of the template nonsense from your directory:
+At this point you'll probably want to remove all the template nonsense from your directory:
 
 (please make sure you're in the root of your project directory before running this command!)
 
@@ -42,7 +42,7 @@ rm -rf public/ src/*.css src/App.tsx src/assets/
 
 Now create a new `App.tsx` file in the `src/` directory with the following content:
 
-```typescript
+```ts
 import { Renderer } from "@penrose/bloom";
 
 const App = () => {
