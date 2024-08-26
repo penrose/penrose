@@ -9,16 +9,21 @@
 -- $$f \circ g_1 = f \circ g_2 = \{(x, 1), (y, 2)\} \in (Z \to B)$$
 
 Set Z1, Z2, A, B
-Relation f, g1, g2
+Relation f, g1, g2, g1f, g2f
 Element A_a, A_b, A_c, Z1_x, Z1_y, Z2_x, Z2_y, B_1, B_2
 
-Arrow g1_xa := Relate(Z1_x, A_a)
-Arrow g1_yc := Relate(Z1_y, A_c)
-Arrow g2_xb := Relate(Z2_x, A_b)
-Arrow g2_yc := Relate(Z2_y, A_c)
-Arrow f_a1  := Relate(A_a,  B_1)
-Arrow f_b1  := Relate(A_b,  B_1)
-Arrow f_c2  := Relate(A_c,  B_2)
+Arrow g1_xa  := Relate(Z1_x, A_a)
+Arrow g1_yc  := Relate(Z1_y, A_c)
+Arrow g2_xb  := Relate(Z2_x, A_b)
+Arrow g2_yc  := Relate(Z2_y, A_c)
+Arrow f_a1   := Relate(A_a,  B_1)
+Arrow f_b1   := Relate(A_b,  B_1)
+Arrow f_c2   := Relate(A_c,  B_2)
+Arrow g1f_x1 := Relate(Z1_x, B_1)
+Arrow g1f_y2 := Relate(Z1_y, B_2)
+Arrow g2f_x1 := Relate(Z2_x, B_1)
+Arrow g2f_y2 := Relate(Z2_y, B_2)
+
 
 Label Z1 $Z$  -- $Z_1$
 Label Z2 $Z$  -- $Z_2$
@@ -28,6 +33,8 @@ Label B $B$
 Label f $f$
 Label g1 $g_1$
 Label g2 $g_2$
+Label g1f $f \circ g_1$
+Label g2f $f \circ g_2$
 
 Label Z1_x $x$
 Label Z1_y $y$
@@ -39,9 +46,11 @@ Label A_c $c$
 Label B_1 $1$
 Label B_2 $2$
 
-SetsAreRelated(Z1, g1, A)
-SetsAreRelated(Z2, g2, A)
-SetsAreRelated(A,  f,  B)
+SetsAreRelated(Z1, g1,  A)
+SetsAreRelated(Z2, g2,  A)
+SetsAreRelated(A,  f,   B)
+SetsAreRelated(Z1, g1f, B)
+SetsAreRelated(Z2, g2f, B)
 
 SetHasElement(Z1, Z1_x)
 SetHasElement(Z1, Z1_y)
@@ -53,28 +62,42 @@ SetHasElement(A, A_c)
 SetHasElement(B, B_1)
 SetHasElement(B, B_2)
 
-RelationHasArrow(g1, g1_xa)
-RelationHasArrow(g1, g1_yc)
-RelationHasArrow(g2, g2_xb)
-RelationHasArrow(g2, g2_yc)
-RelationHasArrow(f,  f_a1)
-RelationHasArrow(f,  f_b1)
-RelationHasArrow(f,  f_c2)
+RelationHasArrow(g1,  g1_xa)
+RelationHasArrow(g1,  g1_yc)
+RelationHasArrow(g2,  g2_xb)
+RelationHasArrow(g2,  g2_yc)
+RelationHasArrow(f,   f_a1)
+RelationHasArrow(f,   f_b1)
+RelationHasArrow(f,   f_c2)
+RelationHasArrow(g1f, g1f_x1)
+RelationHasArrow(g1f, g1f_y2)
+RelationHasArrow(g2f, g2f_x1)
+RelationHasArrow(g2f, g2f_y2)
 
-ArrowRelatesElements(g1_xa, Z1_x, A_a)
-ArrowRelatesElements(g1_yc, Z1_y, A_c)
-ArrowRelatesElements(g2_xb, Z2_x, A_b)
-ArrowRelatesElements(g2_yc, Z2_y, A_c)
-ArrowRelatesElements(f_a1,  A_a,  B_1)
-ArrowRelatesElements(f_b1,  A_b,  B_1)
-ArrowRelatesElements(f_c2,  A_c,  B_2)
+ArrowRelatesElements(g1_xa,  Z1_x, A_a)
+ArrowRelatesElements(g1_yc,  Z1_y, A_c)
+ArrowRelatesElements(g2_xb,  Z2_x, A_b)
+ArrowRelatesElements(g2_yc,  Z2_y, A_c)
+ArrowRelatesElements(f_a1,   A_a,  B_1)
+ArrowRelatesElements(f_b1,   A_b,  B_1)
+ArrowRelatesElements(f_c2,   A_c,  B_2)
+ArrowRelatesElements(g1f_x1, Z1_x, B_1)
+ArrowRelatesElements(g1f_y2, Z1_y, B_2)
+ArrowRelatesElements(g2f_x1, Z2_x, B_1)
+ArrowRelatesElements(g2f_y2, Z2_y, B_2)
 
-RelationHasArrow(g1, g1_xa)
-RelationHasArrow(g1, g1_yc)
-RelationHasArrow(g2, g2_xb)
-RelationHasArrow(g2, g2_yc)
-RelationHasArrow(f,  f_a1)
-RelationHasArrow(f,  f_b1)
-RelationHasArrow(f,  f_c2)
+RelationHasArrow(g1,  g1_xa)
+RelationHasArrow(g1,  g1_yc)
+RelationHasArrow(g2,  g2_xb)
+RelationHasArrow(g2,  g2_yc)
+RelationHasArrow(f,   f_a1)
+RelationHasArrow(f,   f_b1)
+RelationHasArrow(f,   f_c2)
+RelationHasArrow(g1f, g1f_x1)
+RelationHasArrow(g1f, g1f_y2)
+RelationHasArrow(g2f, g2f_x1)
+RelationHasArrow(g2f, g2f_y2)
 
 SetsShareDomainOrCodomain(Z1, Z2)
+SetOverlapsRelation(A, g1f)
+SetOverlapsRelation(A, g2f)

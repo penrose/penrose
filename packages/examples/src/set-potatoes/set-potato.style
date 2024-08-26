@@ -119,7 +119,7 @@ forall Relation r
 forall Set A, B
 where SetsShareDomainOrCodomain(A, B)
 {
-	ensure equal(A.icon.center[0], B.icon.center[0])
+	encourage equal(A.icon.center[0], B.icon.center[0])
 	ensure greaterThan(A.icon.center[1], B.icon.center[1], A.icon.ry + B.icon.ry) -- encourage here seems to cause a compiler error
 	ensure disjoint(A.icon, B.icon, Global.setSpread)
 }
@@ -138,7 +138,7 @@ where SetsAreRelated(A, R, B)
 	ensure    lessThan   (A.center[0], B.center[0], Global.setSpread)
 	encourage equal      (A.center[1], B.center[1])
 --	ensure    disjoint   (A.icon, B.icon, Global.setSpread)
-	override R.text.center = (A.text.center + B.text.center) / 2 - (0, 1.4 * Global.pointSpread)
+	override  R.text.center = (A.text.center + B.text.center) / 2 - (0, 1.4 * Global.pointSpread)
 }
 
 forall Arrow a; Element x, y
@@ -156,6 +156,12 @@ where RelationHasArrow(R, a)
 
 
 
+forall Arrow a; Set s
+where RelationHasArrow(r, a); SetOverlapsRelation(s, r)
+with Relation r
+{
+	ensure disjoint(a.icon, s.icon, Global.pointSpread)
+}
 
 collect Element e into es
 where SetHasElement(s, e)
@@ -170,7 +176,7 @@ foreach Set s
 
 collect Set s into ss
 {
-	-- ensure distributeHorizontally(listof icon from ss, Global.setSpread)
+--	ensure distributeHorizontally(listof icon from ss, Global.setSpread)
 	avgCenter = averagePoint(listof center from ss)
 	ensure equal(norm(avgCenter - Global.box.center), 0)
 }

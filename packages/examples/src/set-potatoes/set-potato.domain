@@ -13,3 +13,4 @@ predicate SetHasElement(Set s, Element p1)  -- ensure appropriate overlap and sh
 predicate RelationHasArrow(Relation r, Arrow a)
 
 predicate SetsShareDomainOrCodomain(Set s1, Set s2)
+predicate SetOverlapsRelation(Set s, Relation r)
