@@ -27,8 +27,8 @@ Arrow g2f_y2 := Relate(Z2_y, B_2)
 
 Label Z1 $Z$  -- $Z_1$
 Label Z2 $Z$  -- $Z_2$
-Label A $A$
-Label B $B$
+Label A  $A$
+Label B  $B$
 
 Label f $f$
 Label g1 $g_1$
@@ -40,11 +40,11 @@ Label Z1_x $x$
 Label Z1_y $y$
 Label Z2_x $x$
 Label Z2_y $y$
-Label A_a $a$
-Label A_b $b$
-Label A_c $c$
-Label B_1 $1$
-Label B_2 $2$
+Label A_a  $a$
+Label A_b  $b$
+Label A_c  $c$
+Label B_1  $1$
+Label B_2  $2$
 
 SetsAreRelated(Z1, g1,  A)
 SetsAreRelated(Z2, g2,  A)
@@ -74,17 +74,17 @@ RelationHasArrow(g1f, g1f_y2)
 RelationHasArrow(g2f, g2f_x1)
 RelationHasArrow(g2f, g2f_y2)
 
-ArrowRelatesElements(g1_xa,  Z1_x, A_a)
-ArrowRelatesElements(g1_yc,  Z1_y, A_c)
-ArrowRelatesElements(g2_xb,  Z2_x, A_b)
-ArrowRelatesElements(g2_yc,  Z2_y, A_c)
-ArrowRelatesElements(f_a1,   A_a,  B_1)
-ArrowRelatesElements(f_b1,   A_b,  B_1)
-ArrowRelatesElements(f_c2,   A_c,  B_2)
-ArrowRelatesElements(g1f_x1, Z1_x, B_1)
-ArrowRelatesElements(g1f_y2, Z1_y, B_2)
-ArrowRelatesElements(g2f_x1, Z2_x, B_1)
-ArrowRelatesElements(g2f_y2, Z2_y, B_2)
+ArrowRelatesElements(Z1_x, g1_xa,  A_a)
+ArrowRelatesElements(Z1_y, g1_yc,  A_c)
+ArrowRelatesElements(Z2_x, g2_xb,  A_b)
+ArrowRelatesElements(Z2_y, g2_yc,  A_c)
+ArrowRelatesElements(A_a,  f_a1,   B_1)
+ArrowRelatesElements(A_b,  f_b1,   B_1)
+ArrowRelatesElements(A_c,  f_c2,   B_2)
+ArrowRelatesElements(Z1_x, g1f_x1, B_1)
+ArrowRelatesElements(Z1_y, g1f_y2, B_2)
+ArrowRelatesElements(Z2_x, g2f_x1, B_1)
+ArrowRelatesElements(Z2_y, g2f_y2, B_2)
 
 RelationHasArrow(g1,  g1_xa)
 RelationHasArrow(g1,  g1_yc)

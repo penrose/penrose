@@ -17,6 +17,8 @@ Colors
 
 Global
 {
+	bool ensureOnCanvas = true
+
 	shape box = Rectangle
 	{
 		center      : (0,0)
@@ -43,8 +45,6 @@ Global
 	scalar setSpreadV           = 50
 	scalar setHeightPadding     = 20
 	scalar setLabelVertOffset   = 20
-
-	bool ensureOnCanvas = true
 }
 
 forall Element e
@@ -123,7 +123,9 @@ forall Relation r
 }
 
 
-
+-- ensure vertical alignment of sets with shared domain/codomain
+-- ensure that one set is neatly above the other, in the order
+-- specified in the non-symmetric predicate.
 forall Set A, B
 where SetsShareDomainOrCodomain(A, B)
 {
@@ -132,6 +134,8 @@ where SetsShareDomainOrCodomain(A, B)
 	ensure disjoint(A.icon, B.icon, Global.setSpreadV)
 }
 
+-- ensure appropriate overlap and common center.x
+-- for a set and its elements
 forall Set S; Element e
 where SetHasElement(S, e)
 {
@@ -140,6 +144,9 @@ where SetHasElement(S, e)
 	e.icon above S.icon
 }
 
+-- ensure that set centers are horizontally spread out
+-- and diagram is readable from left to right on a mostly
+-- horizontal line.
 forall Set A, B; Relation R
 where SetsAreRelated(A, R, B)
 {
@@ -149,13 +156,15 @@ where SetsAreRelated(A, R, B)
 	override  R.text.center = (A.text.center + B.text.center) / 2 - (0, Global.pointSpread)
 }
 
+-- ensure that arrow endpoints are at the center of the elements
 forall Arrow a; Element x, y
-where ArrowRelatesElements(a, x, y)
+where ArrowRelatesElements(x, a, y)
 {
 	ensure equal(norm(a.icon.start - x.icon.center), 0)
 	ensure equal(norm(a.icon.end   - y.icon.center), 0)
 }
 
+-- ensure common color for all arrows in a relation
 forall Arrow a; Relation R
 where RelationHasArrow(R, a)
 {
@@ -163,7 +172,7 @@ where RelationHasArrow(R, a)
 }
 
 
-
+-- ensure that sets don't overlap chosen collections of arrows
 forall Arrow a; Set s
 where RelationHasArrow(r, a); SetOverlapsRelation(s, r)
 with Relation r
@@ -171,6 +180,9 @@ with Relation r
 	ensure disjoint(a.icon, s.icon, Global.pointSpread)
 }
 
+
+-- ensure that set elements are aligned on center.x and vertically
+-- spread out, as well as symmetrically positioned inside the set
 collect Element e into es
 where SetHasElement(s, e)
 foreach Set s
@@ -182,6 +194,7 @@ foreach Set s
 	ensure equal(avgCenter[1], s.center[1])
 }
 
+-- ensure sets are balanced around the canvas center
 collect Set s into ss
 {
 	avgCenter = averagePoint(listof center from ss)
