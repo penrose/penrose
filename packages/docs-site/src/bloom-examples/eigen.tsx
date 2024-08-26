@@ -7,11 +7,12 @@ import {
   useDiagram,
 } from "@penrose/bloom";
 import { add, div, mul, ops, sqrt } from "@penrose/core";
-import MarkdownIt from "markdown-it";
-import mdMJ from "markdown-it-mathjax3";
-import { useCallback, useEffect, useState } from "react";
+import markdownIt from "markdown-it";
+import markdownItKatex from "markdown-it-katex";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const md = MarkdownIt().use(mdMJ);
+const md = markdownIt();
+md.use(markdownItKatex);
 
 export const basisVectors = async (withEigenspace = false) => {
   const canvasWidth = 400,
@@ -90,7 +91,7 @@ export const basisVectors = async (withEigenspace = false) => {
   const p = MappedPoint();
   p.canvasV1 = [
     input({ init: 1.5 * xScale + origin[0], optimized: false }),
-    input({ init: 1.5 * yScale + origin[1], optimized: false }),
+    input({ init: 3.0 * yScale + origin[1], optimized: false }),
   ];
 
   // Style
@@ -268,7 +269,7 @@ export const basisVectors = async (withEigenspace = false) => {
     const [a, c] = ihat.vec;
     const [b, d] = jhat.vec;
 
-    el1.vec = [
+    el1.vec = ops.vnormalize([
       div(
         mul(
           -1,
@@ -285,9 +286,9 @@ export const basisVectors = async (withEigenspace = false) => {
         mul(2, c),
       ),
       1,
-    ];
+    ]);
 
-    el2.vec = [
+    el2.vec = ops.vnormalize([
       div(
         mul(
           -1,
@@ -307,7 +308,7 @@ export const basisVectors = async (withEigenspace = false) => {
         mul(2, c),
       ),
       1,
-    ];
+    ]);
 
     bindToInput(el1.vec[0], { name: "s1.x" });
     bindToInput(el1.vec[1], { name: "s1.y" });
@@ -346,6 +347,7 @@ export const basisVectors = async (withEigenspace = false) => {
 };
 
 export default function EigenvectorsDiagram() {
+  const katexRef = useRef<HTMLDivElement>(null);
   const diagram = useDiagram(useCallback(() => basisVectors(true), []));
   const [ihatx, setIhatx] = useState(0);
   const [ihaty, setIhaty] = useState(0);
@@ -368,6 +370,26 @@ export default function EigenvectorsDiagram() {
       diagram.addInputEffect("s2.y", setS2y);
     }
   }, [diagram]);
+
+  useEffect(() => {
+    if (katexRef.current) {
+      katexRef.current.innerHTML = md.render(
+        `$$A = \\begin{bmatrix} ${ihatx.toFixed(2)} & ${jhatx.toFixed(
+          2,
+        )} \\\\ ${ihaty.toFixed(2)} & ${jhaty.toFixed(2)} \\end{bmatrix}$$`,
+      );
+      katexRef.current.innerHTML += md.render(
+        `$$s_1 = \\begin{bmatrix} ${s1x.toFixed(2)} \\\\ ${s1y.toFixed(
+          2,
+        )} \\end{bmatrix}$$`,
+      );
+      katexRef.current.innerHTML += md.render(
+        `$$s_2 = \\begin{bmatrix} ${s2x.toFixed(2)} \\\\ ${s2y.toFixed(
+          2,
+        )} \\end{bmatrix}$$`,
+      );
+    }
+  }, [ihatx, jhatx, ihaty, jhaty]);
 
   if (!diagram) {
     return <div>Loading...</div>;
@@ -399,37 +421,45 @@ export default function EigenvectorsDiagram() {
           justifyContent: "center",
           width: "50%",
         }}
+        ref={katexRef}
       >
-        <p
-          dangerouslySetInnerHTML={{
-            __html: md.render(
-              `$$A = \\begin{bmatrix} ${ihatx.toFixed(2)} & ${jhatx.toFixed(
-                2,
-              )} \\\\ ${ihaty.toFixed(2)} & ${jhaty.toFixed(
-                2,
-              )} \\end{bmatrix}$$`,
-            ),
-          }}
-        ></p>
-        {/* create column vectors for s1 and s2 */}
-        <p
-          dangerouslySetInnerHTML={{
-            __html: md.render(
-              `$$s_1 = \\begin{bmatrix} ${s1x.toFixed(2)} \\\\ ${s1y.toFixed(
-                2,
-              )} \\end{bmatrix}$$`,
-            ),
-          }}
-        ></p>
-        <p
-          dangerouslySetInnerHTML={{
-            __html: md.render(
-              `$$s_2 = \\begin{bmatrix} ${s2x.toFixed(2)} \\\\ ${s2y.toFixed(
-                2,
-              )} \\end{bmatrix}$$`,
-            ),
-          }}
-        ></p>
+        {/*        <p*/}
+        {/*          dangerouslySetInnerHTML={{*/}
+        {/*            // __html: katex.renderToString(*/}
+        {/*            //   `A = \\begin{bmatrix} ${ihatx.toFixed(2)} & ${jhatx.toFixed(*/}
+        {/*            //     2,*/}
+        {/*            //   )} \\\\ ${ihaty.toFixed(2)} & ${jhaty.toFixed(2)} \\end{bmatrix}`,*/}
+        {/*            // ),*/}
+        {/*            __html: katex.renderToString(*/}
+        {/*              `\\left(\\begin{matrix}*/}
+        {/*  1 & 0 \\\\*/}
+        {/*  0 & 1*/}
+        {/*\\end{matrix}\\right)`,*/}
+        {/*              {*/}
+        {/*                displayMode: true,*/}
+        {/*              },*/}
+        {/*            ),*/}
+        {/*          }}*/}
+        {/*        ></p>*/}
+        {/*        /!* create column vectors for s1 and s2 *!/*/}
+        {/*        <p*/}
+        {/*          dangerouslySetInnerHTML={{*/}
+        {/*            __html: katex.renderToString(*/}
+        {/*              `s_1 = \\begin{bmatrix} ${s1x.toFixed(2)} \\\\ ${s1y.toFixed(*/}
+        {/*                2,*/}
+        {/*              )} \\end{bmatrix}`,*/}
+        {/*            ),*/}
+        {/*          }}*/}
+        {/*        ></p>*/}
+        {/*        <p*/}
+        {/*          dangerouslySetInnerHTML={{*/}
+        {/*            __html: katex.renderToString(*/}
+        {/*              `s_1 = \\begin{bmatrix} ${s2x.toFixed(2)} \\\\ ${s2y.toFixed(*/}
+        {/*                2,*/}
+        {/*              )} \\end{bmatrix}`,*/}
+        {/*            ),*/}
+        {/*          }}*/}
+        {/*        ></p>*/}
       </div>
     </div>
   );

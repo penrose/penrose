@@ -4,7 +4,7 @@ import { Diagram } from "../core/diagram.js";
 import { CallbackLooper } from "../core/utils.js";
 
 export interface RendererProps {
-  diagram: Diagram;
+  diagram: Diagram | null;
 }
 
 export default function Renderer(props: RendererProps) {
@@ -20,15 +20,18 @@ export default function Renderer(props: RendererProps) {
   );
   const renderLooper = useMemo(() => new CallbackLooper("AnimationFrame"), []);
 
-  const optimizerLoop = useCallback(() => {
+  const optimizerLoop = useCallback(async () => {
+    if (!props.diagram) return false;
     return props.diagram.optimizationStep();
   }, [props.diagram]);
 
   const renderLoop = useCallback(async () => {
+    if (!props.diagram) return false;
+    const diagram = props.diagram;
     if (canvasRef.current) {
-      const draggingConstraints = props.diagram.getDraggingConstraints();
-      const canvas = props.diagram.getCanvas();
-      const { svg, nameElemMap } = await props.diagram.render();
+      const draggingConstraints = diagram.getDraggingConstraints();
+      const canvas = diagram.getCanvas();
+      const { svg, nameElemMap } = await diagram.render();
       svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
       svg.setAttribute("pointer-events", "none");
       svg.style.width = "100%";
@@ -51,20 +54,20 @@ export default function Renderer(props: RendererProps) {
               let lastDx = 0;
               let lastDy = 0;
               return async (path, dx, dy) => {
-                props.diagram.translate(path, dx - lastDx, dy - lastDy);
+                diagram.translate(path, dx - lastDx, dy - lastDy);
                 lastDx = dx;
                 lastDy = dy;
               };
             })(),
-            ([x, y]) => draggingConstraints.get(name)!([x, y], props.diagram),
+            ([x, y]) => draggingConstraints.get(name)!([x, y], diagram),
             undefined,
             () => {
-              props.diagram.endDrag(name);
+              diagram.endDrag(name);
               dragging.current = false;
             },
           );
           elem.addEventListener("mousedown", (e) => {
-            props.diagram.beginDrag(name);
+            diagram.beginDrag(name);
             dragging.current = true;
             translateFn(e);
           });
@@ -79,6 +82,7 @@ export default function Renderer(props: RendererProps) {
   }, [optimizerLooper, props.diagram]);
 
   useEffect(() => {
+    if (!props.diagram) return;
     props.diagram.setOnInteraction(() => {
       renderLooper.loop(renderLoop);
       optimizerLooper.loop(optimizerLoop);
@@ -107,6 +111,10 @@ export default function Renderer(props: RendererProps) {
       renderLooper.stop();
     };
   }, [optimizerLooper, renderLooper]);
+
+  if (!props.diagram) {
+    return null;
+  }
 
   return (
     <div

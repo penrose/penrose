@@ -7,18 +7,22 @@ import {
   useDiagram,
   useSharedInput,
 } from "@penrose/bloom";
+import { ops, sub } from "@penrose/core";
 import { useCallback } from "react";
 
-const circlePackingDiagram = async (inputs: {
-  containerRad: SharedInput;
-  circleRad: SharedInput;
-}) => {
+const circlePackingDiagram = async (
+  inputs: {
+    containerRad: SharedInput;
+    circleRad: SharedInput;
+  },
+  constraintType: "disjoint" | "disjoint-padded" | "equally-spaced",
+) => {
   const width = 400;
   const height = 400;
   const numCircles = 15;
 
-  const { circle, ensure, type, forall, build, sharedInput, rectangle } =
-    new DiagramBuilder(canvas(width, height), "", 1000);
+  const { circle, ensure, type, forall, build, sharedInput, encourage } =
+    new DiagramBuilder(canvas(width, height), "", 1e3);
 
   const circleRad = sharedInput(inputs.circleRad);
   const containerRad = sharedInput(inputs.containerRad);
@@ -41,10 +45,18 @@ const circlePackingDiagram = async (inputs: {
   });
 
   forall({ c: Circle }, ({ c }) => {
-    c.icon = circle({
-      r: circleRad,
-      drag: true,
-      dragConstraint: ([x, y]) => {
+    let dragConstraint;
+    if (constraintType === "equally-spaced") {
+      dragConstraint = ([x, y]: [number, number]): [number, number] => {
+        const norm = Math.sqrt(x * x + y * y);
+        const targetNorm =
+          inputs.containerRad.get()! -
+          // containerBorder / 2 -
+          inputs.circleRad.get()!;
+        return [(x / norm) * targetNorm, (y / norm) * targetNorm];
+      };
+    } else {
+      dragConstraint = ([x, y]: [number, number]): [number, number] => {
         const norm = Math.sqrt(x * x + y * y);
         const maxNorm =
           inputs.containerRad.get()! -
@@ -55,7 +67,12 @@ const circlePackingDiagram = async (inputs: {
         } else {
           return [(x / norm) * maxNorm, (y / norm) * maxNorm];
         }
-      },
+      };
+    }
+    c.icon = circle({
+      r: circleRad,
+      drag: true,
+      dragConstraint,
     });
 
     c.icon.fillColor[3] = 1;
@@ -63,14 +80,37 @@ const circlePackingDiagram = async (inputs: {
     ensure(constraints.contains(enclosure.icon, c.icon, containerBorder / 2));
   });
 
-  forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
-    ensure(constraints.disjoint(c1.icon, c2.icon));
+  forall({ c1: Circle, c2: Circle }, ({ c1, c2 }, i) => {
+    console.log(constraintType);
+    switch (constraintType) {
+      case "disjoint":
+        ensure(constraints.disjoint(c1.icon, c2.icon));
+        break;
+      case "disjoint-padded":
+        ensure(constraints.disjoint(c1.icon, c2.icon, 20));
+        break;
+      case "equally-spaced":
+        ensure(constraints.disjoint(c1.icon, c2.icon));
+    }
   });
+
+  if (constraintType === "equally-spaced") {
+    forall({ c: Circle }, ({ c }) => {
+      ensure(
+        constraints.equal(
+          ops.vnorm(c.icon.center),
+          sub(enclosure.icon.r, circleRad),
+        ),
+      );
+    });
+  }
 
   return await build();
 };
 
-export default function CirclePackingDiagram() {
+export default function CirclePackingDiagram(props: {
+  constraintType: "disjoint" | "disjoint-padded" | "equally-spaced";
+}) {
   const defaultContRad = 150;
   const defaultCircRad = 20;
   const containerRad = useSharedInput(defaultContRad);
@@ -78,11 +118,11 @@ export default function CirclePackingDiagram() {
 
   const diagram = useDiagram(
     useCallback(
-      () => circlePackingDiagram({ containerRad, circleRad }),
+      () =>
+        circlePackingDiagram({ containerRad, circleRad }, props.constraintType),
       [containerRad, circleRad],
     ),
   );
 
-  if (!diagram) return <></>;
   return <Renderer diagram={diagram} />;
 }

@@ -46,15 +46,17 @@
     }
   },
   "dependencies": {
+    "@penrose/bloom": "^4.0.0-alpha.1",
     "@penrose/components": "^4.0.0-alpha.1",
     "@penrose/examples": "^4.0.0-alpha.1",
     "@types/prismjs": "^1.26.4",
-    "@penrose/bloom": "^4.0.0-alpha.1",
     "prismjs": "^1.29.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-simple-code-editor": "^0.14.1",
-    "veaury": "^2.3.11"
+    "veaury": "^2.3.11",
+    "markdown-it": "^13.0.1",
+    "markdown-it-katex": "^2.0.3"
   },
   "devDependencies": {
     "@penrose/core": "^4.0.0-alpha.1",
@@ -66,8 +68,6 @@
     "@vitejs/plugin-vue": "^5.1.2",
     "@vitejs/plugin-vue-jsx": "^4.0.0",
     "chalk": "^3.0.0",
-    "markdown-it": "^13.0.1",
-    "markdown-it-katex": "^2.0.3",
     "shikiji": "^0.10.0-beta.6",
     "shx": "^0.3.3",
     "tailwindcss": "^3.1.8",

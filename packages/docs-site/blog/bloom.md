@@ -14,57 +14,51 @@ authors:
 import Eigen from "../src/bloom-examples/Eigen.vue";
 import Reflection from "../src/bloom-examples/Reflection.vue";
 import Circles from "../src/bloom-examples/Circles.vue";
-import CirclePacking from "../src/bloom-examples/CirclePacking.vue";
+import CirclePackingDisjoint from "../src/bloom-examples/CirclePackingDisjoint.vue";
+import CirclePackingPadded from "../src/bloom-examples/CirclePackingPadded.vue";
+import CirclePackingEqual from "../src/bloom-examples/CirclePackingEqual.vue";
 import Rays from "../src/bloom-examples/Rays.vue";
+import Pool from "../src/bloom-examples/Pool.vue";
 </script>
+
+[//]: # '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.css" integrity="sha384-NFTC4wvyQKLwuJ8Ez9AvPNBv8zcC2XaQzXSMvtORKw28BdJbB2QE8Ka+OyrIHcQJ" crossorigin="anonymous">'
 
 <BlogMeta />
 
-Interactive, optimization-driven diagramming in JavaScript
+[//]: # "# Bloom: Interactive, Optimization-Driven Diagramming in JavaScript"
 
-_powered by Penrose_
+<br/>
 
----
+We're excited to announce Bloom, an open-source JavaScript library for optimization-driven interactive
+diagram creation. Bloom makes it simple to describe complex, dynamic behavior using a rich vocabulary of optimization constraints,
+and the declarative language behind Penrose. Lets checkout some examples!
 
-We are excited to announce Bloom, an open-source JavaScript library for interactive diagram creation.
-Bloom builds on top of Penrose to provide the same declarative language, while adding new constructs for interaction
-and site integration.
+## Examples
 
-<Eigen/>
+Below, we've placed some balls in a circle. Try dragging one around to
+see how the others respond:
 
-### Overview
+<div style="width: 70%; height: 25em; margin-left: auto; margin-right: auto;">
+<CirclePackingDisjoint />
+</div>
 
-Interactive diagrams are a powerful tool for teaching, learning, and
-exploring. But creating them is often a time-consuming and ad-hoc process,
-requiring endless event-handler juggling or even a small engine around
-each diagram.
+Notice how the circles push each other around? This doesn't require any collision detection, event handler set up,
+or physics engine to implement. Instead, you only need to specify that the balls shouldn't overlap!
 
-Bloom provides an alternative: first, describe your diagram using a
-library of shape declarations and differentiable constraints, objectives,
-and operations. Then, Bloom compiles it into efficient WebAssembly, and
-optimizes the diagram to satisfy your constraints live during user
-interaction.
+```typescript
+forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
+  ensure(constraints.disjoint(c1.icon, c2.icon));
+});
+```
 
-Below is a short Bloom program drawing a couple of circles. Try
-uncommenting the <code>disjoint</code> constraint, and watch what happens!
+In the next example, we want a ray to bounce specularly off a mirror&mdash;that is, the ray should hit the mirror and exit the
+mirror with exactly the same angle of elevation. Try dragging the start and endpoints around, and watch how this property
+is maintained:
 
-<Circles />
+<Reflection />
 
-### Optimization-Driven
-
-Much of the language we use to describe diagrams involves either
-constraints we would like to satisfy, or objectives we would like to
-maximize. For example, we might specify that two polygons must be
-“touching”, or that two circles are “near” to each other. Penrose lets the user describe
-their diagrams using an extensive library of these descriptions, and then
-optimizes the diagram to satisfy them. Bloom builds on this, allowing you
-to describe these diagrams directly in JavaScript, and continuously
-optimizing while the user interacts with objects in your scene.
-
-In the following, we would like a ray to bounce specularly off the
-mirror, no matter where the user drags each endpoint. We _could_
-calculate the _exact_ intersection such that the $y$ coordinate of the
-ray is reversed, but why not let the optimizer do the work?
+How might you implement this? With Bloom, there's no need to calculate the exact point at which the reflection is specular.
+Instead, just say what you mean: that the angle of incidence should equal the angle of reflection:
 
 ```typescript
 const r1y = ray1.normVec[1];
@@ -72,82 +66,89 @@ const r2y = ray2.normVec[1];
 ensure(constraints.equal(r1y, mul(-1, r2y)));
 ```
 
-<Reflection />
+Bloom also provides a tight integration with React. This next diagram displays
 
-Here’s another example: to prevent objects from overlapping as we drag
-them around, you would typically need to specify a complex interaction of
-forces, update rules, and collision detection. With Bloom, you can let the
-optimizer handle this with the <code>disjoint</code> constraint:
+- two vectors, $a_1$ and $a_2$
+- a point $v_1$
+- a point $Av_1$, connected to $v_1$ by a dotted line
 
-<div style="display: flex; flex-direction: row; justify-content: space-evenly; height: 30em">
-<CirclePacking />
+Try dragging the gray handles to see how the transformation changes, along with the LaTeX on the right.
+
+<Eigen />
+
+If you're familiar with a little linear algebra, you'll notice that the vectors $a_1$ and $a_2$ form the columns of
+matrix $A$, which is applied to $v_1$ to from $Av_1$. The eigenspaces of $A$ are shown as lines $s_1$ and $s_2$.
+All of this data, calculated and stored internal to the diagram, is easily synced to the LaTeX on the right using
+Bloom's system of shared diagram values and custom hooks.
+
+## Optimization-Driven Diagramming
+
+We believe that the most natural way to express complex interactive behavior is through optimization. Let's take another
+look at our first example:
+
+<div style="width: 70%; height: 25em; margin-left: auto; margin-right: auto;">
+<CirclePackingDisjoint />
 </div>
 
-### Declarative
+The elements of this diagram include:
 
-Diagramming in Bloom closely mirrors the process in Penrose:
+- A circular enclosure
+- A set of 10 draggable circles, which cannot overlap and cannot exit the enclosure
 
-1. Define the types of objects (“substances”) and predicates between
-   objects you’re going to use:
-
-```typescript
-const Line = type();
-const Point = type();
-const IntersectAt = predicate();
-```
-
-2. Instantiate these substances and predicates according to what should
-   show up in your diagram:
+As we saw before, ensuring that the circles do not overlap is as simple as specifying a single constraint for each pair of circles:
 
 ```typescript
-const line1 = Line();
-const line2 = Line();
-const intersection = Point();
-
-IntersectAt(line1, line2, intersection);
-```
-
-3. Define styling rules for substances, groups of them, and predicates:
-
-```typescript
-forall({ l: Line }, ({ l }) => {
-  l.icon = line();
-}
-
-forall({ p: Point }, ({ p }) => {
-  p.icon = circle({
-    r: 5,
-    fillColor: [0, 0, 0, 1],
-  });
-});
-
-forallWhere(
-  { l1: Line, l2: Line, p: Point },
-  ({ l1, l2, p }) => IntersectAt.test(l1, l2, p),
-  ({ l1, l2, p }) => {
-  ensure(constraints.collinearOrdered(
-    l1.icon.start, p.icon.center, l1.icon.end
-  ));
-  ensure(constraints.collinearOrdered(
-    l2.icon.start, p.icon.center, l2.icon.end
-  ));
+forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
+  ensure(constraints.disjoint(c1.icon, c2.icon));
 });
 ```
 
-Unlike in Penrose, there is no enforced separation between these steps.
-The whole world of JavaScript is yours to exploit! You can conditionally
-define substances, use loops in styling selectors, and much more.
+Without optimization, implementing this behavior would be a nasty challenge. At minimum, you'd need to:
 
-We recommend sticking to the process above, however : )
+- Set up event handlers to translate circles on drag
+- Detect collisions between circles
+- Implement a physics engine to resolve collisions continuously
 
-### React Integration
+Moreover, the simplicity of the constraint-based approach allows for easy modification. Suppose we instead wanted instead
+for these balls to repel each other within a certain padding:
 
-Bloom integrates tightly with React, providing rendering components and
-custom hooks to streamline diagram development. Compiled Bloom diagrams
-also provide a programmatic API for live site integration:
+<div style="width: 70%; height: 25em; margin-left: auto; margin-right: auto;">
+<CirclePackingPadded />
+</div>
+
+```typescript
+forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
+  ensure(constraints.disjoint(c1.icon, c2.icon, 20));
+});
+```
+
+Or even that they should all touch the enclosure:
+
+<div style="width: 70%; height: 25em; margin-left: auto; margin-right: auto;">
+<CirclePackingEqual/>
+</div>
+
+```typescript
+forall({ c: Circle }, ({ c }) => {
+  ensure(
+    constraints.equal(
+      ops.vnorm(c.icon.center),
+      sub(enclosure.icon.r, circleRad),
+    ),
+  );
+});
+
+forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
+  ensure(constraints.disjoint(c1.icon, c2.icon, 20));
+});
+```
+
+Neither change requires a substantial rewrite of of the diagram's behavior; instead, we can simply modify the constraints to reflect
+our new requirements.
+
+## Getting Started
+
+Bloom is still in the early stages of development, but we're excited to share it with you. If you're interested in learning more,
+you can take a look at our [docs]. We're excited to see what you build!
 
 <Rays />
-
-### Getting started
-
-That's just the beginning: check out our docs for an extended tutorial. We're excited to se what you build!
