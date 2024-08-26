@@ -6,7 +6,7 @@ file_extensions:
   - substance
 
 variables:
-  name: \w+
+  name: \b[a-zA-Z_]\w*\b
 
 contexts:
   main:
@@ -18,19 +18,6 @@ contexts:
       scope: keyword.declaration.label.substance
     - match: \b(All|None)\b
       scope: keyword.other.substance
-
-    - match: ^\s*(((Let)|({{name}}))\s+)?({{name}})\s*(:=)\s*
-      captures:
-        3: keyword.declaration.substance
-        4: storage.type.substance
-        5: entity.name.constant.substance
-        6: keyword.operator.assignment.substance
-
-    - match: ^\s*(({{name}})\s+)?({{name}})(\s*,\s*({{name}}))*
-      captures:
-        2: storage.type.substance
-        3: entity.name.constant.substance
-        5: entity.name.constant.substance
 
     - match: \b(for)\b
       scope: keyword.control.loop.for.substance
@@ -50,6 +37,28 @@ contexts:
     - match: \b({{name}})\s*(?=\()
       captures:
         1: variable.function.substance
+
+    - match: ^\s*(((Let)|({{name}}))\s+)?({{name}})\s*(:=)\s*
+      captures:
+        3: keyword.declaration.substance
+        4: storage.type.substance
+        5: entity.name.constant.substance
+        6: keyword.operator.assignment.substance
+
+    - match: ^\s*(({{name}})\s+)?({{name}})
+      captures:
+        2: storage.type.substance
+        3: entity.name.constant.substance
+      push:
+        - match: \s*(,)\s*({{name}})
+          captures:
+            1: punctuation.separator.sequence.substance
+            2: entity.name.constant.substance
+        - include: comment
+        - include: string
+        - include: string_latex
+        - match: (?=$)
+          pop: true
 
     - include: expression
 
@@ -104,6 +113,16 @@ contexts:
 
   number:
     - match: |-
+        (?ix) # hexadecimal color literal
+          (\#) # prefix
+          \b
+          [0-9a-f]++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.color.hexadecimal.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+
+    - match: |-
         (?ix)  # hexadecimal float literal
           [+\-]? # optional number sign
           \b
@@ -116,8 +135,7 @@ contexts:
         (?ix)  # hexadecimal float literal
           [+\-]? # optional number sign
           \b
-          # prefix
-          (0x)
+          (0x) # prefix
           # significand
           (?: (\.) (?=p)  # invalid
             |        [0-9a-f]*+ ([0-9a-z]*?) [0-9a-f]*+
@@ -144,8 +162,7 @@ contexts:
         (?ix)  # hexadecimal float literal, without required exponent
           [+\-]? # optional number sign
           \b
-          # prefix
-          (0x)
+          (0x) # prefix
           # significand (at least a period)
                [0-9a-f]*+ ([0-9a-z&&[^p]]*?) [0-9a-f]*+
           (\.) [0-9a-f]*+ ([0-9a-z.&&[^p]]*?) [0-9a-f]*+
@@ -159,13 +176,10 @@ contexts:
     - match: |-
         (?ix)  # decimal float literal
           [+\-]? # optional number sign
-          \b
-          # prefix
-          (?!0x)
+          (?!0x) # prefix
           # significand (at least a period)
                [0-9]++ ([0-9a-z&&[^e]]*?) [0-9]*+
           (\.) [0-9]*+ ([0-9a-z.&&[^e]]*?) [0-9]*+
-
           # exponent (optional)
           (?: (e) (?: [+\-]  [0-9]++ ([0-9a-z]*?)
                     |        [0-9]++ ([0-9a-z.]*?) )
@@ -181,6 +195,26 @@ contexts:
         5: invalid.illegal.numeric-literal-character.float.exponent.csv
         6: invalid.illegal.numeric-literal-character.float.exponent.csv
         7: invalid.illegal.numeric-literal-character.float.exponent.csv
+    - match: |-
+        (?ix)  # decimal float literal
+          [+\-]? # optional number sign
+          (?!0x) # prefix
+          # significand (at least a period)
+          (\.) [0-9]++ ([0-9a-z.&&[^e]]*?) [0-9]*+
+          # exponent (optional)
+          (?: (e) (?: [+\-]  [0-9]++ ([0-9a-z]*?)
+                    |        [0-9]++ ([0-9a-z.]*?) )
+            | ( p     [+\-]? [0-9]++
+              | [ep]                  [0-9a-z.]*?) )?
+          (?:(?<=\.)|\b) (?!\.)
+      scope: constant.numeric.float.decimal.csv
+      captures:
+        1: constant.numeric.other.decimalpoint.csv
+        2: invalid.illegal.numeric-literal-character.float.whole-number.csv
+        3: keyword.other.exponent.decimal.csv
+        4: invalid.illegal.numeric-literal-character.float.exponent.csv
+        5: invalid.illegal.numeric-literal-character.float.exponent.csv
+        6: invalid.illegal.numeric-literal-character.float.exponent.csv
     - match: |-
         (?ix) # zero
           [+\-]? # optional number sign

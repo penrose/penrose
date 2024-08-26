@@ -6,14 +6,24 @@ file_extensions:
   - style
 
 variables:
-  name: \w+
+  name: \b[a-zA-Z_]\w*\b
 
 contexts:
   main:
-    - include: namespace
     - include: comment
     - include: string
+    - include: keyword
+    - include: expression
+    - match: \b(canvas)\b
+      scope: keyword.declaration.style
+      push: canvas
+    - match: \b({{name}})\b
+      scope: entity.name.namespace.style
+      push: namespace
 
+
+
+  keyword:
     - match: \b(collect)\s+(repeatable)?\s*({{name}})\s+({{name}})\s+(into)\s+({{name}})
       captures:
         1: keyword.control.loop.style
@@ -23,28 +33,44 @@ contexts:
         5: keyword.control.loop.style
         6: variable.parameter.style
       push:
-        - meta_scope: source.collector.style
-        - match: \s*({{name}})\s+({{name}}|`{{name}}`)\s*(?=;|{|$)
+        - meta_scope: meta.block.collector.style
+        - match: \s*({{name}})\s+({{name}}|`{{name}}`)
           captures:
             1: support.type.style
             2: variable.parameter.style
-        - include: expression
-        - match: (?=\b(where)\b|{)
+          push:
+            - match: \s*(,)\s*({{name}}|`{{name}}`)
+              captures:
+                1: punctuation.separator.sequence.style
+                2: variable.parameter.style
+            - match: (?=;|{|$)
+              pop: true
+        - match: (?=;|{|$)
           pop: true
+        - include: keyword
+        - include: expression
 
     - match: \b(forall|foreach|with)\s+(repeatable)?\s*
       captures:
         1: keyword.control.loop.style
         2: storage.modifier.style
       push:
-        - meta_scope: source.selector.style
-        - match: \s*({{name}})\s+({{name}}|`{{name}}`)\s*(?=;|{|$)
+        - meta_scope: meta.block.selector.style
+        - match: \s*({{name}})\s+({{name}}|`{{name}}`)
           captures:
             1: support.type.style
             2: variable.parameter.style
-        - include: expression
-        - match: (?=\b(where)\b|{)
+          push:
+            - match: \s*(,)\s*({{name}}|`{{name}}`)
+              captures:
+                1: punctuation.separator.sequence.style
+                2: variable.parameter.style
+            - match: (?=;|{|$)
+              pop: true
+        - match: (?={|$)
           pop: true
+        - include: keyword
+        - include: expression
 
     - match: \b(layer)\s+({{name}})\s+(above|below)\s+({{name}})
       captures:
@@ -62,11 +88,32 @@ contexts:
     - match: \b(above|below|rgba|hsva|none)\b
       scope: keyword.operator.word.layer.style
 
-    - include: expression
-
 
 
   expression:
+    - match: ({)
+      scope: punctuation.section.braces.style
+      push:
+        - meta_scope: meta.block.style
+        - include: comment
+        - include: string
+        - include: keyword
+        - include: expression
+        - match: (})
+          scope: punctuation.section.braces.style
+          pop: true
+    - match: (\()
+      scope: punctuation.section.parens.style
+      push:
+        - meta_scope: meta.block.style
+        - include: comment
+        - include: string
+        - include: keyword
+        - include: expression
+        - match: (\))
+          scope: punctuation.section.parens.style
+          pop: true
+
     - include: operators
 
     - match: \b(bool|color|constraint|file|function|int|list|mat2x2|mat3x3|mat4x4|objective|path|scalar|shape|string|style|vec2|vec3|vec4)\b
@@ -81,10 +128,12 @@ contexts:
 
     - match: \b(match_total|match_id|)\b
       scope: variable.language.style
+    - match: \b(canvas)\s*\.\s*(width|height)\b
+      scope: variable.language.style
 
-    - match: \b(counttof)\s+({{name}})\b
+    - match: \b(countof|numberof)\s+({{name}})\b
       captures:
-        1: keyword.control.style
+        1: keyword.operator.word.style
         2: variable.other.readwrite.style
 
     - match: \b(listof)\s+({{name}})\s+(from)\s+({{name}})\b
@@ -106,6 +155,8 @@ contexts:
 
     - include: number
 
+
+
   operators:
     - match: (\.\*|\.\/|'|\bthen\b)
       scope: keyword.operator.vector.style
@@ -121,23 +172,44 @@ contexts:
       scope: keyword.control.conditional.select.style
     - match: (\?)
       scope: keyword.operator.autoeval.style
-    - match: (=)
+    - match: (=|:)
       scope: keyword.operator.assignment.style
+    - match: (\.)(?=\s*{{name}})
+      scope: punctuation.accessor.style
+    - match: (,|;)
+      scope: punctuation.separator.style
 
 
+
+  canvas:
+    - match: ({)
+      scope: punctuation.section.braces.style
+      set:
+        - meta_scope: meta.namespace.canvas.style
+        - match: \b(width|height)\b
+          scope: variable.language.style
+        - include: comment
+        - include: string
+        - include: keyword
+        - include: expression
+        - match: (})
+          scope: punctuation.section.braces.style
+          pop: true
 
   namespace:
-    - match: ^\s*((canvas)|({{name}}))\s*({)
-      captures:
-        2: keyword.declaration.style
-        3: entity.name.namespace.style
-      push:
-        - meta_scope: source.namespace.style
-        - match: \b(width|height|)\b
-          scope: variable.language.style
-        - include: main
+    - match: ({)
+      scope: punctuation.section.braces.style
+      set:
+        - meta_scope: meta.namespace.style
+        - include: comment
+        - include: string
+        - include: keyword
+        - include: expression
         - match: (})
+          scope: punctuation.section.braces.style
           pop: true
+
+
 
   comment:
     - match: --
@@ -224,12 +296,10 @@ contexts:
     - match: |-
         (?ix)  # decimal float literal
           [+\-]? # optional number sign
-          \b
           (?!0x) # prefix
           # significand (at least a period)
                [0-9]++ ([0-9a-z&&[^e]]*?) [0-9]*+
           (\.) [0-9]*+ ([0-9a-z.&&[^e]]*?) [0-9]*+
-
           # exponent (optional)
           (?: (e) (?: [+\-]  [0-9]++ ([0-9a-z]*?)
                     |        [0-9]++ ([0-9a-z.]*?) )
@@ -245,6 +315,26 @@ contexts:
         5: invalid.illegal.numeric-literal-character.float.exponent.csv
         6: invalid.illegal.numeric-literal-character.float.exponent.csv
         7: invalid.illegal.numeric-literal-character.float.exponent.csv
+    - match: |-
+        (?ix)  # decimal float literal
+          [+\-]? # optional number sign
+          (?!0x) # prefix
+          # significand (at least a period)
+          (\.) [0-9]++ ([0-9a-z.&&[^e]]*?) [0-9]*+
+          # exponent (optional)
+          (?: (e) (?: [+\-]  [0-9]++ ([0-9a-z]*?)
+                    |        [0-9]++ ([0-9a-z.]*?) )
+            | ( p     [+\-]? [0-9]++
+              | [ep]                  [0-9a-z.]*?) )?
+          (?:(?<=\.)|\b) (?!\.)
+      scope: constant.numeric.float.decimal.csv
+      captures:
+        1: constant.numeric.other.decimalpoint.csv
+        2: invalid.illegal.numeric-literal-character.float.whole-number.csv
+        3: keyword.other.exponent.decimal.csv
+        4: invalid.illegal.numeric-literal-character.float.exponent.csv
+        5: invalid.illegal.numeric-literal-character.float.exponent.csv
+        6: invalid.illegal.numeric-literal-character.float.exponent.csv
     - match: |-
         (?ix) # zero
           [+\-]? # optional number sign
