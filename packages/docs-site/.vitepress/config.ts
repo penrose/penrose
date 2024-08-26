@@ -273,6 +273,7 @@ export default defineConfig({
         {
           text: "Bloom",
           items: [
+            { text: "Getting Started", link: "/docs/bloom/getting_started" },
             { text: "Hello, Diagram", link: "/docs/bloom/hello_diagram" },
             {
               text: "Procedural Diagramming and Optimization",

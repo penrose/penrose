@@ -2,23 +2,14 @@
 
 ---
 
-Welcome! We’re excited you’ve decided to try Bloom. These series of tutorials will walk you through everything you need
-to start making beautiful interactive diagrams directly in React. This first chapter will give a high level overview
-of the process of diagramming and rendering.
-
-These tutorials expect that you have some proficiency with JavaScript and React, plus a teeny bit of linear algebra,
-though we’ll keep that to a minimum. They _do not_ assume you have any experience with Penrose, though if you do,
-you’ll likely find the concepts familiar.
-
+This first chapter will give a high level overview of the process of diagramming and rendering.
 Here’s what we’re working towards:
 
 – diagram with two circles and an arrow between them –
 
 ### Building the Diagram
 
-The first step in using Bloom is to create a `DiagramBuilder` object. This object contains methods allowing you to
-declare types, substances, style selectors, shapes, constraints, and everything else you need to build your diagram.
-When we're done, well call `.build()` to get the diagram object.
+First, create a new component `MyDiagram.tsx` in the `src/` directory.
 
 You’ll almost certainly want to wrap the process of building your diagram it’s own function, which we’ll call later
 when we render the diagram:
@@ -35,6 +26,11 @@ const buildMyDiagram = async () => {
   return await build();
 };
 ```
+
+The first step in using Bloom is to create a
+`DiagramBuilder` object. This object contains methods allowing you to declare types, substances, style selectors,
+shapes, constraints, and everything else you need to build your diagram.
+When we're done, we call `.build()` to get the diagram object.
 
 It’s not strictly necessary to destructure the `DiagramBuilder` methods, but it’s convenient, and for the remainder of
 these tutorials we assume that every method we need has been destructured. We do recommend keeping a reference to the
@@ -189,13 +185,21 @@ diagram and the `Renderer` component to display it. Here's an example:
 ```typescript
 export const MyDiagramComponent = () => {
   const diagram = useDiagram(buildMyDiagram);
-
-  if (!diagram) return <div>Loading...</div>;
-  else return <Renderer diagram={diagram} />;
+  return <Renderer diagram={diagram} />;
 };
 ```
 
 `useDiagram` runs your building function and stores the built diagram as a React state (it also sets up some callbacks
-or live site integration, so simply memoizing your diagram won’t always do what you expect). Diagram building is
-asynchronous though, so until it is built, diagram will be null–hence the null check. `Renderer` starts a render loop
-and sets up interaction callbacks for your diagram.
+or live site integration, so simply memoizing your diagram won’t always do what you expect).
+`Renderer` starts a render loop and sets up interaction callbacks for your diagram.
+
+You can use this component wherever you would like in your React app, but for the purposes of this tutorial,
+you might edit `App.tsx` to render your diagram directly:
+
+```typescript
+import { MyDiagramComponent } from "./MyDiagram.js";
+
+const App = () => {
+  return <MyDiagramComponent />;
+};
+```
