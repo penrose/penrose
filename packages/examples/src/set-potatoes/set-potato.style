@@ -1,7 +1,11 @@
+-- NB: complex diagrams such can be negatively affected by the
+-- ensureOnCanvas constraint: if your diagram looks weird,
+-- try setting Global.ensureOnCanvas to false or increasing
+-- canvas size
 canvas
 {
-  width  = 800
-  height = 700
+  width  = 1200
+  height =  900
 }
 
 Colors
@@ -13,8 +17,6 @@ Colors
 
 Global
 {
-	-- draw a box around the canvas (this box will 
-	-- also be used to constrain shapes to the canvas)
 	shape box = Rectangle
 	{
 		center      : (0,0)
@@ -25,33 +27,38 @@ Global
 		strokeWidth : 1
 	}
 
-	-- some additional parameters to get consistent styling throughout
+	-- styling
 	scalar lineThickness = 1.5
+	scalar arrowheadSize = 1.5
 	scalar fontSize      = "30px"
 	string fontFamily    = "Linux Libertine"
 
 	-- diagram spread
-	scalar pointR           = 3
-	scalar pointW           = 40
-	scalar pointH           = 20
-	scalar pointSpread      = 60
-	scalar setSpread        = max(canvas.width, canvas.height) / 5 -- 300
-	scalar setHeightPadding = 20
+	scalar pointR               = 3
+	scalar pointW               = 40
+	scalar pointH               = 20
+	scalar pointSpread          = 60
+	scalar pointLabelVertOffset = 20
+	scalar setSpreadH           = 300 -- canvas.width / 5 -- 300
+	scalar setSpreadV           = 50
+	scalar setHeightPadding     = 20
+	scalar setLabelVertOffset   = 20
+
+	bool ensureOnCanvas = true
 }
 
 forall Element e
 {
---	e.name = ""
-	e.center = (?, ?)  --Global.canvasCenter
+	e.center = (?, ?)
 	e.icon = Circle
 	{
---		name        : e.name
-		strokeWidth : Global.lineThickness
-		strokeStyle : "solid"
-		strokeColor : Colors.black -- e color
---		fillColor   : Colors.black -- e.color
-		center      : e.center
-		r           : Global.pointR
+		strokeWidth    : Global.lineThickness
+		strokeStyle    : "solid"
+		strokeColor    : Colors.black -- e strokeColor
+--		fillColor      : Colors.black -- e.fillColor
+		center         : e.center
+		r              : Global.pointR
+		ensureOnCanvas : Global.ensureOnCanvas
 	}
 
 	e.text = Equation
@@ -59,25 +66,24 @@ forall Element e
 		string         : e.label
 		fillColor      : Colors.black
 		fontSize       : Global.fontSize
-		center         : (e.center[0] + 2, e.center[1] + e.icon.r + 15) 
-		ensureOnCanvas : false
+		center         : (e.center[0] + 2, e.center[1] + e.icon.r + Global.pointLabelVertOffset)
+		ensureOnCanvas : Global.ensureOnCanvas
 	}
 }
 
 forall Set s
 {
---	s.name = ""
-	s.center = (?, ?)  --Global.canvasCenter
+	s.center = (?, ?)
 	s.icon = Ellipse
 	{
---		name            : s.name
-		strokeWidth     : Global.lineThickness
-		strokeStyle     : "solid"
-		strokeColor     : Colors.black
---		fillColor       : sampled -- s.color
-		center          : s.center
-		rx              : Global.pointW
-		ry              : Global.pointSpread
+		strokeWidth    : Global.lineThickness
+		strokeStyle    : "solid"
+		strokeColor    : Colors.black
+--		fillColor      : sampled -- s.color
+		center         : s.center
+		rx             : Global.pointW
+		ry             : Global.pointSpread
+		ensureOnCanvas : Global.ensureOnCanvas
 	}
 
 	s.text = Equation
@@ -85,8 +91,8 @@ forall Set s
 		string         : s.label
 		fillColor      : Colors.black
 		fontSize       : Global.fontSize
-		center         : (s.center[0], s.center[1] + s.icon.ry + 30) 
-		ensureOnCanvas : false
+		center         : (s.center[0], s.center[1] + s.icon.ry + Global.setLabelVertOffset) 
+		ensureOnCanvas : Global.ensureOnCanvas
 	}
 }
 
@@ -94,11 +100,13 @@ forall Arrow a
 {
 	a.icon = Line
 	{
-		strokeWidth  : Global.lineThickness
-	--	strokeColor  : Colors.black
-		start        : (?, ?)
-		end          : (?, ?)
-		endArrowhead : "concave"
+		strokeWidth      : Global.lineThickness
+--		strokeColor      : Colors.black
+		start            : (?, ?)
+		end              : (?, ?)
+		endArrowhead     : "concave"
+		endArrowheadSize : Global.arrowheadSize
+		ensureOnCanvas   : Global.ensureOnCanvas
 	}
 }
 
@@ -110,7 +118,7 @@ forall Relation r
 		fillColor      : rgba(random(0.1,0.9), random(0.1,0.9), random(0.1,0.9), 1)
 		fontSize       : Global.fontSize
 		center         : (?, ?) 
-		ensureOnCanvas : false
+		ensureOnCanvas : Global.ensureOnCanvas
 	}
 }
 
@@ -119,9 +127,9 @@ forall Relation r
 forall Set A, B
 where SetsShareDomainOrCodomain(A, B)
 {
-	encourage equal(A.icon.center[0], B.icon.center[0])
+	ensure equal(A.icon.center[0], B.icon.center[0])
 	ensure greaterThan(A.icon.center[1], B.icon.center[1], A.icon.ry + B.icon.ry) -- encourage here seems to cause a compiler error
-	ensure disjoint(A.icon, B.icon, Global.setSpread)
+	ensure disjoint(A.icon, B.icon, Global.setSpreadV)
 }
 
 forall Set S; Element e
@@ -135,10 +143,10 @@ where SetHasElement(S, e)
 forall Set A, B; Relation R
 where SetsAreRelated(A, R, B)
 {
-	ensure    lessThan   (A.center[0], B.center[0], Global.setSpread)
+	ensure    lessThan   (A.center[0], B.center[0], Global.setSpreadH)
 	encourage equal      (A.center[1], B.center[1])
 --	ensure    disjoint   (A.icon, B.icon, Global.setSpread)
-	override  R.text.center = (A.text.center + B.text.center) / 2 - (0, 1.4 * Global.pointSpread)
+	override  R.text.center = (A.text.center + B.text.center) / 2 - (0, Global.pointSpread)
 }
 
 forall Arrow a; Element x, y
@@ -176,7 +184,6 @@ foreach Set s
 
 collect Set s into ss
 {
---	ensure distributeHorizontally(listof icon from ss, Global.setSpread)
 	avgCenter = averagePoint(listof center from ss)
 	ensure equal(norm(avgCenter - Global.box.center), 0)
 }
