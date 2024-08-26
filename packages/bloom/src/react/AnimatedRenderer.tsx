@@ -7,8 +7,12 @@ export interface AnimatedRendererProps {
   diagram: Diagram;
 }
 
-// Create a component which renders a diagram using the renderer component,
-// buts sets the "_time" vary to the time since creation on a recurring timeout.
+/**
+ * Like `Renderer`, but updates the `time()` input of the diagram every frame to the
+ * seconds since the component was mounted.
+ * @param props
+ * @constructor
+ */
 export default function AnimatedRenderer(props: AnimatedRendererProps) {
   const [startTime, setStartTime] = useState(0);
   const looper = useMemo(() => new CallbackLooper("AnimationFrame"), []);

@@ -149,6 +149,6 @@ our new requirements.
 ## Getting Started
 
 Bloom is still in the early stages of development, but we're excited to share it with you. If you're interested in learning more,
-you can take a look at our [docs]. We're excited to see what you build!
+you can take a look at our [docs] (**Note to us: we need to replace this with a real link when we deploy**). We're excited to see what you build!
 
 <Rays />

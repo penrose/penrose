@@ -3,10 +3,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Diagram } from "../core/diagram.js";
 import { CallbackLooper } from "../core/utils.js";
 
+/**
+ * Props for the Renderer component.
+ * @param diagram The diagram to render, created with `DiagramBuilder.prototype.build`.
+ */
 export interface RendererProps {
   diagram: Diagram | null;
 }
 
+/**
+ * Renderer component. On first render, and whenver the diagram changes, this component will trigger
+ * a render loop and an optimization loop, which will run until the diagram is done optimizing. Both restart
+ * on interaction or diagram change.
+ * @param props `RendererProps`
+ * @constructor
+ */
 export default function Renderer(props: RendererProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);

@@ -160,36 +160,36 @@ export default function RaysComponent() {
     }, [squareCenters, trianglePoints]),
   );
 
-  if (!diagram) return <div>Loading...</div>;
-  else
-    return (
-      <div
+  return (
+    <div
+      style={{
+        marginTop: "1em",
+        height: "100%,",
+        display: "flex",
+        alignItems: "center",
+        flexDirection: "column",
+      }}
+    >
+      <button
         style={{
-          marginTop: "1em",
-          height: "100%,",
-          display: "flex",
-          alignItems: "center",
-          flexDirection: "column",
+          backgroundColor:
+            squareCenters.length >= 5 ? "rgb(113 116 120)" : "rgb(226 232 240)",
+          padding: "5px 10px",
+          borderRadius: "5px",
+        }}
+        className="bg-red"
+        disabled={squareCenters.length >= 5}
+        onClick={() => {
+          setSquareCenters([
+            ...squareCenters,
+            [new SharedInput(0), new SharedInput(0)],
+          ]);
         }}
       >
-        <button
-          style={{
-            backgroundColor: "rgb(226 232 240)",
-            padding: "5px 10px",
-            borderRadius: "5px",
-          }}
-          className="bg-red"
-          disabled={squareCenters.length >= 6}
-          onClick={() =>
-            setSquareCenters([
-              ...squareCenters,
-              [new SharedInput(0), new SharedInput(0)],
-            ])
-          }
-        >
-          Add Square
-        </button>
-        <Renderer diagram={diagram} />
-      </div>
-    );
+        Add Square
+      </button>
+      {squareCenters.length >= 5 && <p>Max squares: 5</p>}
+      <Renderer diagram={diagram} />
+    </div>
+  );
 }

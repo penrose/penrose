@@ -42,6 +42,11 @@ export type DiagramData = {
   sharedInputs: Set<SharedInput>;
 };
 
+/**
+ * A renderable diagram, created with `DiagramBuilder.prototype.build`.
+ * You should pass a factory method to `useDiagram` to create a `Diagram` from
+ * within a React component, for performance reasons.
+ */
 export class Diagram {
   private state: PenroseState;
 
@@ -186,6 +191,10 @@ export class Diagram {
     this.triggerInputEffects(prevVaryingValues, this.state.varyingValues);
   };
 
+  /**
+   * Get the value of an input by name.
+   * @param name The name of the input
+   */
   getInput = (name: string) => {
     const idx = this.namedInputs.get(name);
     if (idx === undefined) {
@@ -194,6 +203,11 @@ export class Diagram {
     return this.state.varyingValues[idx];
   };
 
+  /**
+   * Set the value of an input by name.
+   * @param name The name of the input
+   * @param val The new value
+   */
   setInput = (name: string, val: number) => {
     const idx = this.namedInputs.get(name);
     if (idx === undefined) {
@@ -210,6 +224,10 @@ export class Diagram {
     }
   };
 
+  /**
+   * Get the value of an input by index.
+   * @param idx The index of the input
+   */
   getOptimized = (name: string) => {
     const idx = this.namedInputs.get(name);
     if (idx === undefined) {
@@ -218,6 +236,11 @@ export class Diagram {
     return !this.manuallyPinnedIndices.has(idx);
   };
 
+  /**
+   * Set the value of an input by index.
+   * @param idx The index of the input
+   * @param optimized Whether the input should be optimized
+   */
   setOptimized = (name: string, optimized: boolean) => {
     const idx = this.namedInputs.get(name);
     if (idx === undefined) {
@@ -234,12 +257,23 @@ export class Diagram {
     if (this.lassoEnabled) this.setAndEnableLasso();
   };
 
+  /**
+   * Get the canvas of the diagram.
+   */
   getCanvas = () => ({ ...this.state.canvas });
 
+  /**
+   * Get the dragging constraints of the diagram.
+   */
   getDraggingConstraints = () => new Map(this.draggingConstraints);
 
   setOnInteraction = (fn: () => void) => (this.onInteraction = fn);
 
+  /**
+   * Add an effect to an input. The effect will be called any time the input changes.
+   * @param name The name of the input
+   * @param fn The effect function
+   */
   addInputEffect = (name: string, fn: (val: number, name: string) => void) => {
     if (!this.namedInputs.has(name)) {
       throw new Error(`No input named ${name}`);
@@ -250,6 +284,11 @@ export class Diagram {
     this.inputEffects.get(name)!.add(fn);
   };
 
+  /**
+   * Remove an effect from an input.
+   * @param name The name of the input
+   * @param fn The effect function
+   */
   removeInputEffect = (
     name: string,
     fn: (val: number, name: string) => void,
