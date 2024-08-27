@@ -62,8 +62,6 @@ contexts:
 
     - include: expression
 
-
-
   expression:
     - include: operators
 
@@ -79,8 +77,6 @@ contexts:
       scope: keyword.operator.comparison.substance
     - match: (\&\&|\|\||!)
       scope: keyword.operator.logical.substance
-
-
 
   comment:
     - match: --

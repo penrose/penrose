@@ -21,8 +21,6 @@ contexts:
       scope: entity.name.namespace.style
       push: namespace
 
-
-
   keyword:
     - match: \b(collect)\s+(repeatable)?\s*({{name}})\s+({{name}})\s+(into)\s+({{name}})
       captures:
@@ -87,8 +85,6 @@ contexts:
       scope: keyword.control.style
     - match: \b(above|below|rgba|hsva|none)\b
       scope: keyword.operator.word.layer.style
-
-
 
   expression:
     - match: ({)
@@ -155,8 +151,6 @@ contexts:
 
     - include: number
 
-
-
   operators:
     - match: (\.\*|\.\/|'|\bthen\b)
       scope: keyword.operator.vector.style
@@ -178,8 +172,6 @@ contexts:
       scope: punctuation.accessor.style
     - match: (,|;)
       scope: punctuation.separator.style
-
-
 
   canvas:
     - match: ({)
@@ -208,8 +200,6 @@ contexts:
         - match: (})
           scope: punctuation.section.braces.style
           pop: true
-
-
 
   comment:
     - match: --
