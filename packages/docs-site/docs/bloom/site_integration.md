@@ -12,14 +12,14 @@ solutions.
 
 When you create inputs, you can optionally name them:
 
-```typescript
+```ts
 const a1 = [input({ name: "a1.x" }), input({ name: "a1.y" })];
 ```
 
 This name must be unique across all inputs in the diagram. Naming inputs gives you the option of getting and
 setting them at render time:
 
-```typescript
+```ts
 const diagram = useDiagram(buildEigenvectorsExample);
 
 const a1x = diagram.getInput("a1.x");
@@ -31,7 +31,7 @@ const a1y = diagram.getInput("a1.y");
 What happends when `a1` is dragged? As written, this will not force a re-render by React, since get is only run on
 render! One solution is to store the retrieved values in a state and use Bloom’s effect system:
 
-```typescript
+```ts
 const diagram = useDiagram(buildEigenvectorsExample);
 const [a1x, setA1x] = useState(0);
 const [a1y, setA1y] = useState(0);
@@ -53,7 +53,7 @@ values between two or more diagrams.
 
 A typical usage pattern might look as follows:
 
-```typescript
+```ts
 const buildMyDiagram = async (mySharedInput) => {
   // .. diagram things
   const myInput = sharedInput(mySharedInput);

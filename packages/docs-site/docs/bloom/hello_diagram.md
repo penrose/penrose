@@ -14,7 +14,7 @@ First, create a new component `MyDiagram.tsx` in the `src/` directory.
 You’ll almost certainly want to wrap the process of building your diagram it’s own function, which we’ll call later
 when we render the diagram:
 
-```typescript
+```ts
 const buildMyDiagram = async () => {
   const db = new DiagramBuilder(canvas(400, 400), "");
 
@@ -40,7 +40,7 @@ On to the diagramming! Our diagram needs to have two circles, and an arrow conne
 shapes right away, Bloom encourages you to first declare the abstract objects in your scene, and define rules to style
 those objects. This leads to better reusability, better readability, and often fewer bugs.
 
-```typescript
+```ts
 const Point = type();
 const Arrow = type();
 const Connects = predicate();
@@ -58,7 +58,7 @@ specify that `arrow` connects `p1` to `p2`. Predicates are untyped, so we could 
 
 The final step is to ‘style’ these constructs:
 
-```typescript
+```ts
 const pointRad = 50;
 const pointMargin = 10;
 
@@ -94,7 +94,7 @@ forallWhere(
 
 Let’s go through this piece by piece.
 
-```typescript
+```ts
 forall({ p : Point }, ({ p }) => {
 ```
 
@@ -103,7 +103,7 @@ and naming them `p` (via `{ p : Point }`). We then pass a function taking in an 
 this case we expect to run on every Point, and from there we’re free to style however we like. In this case, we create
 a circle of radius pointRad, and store it in a field of the point we call `p`.
 
-```typescript
+```ts
 p.icon = circle({
   r: pointRad,
 )};
@@ -113,7 +113,7 @@ p.icon = circle({
 for the purposes of drawing the circle, we don’t even need to store it. The following would still draw a circle for
 every point:
 
-```typescript
+```ts
 forall({ p : Point }, ({ p }) => {
   circle({
     r: pointRad,
@@ -127,7 +127,7 @@ lots more fields of circle we didn’t fill in, such as `center`, `fillColor`, e
 and if left out either have a default value or are randomly sampled. You can check out these defaults (and the available
 shapes) in the Penrose documentation. These fields also correspond closely with the SVG spec.
 
-```typescript
+```ts
 forallWhere(
 { a: Arrow, p: Point, q: Point },
 ({ a, p, q }) => Connects.test(a, p, q),
@@ -139,7 +139,7 @@ are passed to your styling function. In this case, we test whether we previously
 relationship `Connects`. We declared this for exactly one such triple, so we can expect our styling function to run
 only once with `a === arrow`, `p === p1`, and `q === p2`.
 
-```typescript
+```ts
 const pq = ops.vsub(q.icon.center, p.icon.center); // vector from p to q
 const pqNorm = ops.vnormalize(pq); // direction from p to q
 const pStart = ops.vmul(pointRad + pointMargin, pqNorm); // vector from p to line start
@@ -156,7 +156,7 @@ in the exported `ops` dictionary.
 
 Drawing the arrow is now self-explanatory:
 
-```typescript
+```ts
 a.icon = line({
   start,
   end,
@@ -168,7 +168,7 @@ The final aspect to consider is that we don’t want the user to drag the points
 arrow disappears. We can tell the optimizer to ensure this is the case by demanding that the distance between the
 points is greater than the sum of their radii and padding:
 
-```typescript
+```ts
 ensure(constraints.greaterThan(
   ops.vdist(p.icon.center, q.icon.center),
   2 * (pointRad + pointMargin)
@@ -182,7 +182,7 @@ We’ll talk more about the optimizer and constraints in the next chapter.
 To render your diagram in React, you'll need to create a new component that uses the `useDiagram` hook to build your
 diagram and the `Renderer` component to display it. Here's an example:
 
-```typescript
+```ts
 export const MyDiagramComponent = () => {
   const diagram = useDiagram(buildMyDiagram);
   return <Renderer diagram={diagram} />;
@@ -196,7 +196,7 @@ or live site integration, so simply memoizing your diagram won’t always do wha
 You can use this component wherever you would like in your React app, but for the purposes of this tutorial,
 you might edit `App.tsx` to render your diagram directly:
 
-```typescript
+```ts
 import { MyDiagramComponent } from "./MyDiagram.js";
 
 const App = () => {

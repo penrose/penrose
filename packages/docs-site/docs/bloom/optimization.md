@@ -6,7 +6,7 @@
 
 Imagine we’re drawing two circles, the second of which has twice the radius of the first:
 
-```typescript
+```ts
 const c1 = circle({}); // radius `r` (and other fields) randomly sampled
 const c2 = circle({
   r: c1.r * 2,
@@ -53,14 +53,14 @@ All of these operations build up the computation graph that is eventually compil
 
 While inputs are created every time a shape field is randomly sampled, you can also create your own with the input method:
 
-```typescript
+```ts
 const myVar = input();
 ```
 
 Why might you want to do this? One common instance is when you want a shape field to have one element be randomly
 selected and optimized, but another element constant:
 
-```typescript
+```ts
 rectangle({
   width: 100,
   height: 50,
@@ -71,7 +71,7 @@ rectangle({
 This rectangle will always have `y === 0`, but its x-coordinate will be sampled (and optimized). You might also need
 to explicitly declare inputs if you want specific settings:
 
-```typescript
+```ts
 const myVar = input({ name: "myVar", init: 42, optimized: false });
 ```
 
@@ -82,7 +82,7 @@ value. If `optimized` is set to `false`, then the input will not be changed by t
 constraints; this is particularly useful when you want an object to stay where you dragged it. All three fields are
 optional, as well as the entire settings object.
 
-```typescript
+```ts
 // this circle can be dragged, but may be moved by the optimizer after the user releases it
 circle({
   drag: true,

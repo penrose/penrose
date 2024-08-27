@@ -6,7 +6,7 @@
 
 You can make a shape draggable by setting `drag: true` on a compatible shape:
 
-```typescript
+```ts
 ellipse({
   drag: true,
 });
@@ -25,7 +25,7 @@ The coordinates that must be inputs are exactly those that would be translated b
 there would be no value for Bloom to translate! This can be inconvenient, however. Imagine we have two squares that are
 always 50 pixels apart horizontally, but both should be draggable:
 
-```typescript
+```ts
 const s1 = rectangle({
   width: 25,
   height: 25,
@@ -45,7 +45,7 @@ If you were to build this, you would find that `s2` could not be dragged because
 is to make both `center`s have their own inputs (the default), and add optimizer constraints to maintain the 50 pixels
 separation:
 
-```typescript
+```ts
 const s1 = rectangle({
   width: 25,
   height: 25,
@@ -64,7 +64,7 @@ ensure(constraints.equal(s1.center[1], s2.center[1]);
 
 The `bindToInput` method creates syntactic sugar for this pattern. The following builds exactly the same diagram:
 
-```typescript
+```ts
 const s1 = rectangle({
   width: 25,
   height: 25,
@@ -92,7 +92,7 @@ is allowed to set a shape’s position. Additionally, when the user does drag th
 we need some way to define where the shape should actually go&mdash;a kind of projection. Bloom allows you express
 both of these behaviors with a `dragConstraint`:
 
-```typescript
+```ts
 const orbitRad = 200;
 
 const c1 = circle({

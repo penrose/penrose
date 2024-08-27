@@ -45,7 +45,7 @@ see how the others respond:
 Notice how the circles push each other around? This doesn't require any collision detection, event handler set up,
 or physics engine to implement. Instead, you only need to specify that the balls shouldn't overlap!
 
-```typescript
+```ts
 forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
   ensure(constraints.disjoint(c1.icon, c2.icon));
 });
@@ -60,7 +60,7 @@ is maintained:
 How might you implement this? With Bloom, there's no need to calculate the exact point at which the reflection is specular.
 Instead, just say what you mean: that the angle of incidence should equal the angle of reflection:
 
-```typescript
+```ts
 const r1y = ray1.normVec[1];
 const r2y = ray2.normVec[1];
 ensure(constraints.equal(r1y, mul(-1, r2y)));
@@ -97,7 +97,7 @@ The elements of this diagram include:
 
 As we saw before, ensuring that the circles do not overlap is as simple as specifying a single constraint for each pair of circles:
 
-```typescript
+```ts
 forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
   ensure(constraints.disjoint(c1.icon, c2.icon));
 });
@@ -116,7 +116,7 @@ for these balls to repel each other within a certain padding:
 <CirclePackingPadded />
 </div>
 
-```typescript
+```ts
 forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
   ensure(constraints.disjoint(c1.icon, c2.icon, 20));
 });
@@ -128,7 +128,7 @@ Or even that they should all touch the enclosure:
 <CirclePackingEqual/>
 </div>
 
-```typescript
+```ts
 forall({ c: Circle }, ({ c }) => {
   ensure(
     constraints.equal(
