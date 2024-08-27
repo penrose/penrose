@@ -2,11 +2,12 @@
 ---
 name: Penrose Domain
 scope: source.domain
+
 file_extensions:
   - domain
 
 variables:
-  name: \w+
+  name: \b[a-zA-Z_]\w*\b
 
 contexts:
   main:
@@ -26,7 +27,7 @@ contexts:
         2: entity.name.function.domain
       push:
         - meta_scope: source.definition.function.domain
-        - match: ({{name}})(\s+({{name}}))?(?=[,\)])
+        - match: ({{name}})(\s+({{name}}))?\s*(?=[,\)])
           captures:
             1: storage.type.domain
             3: variable.parameter.domain

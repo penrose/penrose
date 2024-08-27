@@ -4,8 +4,8 @@
 -- canvas size
 canvas
 {
-  width  = 1200
-  height =  900
+	width  = 1200
+	height =  900
 }
 
 Colors
@@ -25,8 +25,8 @@ Global
 		width       : canvas.width
 		height      : canvas.height
 		fillColor   : none()
-		strokeColor : Colors.clearGray
-		strokeWidth : 1
+--		strokeColor : Colors.clearGray
+--		strokeWidth : 1
 	}
 
 	-- styling

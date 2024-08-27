@@ -2,6 +2,7 @@
 ---
 name: Penrose Style
 scope: source.style
+
 file_extensions:
   - style
 
@@ -83,21 +84,12 @@ contexts:
       scope: storage.modifier.style
     - match: \b(forall|foreach|with|where|collect|layer|LOCAL)\b
       scope: keyword.control.style
-    - match: \b(above|below|rgba|hsva|none)\b
+    - match: \b(rgba|hsva|none)\b
+      scope: keyword.operator.word.layer.style
+    - match: \b(above|below)\b(?!\s*\()
       scope: keyword.operator.word.layer.style
 
   expression:
-    - match: ({)
-      scope: punctuation.section.braces.style
-      push:
-        - meta_scope: meta.block.style
-        - include: comment
-        - include: string
-        - include: keyword
-        - include: expression
-        - match: (})
-          scope: punctuation.section.braces.style
-          pop: true
     - match: (\()
       scope: punctuation.section.parens.style
       push:
@@ -110,46 +102,48 @@ contexts:
           scope: punctuation.section.parens.style
           pop: true
 
-    - include: operators
+    - match: ({)
+      scope: punctuation.section.braces.style
+      push:
+        - meta_scope: meta.block.style
+        - include: comment
+        - include: string
+        - include: keyword
+        - include: expression
+        - match: (})
+          scope: punctuation.section.braces.style
+          pop: true
 
+    - include: types
+    - include: builtins
+    - include: literals
+    - include: operators
+    - include: functions
+
+  types:
     - match: \b(bool|color|constraint|file|function|int|list|mat2x2|mat3x3|mat4x4|objective|path|scalar|shape|string|style|vec2|vec3|vec4)\b
       scope: storage.type.style
     - match: \b((FloatV|BoolV|StrV|PathDataV|PtListV|ColorV|ListV|VectorV|MatrixV|TupV|LListV|ShapeListV))\b
       scope: support.type.value.style
     - match: \b(Circle|Ellipse|Equation|Group|Image|Line|Path|Polygon|Polyline|Rectangle|Text)\b
       scope: support.type.shape.style
-
-    - match: '\b(true|false)\b'
-      scope: constant.language.boolean.lean
-
-    - match: \b(match_total|match_id|)\b
-      scope: variable.language.style
-    - match: \b(canvas)\s*\.\s*(width|height)\b
-      scope: variable.language.style
-
-    - match: \b(countof|numberof)\s+({{name}})\b
-      captures:
-        1: keyword.operator.word.style
-        2: variable.other.readwrite.style
-
-    - match: \b(listof)\s+({{name}})\s+(from)\s+({{name}})\b
-      captures:
-        1: keyword.control.style
-        2: variable.other.readwrite.style
-        3: keyword.control.style
-        4: variable.other.readwrite.style
-
-    - match: \b(?<!\.)(equal|lessThan|greaterThan|lessThanSq|greaterThanSq|inRange|contains1D|disjointScalar|perpendicular|collinear|collinearOrdered|onCanvas|overlapping|overlappingEllipses|overlappingCircleEllipse|disjoint|touching|contains|containsCircles|containsPolys|containsPolyCircle|containsPolyPoint|containsCirclePoint|containsCirclePoly|containsCircleRect|containsRectCircle|containsRects|distributeHorizontally|distributeVertically|disjointIntervals|isLocallyConvex|isConvex|isEquilateral|isEquiangular)\b
-      scope: support.function.constraint.style
-    - match: \b(?<!\.)(minimal|maximal|equal|nearVec|greaterThan|lessThan|repelPt|repelScalar|inDirection|below|above|leftwards|rightwards|sameCenter|notTooClose|near|nearPt|nonDegenerateAngle|centerLabelAbove|centerLabel|pointLineDist|isRegular|isEquilateral|isEquiangular)\b
-      scope: support.function.objective.style
-    - match: \b(?<!\.)(makePath|get|selectColor|oneBasedElement|acosh|acos|asin|asinh|mod|atan|atan2|atanh|cbrt|ceil|cos|cosh|exp|expm1|floor|log|log2|log10|log1p|pow|round|sign|sin|sinh|tan|tanh|trunc|sum|sumVectors|maxList|minList|count|dot|identity|diagonal|trace|determinant|inverse|outerProduct|crossProductMatrix|matrix|matrix3d|rotate|rotate2d|rotate3d|rotate3dh|scale|scale2d|scale3d|scale3dh|skew|skew2d|shear|shear2d|shear3d|translate|translate3dh|lookAt|perspective|ortho|project|projectDepth|projectList|matrixMultiplyList|fromHomogeneous|fromHomogeneousList|toHomogeneous|toHomogeneousList|toHomogeneousMatrix|length|normalize|pathFromPoints|quadraticCurveFromPoints|interpolateQuadraticFromPoints|cubicCurveFromPoints|connectPaths|concatenatePaths|joinPaths|Penrose|firstPoint|lastPoint|averagePoint|interpolatingSpline|diffusionProcess|unitMark|unitMark2|arc|circularArc|repeatedArcs|wedge|ptOnLine|arcSweepFlag|angleBetween|angleFrom|cross2D|cross|lineLineIntersection|midpoint|midpointOffset|chevron|innerPointOffset|ticksOnLine|orientedSquare|triangle|average2|average|unit|random|unitRandom|diskRandom|circleRandom|sphereRandom|normalRandom|triangleRandom|sampleColor|randomIndex|setOpacity|mul|barycenter|circumcenter|circumradius|incenter|inradius|sqr|sqrt|max|min|abs|toRadians|toDegrees|norm|normsq|vdist|vmul|vdistsq|angleOf|MathE|MathPI|rot90|rotateBy|signedDistance|signedDistanceRect|signedDistanceCircle|signedDistancePolygon|signedDistanceEllipse|signedDistanceLine|signedDistancePolyline|signedDistanceGroup|unitVector|rayIntersect|rayIntersectDistance|rayIntersectCircle|rayIntersectCircleDistance|rayIntersectEllipse|rayIntersectEllipseDistance|rayIntersectLine|rayIntersectLineDistance|rayIntersectRect|rayIntersectRectDistance|rayIntersectPoly|rayIntersectPolyDistance|rayIntersectGroup|rayIntersectGroupDistance|rayIntersectNormal|rayIntersectNormalCircle|rayIntersectNormalEllipse|rayIntersectNormalLine|rayIntersectNormalRect|rayIntersectNormalPoly|rayIntersectNormalGroup|closestPoint|closestPointCircle|closestPointRect|closestPointLine|closestPointEllipse|closestPointPoly|closestPointGroup|closestSilhouettePoint|closestSilhouettePointCircle|closestSilhouettePointEllipse|closestSilhouettePointLine|closestSilhouettePointRect|closestSilhouettePointPolyline|closestSilhouettePointPolygon|closestSilhouettePointGroup|closestSilhouetteDistance|rectLineDist|shapeDistance|shapeDistanceCircles|shapeDistanceRects|shapeDistanceRectLine|shapeDistanceRectlikePolyline|shapeDistancePolys|shapeDistanceRectCircle|shapeDistancePolyEllipse|shapeDistanceCircleLine|shapeDistanceLines|signedArea|turningNumber|perimeter|isoperimetricRatio|elasticEnergy|totalCurvature|lengthK|maxCurvature|pElasticEnergy|inflectionEnergy|tangentVectors|normalVectors|binormalVectors|evoluteCurve|offsetCurve|curvatures|centerOfMass|noClip|clip|bboxPts|tsneEnergy|rectPts|TeXify|repeat)\b
-      scope: support.function.computation.style
-    - match: \b({{name}})\s*(?=\()
-      captures:
-        1: variable.function.style
-
-    - include: number
+      push:
+        - match: ({)
+          scope: punctuation.section.braces.style
+          push:
+            - meta_scope: meta.block.shape.style
+            - include: comment
+            - include: string
+            - include: keyword
+            - include: builtins
+            - include: literals
+            - include: operators
+            - include: functions
+            - match: (?=})
+              pop: true
+        - match: (})
+          scope: punctuation.section.braces.style
+          pop: true
 
   operators:
     - match: (\.\*|\.\/|'|\bthen\b)
@@ -172,6 +166,41 @@ contexts:
       scope: punctuation.accessor.style
     - match: (,|;)
       scope: punctuation.separator.style
+
+  builtins:
+    - match: \b(match_total|match_id|)\b
+      scope: variable.language.style
+    - match: \b(canvas)\s*\.\s*(width|height)\b
+      scope: variable.language.style
+
+    - match: \b(countof|numberof)\s+({{name}})\b
+      captures:
+        1: keyword.operator.word.style
+        2: variable.other.readwrite.style
+
+    - match: \b(listof)\s+({{name}})\s+(from)\s+({{name}})\b
+      captures:
+        1: keyword.control.style
+        2: variable.other.readwrite.style
+        3: keyword.control.style
+        4: variable.other.readwrite.style
+
+  literals:
+    - match: '\b(true|false)\b'
+      scope: constant.language.boolean.lean
+
+    - include: number
+
+  functions:
+    - match: \b(?<!\.)(equal|lessThan|greaterThan|lessThanSq|greaterThanSq|inRange|contains1D|disjointScalar|perpendicular|collinear|collinearOrdered|onCanvas|overlapping|overlappingEllipses|overlappingCircleEllipse|disjoint|touching|contains|containsCircles|containsPolys|containsPolyCircle|containsPolyPoint|containsCirclePoint|containsCirclePoly|containsCircleRect|containsRectCircle|containsRects|distributeHorizontally|distributeVertically|disjointIntervals|isLocallyConvex|isConvex|isEquilateral|isEquiangular)\b
+      scope: support.function.constraint.style
+    - match: \b(?<!\.)(minimal|maximal|equal|nearVec|greaterThan|lessThan|repelPt|repelScalar|inDirection|below|above|leftwards|rightwards|sameCenter|notTooClose|near|nearPt|nonDegenerateAngle|centerLabelAbove|centerLabel|pointLineDist|isRegular|isEquilateral|isEquiangular)\b
+      scope: support.function.objective.style
+    - match: \b(?<!\.)(makePath|get|selectColor|oneBasedElement|acosh|acos|asin|asinh|mod|atan|atan2|atanh|cbrt|ceil|cos|cosh|exp|expm1|floor|log|log2|log10|log1p|pow|round|sign|sin|sinh|tan|tanh|trunc|sum|sumVectors|maxList|minList|count|dot|identity|diagonal|trace|determinant|inverse|outerProduct|crossProductMatrix|matrix|matrix3d|rotate|rotate2d|rotate3d|rotate3dh|scale|scale2d|scale3d|scale3dh|skew|skew2d|shear|shear2d|shear3d|translate|translate3dh|lookAt|perspective|ortho|project|projectDepth|projectList|matrixMultiplyList|fromHomogeneous|fromHomogeneousList|toHomogeneous|toHomogeneousList|toHomogeneousMatrix|length|normalize|pathFromPoints|quadraticCurveFromPoints|interpolateQuadraticFromPoints|cubicCurveFromPoints|connectPaths|concatenatePaths|joinPaths|Penrose|firstPoint|lastPoint|averagePoint|interpolatingSpline|diffusionProcess|unitMark|unitMark2|arc|circularArc|repeatedArcs|wedge|ptOnLine|arcSweepFlag|angleBetween|angleFrom|cross2D|cross|lineLineIntersection|midpoint|midpointOffset|chevron|innerPointOffset|ticksOnLine|orientedSquare|triangle|average2|average|unit|random|unitRandom|diskRandom|circleRandom|sphereRandom|normalRandom|triangleRandom|sampleColor|randomIndex|setOpacity|mul|barycenter|circumcenter|circumradius|incenter|inradius|sqr|sqrt|max|min|abs|toRadians|toDegrees|norm|normsq|vdist|vmul|vdistsq|angleOf|MathE|MathPI|rot90|rotateBy|signedDistance|signedDistanceRect|signedDistanceCircle|signedDistancePolygon|signedDistanceEllipse|signedDistanceLine|signedDistancePolyline|signedDistanceGroup|unitVector|rayIntersect|rayIntersectDistance|rayIntersectCircle|rayIntersectCircleDistance|rayIntersectEllipse|rayIntersectEllipseDistance|rayIntersectLine|rayIntersectLineDistance|rayIntersectRect|rayIntersectRectDistance|rayIntersectPoly|rayIntersectPolyDistance|rayIntersectGroup|rayIntersectGroupDistance|rayIntersectNormal|rayIntersectNormalCircle|rayIntersectNormalEllipse|rayIntersectNormalLine|rayIntersectNormalRect|rayIntersectNormalPoly|rayIntersectNormalGroup|closestPoint|closestPointCircle|closestPointRect|closestPointLine|closestPointEllipse|closestPointPoly|closestPointGroup|closestSilhouettePoint|closestSilhouettePointCircle|closestSilhouettePointEllipse|closestSilhouettePointLine|closestSilhouettePointRect|closestSilhouettePointPolyline|closestSilhouettePointPolygon|closestSilhouettePointGroup|closestSilhouetteDistance|rectLineDist|shapeDistance|shapeDistanceCircles|shapeDistanceRects|shapeDistanceRectLine|shapeDistanceRectlikePolyline|shapeDistancePolys|shapeDistanceRectCircle|shapeDistancePolyEllipse|shapeDistanceCircleLine|shapeDistanceLines|signedArea|turningNumber|perimeter|isoperimetricRatio|elasticEnergy|totalCurvature|lengthK|maxCurvature|pElasticEnergy|inflectionEnergy|tangentVectors|normalVectors|binormalVectors|evoluteCurve|offsetCurve|curvatures|centerOfMass|noClip|clip|bboxPts|tsneEnergy|rectPts|TeXify|repeat)\b
+      scope: support.function.computation.style
+    - match: \b({{name}})\s*(?=\()
+      captures:
+        1: variable.function.style
 
   canvas:
     - match: ({)
@@ -287,6 +316,7 @@ contexts:
         (?ix)  # decimal float literal
           [+\-]? # optional number sign
           (?!0x) # prefix
+          \b
           # significand (at least a period)
                [0-9]++ ([0-9a-z&&[^e]]*?) [0-9]*+
           (\.) [0-9]*+ ([0-9a-z.&&[^e]]*?) [0-9]*+
