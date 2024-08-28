@@ -33,18 +33,20 @@ contexts:
         6: variable.parameter.style
       push:
         - meta_scope: meta.block.collector.style
+        - include: comment
         - match: \s*({{name}})\s+({{name}}|`{{name}}`)
           captures:
             1: support.type.style
             2: variable.parameter.style
           push:
+            - include: comment
             - match: \s*(,)\s*({{name}}|`{{name}}`)
               captures:
                 1: punctuation.separator.sequence.style
                 2: variable.parameter.style
-            - match: (?=;|{|$)
+            - match: (?=;|{|$|\bwhere\b)
               pop: true
-        - match: (?=;|{|$)
+        - match: (?=;|{|$|\bwhere\b)
           pop: true
         - include: keyword
         - include: expression
@@ -55,20 +57,32 @@ contexts:
         2: storage.modifier.style
       push:
         - meta_scope: meta.block.selector.style
+        - include: comment
+        - match: (?={|$|\bwhere\b)
+          pop: true
         - match: \s*({{name}})\s+({{name}}|`{{name}}`)
           captures:
             1: support.type.style
             2: variable.parameter.style
           push:
+            - include: comment
+            - match: (?=;|{|$|\bwhere\b)
+              pop: true
             - match: \s*(,)\s*({{name}}|`{{name}}`)
               captures:
                 1: punctuation.separator.sequence.style
                 2: variable.parameter.style
-            - match: (?=;|{|$)
-              pop: true
+        - include: keyword
+        - include: expression
+
+    - match: \b(where)\b
+      captures:
+        1: keyword.control.loop.style
+        2: storage.modifier.style
+      push:
+        - meta_scope: meta.block.selector.style
         - match: (?={|$)
           pop: true
-        - include: keyword
         - include: expression
 
     - match: \b(layer)\s+({{name}})\s+(above|below)\s+({{name}})
@@ -77,6 +91,12 @@ contexts:
         2: variable.other.readwrite.style
         3: keyword.operator.word.layer.style
         4: variable.other.readwrite.style
+
+    - match: \b(layout)\s*(=)\s*
+      captures:
+        1: keyword.declaration.style
+        2: keyword.operator.assignment.style
+      push: layout
 
     - match: \b(import)\b
       scope: keyword.control.import.style
@@ -121,14 +141,14 @@ contexts:
     - include: functions
 
   types:
-    - match: \b(bool|color|constraint|file|function|int|list|mat2x2|mat3x3|mat4x4|objective|path|scalar|shape|string|style|vec2|vec3|vec4)\b
+    - match: (?<!\.)\b(bool|color|constraint|file|function|int|list|mat2x2|mat3x3|mat4x4|objective|path|scalar|shape|string|style|vec2|vec3|vec4)\b
       scope: storage.type.style
-    - match: \b((FloatV|BoolV|StrV|PathDataV|PtListV|ColorV|ListV|VectorV|MatrixV|TupV|LListV|ShapeListV))\b
+    - match: (?<!\.)\b(FloatV|BoolV|StrV|PathDataV|PtListV|ColorV|ListV|VectorV|MatrixV|TupV|LListV|ShapeListV)\b
       scope: support.type.value.style
-    - match: \b(Circle|Ellipse|Equation|Group|Image|Line|Path|Polygon|Polyline|Rectangle|Text)\b
+    - match: (?<!\.)\b(Circle|Ellipse|Equation|Group|Image|Line|Path|Polygon|Polyline|Rectangle|Text)\b
       scope: support.type.shape.style
       push:
-        - match: ({)
+        - match: \s*({)
           scope: punctuation.section.braces.style
           push:
             - meta_scope: meta.block.shape.style
@@ -144,6 +164,8 @@ contexts:
         - match: (})
           scope: punctuation.section.braces.style
           pop: true
+        - match: (.)
+          pop: true
 
   operators:
     - match: (\.\*|\.\/|'|\bthen\b)
@@ -154,10 +176,6 @@ contexts:
       scope: keyword.operator.comparison.style
     - match: (\&\&|\|\||!)
       scope: keyword.operator.logical.style
-    - match: \b(as)\b
-      scope: keyword.other.alias.style
-    - match: \b(has)\b
-      scope: keyword.control.conditional.select.style
     - match: (\?)
       scope: keyword.operator.autoeval.style
     - match: (=|:)
@@ -166,6 +184,13 @@ contexts:
       scope: punctuation.accessor.style
     - match: (,|;)
       scope: punctuation.separator.style
+    - match: \b(as)\b
+      scope: keyword.other.alias.style
+    - match: \b(has)\b
+      scope: keyword.control.conditional.select.style
+    - match: \b(in|except)\b
+      scope: keyword.other.layout.style
+      push: layout
 
   builtins:
     - match: \b(match_total|match_id|)\b
@@ -173,7 +198,7 @@ contexts:
     - match: \b(canvas)\s*\.\s*(width|height)\b
       scope: variable.language.style
 
-    - match: \b(countof|numberof)\s+({{name}})\b
+    - match: \b(nameof|countof|numberof)\s+({{name}})\b
       captures:
         1: keyword.operator.word.style
         2: variable.other.readwrite.style
@@ -229,6 +254,24 @@ contexts:
         - match: (})
           scope: punctuation.section.braces.style
           pop: true
+
+  layout:
+    - match: \b(shape|label|overall)\b
+      scope: variable.language.style
+      pop: true
+    - match: (\[)
+      scope: punctuation.section.brackets.begin.style
+      push:
+        - match: (,)
+          scope: punctuation.separator.sequence.style
+        - match: \b(shape|label|overall)\b
+          scope: variable.language.style
+        - match: (?=\])
+          pop: true
+    - match: (\])
+      scope: punctuation.section.brackets.end.style
+      pop: true
+
 
   comment:
     - match: --
