@@ -8,6 +8,7 @@
     "build-decls": ":",
     "copy-editor": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try",
     "build-shapedefs": "shx rm -f ./src/shapedefs.json && node ./scripts/shapedefs.js ./src/shapedefs.json",
+    "build-bloom-ref": "mkdir public/bloom-docs || rm -rf public/bloom-docs/* && cp -r ../bloom/docs/* public/bloom-docs && touch public/bloom-docs/.gitignore && echo '*' > public/bloom-docs/.gitignore",
     "dev": "vitepress dev",
     "preview": "vitepress preview",
     "typecheck": ":"
@@ -23,10 +24,16 @@
         "dependsOn": [
           "^build",
           "copy-editor",
-          "build-shapedefs"
+          "build-shapedefs",
+          "build-bloom-ref"
         ]
       },
       "build-shapedefs": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "build-bloom-ref": {
         "dependsOn": [
           "^build"
         ]

@@ -6,5 +6,5 @@
     "jsx": "react-jsx"
   },
   "extends": "../../tsconfig.json",
-  "include": ["./src/**/*", "./.vitepress/theme/**/*"]
+  "include": ["./src/**/*", "./.vitepress/theme/**/*", "../bloom/**/*"]
 }

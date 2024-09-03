@@ -225,7 +225,7 @@ export default defineConfig({
       { text: "Docs", link: "/docs/ref", activeMatch: "/docs/ref" },
       {
         text: "Bloom",
-        link: "/docs/bloom/getting_started",
+        link: "/docs/bloom/tutorial/getting_started",
         activeMatch: "/docs/bloom",
       },
       { text: "Blog", link: "/blog", activeMatch: "/blog" },
@@ -273,19 +273,33 @@ export default defineConfig({
         {
           text: "Bloom",
           items: [
-            { text: "Getting Started", link: "/docs/bloom/getting_started" },
-            { text: "Hello, Diagram", link: "/docs/bloom/hello_diagram" },
             {
-              text: "Procedural Diagramming and Optimization",
-              link: "/docs/bloom/optimization",
+              text: "Tutorial",
+              items: [
+                {
+                  text: "Getting Started",
+                  link: "/docs/bloom/tutorial/getting_started",
+                },
+                {
+                  text: "Hello, Diagram",
+                  link: "/docs/bloom/tutorial/hello_diagram",
+                },
+                {
+                  text: "Procedural Diagramming and Optimization",
+                  link: "/docs/bloom/tutorial/optimization",
+                },
+                {
+                  text: "Interactivity",
+                  link: "/docs/bloom/tutorial/interactivity",
+                },
+                {
+                  text: "Site Integration",
+                  link: "/docs/bloom/tutorial/site_integration",
+                },
+              ],
             },
             {
-              text: "Interactivity",
-              link: "/docs/bloom/interactivity",
-            },
-            {
-              text: "Site Integration",
-              link: "/docs/bloom/site_integration",
+              text: "<a href='/bloom-docs/index.html' target='_blank'>Reference</a>",
             },
           ],
         },
