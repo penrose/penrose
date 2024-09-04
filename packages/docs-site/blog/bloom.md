@@ -42,8 +42,7 @@ see how the others respond:
 <CirclePackingDisjoint />
 </div>
 
-Notice how the circles push each other around? This doesn't require any collision detection, event handler set up,
-or physics engine to implement. Instead, you only need to specify that the balls shouldn't overlap!
+Notice how the circles push each other around? With Bloom, all you need to do is specify that the circles shouldn't overlap:
 
 ```ts
 forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
@@ -51,14 +50,14 @@ forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
 });
 ```
 
-In the next example, we want a ray to bounce specularly off a mirror&mdash;that is, the ray should hit the mirror and exit the
-mirror with exactly the same angle of elevation. Try dragging the start and endpoints around, and watch how this property
-is maintained:
+This next diagram reflects a ray off a mirror from one point to another. To be physically realistic, the angle between
+the incoming ray and mirror must be the same as the angle between the outgoing ray and the mirror.
+Try dragging the start and endpoints around, and watch how this property is maintained:
 
 <Reflection />
 
-How might you implement this? With Bloom, there's no need to calculate the exact point at which the reflection is specular.
-Instead, just say what you mean: that the angle of incidence should equal the angle of reflection:
+How might you implement this? With Bloom, there's no need to calculate the exact point at which a reflected ray keeps these two
+angles equal. Instead, you can leave it to Bloom's optimizer:
 
 ```ts
 const r1y = ray1.normVec[1];
@@ -66,20 +65,27 @@ const r2y = ray2.normVec[1];
 ensure(constraints.equal(r1y, mul(-1, r2y)));
 ```
 
-Bloom also provides a tight integration with React. This next diagram displays
+Bloom also provides an interface for your diagrams to communicate with the rest of your site. In the next diagram, you'll find:
 
 - two vectors, $a_1$ and $a_2$
 - a point $v_1$
 - a point $Av_1$, connected to $v_1$ by a dotted line
 
-Try dragging the gray handles to see how the transformation changes, along with the LaTeX on the right.
+Try dragging the gray handles to see how the transformation changes, along with the vectors and matrices on the right.
 
+<br/>
 <Eigen />
 
 If you're familiar with a little linear algebra, you'll notice that the vectors $a_1$ and $a_2$ form the columns of
 matrix $A$, which is applied to $v_1$ to from $Av_1$. The eigenspaces of $A$ are shown as lines $s_1$ and $s_2$.
 All of this data, calculated and stored internal to the diagram, is easily synced to the LaTeX on the right using
 Bloom's system of shared diagram values and custom hooks.
+
+Here's another example, integrating a button to add a square on every click:
+
+<div style="width: 70%; margin-left: auto; margin-right: auto;">
+<Rays/>
+</div>
 
 ## Optimization-Driven Diagramming
 
@@ -95,7 +101,8 @@ The elements of this diagram include:
 - A circular enclosure
 - A set of 10 draggable circles, which cannot overlap and cannot exit the enclosure
 
-As we saw before, ensuring that the circles do not overlap is as simple as specifying a single constraint for each pair of circles:
+As we saw before, ensuring that the circles do not overlap is as simple as specifying a single optimization constraint
+for each pair of circles:
 
 ```ts
 forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
@@ -109,7 +116,7 @@ Without optimization, implementing this behavior would be a nasty challenge. At 
 - Detect collisions between circles
 - Implement a physics engine to resolve collisions continuously
 
-Moreover, the simplicity of the constraint-based approach allows for easy modification. Suppose we instead wanted instead
+Moreover, the simplicity of the constraint-based approach allows for easy modification. Suppose we instead wanted
 for these balls to repel each other within a certain padding:
 
 <div style="width: 70%; height: 25em; margin-left: auto; margin-right: auto;">
@@ -143,12 +150,10 @@ forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
 });
 ```
 
-Neither change requires a substantial rewrite of of the diagram's behavior; instead, we can simply modify the constraints to reflect
-our new requirements.
+Neither change requires a substantial rewrite of the diagram's behavior; instead, we can simply modify the constraints to reflect
+our new requirements. he
 
 ## Getting Started
 
 Bloom is still in the early stages of development, but we're excited to share it with you. If you're interested in learning more,
-you can take a look at our [docs] (**Note to us: we need to replace this with a real link when we deploy**). We're excited to see what you build!
-
-<Rays />
+you can take a look at our [docs](/docs/bloom/tutorial/getting_started). We're excited to see what you build!

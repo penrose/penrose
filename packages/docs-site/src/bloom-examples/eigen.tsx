@@ -15,7 +15,7 @@ const md = markdownIt();
 md.use(markdownItKatex);
 
 export const basisVectors = async (withEigenspace = false) => {
-  const canvasWidth = 400,
+  const canvasWidth = 500,
     canvasHeight = 400;
 
   const {
@@ -34,8 +34,8 @@ export const basisVectors = async (withEigenspace = false) => {
   } = new DiagramBuilder(canvas(canvasWidth, canvasHeight), "");
 
   // Misc constants
-  const origin: [number, number] = [-canvasHeight / 3, -canvasHeight / 3];
-  const axesWidth = (2 * canvasWidth) / 3;
+  const origin: [number, number] = [-canvasHeight / 6, (-2 * canvasHeight) / 5];
+  const axesWidth = (2 * canvasWidth) / 4;
   const axesHeight = (2 * canvasWidth) / 3;
   const topLeft: [number, number] = [origin[0], origin[1] + axesHeight];
   const bottomRight: [number, number] = [origin[0] + axesWidth, origin[1]];
@@ -260,6 +260,11 @@ export const basisVectors = async (withEigenspace = false) => {
     layer(p.line, p.icon1);
   });
 
+  bindToInput(p.v1[0], { name: "v.x" });
+  bindToInput(p.v1[1], { name: "v.y" });
+  bindToInput(p.v2[0], { name: "Av.x" });
+  bindToInput(p.v2[1], { name: "Av.y" });
+
   if (withEigenspace) {
     const EigenspaceLine = type();
 
@@ -347,7 +352,8 @@ export const basisVectors = async (withEigenspace = false) => {
 };
 
 export default function EigenvectorsDiagram() {
-  const katexRef = useRef<HTMLDivElement>(null);
+  const katexRef1 = useRef<HTMLDivElement>(null);
+  const katexRef2 = useRef<HTMLDivElement>(null);
   const diagram = useDiagram(useCallback(() => basisVectors(true), []));
   const [ihatx, setIhatx] = useState(0);
   const [ihaty, setIhaty] = useState(0);
@@ -357,6 +363,10 @@ export default function EigenvectorsDiagram() {
   const [s1y, setS1y] = useState(0);
   const [s2x, setS2x] = useState(0);
   const [s2y, setS2y] = useState(0);
+  const [vx, setVx] = useState(0);
+  const [vy, setVy] = useState(0);
+  const [Avx, setAvx] = useState(0);
+  const [Avy, setAvy] = useState(0);
 
   useEffect(() => {
     if (diagram) {
@@ -368,28 +378,43 @@ export default function EigenvectorsDiagram() {
       diagram.addInputEffect("s1.y", setS1y);
       diagram.addInputEffect("s2.x", setS2x);
       diagram.addInputEffect("s2.y", setS2y);
+      diagram.addInputEffect("v.x", setVx);
+      diagram.addInputEffect("v.y", setVy);
+      diagram.addInputEffect("Av.x", setAvx);
+      diagram.addInputEffect("Av.y", setAvy);
     }
   }, [diagram]);
 
   useEffect(() => {
-    if (katexRef.current) {
-      katexRef.current.innerHTML = md.render(
+    if (katexRef1.current && katexRef2.current) {
+      katexRef1.current.innerHTML = md.render(
         `$$A = \\begin{bmatrix} ${ihatx.toFixed(2)} & ${jhatx.toFixed(
           2,
         )} \\\\ ${ihaty.toFixed(2)} & ${jhaty.toFixed(2)} \\end{bmatrix}$$`,
       );
-      katexRef.current.innerHTML += md.render(
+      katexRef1.current.innerHTML += md.render(
         `$$s_1 = \\begin{bmatrix} ${s1x.toFixed(2)} \\\\ ${s1y.toFixed(
           2,
         )} \\end{bmatrix}$$`,
       );
-      katexRef.current.innerHTML += md.render(
+      katexRef1.current.innerHTML += md.render(
         `$$s_2 = \\begin{bmatrix} ${s2x.toFixed(2)} \\\\ ${s2y.toFixed(
           2,
         )} \\end{bmatrix}$$`,
       );
+
+      katexRef2.current.innerHTML = md.render(
+        `$$v_1 = \\begin{bmatrix} ${vx.toFixed(2)} \\\\ ${vy.toFixed(
+          2,
+        )} \\end{bmatrix}$$`,
+      );
+      katexRef2.current.innerHTML += md.render(
+        `$$Av_1 = \\begin{bmatrix} ${Avx.toFixed(2)} \\\\ ${Avy.toFixed(
+          2,
+        )} \\end{bmatrix}$$`,
+      );
     }
-  }, [ihatx, jhatx, ihaty, jhaty]);
+  }, [ihatx, jhatx, ihaty, jhaty, vx, vy]);
 
   if (!diagram) {
     return <div>Loading...</div>;
@@ -406,9 +431,10 @@ export default function EigenvectorsDiagram() {
     >
       <div
         style={{
-          width: "50%",
+          width: "60%",
           display: "flex",
           justifyContent: "center",
+          // border: "1px solid black",
         }}
       >
         <Renderer diagram={diagram} />
@@ -419,48 +445,20 @@ export default function EigenvectorsDiagram() {
           alignItems: "center",
           flexDirection: "column",
           justifyContent: "center",
-          width: "50%",
+          width: "18%",
         }}
-        ref={katexRef}
-      >
-        {/*        <p*/}
-        {/*          dangerouslySetInnerHTML={{*/}
-        {/*            // __html: katex.renderToString(*/}
-        {/*            //   `A = \\begin{bmatrix} ${ihatx.toFixed(2)} & ${jhatx.toFixed(*/}
-        {/*            //     2,*/}
-        {/*            //   )} \\\\ ${ihaty.toFixed(2)} & ${jhaty.toFixed(2)} \\end{bmatrix}`,*/}
-        {/*            // ),*/}
-        {/*            __html: katex.renderToString(*/}
-        {/*              `\\left(\\begin{matrix}*/}
-        {/*  1 & 0 \\\\*/}
-        {/*  0 & 1*/}
-        {/*\\end{matrix}\\right)`,*/}
-        {/*              {*/}
-        {/*                displayMode: true,*/}
-        {/*              },*/}
-        {/*            ),*/}
-        {/*          }}*/}
-        {/*        ></p>*/}
-        {/*        /!* create column vectors for s1 and s2 *!/*/}
-        {/*        <p*/}
-        {/*          dangerouslySetInnerHTML={{*/}
-        {/*            __html: katex.renderToString(*/}
-        {/*              `s_1 = \\begin{bmatrix} ${s1x.toFixed(2)} \\\\ ${s1y.toFixed(*/}
-        {/*                2,*/}
-        {/*              )} \\end{bmatrix}`,*/}
-        {/*            ),*/}
-        {/*          }}*/}
-        {/*        ></p>*/}
-        {/*        <p*/}
-        {/*          dangerouslySetInnerHTML={{*/}
-        {/*            __html: katex.renderToString(*/}
-        {/*              `s_1 = \\begin{bmatrix} ${s2x.toFixed(2)} \\\\ ${s2y.toFixed(*/}
-        {/*                2,*/}
-        {/*              )} \\end{bmatrix}`,*/}
-        {/*            ),*/}
-        {/*          }}*/}
-        {/*        ></p>*/}
-      </div>
+        ref={katexRef2}
+      ></div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
+          justifyContent: "center",
+          width: "18%",
+        }}
+        ref={katexRef1}
+      ></div>
     </div>
   );
 }
