@@ -1,3 +1,7 @@
+<script setup>
+import ProceduralDiagram from "../../../src/bloom-examples/ProceduralDiagram.vue";
+</script>
+
 # Procedural Diagramming and Optimization
 
 ---
@@ -8,23 +12,26 @@ Imagine we’re drawing two circles, the second of which has twice the radius of
 
 ```ts
 const c1 = circle({}); // radius `r` (and other fields) randomly sampled
+// `{}` may be omitted
 const c2 = circle({
   r: c1.r * 2,
 });
 ```
 
-Looks good. But when we go to run this…
+Looks good. But when we go to typecheck this, we get an error:
 
--- (+ lack of overloading error) --
+```
+TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number' or an enum type.
+```
 
 Doh! What’s happening here? The error message seems to suggest that `c1.r` is not a number–but isn’t it? To explain this,
 we first have to talk about how Bloom handles interactivity and optimization.
 
 Building a diagram defines a procedure to render your diagram: draw a circle with these settings, then do some math,
-then draw a line, etc. When you call `DiagramBuilder.prototype.build`, it compiles this procedure into WebAssembly that
-look like this:
+then draw a line, etc. When you call `DiagramBuilder.prototype.build`, it compiles this procedure into WebAssembly which takes
+in a collection of `inputs`, and outputs a diagram:
 
-–- diagram showing inputs -> wasm -> shape fields --
+<ProceduralDiagram />
 
 This provides a clean interface to edit your diagram: just vary the inputs! When you first render your diagram, they
 are filled with random values. When you drag a shape, the inputs corresponding to the center are changed and the diagram

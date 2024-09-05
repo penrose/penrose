@@ -1,3 +1,7 @@
+<script setup>
+import HelloDiagram from "../../../src/bloom-examples/HelloDiagram.vue";
+</script>
+
 # Hello, Diagram
 
 ---
@@ -5,7 +9,7 @@
 This first chapter will give a high level overview of the process of diagramming and rendering.
 Here’s what we’re working towards:
 
-– diagram with two circles and an arrow between them –
+<HelloDiagram />
 
 ### Building the Diagram
 
@@ -16,7 +20,7 @@ when we render the diagram:
 
 ```ts
 const buildMyDiagram = async () => {
-  const db = new DiagramBuilder(canvas(400, 400), "");
+  const db = new DiagramBuilder(canvas(400, 200), "abcd", 1);
 
   const { type, predicate, circle, line, build, forall, forallWhere, ensure } =
     db;
@@ -29,7 +33,13 @@ const buildMyDiagram = async () => {
 
 The first step in using Bloom is to create a
 `DiagramBuilder` object. This object contains methods allowing you to declare types, substances, style selectors,
-shapes, constraints, and everything else you need to build your diagram.
+shapes, constraints, and everything else you need to build your diagram. It takes in three arguments:
+
+- `canvas`: a `Canvas` object specifying the local coordinate system (and thus the aspect ratio) of your diagram.
+- `variation`: a `string` providing a seed for random sampling
+- `lassoStrength`: an optional `number` (default 0) specifying the strength with which the diagram should encourage
+  continuity. If you notice your diagram acting 'jumpy', you might consider increasing this value.
+
 When we're done, we call `.build()` to get the diagram object.
 
 It’s not strictly necessary to destructure the `DiagramBuilder` methods, but it’s convenient, and for the remainder of

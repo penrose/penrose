@@ -21,11 +21,7 @@ import Rays from "../src/bloom-examples/Rays.vue";
 import Pool from "../src/bloom-examples/Pool.vue";
 </script>
 
-[//]: # '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.css" integrity="sha384-NFTC4wvyQKLwuJ8Ez9AvPNBv8zcC2XaQzXSMvtORKw28BdJbB2QE8Ka+OyrIHcQJ" crossorigin="anonymous">'
-
 <BlogMeta />
-
-[//]: # "# Bloom: Interactive, Optimization-Driven Diagramming in JavaScript"
 
 <br/>
 
@@ -59,7 +55,7 @@ Try dragging the start and endpoints around, and watch how this property is main
 How might you implement this? With Bloom, there's no need to calculate the exact point at which a reflected ray keeps these two
 angles equal. Instead, you can leave it to Bloom's optimizer:
 
-```ts
+```js
 const r1y = ray1.normVec[1];
 const r2y = ray2.normVec[1];
 ensure(constraints.equal(r1y, mul(-1, r2y)));

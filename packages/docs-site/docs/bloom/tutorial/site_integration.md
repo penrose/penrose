@@ -1,8 +1,12 @@
+<script setup>
+import Eigen from "../../../src/bloom-examples/Eigen.vue";
+</script>
+
 # Site Integration
 
 ---
 
-– Eigenvectors example –
+<Eigen />
 
 In the above example, we have a React component rendering a Bloom diagram on the left, and some Mathjax on the right.
 Somehow, we need to sync values internal to the diagram to mathjax, live during rendering. Bloom provides several

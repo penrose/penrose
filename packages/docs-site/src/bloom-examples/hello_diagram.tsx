@@ -9,7 +9,7 @@ import {
 } from "@penrose/bloom";
 
 const buildMyDiagram = async () => {
-  const db = new DiagramBuilder(canvas(400, 200), "", 1);
+  const db = new DiagramBuilder(canvas(400, 200), "abcd", 1);
 
   const { type, predicate, circle, line, build, forall, forallWhere, ensure } =
     db;
