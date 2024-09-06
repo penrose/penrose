@@ -11,6 +11,8 @@ Here’s what we’re working towards:
 
 <HelloDiagram />
 
+(Try dragging the circles around!)
+
 ### Building the Diagram
 
 First, create a new component `MyDiagram.tsx` in the `src/` directory.

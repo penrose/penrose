@@ -1,3 +1,8 @@
+<script setup>
+import Planets from "../../../src/bloom-examples/Planets.vue";
+import PlanetsArrows from "../../../src/bloom-examples/PlanetsArrows.vue";
+</script>
+
 # Interactivity
 
 ---
@@ -84,34 +89,45 @@ const s2 = rectangle({
 It’s common to want to constrain a draggable object to a subset of the canvas. Common examples include dragging a point
 along a line, or an object constrained within a box. Try dragging the point below around the circle:
 
-– mini planets example –
+<div style="height: 30em">
+<Planets />
+</div>
 
-This is fundamentally a different kind of constraint than the ones we gave to the optimizer; where before we were
-only specifying what kinds of diagrams the optimizer should converge to, now we want to specify where the user
+Constraining each planet to their orbit is a fundamentally a different kind of constraint than the kinds we can give to the optimizer;
+where before we were only specifying what kinds of diagrams the optimizer should converge to, now we want to specify where the user
 is allowed to set a shape’s position. Additionally, when the user does drag their mouse outside of the legal region,
 we need some way to define where the shape should actually go&mdash;a kind of projection. Bloom allows you express
 both of these behaviors with a `dragConstraint`:
 
 ```ts
-const orbitRad = 200;
+// calculate the center of the planet given the current "time"
+const center = [
+  mul(p.orbitalRad, cos(div(time, p.period))),
+  mul(p.orbitalRad, sin(div(time, p.period))),
+];
 
-const c1 = circle({
-  r: 5,
+p.icon = circle({
+  r: p.rad,
+  fillColor: p.color,
+  // to reiterate, just providing center here would prevent the planet from being draggable!
+  // instead, we provide bindToInput(center[0]) and bindToInput(center[1]) to create
+  // draggable inputs that are constrained to the calculated center
+  center: [bindToInput(center[0]), bindToInput(center[1])],
   drag: true,
   dragConstraint: ([x, y]) => {
-    const norm = Math.sqrt(x * x + y * y);
-    return [(x / norm) * orbitRad, (y / norm) * orbitRad];
+    const norm = Math.sqrt(x ** 2 + y ** 2);
+    const targetNorm = p.orbitalRad;
+    return [(x * targetNorm) / norm, (y * targetNorm) / norm];
   },
 });
-
-ensure(constraints.equal(ops.vnorm(c1.center), orbitRad));
 ```
 
 `dragConstraint` is a function mapping the mouse position to the desired position of the shape. In our case,
-whenever the length of the vector from the origin to the mouse is not equal to `orbitRad` (i.e., we have dragged off
+whenever the length of the vector from the origin to the mouse is not equal to `p.orbitalRad` (i.e., we have dragged off
 the circle), we scale the vector from the origin to the mouse to give us a parallel point on the circle.
 
-[//]: # "– mini planets with arrows from center to circle –"
+<div style="height: 30em">
+<PlanetsArrows />
+</div>
 
-You might notice we also included an optimizer constraint with `ensure`: without this, the initial position of the c
-ircle, before the user has dragged it, might not be on the circle (since this position is determined by the optimizer).
+In a future update to Bloom, we plan to provide a library of common projections.

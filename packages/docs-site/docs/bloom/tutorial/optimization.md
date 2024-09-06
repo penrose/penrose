@@ -29,9 +29,9 @@ we first have to talk about how Bloom handles interactivity and optimization.
 
 Building a diagram defines a procedure to render your diagram: draw a circle with these settings, then do some math,
 then draw a line, etc. When you call `DiagramBuilder.prototype.build`, it compiles this procedure into WebAssembly which takes
-in a collection of `inputs`, and outputs a diagram:
+in a collection of `inputs`, and outputs a diagram.
 
-<ProceduralDiagram />
+[//]: # "<ProceduralDiagram />"
 
 This provides a clean interface to edit your diagram: just vary the inputs! When you first render your diagram, they
 are filled with random values. When you drag a shape, the inputs corresponding to the center are changed and the diagram
@@ -48,13 +48,8 @@ Most of the math that you’ll do in Bloom will operate on `Num`s, which is a da
 - `Var`s (e.g. `c1.r`)
 - Results of operations on other `Num`s (e.g. `add(5, c1.r)`)
 
-Both Bloom and Penrose provide a whole host of operations on `Num`s.
-
-- `computation` from `bloom/lib/computation.js`, a module exposing the computation functions from the Penrose style language
-- `ops` from `@penrose/core`, a dictionary of vector operations
-- basic arithmetic from `@penrose/core`, including `add`, `mul`, `div`, `sub`, etc.
-
-All of these operations build up the computation graph that is eventually compiled into WebAssembly.
+Both Bloom and Penrose provide a whole host of operations on `Num`s, which you can find in our
+<a href="/bloom-docs/index.html" target="_blank">reference</a>.
 
 ### Creating your own inputs
 
