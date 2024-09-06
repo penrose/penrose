@@ -42,7 +42,7 @@ rm -rf public/ src/*.css src/App.tsx src/assets/
 
 Now create a new `App.tsx` file in the `src/` directory with the following content:
 
-```ts
+```tsx
 import { Renderer } from "@penrose/bloom";
 
 const App = () => {

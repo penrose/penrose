@@ -72,34 +72,36 @@ The final step is to ‘style’ these constructs:
 const pointRad = 50;
 const pointMargin = 10;
 
-forall({ p : Point }, ({ p }) => {
+forall({ p: Point }, ({ p }) => {
   p.icon = circle({
-  r: pointRad,
-  )};
+    r: pointRad,
+  });
 });
 
 forallWhere(
   { a: Arrow, p: Point, q: Point },
   ({ a, p, q }) => Connects.test(a, p, q),
   ({ a, p, q }) => {
+    const pq = ops.vsub(q.icon.center, p.icon.center); // vector from p to q
+    const pqNorm = ops.vnormalize(pq); // direction from p to q
+    const pStart = ops.vmul(pointRad + pointMargin, pqNorm); // vector from p to line start
+    const start = ops.vadd(p.icon.center, pStart); // line start
+    const end = ops.vsub(q.icon.center, pStart); // line end
 
-  const pq = ops.vsub(q.icon.center, p.icon.center); // vector from p to q
-  const pqNorm = ops.vnormalize(pq); // direction from p to q
-  const pStart = ops.vmul(pointRad + pointMargin, pqNorm); // vector from p to line start
-  const start = ops.vadd(p.icon.center, pStart); // line start
-  const end = ops.vsub(q.icon.center, pStart);  // line end
+    a.icon = line({
+      start,
+      end,
+      endArrowhead: "straight",
+    });
 
-  a.icon = line({
-    start,
-    end,
-    endArrowhead: "straight",
-  });
-
-  ensure(constraints.greaterThan(
-    ops.vdist(p.icon.center, q.icon.center),
-    2 * (pointRad + pointMargin)
-  );
-});
+    ensure(
+      constraints.greaterThan(
+        ops.vdist(p.icon.center, q.icon.center),
+        2 * (pointRad + pointMargin),
+      ),
+    );
+  },
+);
 ```
 
 Let’s go through this piece by piece.
@@ -116,7 +118,7 @@ a circle of radius pointRad, and store it in a field of the point we call `p`.
 ```ts
 p.icon = circle({
   r: pointRad,
-)};
+});
 ```
 
 `icon` is not a special name in any way; we could have named it `shape` or circle or anything we like. In fact, simply
@@ -124,11 +126,11 @@ for the purposes of drawing the circle, we don’t even need to store it. The fo
 every point:
 
 ```ts
-forall({ p : Point }, ({ p }) => {
+forall({ p: Point }, ({ p }) => {
   circle({
     r: pointRad,
     drag: true,
-  )};`
+  });
 });
 ```
 
@@ -179,9 +181,11 @@ arrow disappears. We can tell the optimizer to ensure this is the case by demand
 points is greater than the sum of their radii and padding:
 
 ```ts
-ensure(constraints.greaterThan(
-  ops.vdist(p.icon.center, q.icon.center),
-  2 * (pointRad + pointMargin)
+ensure(
+  constraints.greaterThan(
+    ops.vdist(p.icon.center, q.icon.center),
+    2 * (pointRad + pointMargin),
+  ),
 );
 ```
 
@@ -192,7 +196,7 @@ We’ll talk more about the optimizer and constraints in the next chapter.
 To render your diagram in React, you'll need to create a new component that uses the `useDiagram` hook to build your
 diagram and the `Renderer` component to display it. Here's an example:
 
-```ts
+```tsx
 export const MyDiagramComponent = () => {
   const diagram = useDiagram(buildMyDiagram);
   return <Renderer diagram={diagram} />;
@@ -206,7 +210,7 @@ or live site integration, so simply memoizing your diagram won’t always do wha
 You can use this component wherever you would like in your React app, but for the purposes of this tutorial,
 you might edit `App.tsx` to render your diagram directly:
 
-```ts
+```tsx
 import { MyDiagramComponent } from "./MyDiagram.js";
 
 const App = () => {

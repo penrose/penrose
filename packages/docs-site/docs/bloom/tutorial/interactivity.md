@@ -59,7 +59,7 @@ const s2 = rectangle({
 });
 
 ensure(constraints.equal(add(s1.center[0], 50), s2.center[0]));
-ensure(constraints.equal(s1.center[1], s2.center[1]);
+ensure(constraints.equal(s1.center[1], s2.center[1]));
 ```
 
 The `bindToInput` method creates syntactic sugar for this pattern. The following builds exactly the same diagram:
@@ -100,18 +100,18 @@ const c1 = circle({
   drag: true,
   dragConstraint: ([x, y]) => {
     const norm = Math.sqrt(x * x + y * y);
-    return [x / norm * orbitRad, y / norm * orbitRad];
+    return [(x / norm) * orbitRad, (y / norm) * orbitRad];
   },
 });
 
-ensure(constraints.equal(ops.vnorm(c1.center), orbitRad);
+ensure(constraints.equal(ops.vnorm(c1.center), orbitRad));
 ```
 
 `dragConstraint` is a function mapping the mouse position to the desired position of the shape. In our case,
 whenever the length of the vector from the origin to the mouse is not equal to `orbitRad` (i.e., we have dragged off
 the circle), we scale the vector from the origin to the mouse to give us a parallel point on the circle.
 
-– mini planets with arrows from center to circle –
+[//]: # "– mini planets with arrows from center to circle –"
 
 You might notice we also included an optimizer constraint with `ensure`: without this, the initial position of the c
 ircle, before the user has dragged it, might not be on the circle (since this position is determined by the optimizer).
