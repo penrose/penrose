@@ -8,6 +8,8 @@ authors:
     github: "wodeni"
   - author: Sam Estep
     github: "samestep"
+  - author: Joshua Sunshine
+    github: "joshsunshine"
 ---
 
 <script setup>
@@ -152,4 +154,4 @@ our new requirements. he
 ## Getting Started
 
 Bloom is still in the early stages of development, but we're excited to share it with you. If you're interested in learning more,
-you can take a look at our [docs](/docs/bloom/tutorial/getting_started). We're excited to see what you build!
+you can take a look at our [tutorial](/docs/bloom/tutorial/getting_started). We're excited to see what you build!
