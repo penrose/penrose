@@ -180,9 +180,11 @@ export default function RaysComponent() {
         className="bg-red"
         disabled={squareCenters.length >= 5}
         onClick={() => {
+          const x = Math.random() * 300 - 150;
+          const y = Math.random() * 300 - 150;
           setSquareCenters([
             ...squareCenters,
-            [new SharedInput(0), new SharedInput(0)],
+            [new SharedInput(x), new SharedInput(y)],
           ]);
         }}
       >

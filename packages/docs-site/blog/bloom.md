@@ -23,13 +23,19 @@ import Rays from "../src/bloom-examples/Rays.vue";
 import Pool from "../src/bloom-examples/Pool.vue";
 </script>
 
+<div style="background-color: white; color: black; padding: 2em; border-radius: 1em">
+
+_This page is best viewed in light mode on a desktop browser._
+<br/>
+<br/>
+
 <BlogMeta />
 
 <br/>
 
 We're excited to announce Bloom, an open-source JavaScript library for optimization-driven interactive
 diagram creation. Bloom makes it simple to describe complex, dynamic behavior using a rich vocabulary of optimization constraints,
-and the declarative language behind Penrose. Lets checkout some examples!
+and the declarative language behind Penrose. Lets check out some examples!
 
 ## Examples
 
@@ -81,7 +87,7 @@ Bloom's system of shared diagram values and custom hooks.
 
 Here's another example, integrating a button to add a square on every click:
 
-<div style="width: 70%; margin-left: auto; margin-right: auto;">
+<div style="width: 90%; margin-left: auto; margin-right: auto;">
 <Rays/>
 </div>
 
@@ -149,9 +155,11 @@ forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
 ```
 
 Neither change requires a substantial rewrite of the diagram's behavior; instead, we can simply modify the constraints to reflect
-our new requirements. he
+our new requirements.
 
 ## Getting Started
 
 Bloom is still in the early stages of development, but we're excited to share it with you. If you're interested in learning more,
 you can take a look at our [tutorial](/docs/bloom/tutorial/getting_started). We're excited to see what you build!
+
+</div>
