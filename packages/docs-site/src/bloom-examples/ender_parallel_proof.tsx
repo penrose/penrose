@@ -1,20 +1,27 @@
 import {
   DiagramBuilder,
   Renderer,
+  Vec2,
+  VecN,
+  arc,
+  atan2,
   canvas,
   constraints,
-  norm,
+  cross2D,
+  fromHomogeneous,
+  ifCond,
+  neg,
   ops,
+  rotate,
+  toHomogeneous,
+  translate,
   useDiagram,
   vdist,
 } from "@penrose/bloom";
-import { useCallback, useState } from "react";
+import { gt } from "@penrose/core";
 
-const buildDiagram = async (
-  variation: string,
-  enabledSegments: Set<string>,
-) => {
-  const db = new DiagramBuilder(canvas(400, 400), variation);
+const buildInscribedAngles = async () => {
+  const db = new DiagramBuilder(canvas(400, 400), "");
 
   const {
     type,
@@ -26,168 +33,319 @@ const buildDiagram = async (
     forallWhere,
     ensure,
     input,
-    rectangle,
-    text,
     layer,
-    path,
-    equation,
-    encourage,
   } = db;
 
-  const LineSegment = type();
-  const Point = type();
-  const Triangle = type();
+  const Circle = type();
   const Angle = type();
+  const Point = type();
 
-  const AddTo = predicate();
-  const IsBetween = predicate();
-  const Congruent = predicate();
+  const AngleHasPoints = predicate();
+  const CircleHasCenter = predicate();
+  const DraggableOnCircle = predicate();
+  const Faint = predicate();
 
-  const A = Point();
-  A.label = "A";
-  const B = Point();
-  B.label = "B";
-  const C = Point();
-  C.label = "C";
-  const D = Point();
-  D.label = "D";
+  const MRad = 100;
+
   const M = Point();
-  M.label = "M";
+  M.pos = [50, 0];
+  const A = Point();
+  A.pos = [input({ init: -50 }), input({ init: 50 })];
+  const B = Point();
+  B.pos = [M.pos[0] - MRad, 0];
+  const C = Point();
+  C.pos = [input({ init: M.pos[0] + MRad }), input({ init: 0 })];
 
-  const AM = LineSegment();
-  IsBetween(AM, A, M);
-  AM.label = "AM";
-  const BM = LineSegment();
-  IsBetween(BM, B, M);
-  BM.label = "BM";
-  const CM = LineSegment();
-  IsBetween(CM, C, M);
-  CM.label = "CM";
-  const DM = LineSegment();
-  IsBetween(DM, D, M);
-  DM.label = "DM";
-  const AB = LineSegment();
-  IsBetween(AB, A, B);
-  AB.label = "AB";
-  const CD = LineSegment();
-  IsBetween(CD, C, D);
-  CD.label = "CD";
-  const AC = LineSegment();
-  IsBetween(AC, A, C);
-  AC.label = "AC";
-  const BD = LineSegment();
-  IsBetween(BD, B, D);
-  BD.label = "BD";
+  const circM = Circle();
+  CircleHasCenter(circM, M);
+  circM.rad = MRad;
+  const AMB = Angle();
+  AngleHasPoints(AMB, A, M, B);
+  AMB.color = [0, 0, 1, 1];
+  const ACB = Angle();
+  AngleHasPoints(ACB, A, C, B);
+  ACB.color = [0, 0.7, 0, 1];
 
-  const ACM = Triangle();
-  IsBetween(ACM, A, C, M);
-  ACM.label = "ACM";
-  const BDM = Triangle();
-  IsBetween(BDM, B, D, M);
-  BDM.label = "BDM";
+  const transform = (v: VecN) => {
+    const hv = toHomogeneous(v);
+    const bc = ops.vsub(C.pos, B.pos);
+    const cm = ops.vsub(M.pos, C.pos);
+    const theta = atan2(bc[0], bc[1]);
+    const hvp = ops.mvmul(
+      rotate(neg(theta), M.pos[0], M.pos[1]),
+      ops.mvmul(translate(cm[0], cm[1]), hv),
+    );
+    return fromHomogeneous(hvp);
+  };
+  const ApPos = transform(A.pos);
+  const BpPos = transform(B.pos);
+  const CpPos = transform(C.pos);
+  const MpPos = transform(M.pos);
 
-  AddTo(AM, BM, AB);
-  AddTo(CM, DM, CD);
+  const Mp = Point();
+  Mp.pos = MpPos;
+  const circMp = Circle();
+  CircleHasCenter(circMp, Mp);
+  circMp.rad = MRad;
+  Faint(circMp);
+  const Ap = Point();
+  Ap.pos = ApPos;
+  const Bp = Point();
+  Bp.pos = BpPos;
+  const Cp = Point();
+  Cp.pos = CpPos;
+  const ApCpBp = Angle();
+  AngleHasPoints(ApCpBp, Ap, Cp, Bp);
+  ApCpBp.color = [0, 0.7, 0, 0.5];
+  Faint(ApCpBp);
+  const ApMpBp = Angle();
+  AngleHasPoints(ApMpBp, Ap, Mp, Bp);
+  ApMpBp.color = [0, 0, 1, 0.5];
+  Faint(ApMpBp);
 
-  Congruent(AM, BM);
-  Congruent(CM, DM);
+  DraggableOnCircle(A, circM);
+  DraggableOnCircle(C, circM);
 
   forall({ p: Point }, ({ p }) => {
-    p.pos = [input(), input()];
-    p.text = equation({
-      string: p.label,
-    });
+    // pass for now
   });
 
   forallWhere(
-    { l: LineSegment, p1: Point, p2: Point },
-    ({ l, p1, p2 }) => IsBetween.test(l, p1, p2),
-    ({ l, p1, p2 }) => {
-      l.icon = line({
-        start: p1.pos,
-        end: p2.pos,
+    { c: Circle, p: Point },
+    ({ c, p }) => CircleHasCenter.test(c, p),
+    ({ c, p }) => {
+      c.icon = circle({
+        r: c.rad,
+        strokeColor: c.color ? c.color : [0, 0, 0, 1],
+        strokeWidth: Faint.test(c) ? 1.5 : 3,
+        fillColor: [0, 0, 0, 0],
+        center: p.pos,
+        ensureOnCanvas: false,
+      });
+    },
+  );
+
+  forallWhere(
+    { p: Point, c: Circle },
+    ({ p, c }) => DraggableOnCircle.test(p, c),
+    ({ p, c }) => {
+      p.handle = circle({
+        center: p.pos,
+        r: 20,
+        fillColor: [0, 0, 0, 0.1],
+        drag: true,
+        dragConstraint: ([x, y]) => {
+          const [cx, cy] = [
+            c.icon.center[0] as number,
+            c.icon.center[1] as number,
+          ];
+          const [dx, dy] = [x - cx, y - cy];
+          const norm = Math.sqrt(dx * dx + dy * dy);
+          const [nx, ny] = [dx / norm, dy / norm];
+          return [cx + nx * c.rad, cy + ny * c.rad];
+        },
+        ensureOnCanvas: false,
       });
 
-      if (enabledSegments.has(l.label)) {
-        // bright blue thicker
-        l.highlight = line({
-          start: p1.pos,
-          end: p2.pos,
-          strokeColor: [0, 0, 1, 1],
-          strokeWidth: 5,
-        });
-
-        l.label = equation({
-          string: l.label,
-        });
-
-        const midpoint = ops.vdiv(ops.vadd(p1.pos, p2.pos), 2);
-        ensure(constraints.equal(10, vdist(midpoint, l.label.center)));
-      }
+      ensure(constraints.equal(vdist(p.pos, c.icon.center), c.rad));
     },
   );
 
   forallWhere(
-    { l: LineSegment, l1: LineSegment, l2: LineSegment },
-    ({ l1, l2, l }) => AddTo.test(l1, l2, l),
-    ({ l1, l2, l }) => {
-      l.icon.strokeColor[3] = 0;
-      let points;
-      if (l1.icon.start === l2.icon.start) {
-        points = [l1.icon.end, l1.icon.start, l2.icon.end];
-      } else if (l1.icon.start === l2.icon.end) {
-        points = [l1.icon.end, l1.icon.start, l2.icon.start];
-      } else if (l1.icon.end === l2.icon.start) {
-        points = [l1.icon.start, l1.icon.end, l2.icon.end];
-      } else if (l1.icon.end === l2.icon.end) {
-        points = [l1.icon.start, l1.icon.end, l2.icon.start];
-      } else {
-        throw new Error("Lines are not connected");
-      }
-      ensure(constraints.collinearOrdered(points[0], points[1], points[2]));
+    { a: Angle, p1: Point, p2: Point, p3: Point },
+    ({ a, p1, p2, p3 }) => AngleHasPoints.test(a, p1, p2, p3),
+    ({ a, p1, p2, p3 }) => {
+      a.line1 = line({
+        start: p2.pos,
+        end: p1.pos,
+        strokeColor: a.color ? a.color : [0, 0, 0, 1],
+        strokeWidth: Faint.test(a) ? 1.5 : 3,
+        ensureOnCanvas: false,
+        strokeLinecap: "round",
+      });
+
+      a.line2 = line({
+        start: p2.pos,
+        end: p3.pos,
+        strokeColor: a.color ? a.color : [0, 0, 0, 1],
+        strokeWidth: Faint.test(a) ? 1.5 : 3,
+        ensureOnCanvas: false,
+        strokeLinecap: "round",
+      });
     },
   );
 
-  forallWhere(
-    { l1: LineSegment, l2: LineSegment },
-    ({ l1, l2 }) => Congruent.test(l1, l2),
-    ({ l1, l2 }) => {
-      ensure(
-        constraints.equal(
-          norm(ops.vsub(l1.icon.start, l1.icon.end)),
-          norm(ops.vsub(l2.icon.start, l2.icon.end)),
-        ),
-      );
-    },
-  );
+  layer(ApMpBp.line2, circM.icon);
 
-  forall({ p: Point, l: LineSegment }, ({ p, l }) => {
-    ensure(constraints.disjoint(p.text, l.icon, 5));
-    ensure(constraints.lessThan(norm(ops.vsub(p.pos, p.text.center)), 15));
+  return await build();
+};
+
+const buildVerticalAngles = async () => {
+  const db = new DiagramBuilder(canvas(400, 400), "");
+
+  const {
+    type,
+    predicate,
+    circle,
+    line,
+    build,
+    forall,
+    forallWhere,
+    ensure,
+    input,
+    layer,
+    path,
+    bindToInput,
+  } = db;
+
+  const Angle = type();
+  const LineSegment = type();
+  const Point = type();
+
+  const HasPoints = predicate();
+  const DraggableAround = predicate();
+  const AnglePair = predicate();
+
+  const len = 200;
+
+  const M = Point();
+  M.pos = [0, 0];
+  const A = Point();
+  DraggableAround(A, M);
+  const B = Point();
+  DraggableAround(B, M);
+  const C = Point();
+  DraggableAround(C, M);
+  const D = Point();
+  DraggableAround(D, M);
+
+  const AB = LineSegment();
+  HasPoints(AB, A, M, B);
+  const CD = LineSegment();
+  HasPoints(CD, C, M, D);
+
+  const AMC = Angle();
+  HasPoints(AMC, A, M, C);
+  AMC.color = [0.7, 0, 0, 1];
+  const BMD = Angle();
+  HasPoints(BMD, B, M, D);
+  BMD.color = [0.7, 0, 0, 1];
+  AnglePair(AMC, BMD);
+
+  const AMD = Angle();
+  HasPoints(AMD, A, M, D);
+  AMD.color = [0, 0, 0.7, 1];
+  const BMC = Angle();
+  HasPoints(BMC, B, M, C);
+  BMC.color = [0, 0, 0.7, 1];
+  AnglePair(AMD, BMC);
+
+  forall({ p: Point }, ({ p }) => {
+    if (!p.pos) {
+      p.pos = [input(), input()];
+    }
   });
+
+  forallWhere(
+    { p: Point, m: Point },
+    ({ p, m }) => DraggableAround.test(p, m),
+    ({ p, m }) => {
+      p.icon = circle({
+        center: p.pos,
+        r: 20,
+        fillColor: [0, 0, 0, 0.1],
+        drag: true,
+        dragConstraint: ([x, y]) => {
+          const [cx, cy] = m.pos as [number, number];
+          const [dx, dy] = [x - cx, y - cy];
+          const norm = Math.sqrt(dx * dx + dy * dy);
+          const [nx, ny] = [dx / norm, dy / norm];
+          return [cx + (nx * len) / 2, cy + (ny * len) / 2];
+        },
+      });
+    },
+  );
+
+  forallWhere(
+    { l: LineSegment, p1: Point, m: Point, p2: Point },
+    ({ l, p1, m, p2 }) => HasPoints.test(l, p1, m, p2),
+    ({ l, p1, m, p2 }) => {
+      const dir = [input(), input()];
+      const p1p = ops.vadd(
+        m.pos,
+        ops.vmul(len / 2, ops.vnormalize(dir)),
+      ) as Vec2;
+      const p2p = ops.vadd(
+        m.pos,
+        ops.vmul(-len / 2, ops.vnormalize(dir)),
+      ) as Vec2;
+
+      l.icon = line({
+        start: p1p,
+        end: p2p,
+        strokeColor: [0, 0, 0, 1],
+        strokeWidth: 2,
+        strokeLinecap: "round",
+      });
+
+      ensure(constraints.equal(vdist(p1p, p1.pos), 0));
+      ensure(constraints.equal(vdist(p2p, p2.pos), 0));
+    },
+  );
+
+  forallWhere(
+    { a: Angle, b: Angle },
+    ({ a, b }) => AnglePair.test(a, b),
+    ({ a, b }, i) => {
+      a.rad = (i + 1) * 10;
+      b.rad = a.rad;
+    },
+  );
+
+  forallWhere(
+    { a: Angle, p1: Point, p2: Point, p3: Point },
+    ({ a, p1, p2, p3 }) => HasPoints.test(a, p1, p2, p3),
+    ({ a, p1, p2, p3 }) => {
+      a.rad = a.rad ? a.rad : 10;
+      const a1: Vec2 = ops.vadd(
+        ops.vmul(a.rad, ops.vnormalize(ops.vsub(p2.pos, p1.pos))),
+        p2.pos,
+      ) as Vec2;
+      const a2: Vec2 = ops.vadd(
+        ops.vmul(a.rad, ops.vnormalize(ops.vsub(p2.pos, p3.pos))),
+        p2.pos,
+      ) as Vec2;
+
+      const dir = ifCond(
+        gt(
+          cross2D(
+            ops.vsub(p1.pos, p2.pos) as Vec2,
+            ops.vsub(p3.pos, p2.pos) as Vec2,
+          ),
+          0,
+        ),
+        0,
+        1,
+      );
+
+      a.icon = path({
+        d: arc("open", a1, a2, [a.rad, a.rad], 0, 0, dir),
+        strokeColor: a.color,
+        ensureOnCanvas: false,
+      });
+    },
+  );
 
   return await build();
 };
 
 export default function () {
-  const [variation, setVariation] = useState("16");
-  const diagram = useDiagram(
-    useCallback(() => buildDiagram(variation, new Set(["BM"])), [variation]),
-  );
+  const inscribedAngles = useDiagram(buildInscribedAngles);
+  const verticalAngles = useDiagram(buildVerticalAngles);
   return (
     <>
-      <button
-        onClick={() =>
-          setVariation((v) => {
-            const vp = String(Number.parseInt(v) + 1);
-            console.log(vp);
-            return vp;
-          })
-        }
-      >
-        Update
-      </button>
-      <Renderer diagram={diagram} />
+      <Renderer diagram={inscribedAngles} />
+      <Renderer diagram={verticalAngles} />
     </>
   );
 }

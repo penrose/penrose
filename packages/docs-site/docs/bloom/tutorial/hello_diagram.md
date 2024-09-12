@@ -139,7 +139,7 @@ forall({ p: Point }, ({ p }) => {
 However, storing the circle in p.icon allows us to access the circle in future selections. Also note that there are
 lots more fields of circle we didn’t fill in, such as `center`, `fillColor`, etc. All shape fields are optional in Bloom,
 and if left out either have a default value or are randomly sampled. You can check out these defaults (and the available
-shapes) in the Penrose documentation. These fields also correspond closely with the SVG spec.
+shapes) in the [Penrose documentation](/docs/ref/style/shapes-overview). These fields also correspond closely with the SVG spec.
 
 ```ts
 forallWhere(

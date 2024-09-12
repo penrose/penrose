@@ -299,6 +299,10 @@ export default defineConfig({
               ],
             },
             {
+              text: "Examples",
+              link: "/docs/bloom/examples",
+            },
+            {
               text: "<a href='/bloom-docs/index.html' target='_blank'>Reference</a>",
             },
           ],

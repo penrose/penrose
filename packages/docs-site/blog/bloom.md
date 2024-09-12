@@ -25,7 +25,7 @@ import Pool from "../src/bloom-examples/Pool.vue";
 
 <div style="background-color: white; color: black; padding: 2em; border-radius: 1em">
 
-_This page is best viewed in light mode on a desktop browser._
+_This page is best viewed on a desktop browser._
 <br/>
 <br/>
 
@@ -34,8 +34,9 @@ _This page is best viewed in light mode on a desktop browser._
 <br/>
 
 We're excited to announce Bloom, an open-source JavaScript library for optimization-driven interactive
-diagram creation. Bloom makes it simple to describe complex, dynamic behavior using a rich vocabulary of optimization constraints,
-and the declarative language behind Penrose. Lets check out some examples!
+diagram creation. Bloom makes it simple to describe complex, dynamic behavior using a rich vocabulary of optimization constraints
+and the declarative language behind Penrose. We aim to facilitate the creation of engaging, [explorable explanations](https://explorabl.es/) with
+a straightforward but powerful framework. Let's check out some examples!
 
 ## Examples
 
