@@ -406,5 +406,6 @@ export {
   zip2,
 } from "./utils/Util.js";
 
+export { parser as domainParser } from "./parser/DomainParser.js";
 export type { Shape } from "./shapes/Shapes.js";
 export { valueTypeDesc } from "./types/types.js";

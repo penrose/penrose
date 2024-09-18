@@ -1,6 +1,4 @@
-import nearley from "nearley";
-import { beforeEach, describe, expect, test } from "vitest";
-import grammar from "../parser/DomainParser.js";
+import { describe, expect, test } from "vitest";
 import { DomainEnv } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
 import { Result, showError } from "../utils/Error.js";
@@ -30,12 +28,6 @@ const contextHas = (
     throw Error(showError(res.error));
   }
 };
-
-let parser: nearley.Parser;
-beforeEach(() => {
-  // NOTE: Neither `feed` nor `finish` will reset the parser state. Therefore recompiling before each unit test
-  parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-});
 
 describe("Common", () => {
   test("finding subtypes", () => {
@@ -135,9 +127,9 @@ predicate PairIn(Point, Point, Map)
     const prog = `
 type MyType
 type MySubType
-predicate MyNormalPredicate(MyType a, MyType b)
 symmetric predicate MyExcellentPredicate1(MyType a, MyType b)
 symmetric predicate MyExcellentPredicate2(MySubType, MySubType)
+predicate MyNormalPredicate(MyType a, MyType b)
     `;
     const res = compileDomain(prog);
     const predicates = [
@@ -152,6 +144,8 @@ symmetric predicate MyExcellentPredicate2(MySubType, MySubType)
       expect(env.predicateDecls.get("MyNormalPredicate")!.symmetric).toEqual(
         false,
       );
+      console.log(env.predicateDecls.get("MyExcellentPredicate1")!);
+
       expect(
         env.predicateDecls.get("MyExcellentPredicate1")!.symmetric,
       ).toEqual(true);
