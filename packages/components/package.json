@@ -89,5 +89,6 @@
     "babel-loader": "^8.2.5",
     "storybook": "^8.1.11",
     "vite": "^4.0.4"
-  }
+  },
+  "gitHead": "edad5498aeabe85b1c5b320ca862faa879ff1d23"
 }

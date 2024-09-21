@@ -48,5 +48,6 @@
     "@types/node": "^12.12.68",
     "@types/ws": "^8.5.4",
     "@types/yargs": "^17.0.24"
-  }
+  },
+  "gitHead": "edad5498aeabe85b1c5b320ca862faa879ff1d23"
 }
