@@ -21,6 +21,16 @@ Youâ€™ll almost certainly want to wrap the process of building your diagram itâ€
 when we render the diagram:
 
 ```ts
+import {
+  DiagramBuilder,
+  Renderer,
+  Vec2,
+  canvas,
+  constraints,
+  ops,
+  useDiagram,
+} from "@penrose/bloom";
+
 const buildMyDiagram = async () => {
   const db = new DiagramBuilder(canvas(400, 200), "abcd", 1);
 

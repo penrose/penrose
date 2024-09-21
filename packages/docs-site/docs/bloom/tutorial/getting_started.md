@@ -30,6 +30,28 @@ template above.
 npm install @penrose/bloom
 ```
 
+### Vite Plugins
+
+If you're using vite with Bloom (like in this tutorial), you'll need the `vite-plugin-top-level-await` plugin to
+support our automatic differentiation engine, [Rose](https://github.com/rose-lang/rose):
+
+```bash
+npm install vite-plugin-top-level-await
+```
+
+You must also update your `vite.config.ts`:
+
+```typescript
+import { defineConfig } from "vite";
+import topLevelAwait from "vite-plugin-top-level-await";
+
+export default defineConfig({
+  // ...
+  plugins: [/*...,*/ topLevelAwait()],
+  optimizeDeps: { exclude: ["rose"] },
+});
+```
+
 ### Creating a component
 
 At this point you'll probably want to remove all the template nonsense from your directory:
