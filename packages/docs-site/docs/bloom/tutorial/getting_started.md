@@ -62,6 +62,8 @@ At this point you'll probably want to remove all the template nonsense from your
 rm -rf public/ src/*.css src/App.tsx src/assets/
 ```
 
+You'll also want to remove the `import "./index.css";` statement from `src/main.tsx`.
+
 Now create a new `App.tsx` file in the `src/` directory with the following content:
 
 ```tsx
