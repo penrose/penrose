@@ -1,6 +1,6 @@
 {
   "name": "@penrose/components",
-  "version": "4.0.0-alpha.1",
+  "version": "4.0.0-alpha.3",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -60,7 +60,7 @@
   "dependencies": {
     "@lezer-unofficial/printer": "^1.0.1",
     "@lezer/generator": "^1.7.0",
-    "@penrose/core": "^4.0.0-alpha.1",
+    "@penrose/core": "^4.0.0-alpha.3",
     "@replit/codemirror-css-color-picker": "^6.1.1",
     "@replit/codemirror-vim": "^6.2.1",
     "@uiw/codemirror-extensions-color": "^4.22.2",
@@ -76,7 +76,7 @@
   "devDependencies": {
     "@babel/core": "^7.18.0",
     "@mdx-js/preact": "^2.1.5",
-    "@penrose/examples": "^4.0.0-alpha.1",
+    "@penrose/examples": "^4.0.0-alpha.3",
     "@storybook/addon-actions": "^8.1.11",
     "@storybook/addon-essentials": "^8.1.11",
     "@storybook/addon-interactions": "^8.1.11",
@@ -89,5 +89,6 @@
     "babel-loader": "^8.2.5",
     "storybook": "^8.1.11",
     "vite": "^4.0.4"
-  }
+  },
+  "gitHead": "edad5498aeabe85b1c5b320ca862faa879ff1d23"
 }

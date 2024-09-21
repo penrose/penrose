@@ -3,6 +3,98 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v4.0.0-alpha.3](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.3) (2024-09-21)
+
+### :warning: BREAKING CHANGE
+
+- separate Substance environment and remove unused features (#1677)
+
+### :rocket: New Feature
+
+- Bloom ([#1826](https://github.com/penrose/penrose/issues/1826)) ([0639db8](https://github.com/penrose/penrose/commit/0639db88bff04af7e9ac5e01d86c76f96a36fced))
+- Cloud storage + Updated GitHub oauth ([#1766](https://github.com/penrose/penrose/issues/1766)) ([ec3a0c2](https://github.com/penrose/penrose/commit/ec3a0c20608076e5e6fceb0806324559b17a490a))
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+- run the compiler and optimizer in a web worker ([#1681](https://github.com/penrose/penrose/issues/1681)) ([42a657d](https://github.com/penrose/penrose/commit/42a657dcb32e565ebd8923df671f673b6b6436d5))
+- substance literal values ([#1682](https://github.com/penrose/penrose/issues/1682)) ([7c1978f](https://github.com/penrose/penrose/commit/7c1978f4e33498828d6893d7d8f9257d2f1f839b))
+
+### :bug: Bug Fix
+
+- Update api.md ([#1670](https://github.com/penrose/penrose/issues/1670)) ([97c8679](https://github.com/penrose/penrose/commit/97c8679a76b3dbcda9bec44bb3e81eee1f1ccb82))
+- load gallery examples asynchronously ([#1844](https://github.com/penrose/penrose/issues/1844)) ([e6c542f](https://github.com/penrose/penrose/commit/e6c542f567904a76a37af52591c4eb78ccf187e9))
+- public links and build config in `docs-site` ([#1731](https://github.com/penrose/penrose/issues/1731)) ([a66cd72](https://github.com/penrose/penrose/commit/a66cd72b1217d51351512d6c273596dd00cbd5bd))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+
+### :memo: Documentation
+
+- "getting involved" page ([#1639](https://github.com/penrose/penrose/issues/1639)) ([192b363](https://github.com/penrose/penrose/commit/192b363fc6620aeb00ba4f51f1aa80dc766bdc01))
+- `repeatable` keyword ([#1630](https://github.com/penrose/penrose/issues/1630)) ([6de7b12](https://github.com/penrose/penrose/commit/6de7b12515e67f14739178e0286afb8d872c0ca9))
+- add `ob-penrose` to tool integration section ([#1668](https://github.com/penrose/penrose/issues/1668)) ([617ebd3](https://github.com/penrose/penrose/commit/617ebd38589e6c4bfcb83418ee781d3cfdd17002))
+- add documentation and an example of arrowhead styles ([#1702](https://github.com/penrose/penrose/issues/1702)) ([13fe8a0](https://github.com/penrose/penrose/commit/13fe8a0b11bd6caf1eeb574581acf8221ac48bd0))
+- change gallery grid to use flex boxes ([#1632](https://github.com/penrose/penrose/issues/1632)) ([77fbf85](https://github.com/penrose/penrose/commit/77fbf85008f9e6ef98b75aa7ccf4e5b32eb1ed7c))
+- consistent links to all functions ([#1845](https://github.com/penrose/penrose/issues/1845)) ([24e88a6](https://github.com/penrose/penrose/commit/24e88a61a5e478fa507f3a6cd342cc00c9977b91))
+- interactivity ([#1839](https://github.com/penrose/penrose/issues/1839)) ([d62db81](https://github.com/penrose/penrose/commit/d62db81fe0d21492ea9878a4087575bf3503516c))
+- put graph domain blog post in August ([#1611](https://github.com/penrose/penrose/issues/1611)) ([8669f3c](https://github.com/penrose/penrose/commit/8669f3ce467dc10aa7b46bbe1dbbc5df3c97b7ba))
+- remove link to planned subsection on the contributing page ([#1719](https://github.com/penrose/penrose/issues/1719)) ([3c66163](https://github.com/penrose/penrose/commit/3c661637d8f9ab4855a345fcd45767dac7d61a55))
+- replace outdated `arrowheadSize` in tutorial ([#1618](https://github.com/penrose/penrose/issues/1618)) ([7f0b736](https://github.com/penrose/penrose/commit/7f0b73677aeeddaeb7e8bdcbcc5a9fc544d078d0))
+- split up language reference docs ([#1703](https://github.com/penrose/penrose/issues/1703)) ([1126038](https://github.com/penrose/penrose/commit/11260385d5215a8d6d64eba9f29c901148c0fdd8))
+- summer 24 team ([#1807](https://github.com/penrose/penrose/issues/1807)) ([03195cf](https://github.com/penrose/penrose/commit/03195cfc05f725864122bc97ddb22e595ef746da))
+- typo in staged layout blog post ([#1720](https://github.com/penrose/penrose/issues/1720)) ([caf797b](https://github.com/penrose/penrose/commit/caf797bcb22e0dede0bbc580783070d877beae01))
+- update links to the technical roadmap ([#1718](https://github.com/penrose/penrose/issues/1718)) ([af5de7d](https://github.com/penrose/penrose/commit/af5de7daf223fee85f221f937b738dcdfe5b04b1))
+- update vitepress and index function library ([#1704](https://github.com/penrose/penrose/issues/1704)) ([12b0442](https://github.com/penrose/penrose/commit/12b0442f78603fb619d615133acebfde8d319337))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- rename venn to euler diagrams ([#1756](https://github.com/penrose/penrose/issues/1756)) ([355b130](https://github.com/penrose/penrose/commit/355b130e044f613a6fab7abe55681ab5f0df4fee))
+- simplify names of `IsSubset` and `NotIntersecting` ([#1724](https://github.com/penrose/penrose/issues/1724)) ([b5e8cb8](https://github.com/penrose/penrose/commit/b5e8cb8675c63f279e9e769913b24c1ec8055b23))
+
+## [v4.0.0-alpha.2](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.2) (2024-09-21)
+
+### :warning: BREAKING CHANGE
+
+- separate Substance environment and remove unused features (#1677)
+
+### :rocket: New Feature
+
+- Bloom ([#1826](https://github.com/penrose/penrose/issues/1826)) ([0639db8](https://github.com/penrose/penrose/commit/0639db88bff04af7e9ac5e01d86c76f96a36fced))
+- Cloud storage + Updated GitHub oauth ([#1766](https://github.com/penrose/penrose/issues/1766)) ([ec3a0c2](https://github.com/penrose/penrose/commit/ec3a0c20608076e5e6fceb0806324559b17a490a))
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+- run the compiler and optimizer in a web worker ([#1681](https://github.com/penrose/penrose/issues/1681)) ([42a657d](https://github.com/penrose/penrose/commit/42a657dcb32e565ebd8923df671f673b6b6436d5))
+- substance literal values ([#1682](https://github.com/penrose/penrose/issues/1682)) ([7c1978f](https://github.com/penrose/penrose/commit/7c1978f4e33498828d6893d7d8f9257d2f1f839b))
+
+### :bug: Bug Fix
+
+- Update api.md ([#1670](https://github.com/penrose/penrose/issues/1670)) ([97c8679](https://github.com/penrose/penrose/commit/97c8679a76b3dbcda9bec44bb3e81eee1f1ccb82))
+- load gallery examples asynchronously ([#1844](https://github.com/penrose/penrose/issues/1844)) ([e6c542f](https://github.com/penrose/penrose/commit/e6c542f567904a76a37af52591c4eb78ccf187e9))
+- public links and build config in `docs-site` ([#1731](https://github.com/penrose/penrose/issues/1731)) ([a66cd72](https://github.com/penrose/penrose/commit/a66cd72b1217d51351512d6c273596dd00cbd5bd))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+
+### :memo: Documentation
+
+- "getting involved" page ([#1639](https://github.com/penrose/penrose/issues/1639)) ([192b363](https://github.com/penrose/penrose/commit/192b363fc6620aeb00ba4f51f1aa80dc766bdc01))
+- `repeatable` keyword ([#1630](https://github.com/penrose/penrose/issues/1630)) ([6de7b12](https://github.com/penrose/penrose/commit/6de7b12515e67f14739178e0286afb8d872c0ca9))
+- add `ob-penrose` to tool integration section ([#1668](https://github.com/penrose/penrose/issues/1668)) ([617ebd3](https://github.com/penrose/penrose/commit/617ebd38589e6c4bfcb83418ee781d3cfdd17002))
+- add documentation and an example of arrowhead styles ([#1702](https://github.com/penrose/penrose/issues/1702)) ([13fe8a0](https://github.com/penrose/penrose/commit/13fe8a0b11bd6caf1eeb574581acf8221ac48bd0))
+- change gallery grid to use flex boxes ([#1632](https://github.com/penrose/penrose/issues/1632)) ([77fbf85](https://github.com/penrose/penrose/commit/77fbf85008f9e6ef98b75aa7ccf4e5b32eb1ed7c))
+- consistent links to all functions ([#1845](https://github.com/penrose/penrose/issues/1845)) ([24e88a6](https://github.com/penrose/penrose/commit/24e88a61a5e478fa507f3a6cd342cc00c9977b91))
+- interactivity ([#1839](https://github.com/penrose/penrose/issues/1839)) ([d62db81](https://github.com/penrose/penrose/commit/d62db81fe0d21492ea9878a4087575bf3503516c))
+- put graph domain blog post in August ([#1611](https://github.com/penrose/penrose/issues/1611)) ([8669f3c](https://github.com/penrose/penrose/commit/8669f3ce467dc10aa7b46bbe1dbbc5df3c97b7ba))
+- remove link to planned subsection on the contributing page ([#1719](https://github.com/penrose/penrose/issues/1719)) ([3c66163](https://github.com/penrose/penrose/commit/3c661637d8f9ab4855a345fcd45767dac7d61a55))
+- replace outdated `arrowheadSize` in tutorial ([#1618](https://github.com/penrose/penrose/issues/1618)) ([7f0b736](https://github.com/penrose/penrose/commit/7f0b73677aeeddaeb7e8bdcbcc5a9fc544d078d0))
+- split up language reference docs ([#1703](https://github.com/penrose/penrose/issues/1703)) ([1126038](https://github.com/penrose/penrose/commit/11260385d5215a8d6d64eba9f29c901148c0fdd8))
+- summer 24 team ([#1807](https://github.com/penrose/penrose/issues/1807)) ([03195cf](https://github.com/penrose/penrose/commit/03195cfc05f725864122bc97ddb22e595ef746da))
+- typo in staged layout blog post ([#1720](https://github.com/penrose/penrose/issues/1720)) ([caf797b](https://github.com/penrose/penrose/commit/caf797bcb22e0dede0bbc580783070d877beae01))
+- update links to the technical roadmap ([#1718](https://github.com/penrose/penrose/issues/1718)) ([af5de7d](https://github.com/penrose/penrose/commit/af5de7daf223fee85f221f937b738dcdfe5b04b1))
+- update vitepress and index function library ([#1704](https://github.com/penrose/penrose/issues/1704)) ([12b0442](https://github.com/penrose/penrose/commit/12b0442f78603fb619d615133acebfde8d319337))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- rename venn to euler diagrams ([#1756](https://github.com/penrose/penrose/issues/1756)) ([355b130](https://github.com/penrose/penrose/commit/355b130e044f613a6fab7abe55681ab5f0df4fee))
+- simplify names of `IsSubset` and `NotIntersecting` ([#1724](https://github.com/penrose/penrose/issues/1724)) ([b5e8cb8](https://github.com/penrose/penrose/commit/b5e8cb8675c63f279e9e769913b24c1ec8055b23))
+
 ## [v4.0.0-alpha.1] (2024-07-11)
 
 ### :warning: BREAKING CHANGE

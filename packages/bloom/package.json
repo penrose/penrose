@@ -1,7 +1,6 @@
 {
   "name": "@penrose/bloom",
-  "private": true,
-  "version": "4.0.0-alpha.1",
+  "version": "4.0.0-alpha.3",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -45,7 +44,7 @@
     }
   },
   "dependencies": {
-    "@penrose/core": "^4.0.0-alpha.0",
+    "@penrose/core": "^4.0.0-alpha.3",
     "prettier": "^3.3.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
@@ -63,5 +62,9 @@
     "typedoc-plugin-markdown": "^4.2.6",
     "typedoc-vitepress-theme": "^1.0.1",
     "typescript": "^5.2.2"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "edad5498aeabe85b1c5b320ca862faa879ff1d23"
 }
