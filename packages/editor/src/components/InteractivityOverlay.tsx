@@ -2,6 +2,7 @@
  * A component that lies over the DiagramPanel which displays interactivity handles
  */
 
+import { RenderState } from "@penrose/core";
 import {
   memo,
   MutableRefObject,
@@ -10,7 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { DiagramID, HistoryLoc, RenderState } from "../optimizer/common.js";
+import { DiagramID, HistoryLoc } from "../optimizer/common.js";
 import HoverDisplay from "./HoverDisplay.js";
 import InteractiveWidget from "./InteractiveWidget.js";
 

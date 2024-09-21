@@ -350,6 +350,7 @@ export type PenroseFn = Fn;
 
 export * from "./api.js";
 export { checkDomain, compileDomain, parseDomain } from "./compiler/Domain.js";
+export { computeLayerOrdering } from "./compiler/Style.js";
 export {
   checkSubstance,
   compileSubstance,
@@ -357,17 +358,33 @@ export {
   prettyCompiledSubstance,
   prettySubstance,
 } from "./compiler/Substance.js";
-export { mapShape, mapValueNumeric } from "./engine/EngineUtils.js";
+export { genGradient } from "./engine/Autodiff.js";
+export {
+  compileCompGraph,
+  mapShape,
+  mapValueNumeric,
+} from "./engine/EngineUtils.js";
 export { start } from "./engine/Optimizer.js";
 export { constrDict } from "./lib/Constraints.js";
 export { compDict } from "./lib/Functions.js";
 export { objDict } from "./lib/Objectives.js";
 export { RenderShapes, toSVG } from "./renderer/Renderer.js";
 export type { PathResolver } from "./renderer/Renderer.js";
-export { makeCanvas, simpleContext } from "./shapes/Samplers.js";
-export type { Canvas } from "./shapes/Samplers.js";
+export type { Circle } from "./shapes/Circle.js";
+export type { Ellipse } from "./shapes/Ellipse.js";
+export type { Equation } from "./shapes/Equation.js";
+export type { Group } from "./shapes/Group.js";
+export type { Image } from "./shapes/Image.js";
+export type { Line } from "./shapes/Line.js";
+export type { Path } from "./shapes/Path.js";
+export type { Polygon } from "./shapes/Polygon.js";
+export type { Rectangle } from "./shapes/Rectangle.js";
+export { makeCanvas, simpleContext, uniform } from "./shapes/Samplers.js";
+export type { Canvas, InputMeta } from "./shapes/Samplers.js";
 export { sampleShape, shapeTypes } from "./shapes/Shapes.js";
-export type { ShapeType } from "./shapes/Shapes.js";
+export type { Shape, ShapeType } from "./shapes/Shapes.js";
+export type { Text } from "./shapes/Text.js";
+export { isVar } from "./types/ad.js";
 export type { DomainEnv } from "./types/domain.js";
 export type {
   DomainError,
@@ -379,6 +396,7 @@ export type {
 export type { CompFunc } from "./types/functions.js";
 export * from "./types/state.js";
 export type { SubProg } from "./types/substance.js";
+export { valueTypeDesc } from "./types/types.js";
 export * as Value from "./types/value.js";
 export {
   collectLabels,
@@ -394,17 +412,26 @@ export {
   showError,
 } from "./utils/Error.js";
 export type { Result } from "./utils/Error.js";
+export { default as Graph } from "./utils/Graph.js";
+export { buildRenderGraph, makeGroupGraph } from "./utils/GroupGraph.js";
+export * from "./utils/InteractionUtils.js";
 export {
   allWarnings,
+  boolV,
+  clipDataV,
+  colorV,
   describeType,
+  floatV,
   hexToRgba,
   isKeyOf,
+  pathDataV,
   prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
+  ptListV,
   rgbaToHex,
+  shapeListV,
+  strV,
+  vectorV,
   zip2,
 } from "./utils/Util.js";
-
-export type { Shape } from "./shapes/Shapes.js";
-export { valueTypeDesc } from "./types/types.js";
