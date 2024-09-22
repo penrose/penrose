@@ -81,12 +81,13 @@ specify that `arrow` connects `p1` to `p2`. Predicates are untyped, so we could 
 The final step is to ‘style’ these constructs:
 
 ```ts
-const pointRad = 50;
+const pointRad = 30;
 const pointMargin = 10;
 
 forall({ p: Point }, ({ p }) => {
   p.icon = circle({
     r: pointRad,
+    drag: true,
   });
 });
 
@@ -101,15 +102,15 @@ forallWhere(
     const end = ops.vsub(q.icon.center, pStart); // line end
 
     a.icon = line({
-      start,
-      end,
+      start: start as Vec2,
+      end: end as Vec2,
       endArrowhead: "straight",
     });
 
     ensure(
       constraints.greaterThan(
         ops.vdist(p.icon.center, q.icon.center),
-        2 * (pointRad + pointMargin),
+        2 * (pointRad + pointMargin) + 20,
       ),
     );
   },
@@ -130,6 +131,7 @@ a circle of radius pointRad, and store it in a field of the point we call `p`.
 ```ts
 p.icon = circle({
   r: pointRad,
+  drag: true,
 });
 ```
 
@@ -182,8 +184,8 @@ Drawing the arrow is now self-explanatory:
 
 ```ts
 a.icon = line({
-  start,
-  end,
+  start: start as Vec2,
+  end: end as Vec2,
   endArrowhead: "straight",
 });
 ```
@@ -196,7 +198,7 @@ points is greater than the sum of their radii and padding:
 ensure(
   constraints.greaterThan(
     ops.vdist(p.icon.center, q.icon.center),
-    2 * (pointRad + pointMargin),
+    2 * (pointRad + pointMargin) + 20,
   ),
 );
 ```

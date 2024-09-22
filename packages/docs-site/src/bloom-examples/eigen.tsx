@@ -369,6 +369,20 @@ export default function EigenvectorsDiagram() {
   const [Avy, setAvy] = useState(0);
 
   useEffect(() => {
+    const disableDarkMode = () => {
+      try {
+        const darkModeButton = document.getElementsByClassName("VPSwitch")[0];
+        if (darkModeButton.getAttribute("title") === "Switch to light theme") {
+          darkModeButton.click();
+        }
+      } catch {
+        setTimeout(disableDarkMode, 100);
+      }
+    };
+    setTimeout(disableDarkMode, 100);
+  }, []);
+
+  useEffect(() => {
     if (diagram) {
       diagram.addInputEffect("ihat.x", setIhatx);
       diagram.addInputEffect("ihat.y", setIhaty);
