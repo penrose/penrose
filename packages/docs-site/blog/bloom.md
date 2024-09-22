@@ -13,15 +13,6 @@ authors:
 ---
 
 <script setup>
-import Eigen from "../src/bloom-examples/Eigen.vue";
-import Reflection from "../src/bloom-examples/Reflection.vue";
-import Circles from "../src/bloom-examples/Circles.vue";
-import CirclePackingDisjoint from "../src/bloom-examples/CirclePackingDisjoint.vue";
-import CirclePackingPadded from "../src/bloom-examples/CirclePackingPadded.vue";
-import CirclePackingEqual from "../src/bloom-examples/CirclePackingEqual.vue";
-import Rays from "../src/bloom-examples/Rays.vue";
-import Pool from "../src/bloom-examples/Pool.vue";
-
 const disableDarkMode = () => {
   try {
       const darkModeButton = document.getElementsByClassName("VPSwitch")[0];
@@ -90,6 +81,7 @@ Bloom also provides an interface for your diagrams to communicate with the rest 
 Try dragging the gray handles to see how the transformation changes, along with the vectors and matrices on the right.
 
 <br/>
+
 <Eigen />
 
 If you're familiar with a little linear algebra, you'll notice that the vectors $a_1$ and $a_2$ form the columns of
@@ -136,6 +128,7 @@ Moreover, the simplicity of the constraint-based approach allows for easy modifi
 for these balls to repel each other within a certain padding:
 
 <div style="width: 70%; height: 25em; margin-left: auto; margin-right: auto;">
+
 <CirclePackingPadded />
 </div>
 
@@ -148,6 +141,7 @@ forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
 Or even that they should all touch the enclosure:
 
 <div style="width: 70%; height: 25em; margin-left: auto; margin-right: auto;">
+
 <CirclePackingEqual/>
 </div>
 
