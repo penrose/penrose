@@ -12,21 +12,6 @@ authors:
     github: "joshsunshine"
 ---
 
-<script setup>
-const disableDarkMode = () => {
-  try {
-      const darkModeButton = document.getElementsByClassName("VPSwitch")[0];
-      if (darkModeButton.getAttribute("title") === "Switch to light theme") {
-        darkModeButton.click();
-      }
-  } catch {
-    setTimeout(disableDarkMode, 100);
-  }
-};
-setTimeout(disableDarkMode, 100);
-
-</script>
-
 _This page is best viewed on a desktop browser._
 <br/>
 <br/>
