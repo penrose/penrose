@@ -21,9 +21,20 @@ import CirclePackingPadded from "../src/bloom-examples/CirclePackingPadded.vue";
 import CirclePackingEqual from "../src/bloom-examples/CirclePackingEqual.vue";
 import Rays from "../src/bloom-examples/Rays.vue";
 import Pool from "../src/bloom-examples/Pool.vue";
-</script>
 
-<div style="background-color: white; color: black; padding: 2em; border-radius: 1em">
+const disableDarkMode = () => {
+  try {
+      const darkModeButton = document.getElementsByClassName("VPSwitch")[0];
+      if (darkModeButton.getAttribute("title") === "Switch to light theme") {
+        darkModeButton.click();
+      }
+  } catch {
+    setTimeout(disableDarkMode, 100);
+  }
+};
+setTimeout(disableDarkMode, 100);
+
+</script>
 
 _This page is best viewed on a desktop browser._
 <br/>
@@ -55,7 +66,7 @@ forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
 });
 ```
 
-This next diagram reflects a ray off a mirror from one point to another. To be physically realistic, the angle between
+The next diagram reflects a ray off a mirror from one point to another. To be physically realistic, the angle between
 the incoming ray and mirror must be the same as the angle between the outgoing ray and the mirror.
 Try dragging the start and endpoints around, and watch how this property is maintained:
 
@@ -64,7 +75,7 @@ Try dragging the start and endpoints around, and watch how this property is main
 How might you implement this? With Bloom, there's no need to calculate the exact point at which a reflected ray keeps these two
 angles equal. Instead, you can leave it to Bloom's optimizer:
 
-```js
+```ts
 const r1y = ray1.normVec[1];
 const r2y = ray2.normVec[1];
 ensure(constraints.equal(r1y, mul(-1, r2y)));
@@ -162,5 +173,3 @@ our new requirements.
 
 Bloom is still in the early stages of development, but we're excited to share it with you. If you're interested in learning more,
 you can take a look at our [tutorial](/docs/bloom/tutorial/getting_started). We're excited to see what you build!
-
-</div>
