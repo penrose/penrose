@@ -379,18 +379,17 @@ export const preventSelection = (e: Event) => {
 };
 
 /**
- * Create a function which can be used a mousedown listener to translate a shape throughout a drag.
+ * Create a function which can be used a pointerdown listener to translate a shape throughout a drag.
  * @param diagramSVG SVG which the shape belongs to
  * @param elem SVG element of the shape
- * @param state Penrose state
+ * @param canvas Penrose canvas
  * @param path Shape path
- * @param translate Callback actually translate the shape each mousemove. If `relative`
+ * @param translate Callback actually translate the shape each pointermove. If `relative`
  *  is set, this function will be passed the `(dx, dy)` since the last from, and otherwise since
- *  mousedown.
- * @param constraint Optional function mapping the unconstrained mouse position to the constrained position
- * @param onMouseUp Optional callback to run on mouseup
- * @param relative Whether or not `translate` receives the delta since last frame (`true`_, or since mousedown
- *  (`false`). Default `false`.
+ *  pointerdown.
+ * @param constraint Optional function mapping the unconstrained pointer position to the constrained position
+ * @param onPointerUp Optional callback to run on pointerup
+ * @param onPointerMove Optional callback to run on pointermove
  */
 export const makeTranslateOnMouseDown =
   (
@@ -400,11 +399,12 @@ export const makeTranslateOnMouseDown =
     path: string,
     translate: (path: string, dx: number, dy: number) => Promise<void>,
     constraint?: ([x, y]: [number, number]) => [number, number],
-    onMouseMove?: (e: MouseEvent) => void,
-    onMouseUp?: (e: MouseEvent) => void,
+    onPointerMove?: (e: PointerEvent) => void,
+    onPointerUp?: (e: PointerEvent) => void,
   ) =>
   (e: MouseEvent) => {
-    window.addEventListener("selectstart", preventSelection);
+    e.preventDefault();
+
     const prevCursor = document.body.style.cursor;
     document.body.style.cursor = "grabbing";
     elem.style.cursor = "grabbing";
@@ -426,12 +426,14 @@ export const makeTranslateOnMouseDown =
 
     let dx = 0,
       dy = 0;
-    let queuedMouseMove: () => void = () => {};
-    let readyForMouseMove = true;
+    let queuedPointerMove: () => void = () => {};
+    let readyForPointerMove = true;
 
-    const onMouseMove_ = async (e: MouseEvent) => {
-      if (!readyForMouseMove) {
-        queuedMouseMove = () => onMouseMove_(e);
+    const onPointerMove_ = async (e: PointerEvent) => {
+      e.preventDefault();
+
+      if (!readyForPointerMove) {
+        queuedPointerMove = () => onPointerMove_(e);
         return;
       }
 
@@ -460,29 +462,30 @@ export const makeTranslateOnMouseDown =
       dx = constrainedX - startX;
       dy = startY - constrainedY;
 
-      readyForMouseMove = false;
+      readyForPointerMove = false;
       await translate(path, dx, dy);
-      readyForMouseMove = true;
+      readyForPointerMove = true;
 
-      const toRun = queuedMouseMove;
-      queuedMouseMove = () => {};
+      const toRun = queuedPointerMove;
+      queuedPointerMove = () => {};
       toRun();
 
-      onMouseMove?.(e);
+      onPointerMove?.(e);
     };
 
-    const onMouseUp_ = (e: MouseEvent) => {
-      window.removeEventListener("mouseup", onMouseUp_);
-      window.removeEventListener("mousemove", onMouseMove_);
+    const onPointerUp_ = (e: PointerEvent) => {
+      window.removeEventListener("pointerup", onPointerUp_);
+      window.removeEventListener("pointermove", onPointerMove_);
       window.removeEventListener("selectstart", preventSelection);
       document.body.style.cursor = prevCursor;
       elem.style.cursor = "grab";
       translate(path, dx, dy);
-      onMouseUp?.(e);
+      onPointerUp?.(e);
     };
 
-    window.addEventListener("mouseup", onMouseUp_);
-    window.addEventListener("mousemove", onMouseMove_);
+    window.addEventListener("pointerup", onPointerUp_);
+    window.addEventListener("pointercancel", onPointerUp_);
+    window.addEventListener("pointermove", onPointerMove_);
   };
 
 export const makeScaleOnMouseDown =
