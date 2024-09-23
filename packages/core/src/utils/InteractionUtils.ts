@@ -402,7 +402,7 @@ export const makeTranslateOnMouseDown =
     onPointerMove?: (e: PointerEvent) => void,
     onPointerUp?: (e: PointerEvent) => void,
   ) =>
-  (e: PointerEvent) => {
+  (e: MouseEvent) => {
     e.preventDefault();
 
     const prevCursor = document.body.style.cursor;
