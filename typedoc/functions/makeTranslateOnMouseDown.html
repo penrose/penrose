@@ -17,9 +17,9 @@
 <h1>Function makeTranslateOnMouseDown</h1></div>
 <section class="tsd-panel">
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="makeTranslateOnMouseDown"><span class="tsd-kind-call-signature">make<wbr/>Translate<wbr/>On<wbr/>Mouse<wbr/>Down</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">diagramSVG</span>, <span class="tsd-kind-parameter">elem</span>, <span class="tsd-kind-parameter">canvas</span>, <span class="tsd-kind-parameter">path</span>, <span class="tsd-kind-parameter">translate</span>, <span class="tsd-kind-parameter">constraint</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">onMouseMove</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">onMouseUp</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><a href="#makeTranslateOnMouseDown" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="makeTranslateOnMouseDown"><span class="tsd-kind-call-signature">make<wbr/>Translate<wbr/>On<wbr/>Mouse<wbr/>Down</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">diagramSVG</span>, <span class="tsd-kind-parameter">elem</span>, <span class="tsd-kind-parameter">canvas</span>, <span class="tsd-kind-parameter">path</span>, <span class="tsd-kind-parameter">translate</span>, <span class="tsd-kind-parameter">constraint</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">onPointerMove</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">onPointerUp</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><a href="#makeTranslateOnMouseDown" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Create a function which can be used a mousedown listener to translate a shape throughout a drag.</p>
+<div class="tsd-comment tsd-typography"><p>Create a function which can be used a pointerdown listener to translate a shape throughout a drag.</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -33,16 +33,18 @@
 <div class="tsd-comment tsd-typography"><p>SVG element of the shape</p>
 </div></li>
 <li>
-<h5><span class="tsd-kind-parameter">canvas</span>: <a href="../interfaces/Canvas.html" class="tsd-signature-type tsd-kind-interface">Canvas</a></h5></li>
+<h5><span class="tsd-kind-parameter">canvas</span>: <a href="../interfaces/Canvas.html" class="tsd-signature-type tsd-kind-interface">Canvas</a></h5>
+<div class="tsd-comment tsd-typography"><p>Penrose canvas</p>
+</div></li>
 <li>
 <h5><span class="tsd-kind-parameter">path</span>: <span class="tsd-signature-type">string</span></h5>
 <div class="tsd-comment tsd-typography"><p>Shape path</p>
 </div></li>
 <li>
 <h5><span class="tsd-kind-parameter">translate</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">path</span>, <span class="tsd-kind-parameter">dx</span>, <span class="tsd-kind-parameter">dy</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span></h5>
-<div class="tsd-comment tsd-typography"><p>Callback actually translate the shape each mousemove. If <code>relative</code>
+<div class="tsd-comment tsd-typography"><p>Callback actually translate the shape each pointermove. If <code>relative</code>
  is set, this function will be passed the <code>(dx, dy)</code> since the last from, and otherwise since
- mousedown.</p>
+ pointerdown.</p>
 </div>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-signature">
@@ -61,7 +63,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4></li></ul></li></ul></li>
 <li>
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">constraint</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">__namedParameters</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">)</span></h5>
-<div class="tsd-comment tsd-typography"><p>Optional function mapping the unconstrained mouse position to the constrained position</p>
+<div class="tsd-comment tsd-typography"><p>Optional function mapping the unconstrained pointer position to the constrained position</p>
 </div>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-signature">
@@ -75,21 +77,8 @@
 <h5><span class="tsd-kind-parameter">__namedParameters</span>: <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></h4></li></ul></li></ul></li>
 <li>
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">onMouseMove</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></h5>
-<ul class="tsd-parameters">
-<li class="tsd-parameter-signature">
-<ul class="tsd-signatures">
-<li class="tsd-signature"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-<li class="tsd-description">
-<div class="tsd-parameters">
-<h4 class="tsd-parameters-title">Parameters</h4>
-<ul class="tsd-parameter-list">
-<li>
-<h5><span class="tsd-kind-parameter">e</span>: <span class="tsd-signature-type ">MouseEvent</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></li>
-<li>
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">onMouseUp</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></h5>
-<div class="tsd-comment tsd-typography"><p>Optional callback to run on mouseup</p>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">onPointerMove</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></h5>
+<div class="tsd-comment tsd-typography"><p>Optional callback to run on pointermove</p>
 </div>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-signature">
@@ -100,7 +89,22 @@
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">e</span>: <span class="tsd-signature-type ">MouseEvent</span></h5></li></ul></div>
+<h5><span class="tsd-kind-parameter">e</span>: <span class="tsd-signature-type ">PointerEvent</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></li>
+<li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">onPointerUp</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></h5>
+<div class="tsd-comment tsd-typography"><p>Optional callback to run on pointerup</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">e</span>: <span class="tsd-signature-type ">PointerEvent</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></h4>
 <ul class="tsd-parameters">
@@ -115,7 +119,7 @@
 <h5><span class="tsd-kind-parameter">e</span>: <span class="tsd-signature-type ">MouseEvent</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/penrose/penrose/blob/e3ef3db/packages/core/src/utils/InteractionUtils.ts#L396">packages/core/src/utils/InteractionUtils.ts:396</a></li></ul></aside></li></ul></section></div>
+<li>Defined in <a href="https://github.com/penrose/penrose/blob/745a840/packages/core/src/utils/InteractionUtils.ts#L395">packages/core/src/utils/InteractionUtils.ts:395</a></li></ul></aside></li></ul></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
