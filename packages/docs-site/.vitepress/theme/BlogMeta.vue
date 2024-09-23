@@ -12,6 +12,7 @@
       display: flex;
       align-items: center;
       gap: 15px;
+      flex-wrap: wrap;
     "
   >
     <Author

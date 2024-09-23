@@ -440,12 +440,13 @@ export default function EigenvectorsDiagram() {
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-evenly",
+        flexWrap: "wrap",
         height: "100%",
       }}
     >
       <div
         style={{
-          width: "60%",
+          minWidth: "60%",
           display: "flex",
           justifyContent: "center",
           // border: "1px solid black",

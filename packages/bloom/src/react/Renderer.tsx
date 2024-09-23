@@ -77,7 +77,7 @@ export default function Renderer(props: RendererProps) {
               dragging.current = false;
             },
           );
-          elem.addEventListener("mousedown", (e) => {
+          elem.addEventListener("pointerdown", (e) => {
             diagram.beginDrag(name);
             dragging.current = true;
             translateFn(e);
@@ -132,6 +132,7 @@ export default function Renderer(props: RendererProps) {
       style={{
         width: "100%",
         height: "100%",
+        touchAction: "none",
       }}
       ref={canvasRef}
     />

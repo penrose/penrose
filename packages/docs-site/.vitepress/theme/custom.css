@@ -19,6 +19,7 @@
   text-decoration: none;
 }
 
-html, body {
+html,
+body {
   overflow-x: clip;
 }

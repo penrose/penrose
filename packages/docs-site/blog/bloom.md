@@ -30,7 +30,7 @@ a straightforward but powerful framework. Let's check out some examples!
 Below, we've placed some balls in a circle. Try dragging one around to
 see how the others respond:
 
-<div style="width: 70%; height: 25em; margin-left: auto; margin-right: auto;">
+<div style="height: 25em; margin-left: auto; margin-right: auto;">
 <CirclePackingDisjoint />
 </div>
 
@@ -85,7 +85,7 @@ Here's another example, integrating a button to add a square on every click:
 We believe that the most natural way to express complex interactive behavior is through optimization. Let's take another
 look at our first example:
 
-<div style="width: 70%; height: 25em; margin-left: auto; margin-right: auto;">
+<div style="height: 25em; margin-left: auto; margin-right: auto;">
 <CirclePackingDisjoint />
 </div>
 
@@ -112,8 +112,7 @@ Without optimization, implementing this behavior would be a nasty challenge. At 
 Moreover, the simplicity of the constraint-based approach allows for easy modification. Suppose we instead wanted
 for these balls to repel each other within a certain padding:
 
-<div style="width: 70%; height: 25em; margin-left: auto; margin-right: auto;">
-
+<div style="height: 25em; margin-left: auto; margin-right: auto;">
 <CirclePackingPadded />
 </div>
 
@@ -125,8 +124,7 @@ forall({ c1: Circle, c2: Circle }, ({ c1, c2 }) => {
 
 Or even that they should all touch the enclosure:
 
-<div style="width: 70%; height: 25em; margin-left: auto; margin-right: auto;">
-
+<div style="height: 25em; margin-left: auto; margin-right: auto;">
 <CirclePackingEqual/>
 </div>
 
