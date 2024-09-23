@@ -1,6 +1,6 @@
 ---
 title: "Bloom: Optimization-Driven Interactive Diagramming"
-date: 2024-07-23
+date: 2024-09-23
 authors:
   - author: Griffin Teller
     github: "griffinteller"
