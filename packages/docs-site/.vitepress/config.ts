@@ -463,7 +463,7 @@ export default defineConfig({
           text: "August 2024",
           items: [
             {
-              text: "Announcing Bloom",
+              text: "Bloom: Optimization-Driven Interactive Diagramming",
               link: "/blog/bloom",
             },
           ],

@@ -18,3 +18,7 @@
 .vp-doc a {
   text-decoration: none;
 }
+
+html, body {
+  overflow-x: clip;
+}
