@@ -593,7 +593,7 @@
   "set-potatoes/relation-not-a-function": {
     "name": "Relation that isn't a function",
     "gallery": false
- },
+  },
   "set-potatoes/injections-post-inverses": {
     "name": "Injections and Post-Inverses",
     "gallery": false

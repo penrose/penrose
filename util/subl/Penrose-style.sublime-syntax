@@ -272,7 +272,6 @@ contexts:
       scope: punctuation.section.brackets.end.style
       pop: true
 
-
   comment:
     - match: --
       scope: comment.line.domain
