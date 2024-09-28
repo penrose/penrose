@@ -1,0 +1,326 @@
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 1200 900"
+  penrose="0"
+>
+  <penrose><croppedViewBox>0 0 1200 900</croppedViewBox></penrose>
+  <rect
+    x="0"
+    y="0"
+    width="1200"
+    height="900"
+    fill="none"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 600, 450)"
+  >
+    <title>Global.box</title>
+  </rect>
+  <ellipse
+    fill="#c8b68b"
+    fill-opacity="0.5"
+    cx="787.9628825727327"
+    cy="449.9993062434415"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1.5"
+    rx="40"
+    ry="110"
+  >
+    <title>`B`.icon</title>
+  </ellipse>
+  <circle
+    fill="#86ae37"
+    fill-opacity="0.5"
+    cx="787.9628887615047"
+    cy="416.2492940962026"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1.5"
+    r="3"
+  >
+    <title>`x`.icon</title>
+  </circle>
+  <circle
+    fill="#62c3be"
+    fill-opacity="0.5"
+    cx="787.9628785473528"
+    cy="483.74928994112724"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1.5"
+    r="3"
+  >
+    <title>`y`.icon</title>
+  </circle>
+  <ellipse
+    fill="#71a8b7"
+    fill-opacity="0.5"
+    cx="412.03713408870226"
+    cy="450.00065146657454"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1.5"
+    rx="40"
+    ry="50"
+  >
+    <title>`A`.icon</title>
+  </ellipse>
+  <circle
+    fill="#bb2e85"
+    fill-opacity="0.5"
+    cx="412.0371379571443"
+    cy="450.00064735737857"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1.5"
+    r="3"
+  >
+    <title>`a`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 412.03713408870226, 380.00065146657454)translate(400.78713408870226, 369.26065146657453)"
+  >
+    <title>`A`.text</title>
+    <svg
+      style="font-size: 30px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.5"
+      height="21.48"
+      role="img"
+      focusable="false"
+      viewBox="0 -716 750 716"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D434"
+              d="M208 74Q208 50 254 46Q272 46 272 35Q272 34 270 22Q267 8 264 4T251 0Q249 0 239 0T205 1T141 2Q70 2 50 0H42Q35 7 35 11Q37 38 48 46H62Q132 49 164 96Q170 102 345 401T523 704Q530 716 547 716H555H572Q578 707 578 706L606 383Q634 60 636 57Q641 46 701 46Q726 46 726 36Q726 34 723 22Q720 7 718 4T704 0Q701 0 690 0T651 1T578 2Q484 2 455 0H443Q437 6 437 9T439 27Q443 40 445 43L449 46H469Q523 49 533 63L521 213H283L249 155Q208 86 208 74ZM516 260Q516 271 504 416T490 562L463 519Q447 492 400 412L310 260L413 259Q516 259 516 260Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 787.9628825727327, 319.9993062434415)translate(776.5778825727327, 309.7543062434415)"
+  >
+    <title>`B`.text</title>
+    <svg
+      style="font-size: 30px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.77"
+      height="20.490000000000002"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 759 683"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D435"
+              d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 600.0000083307175, 409.999978855008)translate(588.6150083307175, 399.439978855008)"
+  >
+    <title>`R`.text</title>
+    <svg
+      style="font-size: 30px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.77"
+      height="21.119999999999997"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 759 704"
+    >
+      <g
+        stroke="none"
+        fill="#624682"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D445"
+              d="M230 637Q203 637 198 638T193 649Q193 676 204 682Q206 683 378 683Q550 682 564 680Q620 672 658 652T712 606T733 563T739 529Q739 484 710 445T643 385T576 351T538 338L545 333Q612 295 612 223Q612 212 607 162T602 80V71Q602 53 603 43T614 25T640 16Q668 16 686 38T712 85Q717 99 720 102T735 105Q755 105 755 93Q755 75 731 36Q693 -21 641 -21H632Q571 -21 531 4T487 82Q487 109 502 166T517 239Q517 290 474 313Q459 320 449 321T378 323H309L277 193Q244 61 244 59Q244 55 245 54T252 50T269 48T302 46H333Q339 38 339 37T336 19Q332 6 326 0H311Q275 2 180 2Q146 2 117 2T71 2T50 1Q33 1 33 10Q33 12 36 24Q41 43 46 45Q50 46 61 46H67Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628Q287 635 230 637ZM630 554Q630 586 609 608T523 636Q521 636 500 636T462 637H440Q393 637 386 627Q385 624 352 494T319 361Q319 360 388 360Q466 361 492 367Q556 377 592 426Q608 449 619 486T630 554Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 414.0371379571443, 427.00064735737857)translate(406.1021379571443, 420.2356473573786)"
+  >
+    <title>`a`.text</title>
+    <svg
+      style="font-size: 30px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="15.870000000000001"
+      height="13.530000000000001"
+      role="img"
+      focusable="false"
+      viewBox="0 -441 529 451"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D44E"
+              d="M33 157Q33 258 109 349T280 441Q331 441 370 392Q386 422 416 422Q429 422 439 414T449 394Q449 381 412 234T374 68Q374 43 381 35T402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487Q506 153 506 144Q506 138 501 117T481 63T449 13Q436 0 417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157ZM351 328Q351 334 346 350T323 385T277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q217 26 254 59T298 110Q300 114 325 217T351 328Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 789.9628887615047, 393.2492940962026)translate(781.3828887615047, 386.4542940962026)"
+  >
+    <title>`x`.text</title>
+    <svg
+      style="font-size: 30px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="17.16"
+      height="13.59"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 572 453"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D465"
+              d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 789.9628785473528, 460.74928994112724)translate(782.6128785473528, 451.04428994112726)"
+  >
+    <title>`y`.text</title>
+    <svg
+      style="font-size: 30px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="14.7"
+      height="19.41"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 490 647"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D466"
+              d="M21 287Q21 301 36 335T84 406T158 442Q199 442 224 419T250 355Q248 336 247 334Q247 331 231 288T198 191T182 105Q182 62 196 45T238 27Q261 27 281 38T312 61T339 94Q339 95 344 114T358 173T377 247Q415 397 419 404Q432 431 462 431Q475 431 483 424T494 412T496 403Q496 390 447 193T391 -23Q363 -106 294 -155T156 -205Q111 -205 77 -183T43 -117Q43 -95 50 -80T69 -58T89 -48T106 -45Q150 -45 150 -87Q150 -107 138 -122T115 -142T102 -147L99 -148Q101 -153 118 -160T152 -167H160Q177 -167 186 -165Q219 -156 247 -127T290 -65T313 -9T321 21L315 17Q309 13 296 6T270 -6Q250 -11 231 -11Q185 -11 150 11T104 82Q103 89 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g>
+    <marker
+      id="relation-not-a-function__registry-BogartJellyfish4056-`ax`.icon-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="12"
+      markerHeight="12"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        fill="#624682"
+        fill-opacity="1"
+      />
+    </marker>
+    <line
+      x1="412.03714437523735"
+      y1="450.00064953870066"
+      x2="775.6374708537156"
+      y2="417.35589323053966"
+      stroke="#624682"
+      stroke-opacity="1"
+      stroke-width="1.5"
+      marker-end="url(#relation-not-a-function__registry-BogartJellyfish4056-`ax`.icon-endArrowId)"
+    />
+    <title>`ax`.icon</title>
+  </g>
+  <g>
+    <marker
+      id="relation-not-a-function__registry-BogartJellyfish4056-`ay`.icon-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="12"
+      markerHeight="12"
+      viewBox="0 0 8 8"
+      refX="2.5"
+      refY="4"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+        fill="#624682"
+        fill-opacity="1"
+      />
+    </marker>
+    <line
+      x1="412.0371454973464"
+      y1="450.00064863311303"
+      x2="775.637443976418"
+      y2="482.6427677348491"
+      stroke="#624682"
+      stroke-opacity="1"
+      stroke-width="1.5"
+      marker-end="url(#relation-not-a-function__registry-BogartJellyfish4056-`ay`.icon-endArrowId)"
+    />
+    <title>`ay`.icon</title>
+  </g>
+</svg>
