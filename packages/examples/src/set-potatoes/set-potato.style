@@ -1,0 +1,202 @@
+-- NB: complex diagrams such can be negatively affected by the
+-- ensureOnCanvas constraint: if your diagram looks weird,
+-- try setting Global.ensureOnCanvas to false or increasing
+-- canvas size
+canvas
+{
+	width  = 1200
+	height =  900
+}
+
+Colors
+{
+	color black     = rgba(0, 0, 0, 1)
+	color white     = rgba(1, 1, 1, 1)
+	color clearGray = rgba(0, 0, 0, .2)
+}
+
+Global
+{
+	bool ensureOnCanvas = true
+
+	shape box = Rectangle
+	{
+		center      : (0,0)
+		width       : canvas.width
+		height      : canvas.height
+		fillColor   : none()
+--		strokeColor : Colors.clearGray
+--		strokeWidth : 1
+	}
+
+	-- styling
+	scalar lineThickness = 1.5
+	scalar arrowheadSize = 1.5
+	scalar fontSize      = "30px"
+	string fontFamily    = "Linux Libertine"
+
+	-- diagram spread
+	scalar pointR               = 3
+	scalar pointW               = 40
+	scalar pointH               = 20
+	scalar pointSpread          = 60
+	scalar pointLabelVertOffset = 20
+	scalar setSpreadH           = 300 -- canvas.width / 5
+	scalar setSpreadV           = 50
+	scalar setHeightPadding     = 20
+	scalar setLabelVertOffset   = 20
+}
+
+forall Element e
+{
+	e.center = (?, ?)
+	e.icon = Circle
+	{
+		strokeWidth    : Global.lineThickness
+		strokeStyle    : "solid"
+		strokeColor    : Colors.black -- e strokeColor
+--		fillColor      : Colors.black -- e.fillColor
+		center         : e.center
+		r              : Global.pointR
+		ensureOnCanvas : Global.ensureOnCanvas
+	}
+
+	e.text = Equation
+	{
+		string         : e.label
+		fillColor      : Colors.black
+		fontSize       : Global.fontSize
+		center         : (e.center[0] + 2, e.center[1] + e.icon.r + Global.pointLabelVertOffset)
+		ensureOnCanvas : Global.ensureOnCanvas
+	}
+}
+
+forall Set s
+{
+	s.center = (?, ?)
+	s.icon = Ellipse
+	{
+		strokeWidth    : Global.lineThickness
+		strokeStyle    : "solid"
+		strokeColor    : Colors.black
+--		fillColor      : sampled -- s.color
+		center         : s.center
+		rx             : Global.pointW
+		ry             : Global.pointSpread
+		ensureOnCanvas : Global.ensureOnCanvas
+	}
+
+	s.text = Equation
+	{
+		string         : s.label
+		fillColor      : Colors.black
+		fontSize       : Global.fontSize
+		center         : (s.center[0], s.center[1] + s.icon.ry + Global.setLabelVertOffset) 
+		ensureOnCanvas : Global.ensureOnCanvas
+	}
+}
+
+forall Arrow a
+{
+	a.icon = Line
+	{
+		strokeWidth      : Global.lineThickness
+--		strokeColor      : Colors.black
+		start            : (?, ?)
+		end              : (?, ?)
+		endArrowhead     : "concave"
+		endArrowheadSize : Global.arrowheadSize
+		ensureOnCanvas   : Global.ensureOnCanvas
+	}
+}
+
+forall Relation r
+{
+	r.text = Equation
+	{
+		string         : r.label
+		fillColor      : rgba(random(0.1,0.9), random(0.1,0.9), random(0.1,0.9), 1)
+		fontSize       : Global.fontSize
+		center         : (?, ?) 
+		ensureOnCanvas : Global.ensureOnCanvas
+	}
+}
+
+
+-- ensure vertical alignment of sets with shared domain/codomain
+-- ensure that one set is neatly above the other, in the order
+-- specified in the non-symmetric predicate.
+forall Set A, B
+where SetsShareDomainOrCodomain(A, B)
+{
+	ensure equal(A.icon.center[0], B.icon.center[0])
+	ensure greaterThan(A.icon.center[1], B.icon.center[1], A.icon.ry + B.icon.ry) -- encourage here seems to cause a compiler error
+	ensure disjoint(A.icon, B.icon, Global.setSpreadV)
+}
+
+-- ensure appropriate overlap and common center.x
+-- for a set and its elements
+forall Set S; Element e
+where SetHasElement(S, e)
+{
+--	ensure contains(S.icon, e.icon)
+	ensure equal(S.icon.center[0], e.icon.center[0])
+	e.icon above S.icon
+}
+
+-- ensure that set centers are horizontally spread out
+-- and diagram is readable from left to right on a mostly
+-- horizontal line.
+forall Set A, B; Relation R
+where SetsAreRelated(A, R, B)
+{
+	ensure    lessThan   (A.center[0], B.center[0], Global.setSpreadH)
+	encourage equal      (A.center[1], B.center[1])
+--	ensure    disjoint   (A.icon, B.icon, Global.setSpread)
+	override  R.text.center = (A.text.center + B.text.center) / 2 - (0, Global.pointSpread)
+}
+
+-- ensure that arrow endpoints are at the center of the elements
+forall Arrow a; Element x, y
+where ArrowRelatesElements(x, a, y)
+{
+	ensure equal(norm(a.icon.start - x.icon.center), 0)
+	ensure equal(norm(a.icon.end   - y.icon.center), 0)
+}
+
+-- ensure common color for all arrows in a relation
+forall Arrow a; Relation R
+where RelationHasArrow(R, a)
+{
+	override a.icon.strokeColor = R.text.fillColor
+}
+
+
+-- ensure that sets don't overlap chosen collections of arrows
+forall Arrow a; Set s
+where RelationHasArrow(r, a); SetOverlapsRelation(s, r)
+with Relation r
+{
+	ensure disjoint(a.icon, s.icon, Global.pointSpread)
+}
+
+
+-- ensure that set elements are aligned on center.x and vertically
+-- spread out, as well as symmetrically positioned inside the set
+collect Element e into es
+where SetHasElement(s, e)
+foreach Set s
+{
+	points = listof icon from es
+	ensure distributeVertically(points, Global.pointSpread)
+	override s.icon.ry = (numberof es - 0.5) * Global.pointSpread + Global.setHeightPadding
+	avgCenter = averagePoint(listof center from es)
+	ensure equal(avgCenter[1], s.center[1])
+}
+
+-- ensure sets are balanced around the canvas center
+collect Set s into ss
+{
+	avgCenter = averagePoint(listof center from ss)
+	ensure equal(norm(avgCenter - Global.box.center), 0)
+}

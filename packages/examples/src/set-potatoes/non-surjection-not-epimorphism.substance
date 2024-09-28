@@ -1,0 +1,94 @@
+-- $$A = \{ a, b    \}$$
+-- $$B = \{ 1, 2, 3 \}$$
+-- $$Z = \{ x, y    \}$$
+-- $$f : A \to B = \{ (a, 1), (b, 2) \} \text{, not surjective}$$
+-- 
+-- $$g_1 : B \to Z = \{ (1, x), (2, y), (3, x) \}$$
+-- $$g_2 : B \to Z = \{ (1, x), (2, y), (3, y) \}$$
+-- 
+-- $$g_1 \circ f = g_2 \circ f = \{(a, x), (b, y)\} \in (A \to Z)$$
+
+Set A, B, Z1, Z2
+Relation f, g1, g2, fg1, fg2
+Element A_a, A_b, B_1, B_2, B_3, Z1_x, Z1_y, Z2_x, Z2_y
+
+Arrow f_a1   := Relate(A_a, B_1)
+Arrow f_b2   := Relate(A_b, B_2)
+Arrow g1_1x  := Relate(B_1, Z1_x)
+Arrow g1_2y  := Relate(B_2, Z1_y)
+Arrow g1_3x  := Relate(B_3, Z1_x)
+Arrow g2_1x  := Relate(B_1, Z2_x)
+Arrow g2_2y  := Relate(B_2, Z2_y)
+Arrow g2_3y  := Relate(B_3, Z2_y)
+Arrow fg1_ax := Relate(A_a, Z1_x)
+Arrow fg1_by := Relate(A_b, Z1_y)
+Arrow fg2_ax := Relate(A_a, Z2_x)
+Arrow fg2_by := Relate(A_b, Z2_y)
+
+Label A  $A$
+Label B  $B$
+Label Z1 $Z$  -- $Z_1$
+Label Z2 $Z$  -- $Z_2$
+
+Label f   $f$
+Label g1  $g_1$
+Label g2  $g_2$
+Label fg1 $g_1 \circ f$
+Label fg2 $g_2 \circ f$
+
+Label A_a  $a$
+Label A_b  $b$
+Label B_1  $1$
+Label B_2  $2$
+Label B_3  $3$
+Label Z1_x $x$
+Label Z1_y $y$
+Label Z2_x $x$
+Label Z2_y $y$
+
+SetsAreRelated(A, f,   B)
+SetsAreRelated(B, g1,  Z1)
+SetsAreRelated(B, g2,  Z2)
+SetsAreRelated(A, fg1, Z1)
+SetsAreRelated(A, fg2, Z2)
+
+SetHasElement(A,  A_a)
+SetHasElement(A,  A_b)
+SetHasElement(B,  B_1)
+SetHasElement(B,  B_2)
+SetHasElement(B,  B_3)
+SetHasElement(Z1, Z1_x)
+SetHasElement(Z1, Z1_y)
+SetHasElement(Z2, Z2_x)
+SetHasElement(Z2, Z2_y)
+
+RelationHasArrow(f,   f_a1)
+RelationHasArrow(f,   f_b2)
+RelationHasArrow(g1,  g1_1x)
+RelationHasArrow(g1,  g1_2y)
+RelationHasArrow(g1,  g1_3x)
+RelationHasArrow(g2,  g2_1x)
+RelationHasArrow(g2,  g2_2y)
+RelationHasArrow(g2,  g2_3y)
+RelationHasArrow(fg1, fg1_ax)
+RelationHasArrow(fg1, fg1_by)
+RelationHasArrow(fg2, fg2_ax)
+RelationHasArrow(fg2, fg2_by)
+
+ArrowRelatesElements(A_a, f_a1,   B_1)
+ArrowRelatesElements(A_b, f_b2,   B_2)
+ArrowRelatesElements(B_1, g1_1x,  Z1_x)
+ArrowRelatesElements(B_2, g1_2y,  Z1_y)
+ArrowRelatesElements(B_3, g1_3x,  Z1_x)
+ArrowRelatesElements(B_1, g2_1x,  Z2_x)
+ArrowRelatesElements(B_2, g2_2y,  Z2_y)
+ArrowRelatesElements(B_3, g2_3y,  Z2_y)
+ArrowRelatesElements(A_a, fg1_ax, Z1_x)
+ArrowRelatesElements(A_b, fg1_by, Z1_y)
+ArrowRelatesElements(A_a, fg2_ax, Z2_x)
+ArrowRelatesElements(A_b, fg2_by, Z2_y)
+
+SetsShareDomainOrCodomain(Z1, Z2)
+
+SetOverlapsRelation(B, fg1)
+SetOverlapsRelation(B, fg2)

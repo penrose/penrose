@@ -1,0 +1,453 @@
+%YAML 1.2
+---
+name: Penrose Style
+scope: source.style
+
+file_extensions:
+  - style
+
+variables:
+  name: \b[a-zA-Z_]\w*\b
+
+contexts:
+  main:
+    - include: comment
+    - include: string
+    - include: keyword
+    - include: expression
+    - match: \b(canvas)\b
+      scope: keyword.declaration.style
+      push: canvas
+    - match: \b({{name}})\b
+      scope: entity.name.namespace.style
+      push: namespace
+
+  keyword:
+    - match: \b(collect)\s+(repeatable)?\s*({{name}})\s+({{name}})\s+(into)\s+({{name}})
+      captures:
+        1: keyword.control.loop.style
+        2: storage.modifier.style
+        3: storage.type.style
+        4: variable.other.readwrite.style
+        5: keyword.control.loop.style
+        6: variable.parameter.style
+      push:
+        - meta_scope: meta.block.collector.style
+        - include: comment
+        - match: \s*({{name}})\s+({{name}}|`{{name}}`)
+          captures:
+            1: support.type.style
+            2: variable.parameter.style
+          push:
+            - include: comment
+            - match: \s*(,)\s*({{name}}|`{{name}}`)
+              captures:
+                1: punctuation.separator.sequence.style
+                2: variable.parameter.style
+            - match: (?=;|{|$|\bwhere\b)
+              pop: true
+        - match: (?=;|{|$|\bwhere\b)
+          pop: true
+        - include: keyword
+        - include: expression
+
+    - match: \b(forall|foreach|with)\s+(repeatable)?\s*
+      captures:
+        1: keyword.control.loop.style
+        2: storage.modifier.style
+      push:
+        - meta_scope: meta.block.selector.style
+        - include: comment
+        - match: (?={|$|\bwhere\b)
+          pop: true
+        - match: \s*({{name}})\s+({{name}}|`{{name}}`)
+          captures:
+            1: support.type.style
+            2: variable.parameter.style
+          push:
+            - include: comment
+            - match: (?=;|{|$|\bwhere\b)
+              pop: true
+            - match: \s*(,)\s*({{name}}|`{{name}}`)
+              captures:
+                1: punctuation.separator.sequence.style
+                2: variable.parameter.style
+        - include: keyword
+        - include: expression
+
+    - match: \b(where)\b
+      captures:
+        1: keyword.control.loop.style
+        2: storage.modifier.style
+      push:
+        - meta_scope: meta.block.selector.style
+        - match: (?={|$)
+          pop: true
+        - include: expression
+
+    - match: \b(layer)\s+({{name}})\s+(above|below)\s+({{name}})
+      captures:
+        1: keyword.control.style
+        2: variable.other.readwrite.style
+        3: keyword.operator.word.layer.style
+        4: variable.other.readwrite.style
+
+    - match: \b(layout)\s*(=)\s*
+      captures:
+        1: keyword.declaration.style
+        2: keyword.operator.assignment.style
+      push: layout
+
+    - match: \b(import)\b
+      scope: keyword.control.import.style
+    - match: \b(delete|override|ensure|encourage)\b
+      scope: storage.modifier.style
+    - match: \b(forall|foreach|with|where|collect|layer|LOCAL)\b
+      scope: keyword.control.style
+    - match: \b(rgba|hsva|none)\b
+      scope: keyword.operator.word.layer.style
+    - match: \b(above|below)\b(?!\s*\()
+      scope: keyword.operator.word.layer.style
+
+  expression:
+    - match: (\()
+      scope: punctuation.section.parens.style
+      push:
+        - meta_scope: meta.block.style
+        - include: comment
+        - include: string
+        - include: keyword
+        - include: expression
+        - match: (\))
+          scope: punctuation.section.parens.style
+          pop: true
+
+    - match: ({)
+      scope: punctuation.section.braces.style
+      push:
+        - meta_scope: meta.block.style
+        - include: comment
+        - include: string
+        - include: keyword
+        - include: expression
+        - match: (})
+          scope: punctuation.section.braces.style
+          pop: true
+
+    - include: types
+    - include: builtins
+    - include: literals
+    - include: operators
+    - include: functions
+
+  types:
+    - match: (?<!\.)\b(bool|color|constraint|file|function|int|list|mat2x2|mat3x3|mat4x4|objective|path|scalar|shape|string|style|vec2|vec3|vec4)\b
+      scope: storage.type.style
+    - match: (?<!\.)\b(FloatV|BoolV|StrV|PathDataV|PtListV|ColorV|ListV|VectorV|MatrixV|TupV|LListV|ShapeListV)\b
+      scope: support.type.value.style
+    - match: (?<!\.)\b(Circle|Ellipse|Equation|Group|Image|Line|Path|Polygon|Polyline|Rectangle|Text)\b
+      scope: support.type.shape.style
+      push:
+        - match: \s*({)
+          scope: punctuation.section.braces.style
+          push:
+            - meta_scope: meta.block.shape.style
+            - include: comment
+            - include: string
+            - include: keyword
+            - include: builtins
+            - include: literals
+            - include: operators
+            - include: functions
+            - match: (?=})
+              pop: true
+        - match: (})
+          scope: punctuation.section.braces.style
+          pop: true
+        - match: (.)
+          pop: true
+
+  operators:
+    - match: (\.\*|\.\/|'|\bthen\b)
+      scope: keyword.operator.vector.style
+    - match: ([-+*/%^]|\bmod\b)
+      scope: keyword.operator.arithmetic.style
+    - match: (==|!=|<|>|<=|>=)
+      scope: keyword.operator.comparison.style
+    - match: (\&\&|\|\||!)
+      scope: keyword.operator.logical.style
+    - match: (\?)
+      scope: keyword.operator.autoeval.style
+    - match: (=|:)
+      scope: keyword.operator.assignment.style
+    - match: (\.)(?=\s*{{name}})
+      scope: punctuation.accessor.style
+    - match: (,|;)
+      scope: punctuation.separator.style
+    - match: \b(as)\b
+      scope: keyword.other.alias.style
+    - match: \b(has)\b
+      scope: keyword.control.conditional.select.style
+    - match: \b(in|except)\b
+      scope: keyword.other.layout.style
+      push: layout
+
+  builtins:
+    - match: \b(match_total|match_id|)\b
+      scope: variable.language.style
+    - match: \b(canvas)\s*\.\s*(width|height)\b
+      scope: variable.language.style
+
+    - match: \b(nameof|countof|numberof)\s+({{name}})\b
+      captures:
+        1: keyword.operator.word.style
+        2: variable.other.readwrite.style
+
+    - match: \b(listof)\s+({{name}})\s+(from)\s+({{name}})\b
+      captures:
+        1: keyword.control.style
+        2: variable.other.readwrite.style
+        3: keyword.control.style
+        4: variable.other.readwrite.style
+
+  literals:
+    - match: '\b(true|false)\b'
+      scope: constant.language.boolean.lean
+
+    - include: number
+
+  functions:
+    - match: \b(?<!\.)(equal|lessThan|greaterThan|lessThanSq|greaterThanSq|inRange|contains1D|disjointScalar|perpendicular|collinear|collinearOrdered|onCanvas|overlapping|overlappingEllipses|overlappingCircleEllipse|disjoint|touching|contains|containsCircles|containsPolys|containsPolyCircle|containsPolyPoint|containsCirclePoint|containsCirclePoly|containsCircleRect|containsRectCircle|containsRects|distributeHorizontally|distributeVertically|disjointIntervals|isLocallyConvex|isConvex|isEquilateral|isEquiangular)\b
+      scope: support.function.constraint.style
+    - match: \b(?<!\.)(minimal|maximal|equal|nearVec|greaterThan|lessThan|repelPt|repelScalar|inDirection|below|above|leftwards|rightwards|sameCenter|notTooClose|near|nearPt|nonDegenerateAngle|centerLabelAbove|centerLabel|pointLineDist|isRegular|isEquilateral|isEquiangular)\b
+      scope: support.function.objective.style
+    - match: \b(?<!\.)(makePath|get|selectColor|oneBasedElement|acosh|acos|asin|asinh|mod|atan|atan2|atanh|cbrt|ceil|cos|cosh|exp|expm1|floor|log|log2|log10|log1p|pow|round|sign|sin|sinh|tan|tanh|trunc|sum|sumVectors|maxList|minList|count|dot|identity|diagonal|trace|determinant|inverse|outerProduct|crossProductMatrix|matrix|matrix3d|rotate|rotate2d|rotate3d|rotate3dh|scale|scale2d|scale3d|scale3dh|skew|skew2d|shear|shear2d|shear3d|translate|translate3dh|lookAt|perspective|ortho|project|projectDepth|projectList|matrixMultiplyList|fromHomogeneous|fromHomogeneousList|toHomogeneous|toHomogeneousList|toHomogeneousMatrix|length|normalize|pathFromPoints|quadraticCurveFromPoints|interpolateQuadraticFromPoints|cubicCurveFromPoints|connectPaths|concatenatePaths|joinPaths|Penrose|firstPoint|lastPoint|averagePoint|interpolatingSpline|diffusionProcess|unitMark|unitMark2|arc|circularArc|repeatedArcs|wedge|ptOnLine|arcSweepFlag|angleBetween|angleFrom|cross2D|cross|lineLineIntersection|midpoint|midpointOffset|chevron|innerPointOffset|ticksOnLine|orientedSquare|triangle|average2|average|unit|random|unitRandom|diskRandom|circleRandom|sphereRandom|normalRandom|triangleRandom|sampleColor|randomIndex|setOpacity|mul|barycenter|circumcenter|circumradius|incenter|inradius|sqr|sqrt|max|min|abs|toRadians|toDegrees|norm|normsq|vdist|vmul|vdistsq|angleOf|MathE|MathPI|rot90|rotateBy|signedDistance|signedDistanceRect|signedDistanceCircle|signedDistancePolygon|signedDistanceEllipse|signedDistanceLine|signedDistancePolyline|signedDistanceGroup|unitVector|rayIntersect|rayIntersectDistance|rayIntersectCircle|rayIntersectCircleDistance|rayIntersectEllipse|rayIntersectEllipseDistance|rayIntersectLine|rayIntersectLineDistance|rayIntersectRect|rayIntersectRectDistance|rayIntersectPoly|rayIntersectPolyDistance|rayIntersectGroup|rayIntersectGroupDistance|rayIntersectNormal|rayIntersectNormalCircle|rayIntersectNormalEllipse|rayIntersectNormalLine|rayIntersectNormalRect|rayIntersectNormalPoly|rayIntersectNormalGroup|closestPoint|closestPointCircle|closestPointRect|closestPointLine|closestPointEllipse|closestPointPoly|closestPointGroup|closestSilhouettePoint|closestSilhouettePointCircle|closestSilhouettePointEllipse|closestSilhouettePointLine|closestSilhouettePointRect|closestSilhouettePointPolyline|closestSilhouettePointPolygon|closestSilhouettePointGroup|closestSilhouetteDistance|rectLineDist|shapeDistance|shapeDistanceCircles|shapeDistanceRects|shapeDistanceRectLine|shapeDistanceRectlikePolyline|shapeDistancePolys|shapeDistanceRectCircle|shapeDistancePolyEllipse|shapeDistanceCircleLine|shapeDistanceLines|signedArea|turningNumber|perimeter|isoperimetricRatio|elasticEnergy|totalCurvature|lengthK|maxCurvature|pElasticEnergy|inflectionEnergy|tangentVectors|normalVectors|binormalVectors|evoluteCurve|offsetCurve|curvatures|centerOfMass|noClip|clip|bboxPts|tsneEnergy|rectPts|TeXify|repeat)\b
+      scope: support.function.computation.style
+    - match: \b({{name}})\s*(?=\()
+      captures:
+        1: variable.function.style
+
+  canvas:
+    - match: ({)
+      scope: punctuation.section.braces.style
+      set:
+        - meta_scope: meta.namespace.canvas.style
+        - match: \b(width|height)\b
+          scope: variable.language.style
+        - include: comment
+        - include: string
+        - include: keyword
+        - include: expression
+        - match: (})
+          scope: punctuation.section.braces.style
+          pop: true
+
+  namespace:
+    - match: ({)
+      scope: punctuation.section.braces.style
+      set:
+        - meta_scope: meta.namespace.style
+        - include: comment
+        - include: string
+        - include: keyword
+        - include: expression
+        - match: (})
+          scope: punctuation.section.braces.style
+          pop: true
+
+  layout:
+    - match: \b(shape|label|overall)\b
+      scope: variable.language.style
+      pop: true
+    - match: (\[)
+      scope: punctuation.section.brackets.begin.style
+      push:
+        - match: (,)
+          scope: punctuation.separator.sequence.style
+        - match: \b(shape|label|overall)\b
+          scope: variable.language.style
+        - match: (?=\])
+          pop: true
+    - match: (\])
+      scope: punctuation.section.brackets.end.style
+      pop: true
+
+  comment:
+    - match: --
+      scope: comment.line.domain
+      push:
+        - meta_scope: comment.line.domain
+        - match: \b(TODO|FIXME|XXX|NOTE)\b
+          scope: comment.keyword.domain
+        - match: $
+          pop: true
+
+  string:
+    - match: '"'
+      scope: string.quoted.double.domain
+      push:
+        - meta_scope: string.quoted.double.domain
+        - match: \\.
+          scope: constant.character.escape.domain
+        - match: '"'
+          pop: true
+
+  number:
+    - match: |-
+        (?ix) # hexadecimal color literal
+          (\#) # prefix
+          \b
+          [0-9a-f]++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.color.hexadecimal.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+
+    - match: |-
+        (?ix)  # hexadecimal float literal
+          [+\-]? # optional number sign
+          \b
+          # special text
+          (inf|nan)
+          \b
+      scope: constant.numeric.float.special.csv
+
+    - match: |-
+        (?ix)  # hexadecimal float literal
+          [+\-]? # optional number sign
+          \b
+          (0x) # prefix
+          # significand
+          (?: (\.) (?=p)  # invalid
+            |        [0-9a-f]*+ ([0-9a-z]*?) [0-9a-f]*+
+              (?: \. [0-9a-f]*+ ([0-9a-z.]*?) [0-9a-f]*+ )? )
+          # exponent (required)
+          (?: (p) (?:        [+\-]  [0-9]++ ([0-9a-z]*?)
+                    | (?=[0-9a-z.]) [0-9]*+ ([0-9a-z.]*?) )
+            | (p) )
+          # remaining valid chars and type specifier suffix
+          [0-9]*+ (f?)
+          \b (?!\.)
+      scope: constant.numeric.float.hexadecimal.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+        2: invalid.illegal.number.missing-fragment.significand.csv
+        3: invalid.illegal.numeric-literal-character.float.whole-number.csv
+        4: invalid.illegal.numeric-literal-character.float.fraction.csv
+        5: keyword.other.exponent.hexadecimal.csv
+        6: invalid.illegal.numeric-literal-character.float.exponent.csv
+        7: invalid.illegal.numeric-literal-character.float.exponent.csv
+        8: invalid.illegal.number.missing-fragment.exponent.csv
+        9: constant.numeric.other.suffix.csv
+    - match: |-
+        (?ix)  # hexadecimal float literal, without required exponent
+          [+\-]? # optional number sign
+          \b
+          (0x) # prefix
+          # significand (at least a period)
+               [0-9a-f]*+ ([0-9a-z&&[^p]]*?) [0-9a-f]*+
+          (\.) [0-9a-f]*+ ([0-9a-z.&&[^p]]*?) [0-9a-f]*+
+          (?:(?<=\.)|\b) (?!\.)
+      scope: constant.numeric.float.hexadecimal.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+        2: invalid.illegal.numeric-literal-character.float.whole-number.csv
+        3: constant.numeric.other.decimalpoint.csv
+        4: invalid.illegal.numeric-literal-character.float.fraction.csv
+    - match: |-
+        (?ix)  # decimal float literal
+          [+\-]? # optional number sign
+          (?!0x) # prefix
+          \b
+          # significand (at least a period)
+               [0-9]++ ([0-9a-z&&[^e]]*?) [0-9]*+
+          (\.) [0-9]*+ ([0-9a-z.&&[^e]]*?) [0-9]*+
+          # exponent (optional)
+          (?: (e) (?: [+\-]  [0-9]++ ([0-9a-z]*?)
+                    |        [0-9]++ ([0-9a-z.]*?) )
+            | ( p     [+\-]? [0-9]++
+              | [ep]                  [0-9a-z.]*?) )?
+          (?:(?<=\.)|\b) (?!\.)
+      scope: constant.numeric.float.decimal.csv
+      captures:
+        1: invalid.illegal.numeric-literal-character.float.whole-number.csv
+        2: constant.numeric.other.decimalpoint.csv
+        3: invalid.illegal.numeric-literal-character.float.whole-number.csv
+        4: keyword.other.exponent.decimal.csv
+        5: invalid.illegal.numeric-literal-character.float.exponent.csv
+        6: invalid.illegal.numeric-literal-character.float.exponent.csv
+        7: invalid.illegal.numeric-literal-character.float.exponent.csv
+    - match: |-
+        (?ix)  # decimal float literal
+          [+\-]? # optional number sign
+          (?!0x) # prefix
+          # significand (at least a period)
+          (\.) [0-9]++ ([0-9a-z.&&[^e]]*?) [0-9]*+
+          # exponent (optional)
+          (?: (e) (?: [+\-]  [0-9]++ ([0-9a-z]*?)
+                    |        [0-9]++ ([0-9a-z.]*?) )
+            | ( p     [+\-]? [0-9]++
+              | [ep]                  [0-9a-z.]*?) )?
+          (?:(?<=\.)|\b) (?!\.)
+      scope: constant.numeric.float.decimal.csv
+      captures:
+        1: constant.numeric.other.decimalpoint.csv
+        2: invalid.illegal.numeric-literal-character.float.whole-number.csv
+        3: keyword.other.exponent.decimal.csv
+        4: invalid.illegal.numeric-literal-character.float.exponent.csv
+        5: invalid.illegal.numeric-literal-character.float.exponent.csv
+        6: invalid.illegal.numeric-literal-character.float.exponent.csv
+    - match: |-
+        (?ix) # zero
+          [+\-]? # optional number sign
+          \b
+          (0[xbo])? # prefix
+          0++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.integer.zero.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+    - match: |-
+        (?ix) # invalid (empty) number literal
+          [+\-]? # optional number sign
+          \b
+          (?: (0x) | (0b) ) # prefix
+          \b (?!\.)
+      scope: invalid.illegal.invalid-number-literal.csv
+    - match: |-
+        (?ix) # hexadecimal integer literal
+          [+\-]? # optional number sign
+          \b
+          (0x) # prefix
+          [0-9a-f]++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.integer.hexadecimal.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+    - match: |-
+        (?ix) # binary integer literal
+          [+\-]? # optional number sign
+          \b
+          (0b) # prefix
+          [01]++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.integer.binary.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+    - match: |-
+        (?ix) # octal integer literal
+          [+\-]? # optional number sign
+          \b
+          (0|0o) # prefix
+          [0-7]++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.integer.octal.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+    - match: |-
+        (?ix) # decimal integer literal
+          [+\-]? # optional number sign
+          \b
+          [0-9]++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.integer.decimal.csv
