@@ -21,6 +21,7 @@ export type DragConstraint = (
 export interface ShapeCommon {
   name: string;
   ensureOnCanvas: boolean;
+  interactiveOnly: boolean;
 }
 
 export interface Stroke {

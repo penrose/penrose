@@ -40,6 +40,7 @@ export type DiagramData = {
   inputIdxsByPath: IdxsByPath;
   lassoStrength: number;
   sharedInputs: Set<SharedInput>;
+  interactiveOnlyShapes: Set<Shape<Num>>;
 };
 
 /**
@@ -70,6 +71,7 @@ export class Diagram {
     new Map();
   private lassoEnabled: boolean;
   private sharedInputs = new Set<SharedInput>();
+  private interactiveOnlyShapes;
 
   /**
    * Create a new renderable diagram. This should not be called directly; use
@@ -84,6 +86,7 @@ export class Diagram {
       data.namedInputs,
       data.lassoStrength !== 0,
       data.sharedInputs,
+      data.interactiveOnlyShapes,
     );
   };
 
@@ -94,6 +97,7 @@ export class Diagram {
     namedInputs: Map<string, number>,
     lassoEnabled: boolean,
     sharedInputs = new Set<SharedInput>(),
+    interactiveOnlyShapes = new Set<Shape<Num>>(),
   ) {
     this.state = state;
     this.manuallyPinnedIndices = pinnedInputs;
@@ -101,6 +105,7 @@ export class Diagram {
     this.namedInputs = namedInputs;
     this.lassoEnabled = lassoEnabled;
     this.sharedInputs = sharedInputs;
+    this.interactiveOnlyShapes = interactiveOnlyShapes;
   }
 
   /**
@@ -120,6 +125,20 @@ export class Diagram {
       svg,
       nameElemMap: titleCache,
     };
+  };
+
+  /**
+   *
+   */
+  renderStatic = async () => {
+    const { svg, nameElemMap } = await this.render();
+    for (const shape of this.state.shapes) {
+      if (this.interactiveOnlyShapes.has(shape)) {
+        const elem = nameElemMap.get(shape.name.contents)!;
+        elem.remove();
+      }
+    }
+    return svg;
   };
 
   /**
