@@ -237,6 +237,7 @@ export class DiagramBuilder {
   private dragNamesAndConstrs: Map<string, DragConstraint> = new Map();
   private externalInputs: Set<SharedInput> = new Set();
   private lassoStrength: number;
+  private interactiveOnlyShapes: Set<Shape> = new Set();
 
   /**
    * Create a new diagram builder.
@@ -308,6 +309,10 @@ export class DiagramBuilder {
             const elements = new Set(group.shapes);
             if (group.clipPath) elements.add(group.clipPath);
             this.shapes = this.shapes.filter((s) => !elements.has(s));
+          }
+
+          if (shape.interactiveOnly) {
+            this.interactiveOnlyShapes.add(shape);
           }
           this.shapes.push(shape);
           return shape;
@@ -636,7 +641,14 @@ export class DiagramBuilder {
     }
 
     const nameShapeMap = this.getNameShapeMap();
-    const penroseShapes = this.shapes.map((s) => toPenroseShape(s));
+    const interactiveOnlyShapes = new Set<PenroseShape<Num>>();
+    const penroseShapes = this.shapes.map((s) => {
+      const penroseShape = toPenroseShape(s);
+      if (this.interactiveOnlyShapes.has(s)) {
+        interactiveOnlyShapes.add(penroseShape);
+      }
+      return penroseShape;
+    });
     const orderedShapes = sortShapes(penroseShapes, this.partialLayering);
 
     const diagram = await Diagram.create({
@@ -653,6 +665,7 @@ export class DiagramBuilder {
       inputIdxsByPath: this.getTranslatedInputIdxsByPath(),
       lassoStrength: this.lassoStrength,
       sharedInputs: this.externalInputs,
+      interactiveOnlyShapes,
     });
 
     for (const input of this.externalInputs) {
