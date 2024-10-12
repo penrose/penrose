@@ -4,6 +4,7 @@
 *.substance.ts
 *.svg.ts
 *.trio.ts
+*.min.js
 /diagrams/
 /packages/bloom/docs/
 /packages/browser-ui/tsconfig.json

@@ -1999,3 +1999,404 @@ export const rayIntersectNormalLine = (
 ): Vec2 =>
   compDict.rayIntersectNormalLine.body(context, start, end, p, v).value
     .contents as Vec2;
+
+/**
+ * Normal at ray intersection with a rectangle
+ * @param rect The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle
+ * @param p A point
+ * @param v A vector
+ * @returns The unit normal at the intersection point
+ */
+export const rayIntersectNormalRect = (rect: Vec2[], p: Vec2, v: Vec2): Vec2 =>
+  compDict.rayIntersectNormalRect.body(context, rect, p, v).value
+    .contents as Vec2;
+
+/**
+ * Normal at ray intersection with a polygon or polyline
+ * @param pts The points of the polygon or polyline
+ * @param closed Whether the shape is closed (true for polygon, false for polyline)
+ * @param p A point
+ * @param v A vector
+ * @returns The unit normal at the intersection point
+ */
+export const rayIntersectNormalPoly = (
+  pts: Vec2[],
+  closed: boolean,
+  p: Vec2,
+  v: Vec2,
+): Vec2 =>
+  compDict.rayIntersectNormalPoly.body(context, pts, closed, p, v).value
+    .contents as Vec2;
+
+/**
+ * Normal at ray intersection with a group of shapes
+ * @param shapes A list of shapes
+ * @param p A point
+ * @param v A vector
+ * @returns The unit normal at the intersection point
+ */
+export const rayIntersectNormalGroup = (
+  shapes: Shape[],
+  p: Vec2,
+  v: Vec2,
+): Vec2 =>
+  compDict.rayIntersectNormalGroup.body(
+    context,
+    shapes.map((s) => toPenroseShape(s)),
+    p,
+    v,
+  ).value.contents as Vec2;
+
+/**
+ * Returns a point on the shape s closest to a query point p. If this point is not unique, an arbitrary choice is made.
+ * @param s A shape (Circle, Rect, Polygon, Line, Polyline, Ellipse, or Group)
+ * @param p A point
+ * @returns The closest point on the shape
+ */
+export const closestPoint = (s: Shape, p: Vec2): Vec2 =>
+  compDict.closestPoint.body(context, toPenroseShape(s), p).value
+    .contents as Vec2;
+
+/**
+ * Returns the closest point on a circle to a given point
+ * @param c center of circle
+ * @param r radius of circle
+ * @param pt the point
+ * @returns The closest point on the circle
+ */
+export const closestPointCircle = (c: Vec2, r: Num, pt: Vec2): Vec2 =>
+  compDict.closestPointCircle.body(context, c, r, pt).value.contents as Vec2;
+
+/**
+ * Returns the closest point on a rectangle to a given point
+ * @param rect The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle
+ * @param pt the point
+ * @returns The closest point on the rectangle
+ */
+export const closestPointRect = (rect: Vec2[], pt: Vec2): Vec2 =>
+  compDict.closestPointRect.body(context, rect, pt).value.contents as Vec2;
+
+/**
+ * Returns the closest point on a line to a given point
+ * @param start start point of line
+ * @param end end point of line
+ * @param pt the point
+ * @returns The closest point on the line
+ */
+export const closestPointLine = (start: Vec2, end: Vec2, pt: Vec2): Vec2 =>
+  compDict.closestPointLine.body(context, start, end, pt).value
+    .contents as Vec2;
+
+/**
+ * Returns the closest point on an ellipse to a given point
+ * @param c center of ellipse
+ * @param rx horizontal radius of ellipse
+ * @param ry vertical radius of ellipse
+ * @param pt the point
+ * @returns The closest point on the ellipse
+ */
+export const closestPointEllipse = (
+  c: Vec2,
+  rx: Num,
+  ry: Num,
+  pt: Vec2,
+): Vec2 =>
+  compDict.closestPointEllipse.body(context, c, rx, ry, pt).value
+    .contents as Vec2;
+
+/**
+ * Returns the closest point on a polygon or polyline to a given point
+ * @param pts points of the polygon
+ * @param closed whether or not the polygon is closed
+ * @param pt the point
+ * @returns The closest point on the polygon or polyline
+ */
+export const closestPointPoly = (
+  pts: Vec2[],
+  closed: boolean,
+  pt: Vec2,
+): Vec2 =>
+  compDict.closestPointPoly.body(context, pts, closed, pt).value
+    .contents as Vec2;
+
+/**
+ * Returns the closest point on a group of shapes to a given point
+ * @param shapes shapes of the group
+ * @param pt the point
+ * @returns The closest point on the group of shapes
+ */
+export const closestPointGroup = (shapes: Shape[], pt: Vec2): Vec2 =>
+  compDict.closestPointGroup.body(
+    context,
+    shapes.map((s) => toPenroseShape(s)),
+    pt,
+  ).value.contents as Vec2;
+
+/**
+ * Returns a point on the visibility silhouette of shape s closest to a query point p.
+ * If this point is not unique, an arbitrary choice is made. If no such point exists, the query point p is returned.
+ * @param s A shape (Circle, Rect, Polygon, Line, Polyline, Ellipse, or Group)
+ * @param p A point
+ * @returns The closest point on the visibility silhouette
+ */
+export const closestSilhouettePoint = (
+  s: Exclude<Shape, Path>,
+  p: Vec2,
+): Vec2 =>
+  compDict.closestSilhouettePoint.body(
+    context,
+    toPenroseShape(s) as Exclude<PenroseShape<Num>, PenrosePath<Num>>,
+    p,
+  ).value.contents as Vec2;
+
+/**
+ * Returns the closest point on the visibility silhouette of a circle
+ * @param c center of circle
+ * @param r radius of circle
+ * @param p A point
+ * @returns The closest point on the visibility silhouette of the circle
+ */
+export const closestSilhouettePointCircle = (c: Vec2, r: Num, p: Vec2): Vec2 =>
+  compDict.closestSilhouettePointCircle.body(context, c, r, p).value
+    .contents as Vec2;
+
+/**
+ * Returns the closest point on the visibility silhouette of an ellipse
+ * @param c center of ellipse
+ * @param rx horizontal radius of ellipse
+ * @param ry vertical radius of ellipse
+ * @param p A point
+ * @returns The closest point on the visibility silhouette of the ellipse
+ */
+export const closestSilhouettePointEllipse = (
+  c: Vec2,
+  rx: Num,
+  ry: Num,
+  p: Vec2,
+): Vec2 =>
+  compDict.closestSilhouettePointEllipse.body(context, c, rx, ry, p).value
+    .contents as Vec2;
+
+/**
+ * Returns the closest point on the visibility silhouette of a line
+ * @param start start point of line
+ * @param end end point of line
+ * @param p A point
+ * @returns The closest point on the visibility silhouette of the line
+ */
+export const closestSilhouettePointLine = (
+  start: Vec2,
+  end: Vec2,
+  p: Vec2,
+): Vec2 =>
+  compDict.closestSilhouettePointLine.body(context, start, end, p).value
+    .contents as Vec2;
+
+/**
+ * Returns the closest point on the visibility silhouette of a rectangle
+ * @param rect The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle
+ * @param p A point
+ * @returns The closest point on the visibility silhouette of the rectangle
+ */
+export const closestSilhouettePointRect = (rect: Vec2[], p: Vec2): Vec2 =>
+  compDict.closestSilhouettePointRect.body(context, rect, p).value
+    .contents as Vec2;
+
+/**
+ * Returns the closest point on the visibility silhouette of a polyline
+ * @param points points of the polyline
+ * @param p A point
+ * @returns The closest point on the visibility silhouette of the polyline
+ */
+export const closestSilhouettePointPolyline = (points: Vec2[], p: Vec2): Vec2 =>
+  compDict.closestSilhouettePointPolyline.body(context, points, p).value
+    .contents as Vec2;
+
+/**
+ * Returns the closest point on the visibility silhouette of a polygon
+ * @param points points of the polygon
+ * @param p A point
+ * @returns The closest point on the visibility silhouette of the polygon
+ */
+export const closestSilhouettePointPolygon = (points: Vec2[], p: Vec2): Vec2 =>
+  compDict.closestSilhouettePointPolygon.body(context, points, p).value
+    .contents as Vec2;
+
+/**
+ * Returns the closest point on the visibility silhouette of a group of shapes
+ * @param shapes A list of shapes
+ * @param p A point
+ * @returns The closest point on the visibility silhouette of the group of shapes
+ */
+export const closestSilhouettePointGroup = (shapes: Shape[], p: Vec2): Vec2 =>
+  compDict.closestSilhouettePointGroup.body(
+    context,
+    shapes.map((s) => toPenroseShape(s)),
+    p,
+  ).value.contents as Vec2;
+
+/**
+ * Returns the distance to the closest point on the visibility silhouette of shape s relative to query point p.
+ * If no such point exists, returns Infinity.
+ * @param s A shape (Circle, Rect, Polygon, Line, Polyline, Ellipse, or Group)
+ * @param p A point
+ * @returns The distance to the closest point on the visibility silhouette
+ */
+export const closestSilhouetteDistance = (
+  s: Exclude<Shape, Path>,
+  p: Vec2,
+): Num =>
+  compDict.closestSilhouetteDistance.body(
+    context,
+    toPenroseShape(s) as Exclude<PenroseShape<Num>, PenrosePath<Num>>,
+    p,
+  ).value.contents;
+
+/**
+ * Return the distance between a rectangle (defined using the bottom-left and top-right points) and a line (defined using start and end points)
+ * @param bottomLeft bottom-left point of rectangle
+ * @param topRight top-right point of rectangle
+ * @param start start point of line
+ * @param end end point of line
+ * @returns The distance between the rectangle and the line
+ */
+export const rectLineDist = (
+  bottomLeft: Vec2,
+  topRight: Vec2,
+  start: Vec2,
+  end: Vec2,
+): Num =>
+  compDict.rectLineDist.body(context, bottomLeft, topRight, start, end).value
+    .contents;
+
+/**
+ * Return the distance between two shapes.
+ * @param s1 a shape
+ * @param s2 a shape
+ * @returns The distance between the two shapes
+ */
+export const shapeDistance = (s1: Shape, s2: Shape): Num =>
+  compDict.shapeDistance.body(context, toPenroseShape(s1), toPenroseShape(s2))
+    .value.contents;
+
+/**
+ * Return the distance between two circles.
+ * @param c1 center of first circle
+ * @param r1 radius of first circle
+ * @param c2 center of second circle
+ * @param r2 radius of second circle
+ * @returns The distance between the two circles
+ */
+export const shapeDistanceCircles = (
+  c1: Vec2,
+  r1: Num,
+  c2: Vec2,
+  r2: Num,
+): Num =>
+  compDict.shapeDistanceCircles.body(context, c1, r1, c2, r2).value.contents;
+
+/**
+ * Return the distance between two rectangles.
+ * @param rect1 The top-right, top-left, bottom-left, bottom-right points (in that order) of the first rectangle.
+ * @param rect2 The top-right, top-left, bottom-left, bottom-right points (in that order) of the second rectangle.
+ * @returns The distance between the two rectangles
+ */
+export const shapeDistanceRects = (rect1: Vec2[], rect2: Vec2[]): Num =>
+  compDict.shapeDistanceRects.body(context, rect1, rect2).value.contents;
+
+/**
+ * Returns the distance between a rectangle and a line.
+ * @param rect The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle.
+ * @param start The start point of the line
+ * @param end The end point of the line
+ * @returns The distance between the rectangle and the line
+ */
+export const shapeDistanceRectLine = (
+  rect: Vec2[],
+  start: Vec2,
+  end: Vec2,
+): Num =>
+  compDict.shapeDistanceRectLine.body(context, rect, start, end).value.contents;
+
+/**
+ * Returns the distance between a rectangle and a polyline.
+ * @param rect The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle.
+ * @param points points of polyline
+ * @returns The distance between the rectangle and the polyline
+ */
+export const shapeDistanceRectlikePolyline = (
+  rect: Vec2[],
+  points: Vec2[],
+): Num =>
+  compDict.shapeDistanceRectlikePolyline.body(context, rect, points).value
+    .contents;
+
+/**
+ * Returns the distance between two polygons.
+ * @param pts1 The list of points for the first polygon
+ * @param pts2 The list of points for the second polygon
+ * @returns The distance between the two polygons
+ */
+export const shapeDistancePolys = (pts1: Vec2[], pts2: Vec2[]): Num =>
+  compDict.shapeDistancePolys.body(context, pts1, pts2).value.contents;
+
+/**
+ * Returns the distance between a rectangle and a circle.
+ * @param rect The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle.
+ * @param c center of the circle
+ * @param r radius of the circle
+ * @returns The distance between the rectangle and the circle
+ */
+export const shapeDistanceRectCircle = (rect: Vec2[], c: Vec2, r: Num): Num =>
+  compDict.shapeDistanceRectCircle.body(context, rect, c, r).value.contents;
+
+/**
+ * Returns the distance between a polygon and an ellipse.
+ * @param pts The list of points for the polygon
+ * @param c center of the ellipse
+ * @param rx horizontal radius of ellipse
+ * @param ry vertical radius of ellipse
+ * @returns The distance between the polygon and the ellipse
+ */
+export const shapeDistancePolyEllipse = (
+  pts: Vec2[],
+  c: Vec2,
+  rx: Num,
+  ry: Num,
+): Num =>
+  compDict.shapeDistancePolyEllipse.body(context, pts, c, rx, ry).value
+    .contents;
+
+/**
+ * Returns the distance between a circle and a line.
+ * @param c center of the circle
+ * @param r radius of the circle
+ * @param start start point of line
+ * @param end end point of line
+ * @returns The distance between the circle and the line
+ */
+export const shapeDistanceCircleLine = (
+  c: Vec2,
+  r: Num,
+  start: Vec2,
+  end: Vec2,
+): Num =>
+  compDict.shapeDistanceCircleLine.body(context, c, r, start, end).value
+    .contents;
+
+/**
+ * Returns the distance between two lines.
+ * @param start1 start point of first line
+ * @param end1 end point of first line
+ * @param start2 start point of second line
+ * @param end2 end point of second line
+ * @returns The distance between the two lines
+ */
+export const shapeDistanceLines = (
+  start1: Vec2,
+  end1: Vec2,
+  start2: Vec2,
+  end2: Vec2,
+): Num =>
+  compDict.shapeDistanceLines.body(context, start1, end1, start2, end2).value
+    .contents;

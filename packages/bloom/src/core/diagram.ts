@@ -9,6 +9,7 @@ import {
   InputInfo,
   insertPending,
   isOptimized,
+  makeTranslateOnMouseDown,
   mul,
   nextStage,
   Num,
@@ -22,7 +23,7 @@ import consola, { LogLevels } from "consola";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SharedInput } from "./builder.js";
 import { DragConstraint } from "./types.js";
-import { mathjaxInitWithHandler, stateToSVG } from "./utils.js";
+import { CallbackLooper, mathjaxInitWithHandler, stateToSVG } from "./utils.js";
 
 const log = consola.create({ level: LogLevels.warn }).withTag("diagram");
 
@@ -72,6 +73,8 @@ export class Diagram {
   private lassoEnabled: boolean;
   private sharedInputs = new Set<SharedInput>();
   private interactiveOnlyShapes;
+  private optimizationLooper = new CallbackLooper("MessageChannel");
+  private renderLooper = new CallbackLooper("AnimationFrame");
 
   /**
    * Create a new renderable diagram. This should not be called directly; use
@@ -180,6 +183,83 @@ export class Diagram {
       log.info(`Optimization failed: ${err}`);
       return false;
     }
+  };
+
+  /**
+   * Returns an HTMLElement presenting an interactive diagram. This element should
+   * be appended added to an existing document node to be visible. The element is
+   * styled by default with "width: 100%; height: 100%l touch-action: none".
+   */
+  getInteractiveElement = () => {
+    let dragging = false;
+    const parentElement = document.createElement("div");
+    parentElement.style.height = "100%";
+    parentElement.style.width = "100%";
+    parentElement.style.touchAction = "none";
+
+    const optimizationLoop = async () => {
+      return await this.optimizationStep();
+    };
+
+    const renderLoop = async () => {
+      const { svg, nameElemMap } = await this.render();
+      svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      svg.setAttribute("pointer-events", "none");
+      svg.style.width = "100%";
+      svg.style.height = "100%";
+      for (const [name, elem] of nameElemMap) {
+        if (this.draggingConstraints.has(name)) {
+          // get rid of tooltip
+          elem.insertBefore(
+            document.createElementNS("http://www.w3.org/2000/svg", "title"),
+            elem.firstChild,
+          );
+          elem.setAttribute("pointer-events", "painted");
+          elem.setAttribute("cursor", dragging ? "grabbing" : "grab");
+          const translateFn = makeTranslateOnMouseDown(
+            svg,
+            elem,
+            this.getCanvas(),
+            name,
+            (() => {
+              let lastDx = 0;
+              let lastDy = 0;
+              return async (path, dx, dy) => {
+                this.translate(path, dx - lastDx, dy - lastDy);
+                lastDx = dx;
+                lastDy = dy;
+              };
+            })(),
+            ([x, y]) => this.draggingConstraints.get(name)!([x, y], this),
+            undefined,
+            () => {
+              this.endDrag(name);
+              dragging = false;
+            },
+          );
+          elem.addEventListener("pointerdown", (e) => {
+            this.beginDrag(name);
+            dragging = true;
+            translateFn(e);
+          });
+        }
+      }
+      if (parentElement.lastChild) {
+        parentElement.removeChild(parentElement.lastChild);
+      }
+      parentElement.appendChild(svg);
+      return this.optimizationLooper.isRunning();
+    };
+
+    this.setOnInteraction(() => {
+      this.optimizationLooper.loop(optimizationLoop);
+      this.renderLooper.loop(renderLoop);
+    });
+
+    this.optimizationLooper.loop(optimizationLoop);
+    this.renderLooper.loop(renderLoop);
+
+    return parentElement;
   };
 
   beginDrag = (name: string) => {

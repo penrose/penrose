@@ -14,7 +14,7 @@
     "!dist/**/*.test.d.ts"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && rollup -c",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "docs": "typedoc"
   },
@@ -50,6 +50,9 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-replace": "^6.0.1",
     "@types/prismjs": "^1.26.4",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
@@ -58,6 +61,8 @@
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
+    "rollup": "^4.24.0",
+    "rollup-plugin-esbuild-minify": "^1.1.2",
     "typedoc": "^0.26.6",
     "typedoc-plugin-markdown": "^4.2.6",
     "typedoc-vitepress-theme": "^1.0.1",
