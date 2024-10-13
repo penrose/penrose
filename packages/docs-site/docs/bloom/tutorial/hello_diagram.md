@@ -34,7 +34,7 @@ The first step in using Bloom is to create a
 shapes, constraints, and everything else you need to build your diagram. It takes up to three arguments:
 
 - `canvas`: a `Canvas` object specifying the local coordinate system (and thus the aspect ratio) of your diagram.
-- `variation`: a optional `string` providing a seed for random sampling
+- `variation`: an optional `string` providing a seed for random sampling
 - `lassoStrength`: an optional `number` (default 0) specifying the strength with which the diagram should encourage
   continuity. If you notice your diagram acting 'jumpy', you might consider increasing this value.
 
@@ -169,7 +169,7 @@ If you refer back to the diagram at the top of this article, you can see we want
 connecting the centers of `p` and `q`, but with a padding between the circle and the endpoints of the arrow. Finding the
 start and endpoint of this arrow requires a little linear algebra:
 
-- Take the vector connecting the the two centers (`pq`), and normalize it to get the direction vector between the, (`pqNorm`)
+- Take the vector connecting the two centers (`pq`), and normalize it to get the direction vector (`pqNorm`)
 - Multiply the direction vector by `pointRad` + `pointMargin` to get the vector from `p` to the start of the arrow `pStart`.
 - Add `pStart` to `p` gets the start of the arrow, and subtract `pStart` from `q` get the end of the arrow.
 
@@ -216,7 +216,7 @@ To display your diagram, we should first create a `div` element for the diagram 
 </body>
 ```
 
-The diagram will expand to fill it's containing block, so you can adjust the `width` and `height` to fit your needs.
+The diagram will expand to fill its containing block, so you can adjust the `width` and `height` to fit your needs.
 Now we can get an interactive element from the diagram and append it to the container:
 
 ```javascript

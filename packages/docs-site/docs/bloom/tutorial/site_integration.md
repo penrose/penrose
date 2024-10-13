@@ -81,7 +81,7 @@ const MyDiagramComponent = () => {
 (Here, useCallback is necessary to prevent the anonymous function wrapping `buildMyDiagram` from changing every
 render, and therefore triggering `useDiagram` to rebuild the diagram every render);
 
-A couple things are going on here:
+A couple fo things are going on here:
 
 - The method `sharedInput` of `DiagramBuilder` takes a `SharedInput` and creates an otherwise normal diagram input, which
   can be used exactly like calling `input()`.

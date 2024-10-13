@@ -95,7 +95,7 @@ along a line, or an object constrained within a box. Try dragging the point belo
 
 Constraining each planet to their orbit is a fundamentally a different kind of constraint than the kinds we can give to the optimizer;
 where before we were only specifying what kinds of diagrams the optimizer should converge to, now we want to specify where the user
-is allowed to set a shape’s position. Additionally, when the user does drag their mouse outside of the legal region,
+is allowed to set a shape’s position. Additionally, when the user does drag their mouse outside the legal region,
 we need some way to define where the shape should actually go&mdash;a kind of projection. Bloom allows you express
 both of these behaviors with a `dragConstraint`:
 

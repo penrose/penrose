@@ -58,7 +58,7 @@ In the next chapter, you'll learn how to create a diagram with `DiagramBuilder`,
 ### NPM Package
 
 If you're bundling your project with Webpack, Rollup, or developing with Vite, you can also install Bloom as an NPM
-pacakage:
+package:
 
 ```bash
 npm install @penrose/bloom
