@@ -247,7 +247,11 @@ export class DiagramBuilder {
    * @param lassoStrength Strength of the optimizers lasso term. Higher values encourage diagram continuity,
    *   while lower values encourage reactivity. Default is 0.
    */
-  constructor(canvas: Canvas, variation: string, lassoStrength: number = 0) {
+  constructor(
+    canvas: Canvas,
+    variation: string = "",
+    lassoStrength: number = 0,
+  ) {
     this.canvas = canvas;
     this.variation = variation;
     this.lassoStrength = lassoStrength;

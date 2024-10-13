@@ -2,7 +2,7 @@
 import Eigen from "../../../src/bloom-examples/Eigen.vue";
 </script>
 
-# Site Integration
+# React Integration
 
 ---
 
@@ -10,7 +10,9 @@ import Eigen from "../../../src/bloom-examples/Eigen.vue";
 
 In the above example, we have a React component rendering a Bloom diagram on the left, and some Mathjax on the right.
 Somehow, we need to sync values internal to the diagram to mathjax, live during rendering. Bloom provides several
-solutions.
+solutions. As a reminder, React integration is available through the `@penrose/bloom` NPM package.
+
+### Basics
 
 ### Named Inputs
 
@@ -32,7 +34,7 @@ const a1y = diagram.getInput("a1.y");
 // render mathjax ...
 ```
 
-What happends when `a1` is dragged? As written, this will not force a re-render by React, since get is only run on
+What happens when `a1` is dragged? As written, this will not force a re-render by React, since get is only run on
 render! One solution is to store the retrieved values in a state and use Bloom’s effect system:
 
 ```ts
@@ -79,7 +81,7 @@ const MyDiagramComponent = () => {
 (Here, useCallback is necessary to prevent the anonymous function wrapping `buildMyDiagram` from changing every
 render, and therefore triggering `useDiagram` to rebuild the diagram every render);
 
-A couple things are going on here:
+A couple fo things are going on here:
 
 - The method `sharedInput` of `DiagramBuilder` takes a `SharedInput` and creates an otherwise normal diagram input, which
   can be used exactly like calling `input()`.

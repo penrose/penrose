@@ -292,10 +292,6 @@ export default defineConfig({
                   text: "Interactivity",
                   link: "/docs/bloom/tutorial/interactivity",
                 },
-                {
-                  text: "Site Integration",
-                  link: "/docs/bloom/tutorial/site_integration",
-                },
               ],
             },
             {

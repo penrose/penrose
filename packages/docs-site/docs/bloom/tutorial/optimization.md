@@ -10,7 +10,7 @@ import ProceduralDiagram from "../../../src/bloom-examples/ProceduralDiagram.vue
 
 Imagine we’re drawing two circles, the second of which has twice the radius of the first:
 
-```ts
+```javascript
 const c1 = circle({}); // radius `r` (and other fields) randomly sampled
 // `{}` may be omitted
 const c2 = circle({
@@ -18,7 +18,7 @@ const c2 = circle({
 });
 ```
 
-Looks good. But when we go to typecheck this, we get an error:
+Looks good. But if we were to typecheck this using Bloom's TypeScript support, we would get an error:
 
 ```
 TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number' or an enum type.
@@ -55,14 +55,14 @@ Both Bloom and Penrose provide a whole host of operations on `Num`s, which you c
 
 While inputs are created every time a shape field is randomly sampled, you can also create your own with the input method:
 
-```ts
+```javascript
 const myVar = input();
 ```
 
 Why might you want to do this? One common instance is when you want a shape field to have one element be randomly
 selected and optimized, but another element constant:
 
-```ts
+```javascript
 rectangle({
   width: 100,
   height: 50,
@@ -73,18 +73,17 @@ rectangle({
 This rectangle will always have `y === 0`, but its x-coordinate will be sampled (and optimized). You might also need
 to explicitly declare inputs if you want specific settings:
 
-```ts
+```javascript
 const myVar = input({ name: "myVar", init: 42, optimized: false });
 ```
 
 `name` allows the input to be changed at render-time with `Diagram.prototype.setInput`, or retrieved with
-`Diagram.prototype.getInput` (though we highly recommend using `SharedInput` instead, which we’ll cover in the
-next chapter). Specifying `init` disables random sampling, and sets the input (at least initially) to the specified
+`Diagram.prototype.getInput`. Specifying `init` disables random sampling, and sets the input (at least initially) to the specified
 value. If `optimized` is set to `false`, then the input will not be changed by the optimizer to try and satisfy
 constraints; this is particularly useful when you want an object to stay where you dragged it. All three fields are
 optional, as well as the entire settings object.
 
-```ts
+```javascript
 // this circle can be dragged, but may be moved by the optimizer after the user releases it
 circle({
   drag: true,

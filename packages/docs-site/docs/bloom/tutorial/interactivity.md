@@ -11,7 +11,7 @@ import PlanetsArrows from "../../../src/bloom-examples/PlanetsArrows.vue";
 
 You can make a shape draggable by setting `drag: true` on a compatible shape:
 
-```ts
+```javascript
 ellipse({
   drag: true,
 });
@@ -30,7 +30,7 @@ The coordinates that must be inputs are exactly those that would be translated b
 there would be no value for Bloom to translate! This can be inconvenient, however. Imagine we have two squares that are
 always 50 pixels apart horizontally, but both should be draggable:
 
-```ts
+```javascript
 const s1 = rectangle({
   width: 25,
   height: 25,
@@ -50,7 +50,7 @@ If you were to build this, you would find that `s2` could not be dragged because
 is to make both `center`s have their own inputs (the default), and add optimizer constraints to maintain the 50 pixels
 separation:
 
-```ts
+```javascript
 const s1 = rectangle({
   width: 25,
   height: 25,
@@ -69,7 +69,7 @@ ensure(constraints.equal(s1.center[1], s2.center[1]));
 
 The `bindToInput` method creates syntactic sugar for this pattern. The following builds exactly the same diagram:
 
-```ts
+```javascript
 const s1 = rectangle({
   width: 25,
   height: 25,
@@ -95,11 +95,11 @@ along a line, or an object constrained within a box. Try dragging the point belo
 
 Constraining each planet to their orbit is a fundamentally a different kind of constraint than the kinds we can give to the optimizer;
 where before we were only specifying what kinds of diagrams the optimizer should converge to, now we want to specify where the user
-is allowed to set a shape’s position. Additionally, when the user does drag their mouse outside of the legal region,
+is allowed to set a shape’s position. Additionally, when the user does drag their mouse outside the legal region,
 we need some way to define where the shape should actually go&mdash;a kind of projection. Bloom allows you express
 both of these behaviors with a `dragConstraint`:
 
-```ts
+```javascript
 // calculate the center of the planet given the current "time"
 const center = [
   mul(p.orbitalRad, cos(div(time, p.period))),
