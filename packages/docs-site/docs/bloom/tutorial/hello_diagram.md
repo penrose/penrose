@@ -15,46 +15,38 @@ Here’s what we’re working towards:
 
 ### Building the Diagram
 
-First, create a new component `MyDiagram.tsx` in the `src/` directory.
+Let's pick up where we left off:
 
-You’ll almost certainly want to wrap the process of building your diagram it’s own function, which we’ll call later
-when we render the diagram:
+```javascript
+// main.js
 
-```ts
-import {
-  DiagramBuilder,
-  Renderer,
-  Vec2,
-  canvas,
-  constraints,
-  ops,
-  useDiagram,
-} from "@penrose/bloom";
+import * as bloom from "https://penrose.cs.cmu.edu/bloom.min.js";
 
-const buildMyDiagram = async () => {
-  const db = new DiagramBuilder(canvas(400, 200), "abcd", 1);
+const db = new bloom.DiagramBuilder(bloom.canvas(400, 400), "abcd", 1);
 
-  const { type, predicate, circle, line, build, forall, forallWhere, ensure } =
-    db;
+// Diagramming goes here!
 
-  // diagramming goes here!
-
-  return await build();
-};
+const diagram = await db.build();
 ```
 
 The first step in using Bloom is to create a
 `DiagramBuilder` object. This object contains methods allowing you to declare types, substances, style selectors,
-shapes, constraints, and everything else you need to build your diagram. It takes in three arguments:
+shapes, constraints, and everything else you need to build your diagram. It takes up to three arguments:
 
 - `canvas`: a `Canvas` object specifying the local coordinate system (and thus the aspect ratio) of your diagram.
-- `variation`: a `string` providing a seed for random sampling
+- `variation`: a optional `string` providing a seed for random sampling
 - `lassoStrength`: an optional `number` (default 0) specifying the strength with which the diagram should encourage
   continuity. If you notice your diagram acting 'jumpy', you might consider increasing this value.
 
-When we're done, we call `.build()` to get the diagram object.
+When you're done building your diagram, await `.build()` to get the diagram object.
 
-It’s not strictly necessary to destructure the `DiagramBuilder` methods, but it’s convenient, and for the remainder of
+You might find it convenient to destructure the methods of `DiagramBuilder` and a few from `bloom`:
+
+```javascript
+const { type, predicate, forall, forallWhere, ensure, circle, line } = db;
+```
+
+Destructuring the `DiagramBuilder` methods isn't strictly necessary, but for the remainder of
 these tutorials we assume that every method we need has been destructured. We do recommend keeping a reference to the
 original `db` variable like above, in case you want to pass it to a helper function.
 
@@ -62,7 +54,7 @@ On to the diagramming! Our diagram needs to have two circles, and an arrow conne
 shapes right away, Bloom encourages you to first declare the abstract objects in your scene, and define rules to style
 those objects. This leads to better reusability, better readability, and often fewer bugs.
 
-```ts
+```javascript
 const Point = type();
 const Arrow = type();
 const Connects = predicate();
@@ -80,7 +72,7 @@ specify that `arrow` connects `p1` to `p2`. Predicates are untyped, so we could 
 
 The final step is to ‘style’ these constructs:
 
-```ts
+```javascript
 const pointRad = 30;
 const pointMargin = 10;
 
@@ -95,21 +87,21 @@ forallWhere(
   { a: Arrow, p: Point, q: Point },
   ({ a, p, q }) => Connects.test(a, p, q),
   ({ a, p, q }) => {
-    const pq = ops.vsub(q.icon.center, p.icon.center); // vector from p to q
-    const pqNorm = ops.vnormalize(pq); // direction from p to q
-    const pStart = ops.vmul(pointRad + pointMargin, pqNorm); // vector from p to line start
-    const start = ops.vadd(p.icon.center, pStart); // line start
-    const end = ops.vsub(q.icon.center, pStart); // line end
+    const pq = bloom.ops.vsub(q.icon.center, p.icon.center); // vector from p to q
+    const pqNorm = bloom.ops.vnormalize(pq); // direction from p to q
+    const pStart = bloom.ops.vmul(pointRad + pointMargin, pqNorm); // vector from p to line start
+    const start = bloom.ops.vadd(p.icon.center, pStart); // line start
+    const end = bloom.ops.vsub(q.icon.center, pStart); // line end
 
     a.icon = line({
-      start: start as Vec2,
-      end: end as Vec2,
+      start: start,
+      end: end,
       endArrowhead: "straight",
     });
 
     ensure(
-      constraints.greaterThan(
-        ops.vdist(p.icon.center, q.icon.center),
+      bloom.constraints.greaterThan(
+        bloom.ops.vdist(p.icon.center, q.icon.center),
         2 * (pointRad + pointMargin) + 20,
       ),
     );
@@ -155,37 +147,40 @@ shapes) in the [Penrose documentation](/docs/ref/style/shapes-overview). These f
 
 ```ts
 forallWhere(
-{ a: Arrow, p: Point, q: Point },
-({ a, p, q }) => Connects.test(a, p, q),
-({ a, p, q }) => {
+  { a: Arrow, p: Point, q: Point },
+  ({ a, p, q }) => Connects.test(a, p, q),
+  ({ a, p, q }) => {
 ```
 
-`forallWhere` selects over substances just like forall, except only assignments which satisfy a boolean predicate
+`forallWhere` selects over substances just like `forall`, except only assignments which satisfy a boolean predicate
 are passed to your styling function. In this case, we test whether we previously declared that `a`, `p`, `q` have the
 relationship `Connects`. We declared this for exactly one such triple, so we can expect our styling function to run
 only once with `a === arrow`, `p === p1`, and `q === p2`.
 
 ```ts
-const pq = ops.vsub(q.icon.center, p.icon.center); // vector from p to q
-const pqNorm = ops.vnormalize(pq); // direction from p to q
-const pStart = ops.vmul(pointRad + pointMargin, pqNorm); // vector from p to line start
-const start = ops.vadd(p.icon.center, pStart); // line start
-const end = ops.vsub(q.icon.center, pStart); // line end
+const pq = bloom.ops.vsub(q.icon.center, p.icon.center); // vector from p to q
+const pqNorm = bloom.ops.vnormalize(pq); // direction from p to q
+const pStart = bloom.ops.vmul(pointRad + pointMargin, pqNorm); // vector from p to line start
+const start = bloom.ops.vadd(p.icon.center, pStart); // line start
+const end = bloom.ops.vsub(q.icon.center, pStart); // line end
 ```
 
 If you refer back to the diagram at the top of this article, you can see we want our arrow to lie on the line
-connecting the centers of `p` and `q`, but with a padding between the circle and the endpoints of the arrow.
-So we take the vector connecting them (`pq`), normalize it to get the unit length direction (`pqNorm`), multiply it by
-`pointRad` + `pointMargin` to get the vector from `p` to the start of the arrow `pStart`. Adding `pStart` to `p` gets us the start
-of the arrow, and subtracting `pStart` from `q` gets us the end. All of these vector operations are part of the Penrose API,
-in the exported `ops` dictionary.
+connecting the centers of `p` and `q`, but with a padding between the circle and the endpoints of the arrow. Finding the
+start and endpoint of this arrow requires a little linear algebra:
+
+- Take the vector connecting the the two centers (`pq`), and normalize it to get the direction vector between the, (`pqNorm`)
+- Multiply the direction vector by `pointRad` + `pointMargin` to get the vector from `p` to the start of the arrow `pStart`.
+- Add `pStart` to `p` gets the start of the arrow, and subtract `pStart` from `q` get the end of the arrow.
+
+All of these vector operations are available in the `ops` dictionary exported by Bloom.
 
 Drawing the arrow is now self-explanatory:
 
 ```ts
 a.icon = line({
-  start: start as Vec2,
-  end: end as Vec2,
+  start: start,
+  end: end,
   endArrowhead: "straight",
 });
 ```
@@ -196,8 +191,8 @@ points is greater than the sum of their radii and padding:
 
 ```ts
 ensure(
-  constraints.greaterThan(
-    ops.vdist(p.icon.center, q.icon.center),
+  bloom.constraints.greaterThan(
+    bloom.ops.vdist(p.icon.center, q.icon.center),
     2 * (pointRad + pointMargin) + 20,
   ),
 );
@@ -205,29 +200,32 @@ ensure(
 
 We’ll talk more about the optimizer and constraints in the next chapter.
 
-### Rendering the Diagram
+### Displaying the Diagram
 
-To render your diagram in React, you'll need to create a new component that uses the `useDiagram` hook to build your
-diagram and the `Renderer` component to display it. Here's an example:
+To display your diagram, we should first create a `div` element for the diagram in `index.html`:
 
-```tsx
-export const MyDiagramComponent = () => {
-  const diagram = useDiagram(buildMyDiagram);
-  return <Renderer diagram={diagram} />;
-};
+```html
+!-- index.html -->
+
+<body>
+  <div
+    id="diagram-container"
+    style="width: 50em; height: 50em; margin: auto; border: 3px solid black"
+  ></div>
+  <script type="module" src="main.js"></script>
+</body>
 ```
 
-`useDiagram` runs your building function and stores the built diagram as a React state (it also sets up some callbacks
-or live site integration, so simply memoizing your diagram won’t always do what you expect).
-`Renderer` starts a render loop and sets up interaction callbacks for your diagram.
+The diagram will expand to fill it's containing block, so you can adjust the `width` and `height` to fit your needs.
+Now we can get an interactive element from the diagram and append it to the container:
 
-You can use this component wherever you would like in your React app, but for the purposes of this tutorial,
-you might edit `App.tsx` to render your diagram directly:
+```javascript
+// main.js
 
-```tsx
-import { MyDiagramComponent } from "./MyDiagram.js";
+const diagram = await db.build();
 
-const App = () => {
-  return <MyDiagramComponent />;
-};
+const interactiveElement = diagram.getInteractiveElement();
+document.getElementById("diagram-container").appendChild(interactiveElement);
 ```
+
+If you open `index.html` in your browser, you should be able to see and interact with the diagram!

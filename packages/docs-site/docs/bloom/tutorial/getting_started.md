@@ -2,80 +2,66 @@
 
 ---
 
-Welcome! We’re excited you’ve decided to try Bloom. These series of tutorials will walk you through everything you need
-to start making beautiful interactive diagrams directly in React. This first chapter will lead you through creating a
-React app and installing Bloom. If you already have a React app set up, just install the npm package `@penrose/bloom` with
-your favorite package manager and move on to the next tutorial.
+Welcome! We’re excited you’ve decided to try Bloom. This series of tutorials will walk you through everything you need
+to start building optimization-driven interactive diagrams in JavaScript.
 
-These tutorials expect that you have some proficiency with JavaScript and React, plus a teeny bit of linear algebra,
-though we’ll keep that to a minimum. They _do not_ assume you have any experience with Penrose, though if you do,
-you’ll likely find the concepts familiar.
+### First Steps
 
-### Creating a React App
-
-You'll need node.js $\ge$ 18 and npm $\ge$ 8 before getting started, which you can find
-[here](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). Once those are installed, create new React app as follows:
+For the purposes of the tutorial, let's start a new HTML/JS project. Create a new directory and add both an `index.html`
+and `main.js` file:
 
 ```bash
-npm create vite@latest my-bloom-app -- --template react-ts
-cd my-bloom-app
-npm install
+mkdir my-bloom-project
+cd my-bloom-project
+touch index.html main.js
 ```
 
-You should obviously change `my-bloom-app` to whatever makes sense for you. Finally, you can install the Bloom package
-and its dependencies. We _highly_ recommend using TypeScript with Bloom, which is why we used the `react-ts`
-template above.
+Next, open `index.html` in your favorite text editor and add the standard boilerplate:
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My Bloom Project</title>
+  </head>
+  <body>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
+```
+
+It's important that you include the `type="module"` attribute in the script tag. This tells the browser to treat the
+JavaScript file as an ES6 module (support for which is now widespread), which is necessary to import Bloom.
+
+Now open `main.js` and add import Bloom:
+
+```javascript
+import * as bloom from "https://penrose.cs.cmu.edu/bloom.min.js";
+```
+
+You may prefer instead to download the Bloom library and serve it locally. Let's finish by building a blank
+diagram:
+
+```javascript
+import * as bloom from "https://penrose.cs.cmu.edu/bloom.min.js";
+
+const db = new bloom.DiagramBuilder(bloom.canvas(400, 400), "abcd", 1);
+
+// Diagramming goes here!
+
+const diagram = await db.build();
+```
+
+In the next chapter, you'll learn how to create a diagram with `DiagramBuilder`, and display it in the browser.
+
+### NPM Package
+
+If you're bundling your project with Webpack, Rollup, or developing with Vite, you can also install Bloom as an NPM
+pacakage:
 
 ```bash
 npm install @penrose/bloom
 ```
 
-### Vite Plugins
-
-If you're using vite with Bloom (like in this tutorial), you'll need the `vite-plugin-top-level-await` plugin to
-support our automatic differentiation engine, [Rose](https://github.com/rose-lang/rose):
-
-```bash
-npm install vite-plugin-top-level-await
-```
-
-You must also update your `vite.config.ts`:
-
-```typescript
-import { defineConfig } from "vite";
-import topLevelAwait from "vite-plugin-top-level-await";
-
-export default defineConfig({
-  // ...
-  plugins: [/*...,*/ topLevelAwait()],
-  optimizeDeps: { exclude: ["rose"] },
-});
-```
-
-### Creating a component
-
-At this point you'll probably want to remove all the template nonsense from your directory:
-
-(please make sure you're in the root of your project directory before running this command!)
-
-```bash
-rm -rf public/ src/*.css src/App.tsx src/assets/
-```
-
-You'll also want to remove the `import "./index.css";` statement from `src/main.tsx`.
-
-Now create a new `App.tsx` file in the `src/` directory with the following content:
-
-```tsx
-import { Renderer } from "@penrose/bloom";
-
-const App = () => {
-  return <Renderer diagram={null} />;
-};
-
-export default App;
-```
-
-If everything is set up correctly, running `npm run dev` should now render, well, nothing. In the next chapter,
-we'll start building our first diagram. From here, we'll assume some proficiency with React, so if you need a refresher
-you check out their excellent tutorial [here](https://react.dev/learn).
+The NPM package also includes native TypeScript and React support.
