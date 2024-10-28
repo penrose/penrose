@@ -1,7 +1,7 @@
 {
   "name": "@penrose/edgeworth",
   "private": true,
-  "version": "4.0.0-alpha.4",
+  "version": "4.0.0-alpha.5",
   "scripts": {
     "dev": "vite",
     "watch": "vite",
@@ -56,9 +56,9 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.12.3",
-    "@penrose/components": "^4.0.0-alpha.4",
-    "@penrose/core": "^4.0.0-alpha.4",
-    "@penrose/examples": "^4.0.0-alpha.4",
+    "@penrose/components": "^4.0.0-alpha.5",
+    "@penrose/core": "^4.0.0-alpha.5",
+    "@penrose/examples": "^4.0.0-alpha.5",
     "@types/file-saver": "^2.0.5",
     "@types/jszip": "^3.4.1",
     "animals": "^0.0.3",

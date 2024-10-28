@@ -3,6 +3,58 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v4.0.0-alpha.5](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.5) (2024-10-28)
+
+### :warning: BREAKING CHANGE
+
+- separate Substance environment and remove unused features (#1677)
+
+### :rocket: New Feature
+
+- 4.0.0-alpha.4 ([#1865](https://github.com/penrose/penrose/issues/1865)) ([3cce51d](https://github.com/penrose/penrose/commit/3cce51d26af58058c66c6703680ddad083840ec2))
+- Add array-manipulation diagram to gallery ([#1716](https://github.com/penrose/penrose/issues/1716)) ([7f08c63](https://github.com/penrose/penrose/commit/7f08c636bfbcdf09c465bf5e244f31a42a3cf6e7))
+- Arc mesh example ([#1789](https://github.com/penrose/penrose/issues/1789)) ([edd0a04](https://github.com/penrose/penrose/commit/edd0a041068f00e059fa2dfd5b70dd76a5a3df99))
+- Lyapunov Exponent Example ([#1631](https://github.com/penrose/penrose/issues/1631)) ([90048e9](https://github.com/penrose/penrose/commit/90048e996c4e1cfb637005a25de70a42dacc0aea))
+- More fractals ([#1644](https://github.com/penrose/penrose/issues/1644)) ([4862055](https://github.com/penrose/penrose/commit/4862055cb61891e7e55a2e910582fb4fbbb9f205))
+- Nephroid as Envelope ([#1647](https://github.com/penrose/penrose/issues/1647)) ([09119bd](https://github.com/penrose/penrose/commit/09119bd26895fa015d3c4864eadb05b1d72f8f9d))
+- Random Index Style Function & Chaos Game ([#1643](https://github.com/penrose/penrose/issues/1643)) ([36d4299](https://github.com/penrose/penrose/commit/36d4299a03c965b27b611dbb8c3fee941bbfbb4a))
+- Sublime syntax and Set potatoes example ([#1846](https://github.com/penrose/penrose/issues/1846)) ([308640c](https://github.com/penrose/penrose/commit/308640c47ca557efe853137972a637d013e522be))
+- Update spectral graph examples ([#1642](https://github.com/penrose/penrose/issues/1642)) ([97daca2](https://github.com/penrose/penrose/commit/97daca2af38db7d7ded95caa754d6e74b8d8e274))
+- Update variation for caffeine example ([#1700](https://github.com/penrose/penrose/issues/1700)) ([cd68afa](https://github.com/penrose/penrose/commit/cd68afa950f1471fe05a9fd6f113686aee3a4841))
+- codemirror migration ([#1798](https://github.com/penrose/penrose/issues/1798)) ([59d77f2](https://github.com/penrose/penrose/commit/59d77f22822cc28a32daf812f0b8c4b9e791786c))
+- distribute horizontal and vertical constraint functions ([#1794](https://github.com/penrose/penrose/issues/1794)) ([939f5fe](https://github.com/penrose/penrose/commit/939f5fea1019cc6d0adf8968188fb1e598aab757))
+- interactive widgets + programatically constrained dragging (experiemental) ([#1796](https://github.com/penrose/penrose/issues/1796)) ([d5f269e](https://github.com/penrose/penrose/commit/d5f269e9fd60740997033b93c2c99cf3a6926bdb))
+- substance literal values ([#1682](https://github.com/penrose/penrose/issues/1682)) ([7c1978f](https://github.com/penrose/penrose/commit/7c1978f4e33498828d6893d7d8f9257d2f1f839b))
+
+### :bug: Bug Fix
+
+- a better path resolution algorithm ([#1795](https://github.com/penrose/penrose/issues/1795)) ([922004a](https://github.com/penrose/penrose/commit/922004ae0055087790b5f8eed335e9fe8e0e5da9))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+- vector subtraction in tutorial3.md ([#1701](https://github.com/penrose/penrose/issues/1701)) ([2680e34](https://github.com/penrose/penrose/commit/2680e346c80cf67cbb402b8d45e800c80f22c5c7))
+
+### :nail_care: Polish
+
+- `Bond` constructor names in the chemistry domain ([#1712](https://github.com/penrose/penrose/issues/1712)) ([11ae235](https://github.com/penrose/penrose/commit/11ae2352279c18fb116a5dfa195a72fa9ef642a3))
+- commented geometry domain ([#1728](https://github.com/penrose/penrose/issues/1728)) ([2a335ee](https://github.com/penrose/penrose/commit/2a335ee1f2825b482766677001ad3dd3f280da9e))
+- integrate Rose ([#1636](https://github.com/penrose/penrose/issues/1636)) ([d7c1ef4](https://github.com/penrose/penrose/commit/d7c1ef4be11ac0251f026c755039bccc05818303))
+
+### :memo: Documentation
+
+- replace outdated `arrowheadSize` in tutorial ([#1618](https://github.com/penrose/penrose/issues/1618)) ([7f0b736](https://github.com/penrose/penrose/commit/7f0b73677aeeddaeb7e8bdcbcc5a9fc544d078d0))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- bump version to 4.0.0-alpha.3 ([#1851](https://github.com/penrose/penrose/issues/1851)) ([e6746f9](https://github.com/penrose/penrose/commit/e6746f9dab99dd86b0955f5c582b223d5246f0c8))
+- fix labeling objective in ray tracing Style ([#1660](https://github.com/penrose/penrose/issues/1660)) ([4f9ed8e](https://github.com/penrose/penrose/commit/4f9ed8ec5e78869f5577e8598a23b401a6a691b8))
+- remove duplicate Möbius registry entry ([#1610](https://github.com/penrose/penrose/issues/1610)) ([4d16290](https://github.com/penrose/penrose/commit/4d162901b969fef679bbb411400e27343c1a181e))
+- rename venn to euler diagrams ([#1756](https://github.com/penrose/penrose/issues/1756)) ([355b130](https://github.com/penrose/penrose/commit/355b130e044f613a6fab7abe55681ab5f0df4fee))
+- simplify names of `IsSubset` and `NotIntersecting` ([#1724](https://github.com/penrose/penrose/issues/1724)) ([b5e8cb8](https://github.com/penrose/penrose/commit/b5e8cb8675c63f279e9e769913b24c1ec8055b23))
+- simplify the implementation of `edgeworth` ([#1708](https://github.com/penrose/penrose/issues/1708)) ([299c3d3](https://github.com/penrose/penrose/commit/299c3d33d9675e030a5a1969e6b85d7c87249cd1))
+- wait until the end to write the text chart ([#1665](https://github.com/penrose/penrose/issues/1665)) ([31492d0](https://github.com/penrose/penrose/commit/31492d0d29a8310f1782ea4a5b252a162f6ab285))
+- write out registry stats after every diagram ([#1664](https://github.com/penrose/penrose/issues/1664)) ([c16e63f](https://github.com/penrose/penrose/commit/c16e63f93bacf65e161264982af250a83b3b0d38))
+
 ## [v4.0.0-alpha.4](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.4) (2024-10-28)
 
 ### :warning: BREAKING CHANGE

@@ -1,6 +1,6 @@
 {
   "name": "@penrose/bloom",
-  "version": "4.0.0-alpha.4",
+  "version": "4.0.0-alpha.5",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -44,8 +44,7 @@
     }
   },
   "dependencies": {
-    "@penrose/core": "^4.0.0-alpha.4",
-    "prettier": "^3.3.3",
+    "@penrose/core": "^4.0.0-alpha.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -61,6 +60,7 @@
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
+    "prettier": "^3.3.3",
     "rollup": "^4.24.0",
     "rollup-plugin-esbuild-minify": "^1.1.2",
     "typedoc": "^0.26.6",
