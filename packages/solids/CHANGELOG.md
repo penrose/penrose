@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v4.0.0-alpha.4](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.4) (2024-10-28)
+
+### :rocket: New Feature
+
+- `DraggablePoint` in `solids` ([#1485](https://github.com/penrose/penrose/issues/1485)) ([165adfb](https://github.com/penrose/penrose/commit/165adfb170c87a44dd967a7e2d28f46b2e230935))
+
+### :nail_care: Polish
+
+- integrate Rose ([#1636](https://github.com/penrose/penrose/issues/1636)) ([d7c1ef4](https://github.com/penrose/penrose/commit/d7c1ef4be11ac0251f026c755039bccc05818303))
+
+### :memo: Documentation
+
+- comment SolidJS `sample` function ([#1656](https://github.com/penrose/penrose/issues/1656)) ([68975e5](https://github.com/penrose/penrose/commit/68975e5519ee3ad9ba0e5b50bd9b2766fff2c543))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- bump version to 4.0.0-alpha.3 ([#1851](https://github.com/penrose/penrose/issues/1851)) ([e6746f9](https://github.com/penrose/penrose/commit/e6746f9dab99dd86b0955f5c582b223d5246f0c8))
+
 ## [v4.0.0-alpha.3](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.3) (2024-09-21)
 
 ### :rocket: New Feature
