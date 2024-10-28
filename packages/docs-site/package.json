@@ -1,6 +1,6 @@
 {
   "name": "@penrose/docs-site",
-  "version": "4.0.0-alpha.3",
+  "version": "4.0.0-alpha.4",
   "type": "module",
   "private": true,
   "scripts": {
@@ -60,9 +60,9 @@
     }
   },
   "dependencies": {
-    "@penrose/bloom": "^4.0.0-alpha.3",
-    "@penrose/components": "^4.0.0-alpha.3",
-    "@penrose/examples": "^4.0.0-alpha.3",
+    "@penrose/bloom": "^4.0.0-alpha.4",
+    "@penrose/components": "^4.0.0-alpha.4",
+    "@penrose/examples": "^4.0.0-alpha.4",
     "@types/prismjs": "^1.26.4",
     "markdown-it": "^13.0.1",
     "markdown-it-katex": "^2.0.3",
@@ -73,9 +73,9 @@
     "veaury": "^2.3.11"
   },
   "devDependencies": {
-    "@penrose/core": "^4.0.0-alpha.3",
-    "@penrose/editor": "^4.0.0-alpha.3",
-    "@penrose/roger": "^4.0.0-alpha.3",
+    "@penrose/core": "^4.0.0-alpha.4",
+    "@penrose/editor": "^4.0.0-alpha.4",
+    "@penrose/roger": "^4.0.0-alpha.4",
     "@tailwindcss/typography": "^0.5.4",
     "@types/markdown-it": "^12.2.3",
     "@vitejs/plugin-react": "^4.3.1",
