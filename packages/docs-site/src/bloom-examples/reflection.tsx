@@ -1,6 +1,7 @@
 import {
   DiagramBuilder,
   Renderer,
+  SharedInput,
   canvas,
   constraints,
   useDiagram,
@@ -9,7 +10,17 @@ import { mul, ops } from "@penrose/core";
 
 export const reflection = async () => {
   const db = new DiagramBuilder(canvas(800, 400), "");
-  const { type, line, circle, build, input, ensure, forall } = db;
+  const {
+    type,
+    line,
+    circle,
+    build,
+    input,
+    ensure,
+    forall,
+    addEventListener,
+    sharedInput,
+  } = db;
 
   const Endpoint = type();
   const Ray = type();
@@ -48,11 +59,22 @@ export const reflection = async () => {
       r: 5,
       fillColor: [0, 0, 0, 1],
     });
+
+    const handleRadInput = new SharedInput(handleRad);
+
     e.handle = circle({
       center: e.center,
-      r: handleRad,
+      r: sharedInput(handleRadInput),
       drag: true,
       fillColor: [0, 0, 0, 0.1],
+    });
+
+    addEventListener(e.handle, "mouseenter", () => {
+      handleRadInput.set(handleRad * 1.5);
+    });
+
+    addEventListener(e.handle, "mouseout", () => {
+      handleRadInput.set(handleRad);
     });
   });
 
