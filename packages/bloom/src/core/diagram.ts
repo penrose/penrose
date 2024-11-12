@@ -27,7 +27,8 @@ import { CallbackLooper, mathjaxInitWithHandler, stateToSVG } from "./utils.js";
 
 const log = consola.create({ level: LogLevels.warn }).withTag("diagram");
 
-export type DiagramData = {
+/** Data passed into `create` */
+export type DiagramCreationData = {
   canvas: Canvas;
   variation: string;
   inputs: InputInfo[];
@@ -37,11 +38,24 @@ export type DiagramData = {
   nameShapeMap: Map<string, Shape<Num>>;
   namedInputs: Map<string, number>;
   pinnedInputs: Set<number>;
-  dragNamesAndConstrs: Map<string, DragConstraint>;
+  draggingConstraints: Map<string, DragConstraint>;
   inputIdxsByPath: IdxsByPath;
   lassoStrength: number;
   sharedInputs: Set<SharedInput>;
   interactiveOnlyShapes: Set<Shape<Num>>;
+  eventListeners: Map<string, [string, (e: any, diagram: Diagram) => void][]>;
+};
+
+/** Data passed into the constructor. Has had state create asynchronously. */
+type DiagramConstructorData = {
+  state: PenroseState;
+  pinnedInputs: Set<number>;
+  draggingConstraints: Map<string, DragConstraint>;
+  namedInputs: Map<string, number>;
+  sharedInputs: Set<SharedInput>;
+  lassoStrength: number;
+  interactiveOnlyShapes: Set<Shape<Num>>;
+  eventListeners: Map<string, [string, (e: any, diagram: Diagram) => void][]>;
 };
 
 /**
@@ -73,6 +87,7 @@ export class Diagram {
   private lassoEnabled: boolean;
   private sharedInputs = new Set<SharedInput>();
   private interactiveOnlyShapes;
+  private eventListeners;
   private optimizationLooper = new CallbackLooper("MessageChannel");
   private renderLooper = new CallbackLooper("AnimationFrame");
 
@@ -81,34 +96,22 @@ export class Diagram {
    * `DiagramBuilder.prototype.build` instead.
    * @param data
    */
-  static create = async (data: DiagramData): Promise<Diagram> => {
-    return new Diagram(
-      await Diagram.makeState(data),
-      data.pinnedInputs,
-      data.dragNamesAndConstrs,
-      data.namedInputs,
-      data.lassoStrength !== 0,
-      data.sharedInputs,
-      data.interactiveOnlyShapes,
-    );
+  static create = async (data: DiagramCreationData): Promise<Diagram> => {
+    return new Diagram({
+      state: await Diagram.makeState(data),
+      ...data,
+    });
   };
 
-  private constructor(
-    state: PenroseState,
-    pinnedInputs: Set<number>,
-    draggingConstraints: Map<string, DragConstraint>,
-    namedInputs: Map<string, number>,
-    lassoEnabled: boolean,
-    sharedInputs = new Set<SharedInput>(),
-    interactiveOnlyShapes = new Set<Shape<Num>>(),
-  ) {
-    this.state = state;
-    this.manuallyPinnedIndices = pinnedInputs;
-    this.draggingConstraints = draggingConstraints;
-    this.namedInputs = namedInputs;
-    this.lassoEnabled = lassoEnabled;
-    this.sharedInputs = sharedInputs;
-    this.interactiveOnlyShapes = interactiveOnlyShapes;
+  private constructor(data: DiagramConstructorData) {
+    this.state = data.state;
+    this.manuallyPinnedIndices = data.pinnedInputs;
+    this.draggingConstraints = data.draggingConstraints;
+    this.namedInputs = data.namedInputs;
+    this.lassoEnabled = data.lassoStrength !== 0;
+    this.sharedInputs = data.sharedInputs;
+    this.interactiveOnlyShapes = data.interactiveOnlyShapes;
+    this.eventListeners = data.eventListeners;
   }
 
   /**
@@ -185,69 +188,123 @@ export class Diagram {
     }
   };
 
+  private initialRender = async (): Promise<{
+    svg: SVGElement;
+    nameElemMap: Map<string, SVGElement>;
+    draggingRef: { dragging: boolean };
+  }> => {
+    const { svg, nameElemMap } = await this.render();
+    const draggingRef = { dragging: false };
+    for (const [name, elem] of nameElemMap) {
+      elem.setAttribute("pointer-events", "painted");
+      if (this.draggingConstraints.has(name)) {
+        // get rid of tooltip
+        elem.insertBefore(
+          document.createElementNS("http://www.w3.org/2000/svg", "title"),
+          elem.firstChild,
+        );
+        let lastDx = 0;
+        let lastDy = 0;
+        const translateFn = makeTranslateOnMouseDown(
+          svg,
+          elem,
+          this.getCanvas(),
+          name,
+          async (path, dx, dy) => {
+            this.translate(path, dx - lastDx, dy - lastDy);
+            lastDx = dx;
+            lastDy = dy;
+          },
+          ([x, y]) => this.draggingConstraints.get(name)!([x, y], this),
+          undefined,
+          () => {
+            this.endDrag(name);
+            draggingRef.dragging = false;
+            lastDx = 0;
+            lastDy = 0;
+          },
+        );
+        elem.addEventListener("pointerdown", (e) => {
+          this.beginDrag(name);
+          draggingRef.dragging = true;
+          translateFn(e);
+        });
+      }
+      if (this.eventListeners.has(name)) {
+        const listeners = this.eventListeners.get(name)!;
+        for (const [event, listener] of listeners) {
+          elem.addEventListener(event, (e: any) => listener(e, this));
+        }
+      }
+    }
+    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+    svg.setAttribute("pointer-events", "none");
+    svg.style.width = "100%";
+    svg.style.height = "100%";
+
+    return { svg, nameElemMap, draggingRef };
+  };
+
+  private copyAttrs = (src: Element, dest: Element) => {
+    for (let i = 0; i < src.children.length; i++) {
+      this.copyAttrs(src.children[i], dest.children[i]);
+    }
+
+    for (let i = 0; i < src.attributes.length; i++) {
+      const attr = src.attributes[i];
+      dest.setAttribute(attr.name, attr.value);
+    }
+  };
+
   /**
    * Returns an HTMLElement presenting an interactive diagram. This element should
    * be appended added to an existing document node to be visible. The element is
    * styled by default with "width: 100%; height: 100%l touch-action: none".
    */
   getInteractiveElement = () => {
-    let dragging = false;
     const parentElement = document.createElement("div");
     parentElement.style.height = "100%";
     parentElement.style.width = "100%";
     parentElement.style.touchAction = "none";
+
+    let svg: SVGElement | null = null;
+    let nameElemMap: Map<string, SVGElement> | null = null;
+    let draggingRef: { dragging: boolean } | null = null;
 
     const optimizationLoop = async () => {
       return await this.optimizationStep();
     };
 
     const renderLoop = async () => {
-      const { svg, nameElemMap } = await this.render();
-      svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-      svg.setAttribute("pointer-events", "none");
-      svg.style.width = "100%";
-      svg.style.height = "100%";
-      for (const [name, elem] of nameElemMap) {
-        if (this.draggingConstraints.has(name)) {
-          // get rid of tooltip
-          elem.insertBefore(
-            document.createElementNS("http://www.w3.org/2000/svg", "title"),
-            elem.firstChild,
-          );
-          elem.setAttribute("pointer-events", "painted");
-          elem.setAttribute("cursor", dragging ? "grabbing" : "grab");
-          const translateFn = makeTranslateOnMouseDown(
-            svg,
-            elem,
-            this.getCanvas(),
-            name,
-            (() => {
-              let lastDx = 0;
-              let lastDy = 0;
-              return async (path, dx, dy) => {
-                this.translate(path, dx - lastDx, dy - lastDy);
-                lastDx = dx;
-                lastDy = dy;
-              };
-            })(),
-            ([x, y]) => this.draggingConstraints.get(name)!([x, y], this),
-            undefined,
-            () => {
-              this.endDrag(name);
-              dragging = false;
-            },
-          );
-          elem.addEventListener("pointerdown", (e) => {
-            this.beginDrag(name);
-            dragging = true;
-            translateFn(e);
-          });
+      if (svg === null || nameElemMap === null || draggingRef === null) {
+        const {
+          svg: newSvg,
+          nameElemMap: newNameElemMap,
+          draggingRef: newDraggingRef,
+        } = await this.initialRender();
+
+        svg = newSvg;
+        nameElemMap = newNameElemMap;
+        draggingRef = newDraggingRef;
+
+        parentElement.appendChild(svg);
+      } else {
+        const { nameElemMap: newNameElemMap } = await this.render();
+
+        for (const [name, elem] of newNameElemMap) {
+          const oldElem = nameElemMap.get(name);
+          if (oldElem) {
+            this.copyAttrs(elem, oldElem);
+            oldElem.setAttribute(
+              "cursor",
+              draggingRef.dragging ? "grabbing" : "grab",
+            );
+          } else {
+            throw new Error(`Shape ${name} not found in old element map`);
+          }
         }
       }
-      if (parentElement.lastChild) {
-        parentElement.removeChild(parentElement.lastChild);
-      }
-      parentElement.appendChild(svg);
+
       return this.optimizationLooper.isRunning();
     };
 
@@ -456,7 +513,7 @@ export class Diagram {
   };
 
   private static makeState = async (
-    data: DiagramData,
+    data: DiagramCreationData,
   ): Promise<PenroseState> => {
     // copy since we might append to
     const constraints = data.constraints.slice();
@@ -511,7 +568,7 @@ export class Diagram {
       computeShapes: await compileCompGraph(inputVars, data.shapes),
       interactivityInfo: {
         inputIdxsByPath: data.inputIdxsByPath,
-        translatableShapePaths: new Set(data.dragNamesAndConstrs.keys()),
+        translatableShapePaths: new Set(data.draggingConstraints.keys()),
         scalableShapePaths: new Set(),
         // currently, penrose ide needs dragging constrants to be part of state,
         // but we keep track separately
