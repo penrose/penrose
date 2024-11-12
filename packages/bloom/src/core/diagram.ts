@@ -27,7 +27,8 @@ import { CallbackLooper, mathjaxInitWithHandler, stateToSVG } from "./utils.js";
 
 const log = consola.create({ level: LogLevels.warn }).withTag("diagram");
 
-export type DiagramData = {
+/** Data passed into `create` */
+export type DiagramCreationData = {
   canvas: Canvas;
   variation: string;
   inputs: InputInfo[];
@@ -37,11 +38,24 @@ export type DiagramData = {
   nameShapeMap: Map<string, Shape<Num>>;
   namedInputs: Map<string, number>;
   pinnedInputs: Set<number>;
-  dragNamesAndConstrs: Map<string, DragConstraint>;
+  draggingConstraints: Map<string, DragConstraint>;
   inputIdxsByPath: IdxsByPath;
   lassoStrength: number;
   sharedInputs: Set<SharedInput>;
   interactiveOnlyShapes: Set<Shape<Num>>;
+  eventListeners: Map<string, [string, (e: any, diagram: Diagram) => void][]>;
+};
+
+/** Data passed into the constructor. Has had state create asynchronously. */
+type DiagramConstructorData = {
+  state: PenroseState;
+  pinnedInputs: Set<number>;
+  draggingConstraints: Map<string, DragConstraint>;
+  namedInputs: Map<string, number>;
+  sharedInputs: Set<SharedInput>;
+  lassoStrength: number;
+  interactiveOnlyShapes: Set<Shape<Num>>;
+  eventListeners: Map<string, [string, (e: any, diagram: Diagram) => void][]>;
 };
 
 /**
@@ -73,6 +87,7 @@ export class Diagram {
   private lassoEnabled: boolean;
   private sharedInputs = new Set<SharedInput>();
   private interactiveOnlyShapes;
+  private eventListeners;
   private optimizationLooper = new CallbackLooper("MessageChannel");
   private renderLooper = new CallbackLooper("AnimationFrame");
 
@@ -81,34 +96,22 @@ export class Diagram {
    * `DiagramBuilder.prototype.build` instead.
    * @param data
    */
-  static create = async (data: DiagramData): Promise<Diagram> => {
-    return new Diagram(
-      await Diagram.makeState(data),
-      data.pinnedInputs,
-      data.dragNamesAndConstrs,
-      data.namedInputs,
-      data.lassoStrength !== 0,
-      data.sharedInputs,
-      data.interactiveOnlyShapes,
-    );
+  static create = async (data: DiagramCreationData): Promise<Diagram> => {
+    return new Diagram({
+      state: await Diagram.makeState(data),
+      ...data,
+    });
   };
 
-  private constructor(
-    state: PenroseState,
-    pinnedInputs: Set<number>,
-    draggingConstraints: Map<string, DragConstraint>,
-    namedInputs: Map<string, number>,
-    lassoEnabled: boolean,
-    sharedInputs = new Set<SharedInput>(),
-    interactiveOnlyShapes = new Set<Shape<Num>>(),
-  ) {
-    this.state = state;
-    this.manuallyPinnedIndices = pinnedInputs;
-    this.draggingConstraints = draggingConstraints;
-    this.namedInputs = namedInputs;
-    this.lassoEnabled = lassoEnabled;
-    this.sharedInputs = sharedInputs;
-    this.interactiveOnlyShapes = interactiveOnlyShapes;
+  private constructor(data: DiagramConstructorData) {
+    this.state = data.state;
+    this.manuallyPinnedIndices = data.pinnedInputs;
+    this.draggingConstraints = data.draggingConstraints;
+    this.namedInputs = data.namedInputs;
+    this.lassoEnabled = data.lassoStrength !== 0;
+    this.sharedInputs = data.sharedInputs;
+    this.interactiveOnlyShapes = data.interactiveOnlyShapes;
+    this.eventListeners = data.eventListeners;
   }
 
   /**
@@ -208,13 +211,13 @@ export class Diagram {
       svg.style.width = "100%";
       svg.style.height = "100%";
       for (const [name, elem] of nameElemMap) {
+        elem.setAttribute("pointer-events", "painted");
         if (this.draggingConstraints.has(name)) {
           // get rid of tooltip
           elem.insertBefore(
             document.createElementNS("http://www.w3.org/2000/svg", "title"),
             elem.firstChild,
           );
-          elem.setAttribute("pointer-events", "painted");
           elem.setAttribute("cursor", dragging ? "grabbing" : "grab");
           const translateFn = makeTranslateOnMouseDown(
             svg,
@@ -242,6 +245,31 @@ export class Diagram {
             dragging = true;
             translateFn(e);
           });
+        }
+        if (this.eventListeners.has(name)) {
+          const listeners = this.eventListeners.get(name)!;
+          for (const [event, listener] of listeners) {
+            elem.addEventListener(event, (e: any) => {
+              // If the event is fired simply because the element was replaced,
+              // ignore it
+              if ("relatedTarget" in e && "target" in e) {
+                const relatedTitle = Array.from(
+                  e.target?.getElementsByTagName?.("title"),
+                ).at(-1) as SVGTitleElement;
+                const targetTitle = Array.from(
+                  e.relatedTarget?.getElementsByTagName?.("title"),
+                ).at(-1) as SVGTitleElement;
+                if (
+                  relatedTitle &&
+                  targetTitle &&
+                  relatedTitle.textContent === targetTitle.textContent
+                ) {
+                  return;
+                }
+              }
+              listener(e, this);
+            });
+          }
         }
       }
       if (parentElement.lastChild) {
@@ -456,7 +484,7 @@ export class Diagram {
   };
 
   private static makeState = async (
-    data: DiagramData,
+    data: DiagramCreationData,
   ): Promise<PenroseState> => {
     // copy since we might append to
     const constraints = data.constraints.slice();
@@ -511,7 +539,7 @@ export class Diagram {
       computeShapes: await compileCompGraph(inputVars, data.shapes),
       interactivityInfo: {
         inputIdxsByPath: data.inputIdxsByPath,
-        translatableShapePaths: new Set(data.dragNamesAndConstrs.keys()),
+        translatableShapePaths: new Set(data.draggingConstraints.keys()),
         scalableShapePaths: new Set(),
         // currently, penrose ide needs dragging constrants to be part of state,
         // but we keep track separately

@@ -238,6 +238,11 @@ export class DiagramBuilder {
   private externalInputs: Set<SharedInput> = new Set();
   private lassoStrength: number;
   private interactiveOnlyShapes: Set<Shape> = new Set();
+  /** Shape name -> event name -> listener */
+  private eventListeners: Map<
+    string,
+    [string, (e: any, diagram: Diagram) => void][]
+  > = new Map();
 
   /**
    * Create a new diagram builder.
@@ -646,10 +651,23 @@ export class DiagramBuilder {
 
     const nameShapeMap = this.getNameShapeMap();
     const interactiveOnlyShapes = new Set<PenroseShape<Num>>();
+    const eventListeners = new Map<
+      string,
+      [string, (e: any, diagram: Diagram) => void][]
+    >();
     const penroseShapes = this.shapes.map((s) => {
       const penroseShape = toPenroseShape(s);
       if (this.interactiveOnlyShapes.has(s)) {
         interactiveOnlyShapes.add(penroseShape);
+      }
+      if (this.eventListeners.has(s.name)) {
+        if (!eventListeners.has(penroseShape.name.contents)) {
+          eventListeners.set(penroseShape.name.contents, []);
+        }
+        const inner = eventListeners.get(penroseShape.name.contents)!;
+        for (const [event, listener] of this.eventListeners.get(s.name)!) {
+          inner.push([event, listener]);
+        }
       }
       return penroseShape;
     });
@@ -665,11 +683,12 @@ export class DiagramBuilder {
       nameShapeMap,
       namedInputs: this.namedInputs,
       pinnedInputs: this.pinnedInputs,
-      dragNamesAndConstrs: this.dragNamesAndConstrs,
+      draggingConstraints: this.dragNamesAndConstrs,
       inputIdxsByPath: this.getTranslatedInputIdxsByPath(),
       lassoStrength: this.lassoStrength,
       sharedInputs: this.externalInputs,
       interactiveOnlyShapes,
+      eventListeners,
     });
 
     for (const input of this.externalInputs) {
@@ -690,6 +709,22 @@ export class DiagramBuilder {
     const inp = this.input(info);
     this.ensure(constraints.equal(inp, num));
     return inp;
+  };
+
+  addEventListener = (
+    shape: Shape,
+    event: string,
+    listener: (e: any, diagram: Diagram) => void,
+  ) => {
+    let inner: [string, (e: any, diagram: Diagram) => void][];
+    if (this.eventListeners.has(shape.name)) {
+      inner = this.eventListeners.get(shape.name)!;
+    } else {
+      inner = [];
+      this.eventListeners.set(shape.name, inner);
+    }
+
+    inner.push([event, listener]);
   };
 
   private addOnCanvasConstraints = () => {
