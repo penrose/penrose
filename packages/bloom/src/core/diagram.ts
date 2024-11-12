@@ -211,13 +211,13 @@ export class Diagram {
       svg.style.width = "100%";
       svg.style.height = "100%";
       for (const [name, elem] of nameElemMap) {
+        elem.setAttribute("pointer-events", "painted");
         if (this.draggingConstraints.has(name)) {
           // get rid of tooltip
           elem.insertBefore(
             document.createElementNS("http://www.w3.org/2000/svg", "title"),
             elem.firstChild,
           );
-          elem.setAttribute("pointer-events", "painted");
           elem.setAttribute("cursor", dragging ? "grabbing" : "grab");
           const translateFn = makeTranslateOnMouseDown(
             svg,
@@ -246,11 +246,27 @@ export class Diagram {
             translateFn(e);
           });
         }
-
         if (this.eventListeners.has(name)) {
           const listeners = this.eventListeners.get(name)!;
           for (const [event, listener] of listeners) {
             elem.addEventListener(event, (e: any) => {
+              // If the event is fired simply because the element was replaced,
+              // ignore it
+              if ("relatedTarget" in e && "target" in e) {
+                const relatedTitle = Array.from(
+                  e.target?.getElementsByTagName?.("title"),
+                ).at(-1) as SVGTitleElement;
+                const targetTitle = Array.from(
+                  e.relatedTarget?.getElementsByTagName?.("title"),
+                ).at(-1) as SVGTitleElement;
+                if (
+                  relatedTitle &&
+                  targetTitle &&
+                  relatedTitle.textContent === targetTitle.textContent
+                ) {
+                  return;
+                }
+              }
               listener(e, this);
             });
           }

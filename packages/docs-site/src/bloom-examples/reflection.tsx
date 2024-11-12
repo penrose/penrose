@@ -69,11 +69,13 @@ export const reflection = async () => {
       fillColor: [0, 0, 0, 0.1],
     });
 
-    addEventListener(e.handle, "mouseenter", () => {
-      handleRadInput.set(handleRad * 1.5);
+    addEventListener(e.handle, "pointerover", (e) => {
+      console.log(e.target, e.relatedTarge);
+      handleRadInput.set(handleRad * 1.2);
     });
 
-    addEventListener(e.handle, "mouseout", () => {
+    addEventListener(e.handle, "pointerleave", (e) => {
+      console.log(e.relatedTarget);
       handleRadInput.set(handleRad);
     });
   });
