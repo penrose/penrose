@@ -264,7 +264,7 @@ export const compileTrio = async (prog: {
   const domainRes: Result<DomainEnv, PenroseError> = compileDomain(prog.domain);
   if (domainRes.isOk()) {
     const subRes: Result<SubstanceEnv, PenroseError> = andThen(
-      (env) => compileSubstance(prog.substance, env),
+      (env: DomainEnv) => compileSubstance(prog.substance, env),
       domainRes,
     );
 
@@ -435,3 +435,5 @@ export {
   vectorV,
   zip2,
 } from "./utils/Util.js";
+
+export { parser as domainParser } from "./parser/DomainParser.js";

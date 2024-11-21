@@ -1,24 +1,27 @@
-import nearley from "nearley";
-import { beforeEach, describe, expect, test } from "vitest";
+import { Tree } from "@lezer/common";
+import { assert, describe, expect, test } from "vitest";
+import { printNode, validateDomain } from "../compiler/Domain.js";
+import { parser } from "../parser/DomainParser.js";
 import { SourceRange } from "../types/ast.js";
-import { DomainProg, PredicateDecl } from "../types/domain.js";
-import grammar from "./DomainParser.js";
+import { PredicateDecl } from "../types/domain.js";
 
-let parser: nearley.Parser;
-const sameASTs = (results: any[]) => {
-  for (const p of results) expect(results[0]).toEqual(p);
-  expect(results.length).toEqual(1);
+// if the `Tree` contains error node(s)
+const isError = (ast: Tree, prog: string) => {
+  ast.iterate({
+    enter: (node) => {
+      if (node.type.isError) {
+        assert.fail(
+          `Unexpected error found in node${printNode(node.node.parent!, prog)}`,
+        );
+      }
+    },
+  });
 };
-
-beforeEach(() => {
-  // NOTE: Neither `feed` nor `finish` will reset the parser state. Therefore recompiling before each unit test
-  parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-});
 
 describe("Common", () => {
   test("empty program", () => {
-    const { results } = parser.feed("");
-    sameASTs(results);
+    const tree = parser.parse("");
+    isError(tree, "");
   });
   test("comments and whitespaces", () => {
     const prog = `
@@ -31,9 +34,9 @@ type ParametrizedSet ('T, 'U)
 predicate From(Map f, Set domain, Set codomain)
 */
 predicate From(Map f, Set domain, Set codomain)
-    `;
-    const { results } = parser.feed(prog);
-    sameASTs(results);
+	`;
+    const tree = parser.parse(prog);
+    isError(tree, prog);
   });
   test("tree integrity", () => {
     const prog = `
@@ -53,12 +56,13 @@ function Difference(Set a, Set b) -> Set
 function Subset(Set a, Set b) -> Set
 function AddPoint(Point p, Set s1) -> Set
 -- edge case
-function Empty() -> Scalar
+-- due to the ambiguity of the output name and subtype decls, this will fail without the semi.
+function Empty() -> Scalar; 
 -- generics
 RightClopenInterval <: Interval
-    `;
-    const { results } = parser.feed(prog);
-    sameASTs(results);
+	`;
+    const tree = parser.parse(prog);
+    isError(tree, prog);
   });
 });
 
@@ -71,9 +75,9 @@ type Point
 -- inline subtype
 type Nonempty <: Set
 type SmallerSet <: Point, Set
-    `;
-    const { results } = parser.feed(prog);
-    sameASTs(results);
+	`;
+    const tree = parser.parse(prog);
+    isError(tree, prog);
   });
   test("predicate decls", () => {
     const prog = `
@@ -91,9 +95,9 @@ predicate Bijection(Map m)
 predicate PairIn(Point, Point, Map)
 symmetric predicate Intersecting(Set s1, Set s2)
 symmetric predicate Disjoint(Set, Set)
-    `;
-    const { results } = parser.feed(prog);
-    sameASTs(results);
+	`;
+    const tree = parser.parse(prog);
+    isError(tree, prog);
 
     // New part of the test:
     // Also check the symmetry of the predicates
@@ -115,11 +119,11 @@ symmetric predicate Disjoint(Set, Set)
       true,
     ];
     // These are what the parser generates
-    const areSymmetric: boolean[] = (<DomainProg<SourceRange>>(
-      results[0]
-    )).statements.map((stmt) => {
-      return (<PredicateDecl<SourceRange>>stmt).symmetric;
-    });
+    const areSymmetric: boolean[] = validateDomain(tree, prog)
+      .unsafelyUnwrap()
+      .statements.map((stmt) => {
+        return (<PredicateDecl<SourceRange>>stmt).symmetric;
+      });
 
     expect(areSymmetric).toEqual(areSymmetricReference);
   });
@@ -135,23 +139,23 @@ function Subset(Set a, Set b) -> Set
 function AddPoint(Point p, Set s1) -> Set
 -- edge case
 function Empty() -> Scalar
-    `;
-    const { results } = parser.feed(prog);
-    sameASTs(results);
+	`;
+    const tree = parser.parse(prog);
+    isError(tree, prog);
   });
   test("constructor decls", () => {
     const prog = `
-  -- real program
-  constructor CreateInterval(Real left, Real right) -> Interval
-  constructor CreateOpenInterval(Real left, Real right) -> OpenInterval
-  constructor CreateClosedInterval(Real left, Real right) -> ClosedInterval
-  constructor CreateLeftClopenInterval(Real left, Real right) -> LeftClopenInterval
-  constructor CreateRightClopenInterval(Real left, Real right) -> RightClopenInterval
-  constructor CreateFunction(Set s1, Set s2) -> Function
-  constructor Pt(Real x, Real y) -> Point
-      `;
-    const { results } = parser.feed(prog);
-    sameASTs(results);
+-- real program
+constructor CreateInterval(Real left, Real right) -> Interval
+constructor CreateOpenInterval(Real left, Real right) -> OpenInterval
+constructor CreateClosedInterval(Real left, Real right) -> ClosedInterval
+constructor CreateLeftClopenInterval(Real left, Real right) -> LeftClopenInterval
+constructor CreateRightClopenInterval(Real left, Real right) -> RightClopenInterval
+constructor CreateFunction(Set s1, Set s2) -> Function
+constructor Pt(Real x, Real y) -> Point
+		`;
+    const tree = parser.parse(prog);
+    isError(tree, prog);
   });
   test("Subtype decls", () => {
     const prog = `
@@ -162,8 +166,18 @@ OpenInterval <: Interval
 ClosedInterval <: Interval
 LeftClopenInterval <: Interval
 RightClopenInterval <: Interval
-      `;
-    const { results } = parser.feed(prog);
-    sameASTs(results);
+		`;
+    const tree = parser.parse(prog);
+    isError(tree, prog);
+  });
+  test("dangling output type conflict with subtype decls", () => {
+    const prog = `
+		type A
+		type B        
+		-- due to the ambiguity of the output name and subtype decls, this will fail without the semi.
+		function f(A arg) -> B;
+		A <: B`;
+    const tree = parser.parse(prog);
+    isError(tree, prog);
   });
 });
