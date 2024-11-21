@@ -10,7 +10,7 @@ import { RenderProps } from "./Renderer.js";
 
 const RenderEllipse = (
   shape: Ellipse<number>,
-  { canvasSize }: RenderProps,
+  { canvasSize, titleCache }: RenderProps,
 ): SVGEllipseElement => {
   const elem = document.createElementNS(
     "http://www.w3.org/2000/svg",
@@ -24,7 +24,7 @@ const RenderEllipse = (
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrCenter(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
-  attrToNotAutoMap.push(...attrTitle(shape, elem));
+  attrToNotAutoMap.push(...attrTitle(shape, elem, titleCache));
 
   elem.setAttribute("rx", Math.max(shape.rx.contents, 0).toString());
   attrToNotAutoMap.push("rx");

@@ -24,6 +24,7 @@ import { BBoxApproximationWarningItem } from "../types/errors.js";
 import { ConstrFunc, MayWarn } from "../types/functions.js";
 import { ClipData } from "../types/value.js";
 import {
+  booleanT,
   noWarn,
   noWarnFn,
   real2NT,
@@ -1077,23 +1078,36 @@ const constrDictGeneral = {
         type: realT(),
         default: 0,
       },
+      {
+        name: "leftToRight",
+        description:
+          "`true` if wanting to distribute left-to-right, `false` if wanting to distribute right-to-left",
+        type: booleanT(),
+        default: true,
+      },
     ],
-    body: noWarnFn((shapes: Shape<ad.Num>[], padding: ad.Num) => {
-      let spacingSum: ad.Num = 0;
+    body: noWarnFn(
+      (shapes: Shape<ad.Num>[], padding: ad.Num, leftToRight: boolean) => {
+        if (!leftToRight) {
+          shapes = shapes.reverse();
+        }
 
-      for (let i = 0; i < shapes.length - 1; i++) {
-        const currShape = BBox.maxX(bboxFromShape(shapes[i]));
-        const nextShape = BBox.minX(bboxFromShape(shapes[i + 1]));
+        let spacingSum: ad.Num = 0;
 
-        const difference = absVal(sub(add(currShape, padding), nextShape));
+        for (let i = 0; i < shapes.length - 1; i++) {
+          const currShape = BBox.maxX(bboxFromShape(shapes[i]));
+          const nextShape = BBox.minX(bboxFromShape(shapes[i + 1]));
 
-        spacingSum = add(spacingSum, difference);
+          const difference = absVal(sub(add(currShape, padding), nextShape));
 
-        //compare difference between current shape + horizontal padding and next shape
-      }
+          spacingSum = add(spacingSum, difference);
 
-      return spacingSum;
-    }),
+          //compare difference between current shape + horizontal padding and next shape
+        }
+
+        return spacingSum;
+      },
+    ),
   },
 
   distributeVertically: {
@@ -1114,23 +1128,35 @@ const constrDictGeneral = {
         type: realT(),
         default: 0,
       },
+      {
+        name: "topToBottom",
+        description:
+          "`true` if wanting to distribute top-to-bottom, `false` if wanting to distribute bottom-to-top",
+        type: booleanT(),
+        default: true,
+      },
     ],
-    body: noWarnFn((shapes: Shape<ad.Num>[], padding: ad.Num) => {
-      let spacingSum: ad.Num = 0;
+    body: noWarnFn(
+      (shapes: Shape<ad.Num>[], padding: ad.Num, topToBottom: boolean) => {
+        if (topToBottom) {
+          shapes = shapes.reverse();
+        }
+        let spacingSum: ad.Num = 0;
 
-      for (let i = 0; i < shapes.length - 1; i++) {
-        const currShape = BBox.maxY(bboxFromShape(shapes[i]));
-        const nextShape = BBox.minY(bboxFromShape(shapes[i + 1]));
+        for (let i = 0; i < shapes.length - 1; i++) {
+          const currShape = BBox.maxY(bboxFromShape(shapes[i]));
+          const nextShape = BBox.minY(bboxFromShape(shapes[i + 1]));
 
-        const difference = absVal(sub(add(currShape, padding), nextShape));
+          const difference = absVal(sub(add(currShape, padding), nextShape));
 
-        spacingSum = add(spacingSum, difference);
+          spacingSum = add(spacingSum, difference);
 
-        //compare difference between current shape + vertical padding and next shape
-      }
+          //compare difference between current shape + vertical padding and next shape
+        }
 
-      return spacingSum;
-    }),
+        return spacingSum;
+      },
+    ),
   },
 };
 

@@ -1,7 +1,7 @@
 import * as ad from "../types/ad.js";
 import { Center, Named, Rect, Rotate, ShapeCommon } from "../types/shapes.js";
 import { StrV } from "../types/value.js";
-import { boolV, floatV, strV } from "../utils/Util.js";
+import { boolV, fakePath, floatV, strV } from "../utils/Util.js";
 import {
   Canvas,
   Context,
@@ -43,4 +43,5 @@ export const makeImage = (
   ...properties,
   shapeType: "Image",
   passthrough: new Map(),
+  path: fakePath("defaultImage"),
 });

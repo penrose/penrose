@@ -1,24 +1,28 @@
 import { useCallback, useState } from "react";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useMediaQuery } from "react-responsive";
+import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
-  WorkspaceMetadata,
+  currentWorkspaceState,
   diagramWorkerState,
   settingsState,
-  workspaceMetadataSelector,
+  showKeybindingsState,
 } from "../state/atoms.js";
 import {
+  autosaveHook,
+  saveShortcutHook,
   useCompileDiagram,
-  useDownloadSvg,
   useIsUnsaved,
   useNewWorkspace,
   usePublishGist,
   useResampleDiagram,
-  useSaveLocally,
+  useSaveNewWorkspace,
+  useSaveWorkspace,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
-import ExportButton from "./ExportButton.js";
-
+import Dropdown from "./Dropdown.js";
+import { Discord, Docs, Keyboard, Tutorial } from "./Icons.js";
+import Keybindings from "./Keybindings.js";
 const UnsavedIcon = styled.div`
   background-color: #dddddd;
   padding: 2px 4px;
@@ -65,39 +69,59 @@ const HeaderButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 0.3em;
+`;
+
+const ButtonsAlignment = styled.div<{ isMobile: boolean }>`
+  margin: ${(props) => (props.isMobile ? "0 0 0 auto" : "0")};
 `;
 
 function EditableTitle() {
   const [editing, setEditing] = useState(false);
-  const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
-  const saveLocally = useSaveLocally();
+  const currentWorkspace = useRecoilValue(currentWorkspaceState);
+  const saveWorkspace = useSaveWorkspace();
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const maxMobileTitleLen = 20;
+
   const onChange = useRecoilCallback(
-    ({ set, snapshot }) =>
+    ({ set }) =>
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        set(workspaceMetadataSelector, (state) => ({
+        set(currentWorkspaceState, (state) => ({
           ...state,
-          name: e.target.value,
+          metadata: {
+            ...state.metadata,
+            name: e.target.value,
+          },
         }));
-        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
-          .contents as WorkspaceMetadata;
-        if (metadata.location.kind !== "local" || !metadata.location.saved) {
-          saveLocally();
-        }
       },
   );
-  const onKey = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === "Escape") {
-      setEditing(false);
+
+  const onFinish = () => {
+    if (currentWorkspace.metadata.location.kind == "stored") {
+      saveWorkspace();
     }
-  }, []);
+    setEditing(false);
+  };
+
+  const onKey = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === "Escape") {
+        if (currentWorkspace.metadata.location.kind == "stored") {
+          saveWorkspace();
+        }
+        setEditing(false);
+      }
+    },
+    [currentWorkspace],
+  );
   if (editing) {
     return (
       <InputBox
         type="text"
-        value={workspaceMetadata.name}
+        value={currentWorkspace.metadata.name}
         autoFocus={true}
         onFocus={(e) => e.target.select()}
-        onBlur={() => setEditing(false)}
+        onBlur={onFinish}
         onKeyDown={onKey}
         onChange={onChange}
       />
@@ -105,7 +129,9 @@ function EditableTitle() {
   }
   return (
     <TitleBox onClick={() => setEditing(true)}>
-      {workspaceMetadata.name}
+      {isMobile && currentWorkspace.metadata.name.length > maxMobileTitleLen
+        ? currentWorkspace.metadata.name.slice(0, maxMobileTitleLen) + "..."
+        : currentWorkspace.metadata.name}
     </TitleBox>
   );
 }
@@ -113,13 +139,25 @@ function EditableTitle() {
 export default function TopBar() {
   const compileDiagram = useCompileDiagram();
   const resampleDiagram = useResampleDiagram();
-  const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
+  const currentWorkspace = useRecoilValue(currentWorkspaceState);
   const settings = useRecoilValue(settingsState);
-  const saveLocally = useSaveLocally();
   const publishGist = usePublishGist();
   const { optimizing, compiling } = useRecoilValue(diagramWorkerState);
   const isUnsaved = useIsUnsaved();
   const newWorkspace = useNewWorkspace();
+  const saveWorkspace = useSaveWorkspace();
+  const saveNewWorkspace = useSaveNewWorkspace();
+  const [showKeybindings, setShowKeybindings] =
+    useRecoilState(showKeybindingsState);
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+
+  /**
+   * These hooks are here because 1) In App, the call to get value of
+   * currentWorkspace in autosaveHook creates a noticable slowdown. 2) This
+   * component exists on all loads (why we put here and not SavedBrowser)
+   */
+  saveShortcutHook();
+  autosaveHook();
 
   return (
     <nav
@@ -133,7 +171,7 @@ export default function TopBar() {
         boxSizing: "border-box",
       }}
     >
-      {workspaceMetadata.location.kind === "roger" ? (
+      {currentWorkspace.metadata.location.kind === "roger" ? (
         <div>loaded from filesystem via Roger</div>
       ) : (
         <div
@@ -141,14 +179,15 @@ export default function TopBar() {
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
+            width: "100%",
           }}
         >
           <EditableTitle />
           {isUnsaved() ? <UnsavedIcon>unsaved</UnsavedIcon> : ""}
-          {workspaceMetadata.location.kind === "gist" && (
+          {currentWorkspace.metadata.location.kind === "gist" && (
             <a
               style={{ textDecoration: "none", color: "inherit" }}
-              href={`https://github.com/${workspaceMetadata.location.author}`}
+              href={`https://github.com/${currentWorkspace.metadata.location.author}`}
             >
               <AuthorBox>
                 <div
@@ -156,40 +195,82 @@ export default function TopBar() {
                     width: "25px",
                     height: "25px",
                     margin: "5px",
-                    backgroundImage: `url(${workspaceMetadata.location.avatar})`,
+                    backgroundImage: `url(${currentWorkspace.metadata.location.avatar})`,
                     borderRadius: "50%",
                     backgroundSize: "cover",
                     display: "inline-block",
                   }}
                 />{" "}
-                {workspaceMetadata.location.author}
+                {currentWorkspace.metadata.location.author}
               </AuthorBox>
             </a>
           )}
-          {workspaceMetadata.location.kind === "local" &&
-            !workspaceMetadata.location.saved && (
-              <BlueButton onClick={saveLocally}>save</BlueButton>
-            )}
-          {workspaceMetadata.location.kind === "local" &&
-            settings.github !== null && (
-              <BlueButton onClick={publishGist}>share</BlueButton>
-            )}
+          <ButtonsAlignment isMobile={isMobile}>
+            {currentWorkspace.metadata.location.kind == "local" &&
+              currentWorkspace.metadata.location.changesMade && (
+                <BlueButton
+                  // isMobile={isMobile}
+                  onClick={() =>
+                    saveNewWorkspace(
+                      currentWorkspace.metadata.id,
+                      currentWorkspace,
+                    )
+                  }
+                >
+                  save
+                </BlueButton>
+              )}
+            {currentWorkspace.metadata.location.kind === "stored" &&
+              !currentWorkspace.metadata.location.saved && (
+                <BlueButton onClick={() => saveWorkspace()}>save</BlueButton>
+              )}
+            {currentWorkspace.metadata.location.kind === "stored" &&
+              currentWorkspace.metadata.location.saved &&
+              settings.githubAccessToken !== null && (
+                <BlueButton onClick={publishGist}>share</BlueButton>
+              )}
 
-          <BlueButton onClick={newWorkspace}>new workspace</BlueButton>
+            <BlueButton onClick={newWorkspace}>
+              new {!isMobile && "workspace"}
+            </BlueButton>
+          </ButtonsAlignment>
         </div>
       )}
-      <HeaderButtonContainer>
-        <BlueButton disabled={compiling} onClick={useDownloadSvg()}>
-          save Penrose SVG
-        </BlueButton>
-        <ExportButton />
-        <BlueButton disabled={compiling} onClick={compileDiagram}>
-          compile ▶
-        </BlueButton>
-        <BlueButton disabled={compiling} onClick={resampleDiagram}>
-          resample
-        </BlueButton>
-      </HeaderButtonContainer>
+      {!isMobile && (
+        <HeaderButtonContainer>
+          <Dropdown
+            items={[
+              {
+                text: "Do the tutorial",
+                link: "https://penrose.cs.cmu.edu/docs/tutorial/welcome",
+                icon: <Tutorial />,
+              },
+              {
+                text: "Read the docs",
+                link: "https://penrose.cs.cmu.edu/docs/ref",
+                icon: <Docs />,
+              },
+              {
+                text: "Community help",
+                link: "https://discord.gg/a7VXJU4dfR",
+                icon: <Discord />,
+              },
+              {
+                text: "View hotkeys",
+                icon: <Keyboard />,
+                onClick: () => setShowKeybindings(true),
+              },
+            ]}
+          />
+          <BlueButton disabled={compiling} onClick={resampleDiagram}>
+            resample
+          </BlueButton>
+          <BlueButton disabled={compiling} onClick={compileDiagram}>
+            compile
+          </BlueButton>
+        </HeaderButtonContainer>
+      )}
+      {showKeybindings && <Keybindings />}
     </nav>
   );
 }

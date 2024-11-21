@@ -215,6 +215,9 @@
     "name": "Circle Example",
     "gallery": true
   },
+  "molecules/sulfuric-acid": {
+    "name": "Edgeworth Chemistry Example"
+  },
   "curve-examples/catmull-rom/catmull-rom": {
     "name": "Catmull-Rom Interpolation Test",
     "gallery": true
@@ -567,8 +570,44 @@
     "name": "Linear Regression Residuals",
     "gallery": false
   },
+  "geometry-domain/complementary-angles": {
+    "name": "Complementary angles",
+    "gallery": false
+  },
   "alloy-models/icicle-plot-file-system": {
     "name": "File System Icicle Plot",
     "gallery": false
+  },
+  "interactive/ellipse-rays": {
+    "name": "Ellipse Rays",
+    "gallery": true
+  },
+  "interactive/viewport": {
+    "name": "Viewport",
+    "gallery": true
+  },
+  "interactive/planets": {
+    "name": "Planets",
+    "gallery": true
+  },
+  "set-potatoes/relation-not-a-function": {
+    "name": "Relation that isn't a function",
+    "gallery": false
+  },
+  "set-potatoes/injections-post-inverses": {
+    "name": "Injections and Post-Inverses",
+    "gallery": false
+  },
+  "set-potatoes/non-injection-not-monomorphism": {
+    "name": "A non-injection is not a monomorphism",
+    "gallery": false
+  },
+  "set-potatoes/surjections-pre-inverses": {
+    "name": "Surjections and Pre-Inverses",
+    "gallery": false
+  },
+  "set-potatoes/non-surjection-not-epimorphism": {
+    "name": "A non-surjection is not an epimorphism",
+    "gallery": true
   }
 }

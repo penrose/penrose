@@ -471,10 +471,8 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
     }
     case "SubTypeDecl": {
       const { subType, superType } = stmt;
-      const subOk = checkSubSupType(subType, env);
-      const supOk = checkSubSupType(superType, env);
       const updatedEnv = addSubtype(subType, superType, env);
-      return everyResult(subOk, supOk, updatedEnv);
+      return updatedEnv;
     }
   }
 };
@@ -587,16 +585,17 @@ const areSameTypes = (
 };
 
 const addSubtype = (
-  subType: Type<C>, // assume already checked
+  subType: Type<C>,
   superType: Type<C>,
   env: DomainEnv,
 ): CheckerResult => {
-  const superOk = checkType(superType, env);
+  const subOk = checkSubSupType(subType, env);
+  const superOk = checkSubSupType(superType, env);
   const updatedEnv: CheckerResult = ok({
     ...env,
     subTypes: [...env.subTypes, [subType, superType]],
   });
-  return everyResult(superOk, updatedEnv);
+  return everyResult(subOk, superOk, updatedEnv);
 };
 
 const computeTypeGraph = (env: DomainEnv): CheckerResult => {

@@ -4,10 +4,11 @@ import {
   getDomainCache,
   getSubstanceCache,
 } from "@penrose/components";
-import { PenroseError, PenroseWarning } from "@penrose/core";
+import { PenroseError, PenroseWarning, RenderState } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
-import { Actions, BorderNode, TabNode } from "flexlayout-react";
+import { User as FirebaseUser } from "firebase/auth";
+import { Actions, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
 import { RefObject } from "react";
@@ -22,12 +23,7 @@ import {
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
 
-import {
-  DiagramID,
-  LayoutStats,
-  RenderState,
-  StepSequenceID,
-} from "../optimizer/common.js";
+import { DiagramID, HistoryInfo, HistoryLoc } from "../optimizer/common.js";
 import Optimizer from "../optimizer/optimizer.js";
 
 import { generateVariation } from "./variation.js";
@@ -46,11 +42,19 @@ export type GistLocation = {
 };
 
 export type WorkspaceLocation =
+  /**
+   * "local" used for unstored non-example workspaces, to distinguish for
+   * save button functionality
+   */
   | {
       kind: "local";
+      changesMade: boolean;
+    }
+  | {
       /**
-       * True if file is explicitly saved to localStorage
+       * If file is explicitly saved to cloud storage
        */
+      kind: "stored";
       saved: boolean;
       resolver?: PathResolver;
     }
@@ -69,7 +73,7 @@ export type WorkspaceLocation =
 export type WorkspaceMetadata = {
   name: string;
   // ISO String of date
-  lastModified: string;
+  lastModified: number;
   id: string;
   // Gist ID
   forkedFromGist: string | null;
@@ -91,8 +95,8 @@ export type Workspace = {
   };
 };
 
-export type LocalWorkspaces = {
-  [id: string]: WorkspaceMetadata;
+export type SavedWorkspaces = {
+  [id: string]: Workspace;
 };
 
 export type RogerState =
@@ -108,69 +112,89 @@ export type RogerState =
       trio: string[];
     };
 
-const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
-  setSelf(
-    localforage
-      .getItem("local_files")
-      .then(
-        (savedValue) =>
-          (savedValue != null ? savedValue : {}) as LocalWorkspaces,
-      ),
-  );
-
-  onSet((newValue, _, isReset) => {
-    isReset
-      ? localforage.removeItem("local_files")
-      : localforage.setItem("local_files", newValue);
-  });
+export type AuthModalState = {
+  loginIsOpen: boolean;
+  registerIsOpen: boolean;
 };
 
-export const localFilesState = atom<LocalWorkspaces>({
-  key: "localFiles",
+export type AppUser = FirebaseUser | null;
+
+export type AutosaveTimer = NodeJS.Timeout | null;
+
+export const savedFilesState = atom<SavedWorkspaces>({
+  key: "savedFiles",
   default: {},
-  effects: [localFilesEffect],
+  effects: [],
+});
+
+export const autosaveTimerState = atom<AutosaveTimer>({
+  key: "autosaveTimerState",
+  default: null,
+});
+
+export const showKeybindingsState = atom<boolean>({
+  key: "showKeybindingsState",
+  default: false,
 });
 
 /**
- * On any state change to the workspace, if it's being saved, autosave it (debounced)
- * TODO: changes that happen within the 500ms window will not be collected, this is an
- *       issue with things that are not directly related to editing trios i.e. duplicating
- *       workspaces, saving a new workspace, etc., see issue #1695
+ * On any state change to a stored workspace, mark it as unsaved (debounced)
+ * On any state change to an example workspace (i.e. title or content edit),
+ * mark it as "local" (shows save button in top bar + marks as unclean)
  */
-const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
+const markWorkspaceUnsavedEffect: AtomEffect<Workspace> = ({
+  onSet,
+  setSelf,
+}) => {
   onSet(
-    // HACK: this isn't typesafe
-    debounce(async (newValue: Workspace, oldValue, isReset) => {
-      // If edit is made on something that isnt already local
-      if (
-        newValue.metadata.id === oldValue.metadata.id &&
-        newValue.metadata.location.kind !== "local" &&
-        newValue.metadata.location.kind !== "roger"
-      ) {
-        setSelf((workspaceOrDefault) => {
-          const workspace = workspaceOrDefault as Workspace;
-          let resolver: PathResolver | undefined = undefined;
-          if (workspace.metadata.location.kind === "example")
-            resolver = workspace.metadata.location.resolver;
-          return {
-            ...workspace,
-            metadata: {
-              ...workspace.metadata,
-              location: { kind: "local", saved: false, resolver },
-              forkedFromGist:
-                newValue.metadata.location.kind === "gist"
-                  ? newValue.metadata.location.id
-                  : null,
-            } as WorkspaceMetadata,
-          };
-        });
-      }
-      // If the workspace is already in localStorage
-      if (
-        newValue.metadata.location.kind === "local" &&
-        newValue.metadata.location.saved
-      ) {
-        await localforage.setItem(newValue.metadata.id, newValue);
+    // HACK: this isn't typesafe (comment from old saveWorkspaceEffect)
+    debounce(async (newValue: Workspace, oldValue) => {
+      // Check equal ids to prevent state change when swapping active diagram
+      if (newValue.metadata.id == oldValue.metadata.id) {
+        // Check equal saved values to prevent this effect from self-triggering
+        if (
+          newValue.metadata.location.kind == "stored" &&
+          newValue.metadata.location.saved &&
+          newValue.metadata.location.saved == oldValue.metadata.location.saved
+        ) {
+          setSelf((workspaceOrDefault) => {
+            const workspace = workspaceOrDefault as Workspace;
+            let resolver: PathResolver | undefined = undefined;
+            return {
+              ...workspace,
+              metadata: {
+                ...workspace.metadata,
+                location: { kind: "stored", saved: false, resolver },
+                forkedFromGist:
+                  newValue.metadata.location.kind === "gist"
+                    ? newValue.metadata.location.id
+                    : null,
+              } as WorkspaceMetadata,
+            };
+          });
+        } else if (newValue.metadata.location.kind == "example") {
+          setSelf((workspaceOrDefault) => {
+            const workspace = workspaceOrDefault as Workspace;
+            return {
+              ...workspace,
+              metadata: {
+                ...workspace.metadata,
+                location: { kind: "local", changesMade: false },
+              } as WorkspaceMetadata,
+            };
+          });
+        } else if (newValue.metadata.location.kind == "local") {
+          setSelf((workspaceOrDefault) => {
+            const workspace = workspaceOrDefault as Workspace;
+            return {
+              ...workspace,
+              metadata: {
+                ...workspace.metadata,
+                location: { kind: "local", changesMade: true },
+              } as WorkspaceMetadata,
+            };
+          });
+        }
       }
     }, 500),
   );
@@ -201,9 +225,9 @@ export const defaultWorkspaceState = (): Workspace => ({
   metadata: {
     name: "Untitled Diagram",
     id: uuid(),
-    lastModified: new Date().toISOString(),
+    lastModified: Date.parse(new Date().toISOString()),
     editorVersion: 0.1,
-    location: { kind: "local", saved: false },
+    location: { kind: "local", changesMade: false },
     forkedFromGist: null,
   },
   files: {
@@ -228,12 +252,22 @@ export const defaultWorkspaceState = (): Workspace => ({
 export const currentWorkspaceState = atom<Workspace>({
   key: "currentWorkspace",
   default: defaultWorkspaceState(),
-  effects: [saveWorkspaceEffect, syncFilenamesEffect],
+  effects: [markWorkspaceUnsavedEffect, syncFilenamesEffect],
 });
 
 export const currentRogerState = atom<RogerState>({
   key: "currentRogerState",
   default: { kind: "disconnected" },
+});
+
+export const currentAuthModalState = atom<AuthModalState>({
+  key: "currentLoginModalState",
+  default: { loginIsOpen: false, registerIsOpen: false },
+});
+
+export const currentAppUser = atom<AppUser>({
+  key: "currentAppUser",
+  default: null,
 });
 
 /**
@@ -258,7 +292,6 @@ export const fileContentsSelector = selectorFamily<ProgramFile, ProgramType>({
 
 /**
  * Access just the workspace's metadata.
- * Auto updates the localStorage via effects.
  */
 export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
   key: "workspaceMetadata",
@@ -271,13 +304,6 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
       ...state,
       metadata: newMetadata,
     }));
-    // If local & saved, add it to the localFiles
-    if (newMetadata.location.kind === "local" && newMetadata.location.saved) {
-      set(localFilesState, (state) => ({
-        ...state,
-        [(newValue as WorkspaceMetadata).id]: newValue as WorkspaceMetadata,
-      }));
-    }
   },
 });
 
@@ -303,7 +329,6 @@ export type DiagramMetadata = {
   variation: string;
   stepSize: number;
   autostep: boolean;
-  interactive: boolean;
   excludeWarnings: string[];
   source: {
     domain: string;
@@ -316,10 +341,17 @@ export type Diagram = {
   state: RenderState | null;
   error: PenroseError | null;
   warnings: PenroseWarning[];
-  layoutStats: LayoutStats;
+  historyInfo: HistoryInfo | null;
   diagramId: DiagramID | null;
-  stepSequenceId: StepSequenceID | null;
+  historyLoc: HistoryLoc | null;
+  svg: SVGSVGElement | null;
   metadata: DiagramMetadata;
+};
+
+export type DiagramWorker = {
+  compiling: boolean;
+  resampling: boolean;
+  optimizing: boolean;
 };
 
 export type Canvas = {
@@ -339,14 +371,14 @@ export const diagramState = atom<Diagram>({
     state: null,
     error: null,
     warnings: [],
-    layoutStats: [],
     diagramId: null,
-    stepSequenceId: null,
+    historyLoc: null,
+    svg: null,
+    historyInfo: null,
     metadata: {
       variation: generateVariation(),
       stepSize: 10000,
       autostep: true,
-      interactive: false,
       excludeWarnings: [],
       source: {
         substance: "",
@@ -367,13 +399,11 @@ export const layoutTimelineState = atom<LayoutTimeline>({
   default: [],
 });
 
-export const diagramWorkerState = atom<{
-  compiling: boolean;
-  optimizing: boolean;
-}>({
+export const diagramWorkerState = atom<DiagramWorker>({
   key: "diagramWorkerState",
   default: {
     compiling: false,
+    resampling: false,
     optimizing: false,
   },
 });
@@ -436,6 +466,16 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
   },
 });
 
+export const diagramErrorSelector = selector<PenroseError | null>({
+  key: "diagramError",
+  get: ({ get }) => get(diagramState).error,
+});
+
+export const diagramWarningsSelector = selector<PenroseWarning[]>({
+  key: "diagramWarnings",
+  get: ({ get }) => get(diagramState).warnings,
+});
+
 export interface TrioWithPreview {
   id: string;
   get: () => Promise<Trio>;
@@ -481,12 +521,6 @@ export const exampleTriosState = atom<TrioWithPreview[]>({
   }),
 });
 
-export type LocalGithubUser = {
-  username: string;
-  avatar: string;
-  accessToken: string;
-};
-
 export type GistMetadata = {
   name: string;
   editorVersion: number;
@@ -499,9 +533,9 @@ export type GistMetadata = {
 };
 
 export type Settings = {
-  github: LocalGithubUser | null;
+  githubAccessToken: string | null;
   vimMode: boolean;
-  debugMode: boolean;
+  interactive: "EditMode" | "PlayMode" | "Off";
 };
 
 const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
@@ -520,32 +554,15 @@ const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
       : localforage.setItem("settings", newValue);
   });
 };
-const debugModeEffect: AtomEffect<Settings> = ({ onSet }) => {
-  onSet((newValue, _, isReset) => {
-    layoutModel.visitNodes((node) => {
-      if (
-        node.getType() === "border" &&
-        (node as BorderNode).getClassName() === "debugBorder"
-      ) {
-        layoutModel.doAction(
-          Actions.updateNodeAttributes(node.getId(), {
-            show: newValue.debugMode,
-          }),
-        );
-      }
-    });
-  });
-};
 
 export const settingsState = atom<Settings>({
   key: "settings",
   default: {
-    github: null,
+    githubAccessToken: null,
     vimMode: false,
-    // debug mode is on by default in local dev mode
-    debugMode: process.env.NODE_ENV === "development",
+    interactive: "Off",
   },
-  effects: [settingsEffect, debugModeEffect],
+  effects: [settingsEffect],
 });
 
 export const codemirrorHistory = atom<boolean>({

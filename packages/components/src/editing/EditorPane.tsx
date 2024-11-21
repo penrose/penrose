@@ -1,5 +1,7 @@
 import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
+
 import { lintGutter, linter } from "@codemirror/lint";
+import { Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import {
   DomainError,
@@ -8,7 +10,7 @@ import {
   StyleWarning,
   SubstanceError,
 } from "@penrose/core/dist/types/errors.js";
-import { vim } from "@replit/codemirror-vim";
+import { Vim, vim } from "@replit/codemirror-vim";
 import { color } from "@uiw/codemirror-extensions-color";
 import CodeMirror from "@uiw/react-codemirror";
 import { useEffect, useRef, useState } from "react";
@@ -20,6 +22,7 @@ import {
 import DomainAutocomplete from "./hooks/domain/domainAutocomplete";
 import { getShapeDefs } from "./hooks/hooksUtils";
 import StyleAutocomplete from "./hooks/style/styleAutocomplete";
+import { wordHover } from "./hooks/style/styleTooltips";
 import SubstanceAutocomplete from "./hooks/substance/substanceAutocomplete";
 import { createLinter } from "./hooks/useLinter";
 import { domainLanguageSupport } from "./parser/domain/domainLanguage";
@@ -46,6 +49,7 @@ export default function EditorPane({
   width,
   minWidth,
   maxWidth,
+  onWrite,
 }: {
   value: string;
   height?: string;
@@ -65,6 +69,7 @@ export default function EditorPane({
   readOnly: boolean;
   darkMode: boolean;
   codemirrorHistoryState: boolean;
+  onWrite?: () => void;
 }) {
   const statusBarRef = useRef<HTMLDivElement>(null);
 
@@ -122,6 +127,7 @@ export default function EditorPane({
   const styleExtensions = [
     autocompletion({ override: [styleCompletionFn] }),
     styleLanguageSupport(),
+    wordHover,
   ].concat(defaultExtensions);
 
   let extensionsList =
@@ -131,7 +137,34 @@ export default function EditorPane({
       ? substanceExtensions
       : styleExtensions;
 
-  if (vimMode) extensionsList.push(vim());
+  // onWrite may be undefined (like in Listing.tsx)
+  if (onWrite) {
+    // Keymap Cmd/Cntrl+Enter compile diagram
+    const compileShortcutExtension = keymap.of([
+      {
+        key: "Mod-Enter",
+        run: () => {
+          onWrite();
+          return true;
+        },
+      },
+    ]);
+
+    extensionsList.push(
+      // Set precedence to override default
+      Prec.highest([compileShortcutExtension]),
+    );
+
+    // Vim :w override to be compile diagram
+    Vim.defineEx("write", "w", function () {
+      onWrite();
+    });
+  }
+
+  if (vimMode) {
+    // NOTE: need to make sure vim keybindings have the highest precedence whenever we're in vim mode
+    extensionsList.push(Prec.highest(vim()));
+  }
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
@@ -149,6 +182,7 @@ export default function EditorPane({
         maxWidth={maxWidth}
         minHeight={minHeight}
         minWidth={minWidth}
+        readOnly={readOnly}
       />
       <div
         ref={statusBarRef}

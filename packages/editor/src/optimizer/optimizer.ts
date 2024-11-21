@@ -1,7 +1,9 @@
 import {
+  Interaction,
   isPenroseError,
   LabelMeasurements,
   PenroseError,
+  RenderState,
   runtimeError,
 } from "@penrose/core";
 import consola from "consola";
@@ -15,6 +17,8 @@ import {
   DiagramID,
   DiscardDiagramData,
   HistoryLoc,
+  InteractionRequestData,
+  InteractionResult,
   InvalidDiagramIDError,
   InvalidHistoryLocError,
   isErr,
@@ -31,7 +35,6 @@ import {
   notifyWorker,
   PollRequestData,
   PollResult,
-  RenderState,
   request,
   ResampleRequestData,
   ResampleResult,
@@ -249,6 +252,20 @@ export default class Optimizer {
       tag: MessageTags.Resample,
       diagramId,
       variation,
+    };
+    return await this.request(requestData);
+  };
+
+  interact = async (
+    diagramId: DiagramID,
+    parentHistoryLoc: HistoryLoc,
+    interaction: Interaction,
+  ): Promise<InteractionResult> => {
+    const requestData: InteractionRequestData = {
+      tag: MessageTags.Interaction,
+      diagramId,
+      parentHistoryLoc,
+      interaction,
     };
     return await this.request(requestData);
   };

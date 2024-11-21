@@ -1,11 +1,11 @@
 {
   "name": "@penrose/examples",
-  "version": "4.0.0-alpha.0",
+  "version": "4.0.0-alpha.5",
   "private": true,
   "type": "module",
   "dependencies": {
-    "@penrose/core": "^4.0.0-alpha.0",
-    "@penrose/solids": "^4.0.0-alpha.0",
+    "@penrose/core": "^4.0.0-alpha.5",
+    "@penrose/solids": "^4.0.0-alpha.5",
     "solid-js": "^1"
   },
   "devDependencies": {

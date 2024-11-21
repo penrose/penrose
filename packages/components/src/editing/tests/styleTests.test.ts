@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { getShapeDefs } from "../hooks/hooksUtils";
 import {
   getComputationFns,
-  getConstraints,
+  getConstraints_Objectives,
   getNamespaceDict,
   getShapeNames,
   selectorHeaderKws,
@@ -13,6 +13,7 @@ import { parser } from "../parser/style/style";
 import {
   hasErrors,
   hasNoErrors,
+  testLayoutStages,
   testNamespaceProps,
   testNamespaces,
   testStyleAutocomplete,
@@ -738,11 +739,53 @@ where InTri( p, t ); t := Triangle(q0, q1, q2) {
   });
 });
 
+describe("Stage name Caching", () => {
+  test("Stage names 1", async () => {
+    const input = `layout = [ walkStage, nestStage, labelStage, legendStage ]
+
+-- diagram dimensions (in px; multiply by 96/72 to convert to pt)
+canvas {
+   width = 200 -- ==150pt
+   height = 200 -- ==150pt
+}`;
+
+    testLayoutStages(input, [
+      "walkStage",
+      "nestStage",
+      "labelStage",
+      "legendStage",
+    ]);
+  });
+
+  test("Stage names 2", async () => {
+    const input = `canvas {
+   width = 200 -- ==150pt
+   height = 200 -- ==150pt
+}
+   forall Set x {
+  shape x.icon = Circle { }
+  shape x.text = Equation {
+    string : x.label
+    fontSize : "32px"
+  }
+  ensure contains(x.icon, x.text)
+  encourage norm(x.text.center - x.icon.center) == 0
+  layer x.text above x.icon
+}
+
+layout = [A, B, C, D]
+`;
+    testLayoutStages(input, ["A", "B", "C", "D"]);
+  });
+});
+
 describe("Autocomplete", () => {
   const shapeDefns = getShapeDefs();
   const shapeNames = getShapeNames(shapeDefns).map((cmp) => cmp.label.trim());
   const computationFns = getComputationFns().map((cmp) => cmp.label.trim());
-  const constraints = getConstraints().map((cmp) => cmp.label.trim());
+  const constraints = getConstraints_Objectives().map((cmp) =>
+    cmp.label.trim(),
+  );
 
   test("ShapeProps Circle", async () => {
     const input = `canvas {
@@ -877,6 +920,36 @@ describe("Autocomplete", () => {
     
     c`;
     await testStyleAutocomplete(input, "", styleHeaderKws);
+  });
+
+  test("Stage Names after ?", async () => {
+    const input = `layout = [ stageA, stageB, stageC ]
+
+-- diagram dimensions (in px; multiply by 96/72 to convert to pt)
+canvas {
+   width = 200 -- ==150pt
+   height = 200 -- ==150pt
+}
+
+forall Points p {
+scalar d = ? in s}`;
+
+    await testStyleAutocomplete(input, "", ["stageA", "stageB", "stageC"], 1);
+  });
+
+  test("Stage Names in Objective", async () => {
+    const input = `layout = [ stage1, stage2, stage3 ]
+
+-- diagram dimensions (in px; multiply by 96/72 to convert to pt)
+canvas {
+   width = 200 -- ==150pt
+   height = 200 -- ==150pt
+}
+
+forall Points p {
+ensure norm(p) == 5 in s}`;
+
+    await testStyleAutocomplete(input, "", ["stage1", "stage2", "stage3"], 1);
   });
 
   // Tests assume computation functions suggested in expressions.

@@ -262,5 +262,9 @@ type Set
 function F(Set s) -> String
     `;
     expectErrorOf(prog4, "OutputLiteralTypeError");
+    const prog5 = `
+type Set <: Number
+        `;
+    expectErrorOf(prog5, "SubOrSuperLiteralTypeError");
   });
 });

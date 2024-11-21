@@ -1,0 +1,75 @@
+{
+  "name": "@penrose/bloom",
+  "version": "4.0.0-alpha.5",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
+  "license": "MIT",
+  "files": [
+    "dist/**/*.d.ts",
+    "dist/**/*.js",
+    "!dist/**/*.test.js",
+    "!dist/**/*.test.d.ts"
+  ],
+  "scripts": {
+    "build": "tsc && rollup -c",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "docs": "typedoc"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "^build",
+          "docs"
+        ]
+      },
+      "dev": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "preview": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "docs": {
+        "dependsOn": [
+          "^build"
+        ]
+      }
+    }
+  },
+  "dependencies": {
+    "@penrose/core": "^4.0.0-alpha.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-replace": "^6.0.1",
+    "@types/prismjs": "^1.26.4",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "eslint": "^8.45.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "prettier": "^3.3.3",
+    "rollup": "^4.24.0",
+    "rollup-plugin-esbuild-minify": "^1.1.2",
+    "typedoc": "^0.26.6",
+    "typedoc-plugin-markdown": "^4.2.6",
+    "typedoc-vitepress-theme": "^1.0.1",
+    "typescript": "^5.2.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "edad5498aeabe85b1c5b320ca862faa879ff1d23"
+}

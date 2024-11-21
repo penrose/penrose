@@ -1,6 +1,6 @@
 {
   "name": "@penrose/core",
-  "version": "4.0.0-alpha.0",
+  "version": "4.0.0-alpha.5",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -33,7 +33,7 @@
     "docs": "typedoc --out docs",
     "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs/md",
     "lint": "eslint --ext js,ts,tsx src",
-    "prepack": "yarn bundle"
+    "prepack": "yarn build-parsers && yarn build && yarn bundle"
   },
   "nx": {
     "targets": {
@@ -126,5 +126,6 @@
     "typedoc": "^0.24.7",
     "typedoc-plugin-markdown": "^3.11.13",
     "vite-plugin-top-level-await": "^1.4.1"
-  }
+  },
+  "gitHead": "edad5498aeabe85b1c5b320ca862faa879ff1d23"
 }

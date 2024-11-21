@@ -1,0 +1,25 @@
+Set A
+Set B
+
+Relation R
+
+Element a
+Element x
+Element y
+
+SetsAreRelated(A, R, B)
+
+SetHasElement(A, a)
+SetHasElement(B, x)
+SetHasElement(B, y)
+
+Arrow ax := Relate(a, x)
+Arrow ay := Relate(a, y)
+
+ArrowRelatesElements(a, ax, x)
+ArrowRelatesElements(a, ay, y)
+
+RelationHasArrow(R, ax)
+RelationHasArrow(R, ay)
+
+AutoLabel All

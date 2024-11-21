@@ -3,6 +3,9 @@ import { styleTags, tags as t } from "@lezer/highlight";
 import { domainParser as parser } from "@penrose/core";
 
 export const domainLanguage = LRLanguage.define({
+  languageData: {
+    commentTokens: { line: "--", block: { open: "/*", close: "*/" } },
+  },
   parser: parser.configure({
     props: [
       styleTags({

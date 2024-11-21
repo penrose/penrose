@@ -3,6 +3,9 @@ import { styleTags, tags as t } from "@lezer/highlight";
 import { parser } from "./substance.js";
 
 export const substanceLanguage = LRLanguage.define({
+  languageData: {
+    commentTokens: { line: "--", block: { open: "/*", close: "*/" } },
+  },
   parser: parser.configure({
     props: [
       styleTags({

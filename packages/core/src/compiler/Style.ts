@@ -5,7 +5,12 @@ import nearley from "nearley";
 import seedrandom from "seedrandom";
 import { genGradient, ops, variable } from "../engine/Autodiff.js";
 import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions.js";
-import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils.js";
+import {
+  compileCompGraph,
+  dummyIdentifier,
+  isConcrete,
+  mapValueNumeric,
+} from "../engine/EngineUtils.js";
 import { start as genOptProblem } from "../engine/Optimizer.js";
 import { constrDict } from "../lib/Constraints.js";
 import { compDict } from "../lib/Functions.js";
@@ -23,10 +28,13 @@ import {
 import {
   Shape,
   ShapeType,
+  isScalable,
   isShapeType,
+  isTranslatable,
   sampleShape,
 } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
+import { isVar } from "../types/ad.js";
 import { A, C, Identifier, SourceRange } from "../types/ast.js";
 import { DomainEnv, Type } from "../types/domain.js";
 import {
@@ -41,6 +49,7 @@ import {
 } from "../types/errors.js";
 import {
   Fn,
+  IdxsByPath,
   OptPipeline,
   OptStages,
   StagedConstraints,
@@ -53,14 +62,12 @@ import {
   CollectionAccess,
   Collector,
   DeclPattern,
-  Expr,
   FunctionCall,
   Header,
   HeaderBlock,
   InlineComparison,
   LayoutStages,
   List,
-  Path,
   PathAssign,
   RelBind,
   RelField,
@@ -79,27 +86,34 @@ import {
   Vector,
 } from "../types/style.js";
 import {
+  Resolved,
+  ResolvedExpr,
+  ResolvedPath,
+  ResolvedUnindexedStylePath,
+  StylePathAccessIndex,
+  StylePathToNamespaceScope,
+  StylePathToObject,
+  StylePathToScope,
+  StylePathToSubstanceScope,
+  StylePathToUnindexedObject,
+} from "../types/stylePathResolution.js";
+import {
   Assignment,
-  BlockAssignment,
   BlockInfo,
   CollectionSubst,
-  Context,
   DepGraph,
   FieldDict,
   FieldSource,
   Layer,
-  LocalVarSubst,
   NotShape,
-  ResolvedName,
-  ResolvedPath,
   SelectorEnv,
   ShapeSource,
   StySubst,
+  StyleBlockId,
   Subst,
   SubstanceLiteral,
   SubstanceObject,
   Translation,
-  WithContext,
 } from "../types/styleSemantics.js";
 import {
   ApplyConstructor,
@@ -120,6 +134,7 @@ import {
 } from "../types/substance.js";
 import {
   ArgVal,
+  ArgValWithExpr,
   Field,
   FloatV,
   LListV,
@@ -127,10 +142,8 @@ import {
   MatrixV,
   PathDataListV,
   PathDataV,
-  PropID,
   PtListV,
   ShapeListV,
-  StrV,
   TupV,
   Value,
   VectorV,
@@ -162,11 +175,17 @@ import {
 } from "../utils/GroupGraph.js";
 import Heap from "../utils/Heap.js";
 import {
+  resolveLhsStylePath,
+  resolveStyleExpr,
+  stylePathToNamespaceScope,
+  stylePathToSubstanceScope,
+  stylePathToUnnamedScope,
+} from "../utils/StylePathResolution.js";
+import {
   boolV,
   cartesianProduct,
   colorV,
   floatV,
-  getAdValueAsString,
   hexToRgba,
   isKeyOf,
   listV,
@@ -174,14 +193,14 @@ import {
   matrixV,
   pathDataListV,
   pathDataV,
-  prettyPrintResolvedPath,
+  prettyResolvedStylePath,
   ptListV,
-  resolveRhsName,
   shapeListV,
   strV,
   subObjectToUniqueName,
   substanceLiteralToValue,
   tupV,
+  uniqueNameToSubObject,
   val,
   vectorV,
   zip2,
@@ -755,10 +774,14 @@ const matchBvar = (
     case "SubVar": {
       if (subVar.value === bf.contents.value) {
         // Substance variables matched; comparing string equality
-        return {};
+        const newSubst: Subst = {};
+        newSubst[`\`${bf.contents.value}\``] = {
+          tag: "SubstanceVar",
+          name: subVar.value,
+        };
+        return newSubst;
       } else {
-        return undefined; // TODO: Note, here we distinguish between an empty substitution and no substitution... but why?
-        // Answer: An empty substitution counts as a match; an invalid substitution (undefined) does not count as a match.
+        return undefined; // invalid substitution
       }
     }
   }
@@ -892,9 +915,12 @@ const matchStyArgToSubArg = (
         if (subArg.value === styBForm.contents.value) {
           if (isSubtype(subArgType, styArgType, domEnv)) {
             // The result is a valid match.
-            // This is an empty substitution because a substitution only maps Style variables
-            // to substance variables.
-            return [{}];
+            const rSubst: Subst = {};
+            rSubst[`\`${styArgName}\``] = {
+              tag: "SubstanceVar",
+              name: subArgName,
+            };
+            return [rSubst];
           } else {
             // invalid match
             return [];
@@ -1147,7 +1173,11 @@ const matchRelField = (
     const label = subEnv.labels.get(subName);
     if (label) {
       const rSubst: Subst = {};
-      rSubst[styName] = { tag: "SubstanceVar", name: subName };
+      if (rel.name.tag === "StyVar") {
+        rSubst[styName] = { tag: "SubstanceVar", name: subName };
+      } else {
+        rSubst[`\`${styName}\``] = { tag: "SubstanceVar", name: subName };
+      }
       if (fieldDesc) {
         return label.type === fieldDesc ? rSubst : undefined;
       } else {
@@ -1529,87 +1559,122 @@ type FieldedRes = Result<
   StyleError
 >;
 
-const updateExpr = (
-  path: ResolvedPath<C>,
-  assignment: BlockAssignment,
+const resolveScope = (
+  assignment: Assignment,
+  scope: StylePathToScope<A>,
+): FieldDict => {
+  if (scope.tag === "Namespace") {
+    return assignment.globals.get(scope.name) ?? im.Map();
+  } else if (scope.tag === "Substance") {
+    const substanceName = subObjectToUniqueName(scope.substanceObject);
+    return assignment.substances.get(substanceName) ?? im.Map();
+  } else {
+    return (
+      assignment.unnamed.get(im.List([scope.blockId, scope.substId])) ??
+      im.Map()
+    );
+  }
+};
+
+const updateScope = (
+  assignment: Assignment,
+  scope: StylePathToScope<A>,
+  dict: FieldDict,
+): Assignment => {
+  if (scope.tag === "Namespace") {
+    return { ...assignment, globals: assignment.globals.set(scope.name, dict) };
+  } else if (scope.tag === "Substance") {
+    const substanceName = subObjectToUniqueName(scope.substanceObject);
+    return {
+      ...assignment,
+      substances: assignment.substances.set(substanceName, dict),
+    };
+  } else {
+    return {
+      ...assignment,
+      unnamed: assignment.unnamed.set(
+        im.List([scope.blockId, scope.substId]),
+        dict,
+      ),
+    };
+  }
+};
+
+const checkPathAndUpdateExpr = (
+  path: ResolvedUnindexedStylePath<A>,
+  assignment: Assignment,
   errTagGlobal: "AssignGlobalError" | "DeleteGlobalError",
   errTagSubstance: "AssignSubstanceError" | "DeleteSubstanceError",
-  // this function performs the actual dictionary updates. `updateExpr` only needs to extract the path to pass to `f`.
-  f: (field: Field, prop: PropID | undefined, fielded: FieldDict) => FieldedRes,
-): BlockAssignment => {
-  switch (path.tag) {
-    case "Global": {
-      if (path.members.length < 1) {
-        return addDiags(oneErr({ tag: errTagGlobal, path }), assignment);
-      } else if (path.members.length > 2) {
+  f: (
+    field: string,
+    prop: string | undefined,
+    dict: FieldDict,
+    path: StylePathToUnindexedObject<A>,
+  ) => FieldedRes,
+): Assignment => {
+  if (path.tag === "Namespace") {
+    return addDiags(
+      oneErr({
+        tag: errTagGlobal,
+        path,
+      }),
+      assignment,
+    );
+  } else if (path.tag === "Substance" || path.tag === "Collection") {
+    return addDiags(
+      oneErr({
+        tag: errTagSubstance,
+        path,
+      }),
+      assignment,
+    );
+  } else {
+    const { access } = path;
+    const { parent, name } = access;
+    let scope: StylePathToScope<A> | undefined = undefined;
+    const otherPartsReversed: string[] = [name];
+    if (parent.tag === "Object") {
+      otherPartsReversed.push(parent.access.name);
+      const parent2 = parent.access.parent;
+      if (parent2.tag === "Object") {
+        // if parent's parent is an object, then parent must be a shape property, which is not possible
+        // since shape property cannot be a parent of anything.
         return addDiags(
-          oneErr({ tag: "PropertyMemberError", path }),
+          oneErr({
+            tag: "NonWellFormedPathError",
+            path,
+          }),
           assignment,
         );
       }
-      const field = path.members[0].value;
-      const prop = path.members.length > 1 ? path.members[1].value : undefined;
-      const namespaceFields = assignment.globals.get(path.name) ?? im.Map();
-      const res = f(field, prop, namespaceFields);
-      if (res.isErr()) {
-        return addDiags(oneErr(res.error), assignment);
-      }
-      const { dict, warns } = res.value;
-      return addDiags(warnings(warns), {
-        ...assignment,
-        globals: assignment.globals.set(path.name, dict),
-      });
+      scope = parent2;
+    } else {
+      scope = parent;
     }
-    case "Local": {
-      // a local variable can only have 0 or 1 members (`x = 1` or `icon = { x: 1 }`)
-      if (path.members.length > 1) {
-        return addDiags(
-          oneErr({ tag: "PropertyMemberError", path }),
-          assignment,
-        );
-      }
-      // remember, we don't use `--noUncheckedIndexedAccess`
-      const prop = path.members.length > 0 ? path.members[0].value : undefined;
-      // coincidentally, `BlockAssignment["locals"]` looks just like `Fielded`
-      const res = f(path.name, prop, assignment.locals);
-      if (res.isErr()) {
-        return addDiags(oneErr(res.error), assignment);
-      }
-      const { dict: locals, warns } = res.value;
-      return addDiags(warnings(warns), { ...assignment, locals });
+
+    const [field, prop] =
+      otherPartsReversed.length === 1
+        ? [otherPartsReversed[0], undefined]
+        : [otherPartsReversed[1], otherPartsReversed[0]];
+
+    const dict = resolveScope(assignment, scope);
+
+    const res = f(field, prop, dict, path);
+    if (res.isErr()) {
+      return addDiags(oneErr(res.error), assignment);
     }
-    case "Substance": {
-      if (path.members.length < 1) {
-        return addDiags(oneErr({ tag: errTagSubstance, path }), assignment);
-      } else if (path.members.length > 2) {
-        return addDiags(
-          oneErr({ tag: "PropertyMemberError", path }),
-          assignment,
-        );
-      }
-      const field = path.members[0].value;
-      // remember, we don't use `--noUncheckedIndexedAccess`
-      const prop = path.members.length > 1 ? path.members[1].value : undefined;
-      const subObj = assignment.substances.get(path.name) ?? im.Map();
-      const res = f(field, prop, subObj);
-      if (res.isErr()) {
-        return addDiags(oneErr(res.error), assignment);
-      }
-      const { dict, warns } = res.value;
-      return addDiags(warnings(warns), {
-        ...assignment,
-        substances: assignment.substances.set(path.name, dict),
-      });
-    }
+
+    const { dict: newDict, warns } = res.value;
+
+    return addDiags(warnings(warns), updateScope(assignment, scope, newDict));
   }
 };
 
 const processExpr = (
-  context: Context,
-  expr: Expr<C>,
+  expr: ResolvedExpr<A>,
 ): Result<FieldSource, StyleError> => {
   if (expr.tag !== "GPIDecl") {
-    return ok({ tag: "OtherSource", expr: { context, expr } });
+    return ok({ tag: "OtherSource", expr });
   }
   const shapeType = expr.shapeName.value;
   if (!isShapeType(shapeType)) {
@@ -1621,7 +1686,7 @@ const processExpr = (
       if (value.tag === "GPIDecl") {
         return err({ tag: "NestedShapeError", expr: value });
       }
-      return ok(m.set(name.value, { context, expr: value }));
+      return ok(m.set(name.value, value));
     },
     ok(im.Map()),
   );
@@ -1630,22 +1695,19 @@ const processExpr = (
 
 const insertExpr = (
   block: BlockInfo,
-  path: ResolvedPath<C>,
-  expr: Expr<C>,
-  assignment: BlockAssignment,
-): BlockAssignment =>
-  updateExpr(
+  path: ResolvedUnindexedStylePath<A>,
+  expr: ResolvedExpr<A>,
+  assignment: Assignment,
+): Assignment =>
+  checkPathAndUpdateExpr(
     path,
     assignment,
     "AssignGlobalError",
     "AssignSubstanceError",
-    (field, prop, fielded) => {
+    (field, prop, fielded, path) => {
       const warns: StyleWarning[] = [];
       if (prop === undefined) {
-        const source = processExpr(
-          { ...block, locals: assignment.locals },
-          expr,
-        );
+        const source = processExpr(expr);
         if (source.isErr()) {
           return err(source.error);
         }
@@ -1659,10 +1721,10 @@ const insertExpr = (
         }
         const shape = fielded.get(field);
         if (shape === undefined) {
-          return err({ tag: "MissingShapeError", path });
+          return err({ tag: "MissingShapeError", path: path.access.parent });
         }
         if (shape.tag !== "ShapeSource") {
-          return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
+          return err({ tag: "NotShapeError", path, what: shape.expr.tag });
         }
         if (shape.props.has(prop)) {
           warns.push({ tag: "ImplicitOverrideWarning", path });
@@ -1670,10 +1732,7 @@ const insertExpr = (
         return ok({
           dict: fielded.set(field, {
             ...shape,
-            props: shape.props.set(prop, {
-              context: { ...block, locals: assignment.locals },
-              expr,
-            }),
+            props: shape.props.set(prop, expr),
           }),
           warns,
         });
@@ -1682,15 +1741,15 @@ const insertExpr = (
   );
 
 const deleteExpr = (
-  path: ResolvedPath<C>,
-  assignment: BlockAssignment,
-): BlockAssignment =>
-  updateExpr(
+  path: ResolvedUnindexedStylePath<A>,
+  assignment: Assignment,
+): Assignment =>
+  checkPathAndUpdateExpr(
     path,
     assignment,
     "DeleteGlobalError",
     "DeleteSubstanceError",
-    (field, prop, fielded) => {
+    (field, prop, fielded, path) => {
       if (prop === undefined) {
         return ok({
           dict: fielded.remove(field),
@@ -1702,7 +1761,7 @@ const deleteExpr = (
           return err({ tag: "MissingShapeError", path });
         }
         if (shape.tag !== "ShapeSource") {
-          return err({ tag: "NotShapeError", path, what: shape.expr.expr.tag });
+          return err({ tag: "NotShapeError", path, what: shape.expr.tag });
         }
         return ok({
           dict: fielded.set(field, {
@@ -1715,89 +1774,44 @@ const deleteExpr = (
     },
   );
 
-const resolveLhsName = (
-  { block, subst }: BlockInfo,
-  assignment: BlockAssignment,
-  name: BindingForm<C>,
-): ResolvedName => {
-  const { value } = name.contents;
-  switch (name.tag) {
-    case "StyVar": {
-      if (assignment.locals.has(value)) {
-        // locals shadow selector match names
-        return { tag: "Local", block, name: value };
-      } else if (subst.tag === "StySubSubst" && value in subst.contents) {
-        // selector match names shadow globals
-        return {
-          tag: "Substance",
-          block,
-          name: subObjectToUniqueName(subst.contents[value]),
-        };
-      } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
-        return {
-          tag: "Substance",
-          block,
-          name: subObjectToUniqueName(subst.groupby[value]),
-        };
-      } else if (assignment.globals.has(value)) {
-        return { tag: "Global", block, name: value };
-      } else {
-        // if undefined, we may be defining for the first time, must be a local
-        return { tag: "Local", block, name: value };
-      }
-    }
-    case "SubVar": {
-      return { tag: "Substance", block, name: value };
-    }
-  }
-};
-
-const resolveLhsPath = (
-  block: BlockInfo,
-  assignment: BlockAssignment,
-  path: Path<C>,
-): Result<ResolvedPath<C>, StyleError> => {
-  const { start, end, name, members, indices } = path;
-  return indices.length > 0
-    ? err({ tag: "AssignAccessError", path })
-    : ok({
-        start,
-        end,
-        ...resolveLhsName(block, assignment, name),
-        members,
-      });
-};
-
 const processStmt = (
   block: BlockInfo,
   index: number,
   stmt: Stmt<C>,
-  assignment: BlockAssignment,
-): BlockAssignment => {
+  assignment: Assignment,
+): Assignment => {
   switch (stmt.tag) {
     case "PathAssign": {
       // TODO: check `stmt.type`
-      const path = resolveLhsPath(block, assignment, stmt.path);
+      const path = resolveLhsStylePath(block, assignment, stmt.path);
       if (path.isErr()) {
         return addDiags(oneErr(path.error), assignment);
       }
-      return insertExpr(block, path.value, stmt.value, assignment);
+      const expr = resolveStyleExpr(block, assignment, stmt.value);
+      if (expr.isErr()) {
+        return addDiags(oneErr(expr.error), assignment);
+      }
+      return insertExpr(block, path.value, expr.value, assignment);
     }
     case "Override": {
       // resolve just once, not again between deleting and inserting
-      const path = resolveLhsPath(block, assignment, stmt.path);
+      const path = resolveLhsStylePath(block, assignment, stmt.path);
       if (path.isErr()) {
         return addDiags(oneErr(path.error), assignment);
+      }
+      const expr = resolveStyleExpr(block, assignment, stmt.value);
+      if (expr.isErr()) {
+        return addDiags(oneErr(expr.error), assignment);
       }
       return insertExpr(
         block,
         path.value,
-        stmt.value,
+        expr.value,
         deleteExpr(path.value, assignment),
       );
     }
     case "Delete": {
-      const path = resolveLhsPath(block, assignment, stmt.contents);
+      const path = resolveLhsStylePath(block, assignment, stmt.contents);
       if (path.isErr()) {
         return addDiags(oneErr(path.error), assignment);
       }
@@ -1808,18 +1822,34 @@ const processStmt = (
       // act as if the synthetic name we create is from the beginning of the
       // anonymous assignment statement
       const range: SourceRange = { start, end: start };
-      return insertExpr(
-        block,
-        {
-          ...range,
-          tag: "Local",
-          block: block.block,
+      const scope: StylePathToScope<A> =
+        block.block.tag === "NamespaceId"
+          ? {
+              tag: "Namespace",
+              name: block.block.contents,
+              nodeType: "Style",
+            }
+          : {
+              tag: "Unnamed",
+              blockId: block.block.contents[0],
+              substId: block.block.contents[1],
+              nodeType: "Style",
+            };
+      const path: StylePathToUnindexedObject<A> = {
+        ...range,
+        nodeType: "Style",
+        tag: "Object",
+        access: {
+          tag: "Member",
+          parent: scope,
           name: `$${ANON_KEYWORD}_${index}`,
-          members: [],
         },
-        stmt.contents,
-        assignment,
-      );
+      };
+      const expr = resolveStyleExpr(block, assignment, stmt.contents);
+      if (expr.isErr()) {
+        return addDiags(oneErr(expr.error), assignment);
+      }
+      return insertExpr(block, path, expr.value, assignment);
     }
   }
 };
@@ -1828,7 +1858,7 @@ const blockId = (
   blockIndex: number,
   substIndex: number,
   header: Header<A>,
-): LocalVarSubst => {
+): StyleBlockId => {
   switch (header.tag) {
     case "Selector":
     case "Collector": {
@@ -1903,11 +1933,10 @@ const processBlock = (
   // ^ This looks really reasonable.
   return substs.reduce((assignment, subst, substIndex) => {
     const block = blockId(blockIndex, substIndex, hb.header);
-    const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
     if (block.tag === "NamespaceId") {
-      if (withLocals.globals.has(block.contents)) {
+      if (assignment.globals.has(block.contents)) {
         // if the namespace exists, throw an error
-        withLocals.diagnostics.errors = errors.push(
+        assignment.diagnostics.errors = errors.push(
           redeclareNamespaceError(block.contents, {
             start: hb.header.start,
             end: hb.header.end,
@@ -1915,7 +1944,7 @@ const processBlock = (
         );
       } else {
         // prepopulate with an empty namespace if it doesn't exist
-        withLocals.globals = withLocals.globals.set(block.contents, im.Map());
+        assignment.globals = assignment.globals.set(block.contents, im.Map());
       }
     }
 
@@ -1934,32 +1963,19 @@ const processBlock = (
       .concat(hb.block.statements);
 
     // Translate each statement in the block
-    const { diagnostics, globals, unnamed, substances, locals } =
+    const { diagnostics, globals, unnamed, substances } =
       augmentedStatements.reduce(
         (assignment, stmt, stmtIndex) =>
           processStmt({ block, subst }, stmtIndex, stmt, assignment),
-        withLocals,
+        assignment,
       );
 
-    switch (block.tag) {
-      case "LocalVarId": {
-        return {
-          diagnostics,
-          globals,
-          unnamed: unnamed.set(im.List(block.contents), locals),
-          substances,
-        };
-      }
-      case "NamespaceId": {
-        // TODO: check that `substs` is a singleton list
-        return {
-          diagnostics,
-          globals: globals.set(block.contents, locals),
-          unnamed,
-          substances,
-        };
-      }
-    }
+    return {
+      diagnostics,
+      globals,
+      unnamed,
+      substances,
+    };
   }, withSelErrors);
 };
 
@@ -1986,17 +2002,10 @@ export const buildAssignment = (
             ...range,
             tag: "OtherSource",
             expr: {
-              context: {
-                block: { tag: "NamespaceId", contents: "" }, // HACK
-                subst: { tag: "StySubSubst", contents: {} },
-                locals: im.Map(),
-              },
-              expr: {
-                ...range,
-                tag: "StringLit",
-                nodeType: "SyntheticStyle",
-                contents: label.value,
-              },
+              ...range,
+              tag: "StringLit",
+              nodeType: "SyntheticStyle",
+              contents: label.value,
             },
           },
         ],
@@ -2016,10 +2025,12 @@ export const buildAssignment = (
 
 //#region second pass
 
-const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
+const findPathsExpr = (
+  expr: ResolvedExpr<A>,
+): StylePathToUnindexedObject<A>[] => {
   switch (expr.tag) {
     case "BinOp": {
-      return [expr.left, expr.right].flatMap((e) => findPathsExpr(e, context));
+      return [expr.left, expr.right].flatMap((e) => findPathsExpr(e));
     }
     case "BoolLit":
     case "ColorLit":
@@ -2029,79 +2040,73 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
       return [];
     }
     case "CompApp": {
-      return expr.args.flatMap((e) => findPathsExpr(e, context));
+      return expr.args.flatMap((e) => findPathsExpr(e));
     }
     case "ConstrFn":
     case "ObjFn": {
       const body = expr.body;
       if (body.tag === "FunctionCall") {
-        return body.args.flatMap((e) => findPathsExpr(e, context));
+        return body.args.flatMap((e) => findPathsExpr(e));
       } else {
-        return [body.arg1, body.arg2].flatMap((e) => findPathsExpr(e, context));
+        return [body.arg1, body.arg2].flatMap((e) => findPathsExpr(e));
       }
     }
     case "GPIDecl": {
-      return expr.properties.flatMap((prop) =>
-        findPathsExpr(prop.value, context),
-      );
+      return expr.properties.flatMap((prop) => findPathsExpr(prop.value));
     }
     case "Layering": {
-      return [expr.left, ...expr.right];
+      return [expr.left, ...expr.right].flatMap((e) => findPathsExpr(e));
     }
     case "List":
     case "Tuple":
     case "Vector": {
-      return expr.contents.flatMap((e) => findPathsExpr(e, context));
+      return expr.contents.flatMap((e) => findPathsExpr(e));
     }
-    case "Path": {
+    case "ResolvedPath": {
       // A `Path` (generally, `arr[index]`) expression depends on `arr` and `index` (if exists)
-      return [
-        {
-          ...expr,
-          indices: [],
-        },
-        ...expr.indices.flatMap((index) => findPathsExpr(index, context)),
-      ];
-    }
-    case "UOp": {
-      return findPathsExpr(expr.arg, context);
-    }
-    case "CollectionAccess": {
-      const name = expr.name.value;
-      const field = expr.field.value;
-      if (
-        context.subst.tag === "CollectionSubst" &&
-        context.subst.collName === name
-      ) {
-        const paths = context.subst.collContent.map(
-          (subObj: SubstanceObject): Path<T> => ({
-            ...expr,
-            tag: "Path",
-            name: {
-              ...expr.name,
-              tag: "SubVar",
-              contents: {
-                ...expr.name,
-                tag: "Identifier",
-                type: "value",
-                value: subObjectToUniqueName(subObj),
-              },
-            },
-            members: [
-              {
-                ...expr.field,
-                tag: "Identifier",
-                type: "value",
-                value: field,
-              },
-            ],
-            indices: [],
-          }),
-        );
-        return paths.flatMap((p) => findPathsExpr(p, context));
+      const path = expr.contents;
+      if (path.tag === "Object") {
+        const { access } = path;
+        if (access.tag === "Index") {
+          return [
+            access.parent,
+            ...access.indices.flatMap((e) => findPathsExpr(e)),
+          ];
+        } else {
+          // just return the same path
+          return [{ ...path, access }];
+        }
       } else {
         return [];
       }
+    }
+    case "UOp": {
+      return findPathsExpr(expr.arg);
+    }
+    case "CollectionAccess": {
+      const path = expr.name.contents;
+      if (path.tag !== "Collection") {
+        return [];
+      }
+      const field = expr.field.value;
+      const pathsToSubstances: StylePathToSubstanceScope<A>[] =
+        path.substanceObjects.map((subObj) => ({
+          ...path,
+          tag: "Substance",
+          substanceObject: subObj,
+        }));
+      const pathsToObjects: StylePathToUnindexedObject<A>[] =
+        pathsToSubstances.map((pathToSubstance) => ({
+          ...expr,
+          tag: "Object",
+          access: {
+            tag: "Member",
+            parent: pathToSubstance,
+            name: field,
+          },
+        }));
+
+      return pathsToObjects;
     }
     case "UnaryStyVarExpr": {
       return [];
@@ -2109,94 +2114,55 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
   }
 };
 
-const findPathsWithContext = <T>({
-  context,
-  expr,
-}: WithContext<Expr<T>>): WithContext<Path<T>>[] =>
-  findPathsExpr(expr, context).map((p) => ({ context, expr: p }));
-
-const resolveRhsPath = (
-  p: WithContext<Path<C>>,
-): ResolvedPath<C> | FloatV<number> | StrV | VectorV<number> => {
-  const { start, end, name, members, indices } = p.expr;
-  const { subst } = p.context;
-  // special handling so that if a Style variable maps to a Substance literal,
-  // then accessing it just gives the value.
-  if (members.length === 0 && indices.length === 0) {
-    if (subst.tag === "StySubSubst" && name.contents.value in subst.contents) {
-      const subObj = subst.contents[name.contents.value];
-      if (subObj.tag === "SubstanceLiteral") {
-        return substanceLiteralToValue(subObj);
-      }
-    }
-
-    if (
-      subst.tag === "CollectionSubst" &&
-      name.contents.value in subst.groupby
-    ) {
-      const subObj = subst.groupby[name.contents.value];
-      if (subObj.tag === "SubstanceLiteral") {
-        return substanceLiteralToValue(subObj);
-      }
-    }
-
-    if (
-      subst.tag === "CollectionSubst" &&
-      name.contents.value === subst.collName
-    ) {
-      const subObjs = subst.collContent;
-      // If each object is literal
-      if (subObjs.every((subObj) => subObj.tag === "SubstanceLiteral")) {
-        const lits = subObjs.map((subObj) => {
-          if (subObj.tag === "SubstanceLiteral") {
-            return substanceLiteralToValue(subObj);
-          } else {
-            throw new Error(
-              "Should never happen: every object is SubstanceLiteral",
-            );
-          }
-        });
-
-        if (lits.every((lit) => lit.tag === "FloatV")) {
-          return {
-            tag: "VectorV",
-            // This is okay because everything in `lits` is FloatV
-            // as in the guard
-            contents: lits.map((lit) => lit.contents as number),
-          };
-        }
-      }
-    }
-  }
-  return { start, end, ...resolveRhsName(p.context, name), members };
-};
-
 const gatherExpr = (
   graph: DepGraph,
-  w: string,
-  expr: WithContext<NotShape>,
+  w: StylePathToUnindexedObject<A>,
+  expr: Resolved<NotShape<A>>,
 ): void => {
-  graph.setNode(w, expr);
-  for (const p of findPathsWithContext(expr)) {
+  const wStr = prettyResolvedStylePath(w);
+  graph.setNode(wStr, { contents: expr, where: w });
+  for (const p of findPathsExpr(expr)) {
+    const pStr = prettyResolvedStylePath(p);
     graph.setEdge(
       {
-        i: prettyPrintResolvedPath(resolveRhsPath(p)),
-        j: w,
+        i: pStr,
+        j: wStr,
         e: undefined,
       },
-      () => undefined,
+      () => ({
+        contents: undefined,
+        where: p,
+      }),
     );
   }
 };
 
-const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
+const gatherField = (
+  graph: DepGraph,
+  lhs: StylePathToUnindexedObject<A>,
+  rhs: FieldSource,
+): void => {
+  const lhsStr = prettyResolvedStylePath(lhs);
+
   switch (rhs.tag) {
     case "ShapeSource": {
-      graph.setNode(lhs, rhs.shapeType);
+      graph.setNode(lhsStr, { contents: rhs.shapeType, where: lhs });
       for (const [k, expr] of rhs.props) {
-        const p = `${lhs}.${k}`;
-        graph.setEdge({ i: p, j: lhs, e: undefined }, () => undefined);
-        gatherExpr(graph, p, expr);
+        const pathToProperty: StylePathToUnindexedObject<A> = {
+          nodeType: "SyntheticStyle",
+          tag: "Object",
+          access: {
+            tag: "Member",
+            parent: lhs,
+            name: k,
+          },
+        };
+        const ppStr = prettyResolvedStylePath(pathToProperty);
+        graph.setEdge({ i: ppStr, j: lhsStr, e: undefined }, () => ({
+          contents: undefined,
+          where: pathToProperty, // hack
+        }));
+        gatherExpr(graph, pathToProperty, expr);
       }
       return;
     }
@@ -2208,33 +2174,56 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
 };
 
 export const gatherDependencies = (assignment: Assignment): DepGraph => {
-  const graph = new Graph<
-    string,
-    ShapeType | WithContext<NotShape> | undefined
-  >();
+  const graph: DepGraph = new Graph();
 
   for (const [blockName, fields] of assignment.globals) {
+    const pathToScope = stylePathToNamespaceScope(blockName);
     for (const [fieldName, field] of fields) {
-      gatherField(graph, `${blockName}.${fieldName}`, field);
+      const pathToObject: StylePathToUnindexedObject<A> = {
+        nodeType: "SyntheticStyle",
+        tag: "Object",
+        access: {
+          tag: "Member",
+          parent: pathToScope,
+          name: fieldName,
+        },
+      };
+      gatherField(graph, pathToObject, field);
     }
   }
 
   for (const [indices, fields] of assignment.unnamed) {
+    const [blockId, substId] = indices.toArray();
+    const pathToScope = stylePathToUnnamedScope(blockId, substId);
     for (const [fieldName, field] of fields) {
-      const [blockIndex, substIndex] = indices;
-      const p: ResolvedPath<A> = {
-        tag: "Local",
-        name: fieldName,
-        block: { tag: "LocalVarId", contents: [blockIndex, substIndex] },
-        members: [],
+      const pathToObject: StylePathToUnindexedObject<A> = {
+        nodeType: "SyntheticStyle",
+        tag: "Object",
+        access: {
+          tag: "Member",
+          parent: pathToScope,
+          name: fieldName,
+        },
       };
-      gatherField(graph, prettyPrintResolvedPath(p), field);
+      gatherField(graph, pathToObject, field);
     }
   }
 
   for (const [substanceName, fields] of assignment.substances) {
+    const pathToScope = stylePathToSubstanceScope(
+      uniqueNameToSubObject(substanceName),
+    );
     for (const [fieldName, field] of fields) {
-      gatherField(graph, `\`${substanceName}\`.${fieldName}`, field);
+      const pathToObject: StylePathToUnindexedObject<A> = {
+        nodeType: "SyntheticStyle",
+        tag: "Object",
+        access: {
+          tag: "Member",
+          parent: pathToScope,
+          name: fieldName,
+        },
+      };
+      gatherField(graph, pathToObject, field);
     }
   }
 
@@ -2252,13 +2241,12 @@ const evalExprs = (
   mut: MutableContext,
   canvas: Canvas,
   stages: OptPipeline,
-  context: Context,
-  args: Expr<C>[],
+  args: ResolvedExpr<A>[],
   trans: Translation,
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
   all(
     args.map((expr) => {
-      return evalExpr(mut, canvas, stages, { context, expr }, trans);
+      return evalExpr(mut, canvas, stages, expr, trans);
     }),
   ).mapErr(flatErrs);
 
@@ -2266,11 +2254,10 @@ const evalVals = (
   mut: MutableContext,
   canvas: Canvas,
   stages: OptPipeline,
-  context: Context,
-  args: Expr<C>[],
+  args: ResolvedExpr<A>[],
   trans: Translation,
 ): Result<Value<ad.Num>[], StyleDiagnostics> =>
-  evalExprs(mut, canvas, stages, context, args, trans).andThen((argVals) =>
+  evalExprs(mut, canvas, stages, args, trans).andThen((argVals) =>
     all(
       argVals.map((argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
         switch (argVal.tag) {
@@ -2522,7 +2509,7 @@ const evalBinOpStrings = (
 };
 
 const evalBinOp = (
-  expr: BinOp<C>,
+  expr: Resolved<BinOp<A>>,
   left: Value<ad.Num>,
   right: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
@@ -2599,7 +2586,7 @@ const evalBinOp = (
 };
 
 const eval1D = (
-  coll: List<C> | Vector<C> | CollectionAccess<C>,
+  coll: Resolved<List<A> | Vector<A> | CollectionAccess<A>>,
   first: FloatV<ad.Num>,
   rest: ArgVal<ad.Num>[],
 ): Result<ListV<ad.Num> | VectorV<ad.Num>, StyleDiagnostics> => {
@@ -2625,7 +2612,7 @@ const eval1D = (
 };
 
 const eval2D = (
-  coll: List<C> | Vector<C> | CollectionAccess<C>,
+  coll: Resolved<List<A> | Vector<A> | CollectionAccess<A>>,
   first: VectorV<ad.Num> | ListV<ad.Num> | TupV<ad.Num>,
   rest: ArgVal<ad.Num>[],
 ): Result<
@@ -2661,7 +2648,7 @@ const eval2D = (
 };
 
 const evalShapeList = (
-  coll: List<C> | Vector<C> | CollectionAccess<C>,
+  coll: Resolved<List<A> | Vector<A> | CollectionAccess<A>>,
   first: Shape<ad.Num>,
   rest: ArgVal<ad.Num>[],
 ): Result<ShapeListV<ad.Num>, StyleDiagnostics> => {
@@ -2677,7 +2664,7 @@ const evalShapeList = (
 };
 
 const evalPathDataList = (
-  coll: List<C> | Vector<C> | CollectionAccess<C>,
+  coll: Resolved<List<A> | Vector<A> | CollectionAccess<A>>,
   first: PathDataV<ad.Num>,
   rest: ArgVal<ad.Num>[],
 ): Result<PathDataListV<ad.Num>, StyleDiagnostics> => {
@@ -2696,11 +2683,10 @@ const evalListOrVector = (
   mut: MutableContext,
   canvas: Canvas,
   stages: OptPipeline,
-  context: Context,
-  coll: List<C> | Vector<C>,
+  coll: Resolved<List<A> | Vector<A>>,
   trans: Translation,
 ): Result<Value<ad.Num>, StyleDiagnostics> => {
-  return evalExprs(mut, canvas, stages, context, coll.contents, trans).andThen(
+  return evalExprs(mut, canvas, stages, coll.contents, trans).andThen(
     (argVals) => {
       if (argVals.length === 0) {
         switch (coll.tag) {
@@ -2749,7 +2735,9 @@ const isValidIndex = (a: unknown[], i: number): boolean =>
   Number.isInteger(i) && 0 <= i && i < a.length;
 
 const evalAccess = (
-  expr: Path<C>,
+  expr: ResolvedPath<A> & {
+    contents: StylePathToObject<A> & { access: StylePathAccessIndex<A> };
+  },
   coll: Value<ad.Num>,
   indices: number[],
 ): Result<Value<ad.Num>, StyleError> => {
@@ -2796,23 +2784,23 @@ const evalAccess = (
         return err({ tag: "BadIndexError", expr });
       }
     }
-    case "ShapeListV": {
-      return err({ tag: "IndexIntoShapeListError", expr });
-    }
+    case "ShapeListV":
     case "BoolV":
     case "ColorV":
     case "FloatV":
     case "PathDataV":
     case "StrV":
     case "ClipDataV": {
-      // Not allowing indexing into a shape list for now
-      return err({ tag: "NotCollError", expr });
+      return err({
+        tag: "UnindexableItemError",
+        expr: expr.contents.access.parent,
+      });
     }
   }
 };
 
 const evalUMinus = (
-  expr: UOp<C>,
+  expr: Resolved<UOp<A>>,
   arg: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
   switch (arg.tag) {
@@ -2840,7 +2828,7 @@ const evalUMinus = (
 };
 
 const evalUTranspose = (
-  expr: UOp<C>,
+  expr: Resolved<UOp<A>>,
   arg: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
   switch (arg.tag) {
@@ -2865,11 +2853,41 @@ const evalUTranspose = (
   }
 };
 
+const extractVectorFromCollectionLiterals = (
+  subObjs: SubstanceObject[],
+): VectorV<ad.Num> | undefined => {
+  // If each object is substance literal number, then return them as a vector
+  if (subObjs.every((subObj) => subObj.tag === "SubstanceLiteral")) {
+    const lits = subObjs.map((subObj) => {
+      if (subObj.tag === "SubstanceLiteral") {
+        return substanceLiteralToValue(subObj);
+      } else {
+        throw new Error(
+          "Should never happen: every object is SubstanceLiteral",
+        );
+      }
+    });
+
+    if (lits.every((lit) => lit.tag === "FloatV")) {
+      return {
+        tag: "VectorV",
+        // This is okay because everything in `lits` is FloatV
+        // as in the guard
+        contents: lits.map((lit) => lit.contents as number),
+      };
+    } else {
+      return undefined;
+    }
+  } else {
+    return undefined;
+  }
+};
+
 const evalExpr = (
   mut: MutableContext,
   canvas: Canvas,
   layoutStages: OptPipeline,
-  { context, expr }: WithContext<Expr<C>>,
+  expr: ResolvedExpr<A>,
   trans: Translation,
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
   switch (expr.tag) {
@@ -2878,7 +2896,6 @@ const evalExpr = (
         mut,
         canvas,
         layoutStages,
-        context,
         [expr.left, expr.right],
         trans,
       ).andThen(([left, right]) => {
@@ -2902,32 +2919,26 @@ const evalExpr = (
       }
     }
     case "CompApp": {
-      const args = evalExprs(
-        mut,
-        canvas,
-        layoutStages,
-        context,
-        expr.args,
-        trans,
-      );
+      const args = evalExprs(mut, canvas, layoutStages, expr.args, trans);
       if (args.isErr()) {
         return err(args.error);
       }
-
-      const argsWithSourceLoc = zip2(args.value, expr.args).map(([v, e]) => ({
+      const argsWithExprs: ArgValWithExpr<ad.Num>[] = zip2(
+        args.value,
+        expr.args,
+      ).map(([v, e]) => ({
         ...v,
-        start: e.start,
-        end: e.end,
+        expr: e,
       }));
 
-      const { name, start, end } = expr;
+      const { name } = expr;
       if (!isKeyOf(name.value, compDict)) {
         return err(
           oneErr({ tag: "InvalidFunctionNameError", givenName: name }),
         );
       }
       const f = compDict[name.value];
-      const x = callCompFunc(f, { start, end }, mut, argsWithSourceLoc);
+      const x = callCompFunc(mut, expr, f, argsWithExprs);
       if (x.isErr()) return err(oneErr(x.error));
       const { value, warnings } = x.value;
 
@@ -2946,119 +2957,178 @@ const evalExpr = (
     }
     case "List":
     case "Vector": {
-      return evalListOrVector(
-        mut,
-        canvas,
-        layoutStages,
-        context,
-        expr,
-        trans,
-      ).map(val);
+      return evalListOrVector(mut, canvas, layoutStages, expr, trans).map(val);
     }
-    case "Path": {
-      const resolvedPath = resolveRhsPath({ context, expr });
-      if (
-        resolvedPath.tag === "FloatV" ||
-        resolvedPath.tag === "StrV" ||
-        resolvedPath.tag === "VectorV"
-      ) {
-        return ok(val(resolvedPath));
-      }
-      const path = prettyPrintResolvedPath(resolvedPath);
-      const resolved = trans.symbols.get(path);
-      if (resolved === undefined) {
-        return err(oneErr({ tag: "MissingPathError", path: resolvedPath }));
+    case "ResolvedPath": {
+      const path = expr.contents;
+
+      if (path.tag === "Namespace") {
+        // invalid path
+        return err(
+          oneErr({
+            tag: "PathToNamespaceError",
+            path,
+          }),
+        );
       }
 
-      if (resolved.tag === "ShapeVal") {
-        // Can evaluate a path to a GPI - just return the GPI
-        // Need to incorporate the "name" information:
-        resolved.contents.name = strV(path);
-        return ok(resolved);
+      if (path.tag === "Collection") {
+        // if the path refers to a collection, and if that collection is a collection of substance literals, just return a vector.
+        const vec = extractVectorFromCollectionLiterals(path.substanceObjects);
+        if (vec !== undefined) {
+          return ok(val(vec));
+        } else {
+          // error: path refers to a collection of non-numerical Substance objects
+          return err(
+            oneErr({
+              tag: "PathToCollectionError",
+              path,
+            }),
+          );
+        }
       }
-      if (expr.indices.length === 0) {
-        return ok(resolved);
+
+      if (path.tag === "Substance") {
+        // if the path refers to a single substance literal, return the value
+        const subObj = path.substanceObject;
+        if (subObj.tag === "SubstanceLiteral") {
+          const v = substanceLiteralToValue(subObj);
+          return ok(val(v));
+        } else {
+          // error: path refers to a non-literal Substance object
+          return err(
+            oneErr({
+              tag: "PathToSubstanceError",
+              path,
+            }),
+          );
+        }
       }
-      const res = all(
-        expr.indices.map((e) =>
-          evalExpr(
+
+      // this path refers to an object (value or shape)
+      const { access } = path;
+      if (access.tag === "Member") {
+        // it has no index
+        const pathStr = prettyResolvedStylePath(path);
+        const resolved = trans.symbols.get(pathStr);
+        if (resolved === undefined) {
+          return err(oneErr({ tag: "MissingPathError", path }));
+        }
+        if (resolved.tag === "ShapeVal") {
+          resolved.contents.name === strV(pathStr);
+        }
+        return ok(resolved);
+      } else {
+        const { indices, parent: nonIndexedPart } = access;
+        const parentValue = evalExpr(
+          mut,
+          canvas,
+          layoutStages,
+          {
+            ...nonIndexedPart,
+            nodeType: "Style",
+            tag: "ResolvedPath",
+            contents: nonIndexedPart,
+          },
+          trans,
+        );
+        if (parentValue.isErr()) {
+          return err(parentValue.error);
+        }
+        if (parentValue.value.tag === "ShapeVal") {
+          return err(
+            oneErr({
+              tag: "UnindexableItemError",
+              expr: nonIndexedPart,
+            }),
+          );
+        }
+        if (indices.length > 0) {
+          const resolvedIndices = evalExprs(
             mut,
             canvas,
             layoutStages,
-            { context, expr: e },
+            indices,
             trans,
-          ).andThen<number>((i) => {
+          );
+          if (resolvedIndices.isErr()) {
+            return err(resolvedIndices.error);
+          }
+          const indexValues: number[] = [];
+          for (const i of resolvedIndices.value) {
             if (i.tag === "ShapeVal") {
-              return err(oneErr({ tag: "NotValueError", expr: e }));
+              return err(oneErr({ tag: "NotValueError", expr }));
             } else if (
               i.contents.tag === "FloatV" &&
               typeof i.contents.contents === "number"
             ) {
-              return ok(i.contents.contents);
+              indexValues.push(i.contents.contents);
             } else {
-              return err(oneErr({ tag: "BadIndexError", expr: e }));
+              return err(oneErr({ tag: "BadIndexError", expr }));
             }
-          }),
-        ),
-      );
-      if (res.isErr()) {
-        return err(flatErrs(res.error));
+          }
+          const elem = evalAccess(
+            {
+              ...expr,
+              contents: {
+                ...path,
+                access,
+              },
+            },
+            parentValue.value.contents,
+            indexValues,
+          );
+          if (elem.isErr()) return err(oneErr(elem.error));
+          else return ok(val(elem.value));
+        } else {
+          return parentValue;
+        }
       }
-      const elem = evalAccess(expr, resolved.contents, res.value);
-      if (elem.isErr()) {
-        return err(oneErr(elem.error));
-      }
-      return ok(val(elem.value));
     }
     case "StringLit": {
       return ok(val(strV(expr.contents)));
     }
     case "Tuple": {
-      return evalVals(
-        mut,
-        canvas,
-        layoutStages,
-        context,
-        expr.contents,
-        trans,
-      ).andThen(([left, right]) => {
-        if (left.tag !== "FloatV") {
-          return err(oneErr({ tag: "BadElementError", coll: expr, index: 0 }));
-        }
-        if (right.tag !== "FloatV") {
-          return err(oneErr({ tag: "BadElementError", coll: expr, index: 1 }));
-        }
-        return ok(val(tupV([left.contents, right.contents])));
-      });
+      return evalVals(mut, canvas, layoutStages, expr.contents, trans).andThen(
+        ([left, right]) => {
+          if (left.tag !== "FloatV") {
+            return err(
+              oneErr({ tag: "BadElementError", coll: expr, index: 0 }),
+            );
+          }
+          if (right.tag !== "FloatV") {
+            return err(
+              oneErr({ tag: "BadElementError", coll: expr, index: 1 }),
+            );
+          }
+          return ok(val(tupV([left.contents, right.contents])));
+        },
+      );
     }
     case "UOp": {
-      return evalExpr(
-        mut,
-        canvas,
-        layoutStages,
-        { context, expr: expr.arg },
-        trans,
-      ).andThen((argVal) => {
-        if (argVal.tag === "ShapeVal") {
-          return err(oneErr({ tag: "NotValueError", expr }));
-        }
-        switch (expr.op) {
-          case "UMinus": {
-            const res = evalUMinus(expr, argVal.contents);
-            if (res.isErr()) {
-              return err(oneErr(res.error));
-            }
-            return ok(val(res.value));
+      return evalExpr(mut, canvas, layoutStages, expr.arg, trans).andThen(
+        (argVal) => {
+          if (argVal.tag === "ShapeVal") {
+            return err(oneErr({ tag: "NotValueError", expr }));
           }
-          case "UTranspose": {
-            const res = evalUTranspose(expr, argVal.contents);
-            if (res.isErr()) {
-              return err(oneErr(res.error));
+          switch (expr.op) {
+            case "UMinus": {
+              const res = evalUMinus(expr, argVal.contents);
+              if (res.isErr()) {
+                return err(oneErr(res.error));
+              }
+              return ok(val(res.value));
             }
-            return ok(val(res.value));
+            case "UTranspose": {
+              const res = evalUTranspose(expr, argVal.contents);
+              if (res.isErr()) {
+                return err(oneErr(res.error));
+              }
+              return ok(val(res.value));
+            }
           }
-        }
-      });
+        },
+      );
     }
     case "Vary": {
       const { exclude, init } = expr;
@@ -3085,78 +3155,53 @@ const evalExpr = (
       );
     }
     case "CollectionAccess": {
-      const { subst } = context;
       const { name, field } = expr;
-      if (subst.tag === "CollectionSubst" && name.value === subst.collName) {
-        // actually gather the list.
-        const collection = subst.collContent;
-        const result: ArgVal<ad.Num>[] = [];
-        for (const subObj of collection) {
-          const uniqueName = subObjectToUniqueName(subObj);
-          const actualPath = `\`${uniqueName}\`.${field.value}`;
-          const value = trans.symbols.get(actualPath);
-          if (value !== undefined) {
-            result.push(value);
-          }
+      if (name.contents.tag !== "Collection") {
+        return err(oneErr(notSubstanceCollectionError(name)));
+      }
+      const collection = name.contents.substanceObjects;
+      const result: ArgVal<ad.Num>[] = [];
+      for (const subObj of collection) {
+        const uniqueName = subObjectToUniqueName(subObj);
+        const actualPath = `\`${uniqueName}\`.${field.value}`;
+        const value = trans.symbols.get(actualPath);
+        if (value !== undefined) {
+          result.push(value);
         }
-        const collected = collectIntoVal(result, expr);
-        if (collected.isErr()) {
-          return err(collected.error);
-        } else {
-          return ok(val(collected.value));
-        }
+      }
+      const collected = collectIntoVal(result, expr);
+      if (collected.isErr()) {
+        return err(collected.error);
       } else {
-        return err(
-          oneErr(
-            notSubstanceCollectionError(name.value, {
-              start: expr.start,
-              end: expr.end,
-            }),
-          ),
-        );
+        return ok(val(collected.value));
       }
     }
     case "UnaryStyVarExpr": {
-      const { subst } = context;
       const { op, arg } = expr;
-      if (expr.op === "numberof") {
-        return evalNumberOf(subst, arg, { start: expr.start, end: expr.end });
+      if (op === "numberof") {
+        return evalNumberOf(arg);
       } else {
-        return evalNameOf(subst, arg, { start: expr.start, end: expr.end });
+        return evalNameOf(arg);
       }
     }
   }
 };
 
 const evalNumberOf = (
-  subst: StySubst,
-  arg: Identifier<C>,
-  loc: SourceRange,
+  arg: ResolvedPath<A>,
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
-  if (subst.tag === "CollectionSubst" && arg.value === subst.collName) {
-    return ok(val(floatV(subst.collContent.length)));
+  if (arg.contents.tag === "Collection") {
+    return ok(val(floatV(arg.contents.substanceObjects.length)));
   } else {
-    return err(oneErr(notSubstanceCollectionError(arg.value, loc)));
-  }
-};
-
-const extractMainSubst = (subst: StySubst) => {
-  if (subst.tag === "StySubSubst") {
-    return subst.contents;
-  } else {
-    return subst.groupby;
+    return err(oneErr(notSubstanceCollectionError(arg)));
   }
 };
 
 const evalNameOf = (
-  subst: StySubst,
-  arg: Identifier<C>,
-  loc: SourceRange,
+  arg: ResolvedPath<A>,
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
-  const s = extractMainSubst(subst);
-
-  if (arg.value in s) {
-    const m = s[arg.value];
+  if (arg.contents.tag === "Substance") {
+    const m = arg.contents.substanceObject;
     if (m.tag === "SubstanceVar") {
       return ok(val(strV(m.name)));
     } else {
@@ -3167,7 +3212,7 @@ const evalNameOf = (
       }
     }
   } else {
-    return err(oneErr(notStyleVariableError(arg.value, loc)));
+    return err(oneErr(notStyleVariableError(arg)));
   }
 };
 
@@ -3182,7 +3227,7 @@ type CollectionType<T> =
 
 const collectIntoVal = (
   coll: ArgVal<ad.Num>[],
-  expr: CollectionAccess<C>,
+  expr: Resolved<CollectionAccess<A>>,
 ): Result<CollectionType<ad.Num>, StyleDiagnostics> => {
   if (coll.length === 0) {
     return ok(vectorV([]));
@@ -3229,8 +3274,8 @@ const stageExpr = (
 };
 
 const extractObjConstrBody = (
-  body: InlineComparison<C> | FunctionCall<C>,
-): { name: Identifier<C>; argExprs: Expr<C>[] } => {
+  body: Resolved<InlineComparison<A> | FunctionCall<A>>,
+): { name: Identifier<A>; argExprs: ResolvedExpr<A>[] } => {
   if (body.tag === "InlineComparison") {
     const mapInlineOpToFunctionName = (op: "<" | "==" | ">"): string => {
       switch (op) {
@@ -3243,12 +3288,11 @@ const extractObjConstrBody = (
       }
     };
     const functionName = mapInlineOpToFunctionName(body.op.op);
-
+    body.arg1;
     return {
       name: {
+        ...body.op,
         tag: "Identifier",
-        start: body.op.start,
-        end: body.op.end,
         nodeType: body.op.nodeType,
         type: "value",
         value: functionName,
@@ -3267,53 +3311,49 @@ const translateExpr = (
   mut: MutableContext,
   canvas: Canvas,
   layoutStages: OptPipeline,
-  path: string,
-  e: WithContext<NotShape>,
+  path: StylePathToUnindexedObject<A>,
+  e: Resolved<NotShape<A>>,
   trans: Translation,
 ): Translation => {
-  switch (e.expr.tag) {
+  const pathStr = prettyResolvedStylePath(path);
+  switch (e.tag) {
     case "BinOp":
     case "BoolLit":
     case "ColorLit":
     case "CompApp":
     case "Fix":
     case "List":
-    case "Path":
     case "StringLit":
     case "Tuple":
     case "UOp":
     case "Vary":
     case "Vector":
     case "CollectionAccess":
-    case "UnaryStyVarExpr": {
+    case "UnaryStyVarExpr":
+    case "ResolvedPath": {
       const res = evalExpr(mut, canvas, layoutStages, e, trans);
       if (res.isErr()) {
         return addDiags(res.error, trans);
       }
       return {
         ...trans,
-        symbols: trans.symbols.set(path, res.value),
+        symbols: trans.symbols.set(pathStr, res.value),
       };
     }
     case "ConstrFn": {
-      const { name, argExprs } = extractObjConstrBody(e.expr.body);
-      const args = evalExprs(
-        mut,
-        canvas,
-        layoutStages,
-        e.context,
-        argExprs,
-        trans,
-      );
+      const { name, argExprs } = extractObjConstrBody(e.body);
+      const args = evalExprs(mut, canvas, layoutStages, argExprs, trans);
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const argsWithSourceLoc = zip2(args.value, argExprs).map(([v, e]) => ({
+      const argsWithExprs: ArgValWithExpr<ad.Num>[] = zip2(
+        args.value,
+        argExprs,
+      ).map(([v, e]) => ({
         ...v,
-        start: e.start,
-        end: e.end,
+        expr: e,
       }));
-      const { stages, exclude } = e.expr;
+      const { stages, exclude } = e;
       const fname = name.value;
       if (!isKeyOf(fname, constrDict)) {
         return addDiags(
@@ -3321,11 +3361,7 @@ const translateExpr = (
           trans,
         );
       }
-      const output = callObjConstrFunc(
-        constrDict[fname],
-        { start: e.expr.start, end: e.expr.end },
-        argsWithSourceLoc,
-      );
+      const output = callObjConstrFunc(e, constrDict[fname], argsWithExprs);
       if (output.isErr()) {
         return addDiags(oneErr(output.error), trans);
       }
@@ -3344,31 +3380,26 @@ const translateExpr = (
           warnings: trans.diagnostics.warnings.push(...warnings),
         },
         constraints: trans.constraints.push({
-          ast: { context: e.context, expr: e.expr },
+          ast: e,
           optStages,
           output: value,
         }),
       };
     }
     case "ObjFn": {
-      const { name, argExprs } = extractObjConstrBody(e.expr.body);
-      const args = evalExprs(
-        mut,
-        canvas,
-        layoutStages,
-        e.context,
-        argExprs,
-        trans,
-      );
+      const { name, argExprs } = extractObjConstrBody(e.body);
+      const args = evalExprs(mut, canvas, layoutStages, argExprs, trans);
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const argsWithSourceLoc = zip2(args.value, argExprs).map(([v, e]) => ({
+      const argsWithExprs: ArgValWithExpr<ad.Num>[] = zip2(
+        args.value,
+        argExprs,
+      ).map(([v, e]) => ({
         ...v,
-        start: e.start,
-        end: e.end,
+        expr: e,
       }));
-      const { stages, exclude } = e.expr;
+      const { stages, exclude } = e;
       const fname = name.value;
       if (!isKeyOf(fname, objDict)) {
         return addDiags(
@@ -3382,11 +3413,7 @@ const translateExpr = (
         exclude,
         stages.map((s) => s.value),
       );
-      const output = callObjConstrFunc(
-        objDict[fname],
-        { start: e.expr.start, end: e.expr.end },
-        argsWithSourceLoc,
-      );
+      const output = callObjConstrFunc(e, objDict[fname], argsWithExprs);
       if (output.isErr()) {
         return addDiags(oneErr(output.error), trans);
       }
@@ -3398,36 +3425,15 @@ const translateExpr = (
           warnings: trans.diagnostics.warnings.push(...warnings),
         },
         objectives: trans.objectives.push({
-          ast: { context: e.context, expr: e.expr },
+          ast: e,
           optStages,
           output: value,
         }),
       };
     }
     case "Layering": {
-      const { expr, context } = e;
-
-      const leftPp = prettyPrintResolvedPath(
-        resolveRhsPath({ context: context, expr: expr.left }),
-      );
-      const leftResolved = evalExpr(
-        mut,
-        canvas,
-        layoutStages,
-        { context, expr: expr.left },
-        trans,
-      );
-      const rightListPp = expr.right.map((r: Path<C>) =>
-        prettyPrintResolvedPath(resolveRhsPath({ context: context, expr: r })),
-      );
-      const rightListResolved = evalExprs(
-        mut,
-        canvas,
-        layoutStages,
-        context,
-        expr.right,
-        trans,
-      );
+      const { left, right, layeringOp } = e;
+      const leftResolved = evalExpr(mut, canvas, layoutStages, left, trans);
       if (leftResolved.isErr()) {
         return addDiags(leftResolved.error, trans);
       }
@@ -3435,41 +3441,39 @@ const translateExpr = (
         return addDiags(
           oneErr({
             tag: "LayerOnNonShapesError",
-            location: {
-              start: expr.left.start,
-              end: expr.left.end,
-            },
-            expr: leftPp,
+            path: left,
           }),
           trans,
         );
       }
+      const rightResolved = all(
+        right.map((p) => evalExpr(mut, canvas, layoutStages, p, trans)),
+      );
 
-      if (rightListResolved.isErr()) {
-        return addDiags(rightListResolved.error, trans);
+      if (rightResolved.isErr()) {
+        return addDiags(rightResolved.error[0], trans);
       }
-      for (let i = 0; i < expr.right.length; i++) {
-        if (rightListResolved.value[i].tag !== "ShapeVal") {
+      for (let i = 0; i < e.right.length; i++) {
+        if (rightResolved.value[i].tag !== "ShapeVal") {
           return addDiags(
             oneErr({
               tag: "LayerOnNonShapesError",
-              location: {
-                start: expr.right[i].start,
-                end: expr.right[i].end,
-              },
-              expr: rightListPp[i],
+              path: right[i],
             }),
             trans,
           );
         }
       }
 
-      const layeringRelations = rightListPp.map((r: string) => {
-        switch (expr.layeringOp) {
+      const leftStr = prettyResolvedStylePath(left.contents);
+
+      const layeringRelations: Layer[] = right.map((r) => {
+        const rightStr = prettyResolvedStylePath(r.contents);
+        switch (layeringOp) {
           case "below":
-            return { below: leftPp, above: r };
+            return { below: leftStr, above: rightStr };
           case "above":
-            return { below: r, above: leftPp };
+            return { below: rightStr, above: leftStr };
         }
       });
       return {
@@ -3481,7 +3485,7 @@ const translateExpr = (
 };
 
 const evalGPI = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   shapeType: ShapeType,
   trans: Translation,
 ): Result<Shape<ad.Num>, StyleError> => {
@@ -3498,11 +3502,20 @@ export const translate = (
   log.info("Starting translation stage...");
   let symbols = im.Map<string, ArgVal<ad.Num>>();
   for (const path of graph.nodes()) {
-    const shapeType = graph.node(path);
+    const { contents: shapeType, where: shapePath } = graph.node(path);
     if (typeof shapeType === "string") {
       const props = sampleShape(shapeType, mut, canvas);
       for (const [prop, value] of Object.entries(props)) {
-        symbols = symbols.set(`${path}.${prop}`, val(value));
+        const propPath: StylePathToUnindexedObject<A> = {
+          nodeType: "SyntheticStyle",
+          tag: "Object",
+          access: {
+            tag: "Member",
+            parent: shapePath,
+            name: prop,
+          },
+        };
+        symbols = symbols.set(prettyResolvedStylePath(propPath), val(value));
       }
     }
   }
@@ -3517,13 +3530,13 @@ export const translate = (
 
   const cycles = graph.findCycles().map((cycle) =>
     cycle.map((id) => {
-      const e = graph.node(id);
+      const { contents: e, where: path } = graph.node(id);
+      const location = isConcrete(path)
+        ? { start: path.start, end: path.end }
+        : undefined;
       return {
         id,
-        src:
-          e === undefined || typeof e === "string"
-            ? undefined
-            : { start: e.expr.start, end: e.expr.end },
+        src: e === undefined || typeof e === "string" ? undefined : location,
       };
     }),
   );
@@ -3534,8 +3547,8 @@ export const translate = (
     };
   }
 
-  for (const path of graph.topsort()) {
-    const e = graph.node(path);
+  for (const pathStr of graph.topsort()) {
+    const { contents: e, where: path } = graph.node(pathStr);
     if (e === undefined) {
       // nothing
     } else if (typeof e === "string") {
@@ -3543,7 +3556,7 @@ export const translate = (
       if (shape.isErr()) {
         trans.diagnostics.errors = trans.diagnostics.errors.push(shape.error);
       } else {
-        trans.symbols = trans.symbols.set(path, {
+        trans.symbols = trans.symbols.set(pathStr, {
           tag: "ShapeVal",
           contents: shape.value,
         });
@@ -3684,14 +3697,14 @@ export const getCanvasDim = (
   if (!graph.hasNode(i))
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "missing" });
   const dim = graph.node(i);
-  if (dim === undefined) {
+  if (dim.contents === undefined) {
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "missing" });
-  } else if (typeof dim === "string") {
+  } else if (typeof dim.contents === "string") {
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "GPI" });
-  } else if (dim.expr.tag !== "Fix") {
+  } else if (dim.contents.tag !== "Fix") {
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "wrong type" });
   }
-  return ok(dim.expr.contents);
+  return ok(dim.contents.contents);
 };
 
 //#endregion
@@ -3751,19 +3764,47 @@ const getShapesList = (
   });
 };
 
-const fakePath = (name: string, members: string[]): Path<A> => ({
-  tag: "Path",
-  nodeType: "SyntheticStyle",
-  name: { tag: "StyVar", nodeType: "SyntheticStyle", contents: dummyId(name) },
-  members: members.map(dummyId),
-  indices: [],
-});
-
 const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
+  const canvasScope: StylePathToNamespaceScope<A> = {
+    tag: "Namespace",
+    nodeType: "SyntheticStyle",
+    name: "canvas",
+  };
+  const pathToWidth: ResolvedPath<A> = {
+    tag: "ResolvedPath",
+    nodeType: "SyntheticStyle",
+    contents: {
+      tag: "Object",
+      nodeType: "SyntheticStyle",
+      access: {
+        tag: "Member",
+        parent: canvasScope,
+        name: "width",
+      },
+    },
+  };
+  const pathToHeight: ResolvedPath<A> = {
+    tag: "ResolvedPath",
+    nodeType: "SyntheticStyle",
+    contents: {
+      tag: "Object",
+      nodeType: "SyntheticStyle",
+      access: {
+        tag: "Member",
+        parent: canvasScope,
+        name: "height",
+      },
+    },
+  };
+
   const fns: Fn[] = [];
   for (const shape of shapes) {
-    const name = shape.name.contents;
     if (shape.ensureOnCanvas.contents) {
+      const pathToShape: ResolvedPath<A> = {
+        ...shape.path,
+        tag: "ResolvedPath",
+        contents: shape.path,
+      };
       const output = constrDict.onCanvas.body(
         shape,
         canvas.width,
@@ -3771,30 +3812,16 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
       ).value;
       fns.push({
         ast: {
-          context: {
-            block: { tag: "NamespaceId", contents: "canvas" }, // doesn't matter
-            subst: { tag: "StySubSubst", contents: {} },
-            locals: im.Map(),
-          },
-          expr: {
-            tag: "ConstrFn",
+          tag: "ConstrFn",
+          nodeType: "SyntheticStyle",
+          body: {
+            tag: "FunctionCall",
             nodeType: "SyntheticStyle",
-            body: {
-              tag: "FunctionCall",
-              nodeType: "SyntheticStyle",
-              name: dummyId("onCanvas"),
-              args: [
-                // HACK: the right way to do this would be to parse `name` into
-                // the correct `Path`, but we don't really care as long as it
-                // pretty-prints into something that looks right
-                fakePath(name, []),
-                fakePath("canvas", ["width"]),
-                fakePath("canvas", ["height"]),
-              ],
-            },
-            stages: [],
-            exclude: true,
+            name: dummyId("onCanvas"),
+            args: [pathToShape, pathToWidth, pathToHeight],
           },
+          stages: [],
+          exclude: true,
         },
         output,
         // TODO: what's a good default stage for `onCanvas`? How can someone change this behavior?
@@ -3826,6 +3853,47 @@ export const stageConstraints = (
     ]),
   );
 
+/**
+ * Map each numeric field, map the field such that each number with a
+ * corresponding optimizer input is replaced by the index of that input,
+ * and otherwise undefined.
+ * @param symbols
+ * @param inputIdxsByVar A map of `ad.Var`s to input indices
+ */
+const getInputIdxsByPath = (
+  symbols: im.Map<string, ArgVal<ad.Num>>,
+  inputIdxsByVar: Map<ad.Var, number>,
+): IdxsByPath => {
+  const tryGetIdx = (x: ad.Num) =>
+    isVar(x) ? inputIdxsByVar.get(x) : undefined;
+  const res: IdxsByPath = new Map();
+  for (const [path, val] of symbols) {
+    let mappedVal: ArgVal<number | undefined>;
+    switch (val.tag) {
+      case "Val":
+        switch (val.contents.tag) {
+          case "StrV":
+          case "BoolV":
+            continue;
+
+          default:
+            mappedVal = {
+              tag: "Val",
+              contents: mapValueNumeric((x) => tryGetIdx(x), val.contents),
+            };
+            break;
+        }
+        break;
+
+      case "ShapeVal":
+        continue;
+    }
+    res.set(path, mappedVal);
+  }
+
+  return res;
+};
+
 const processPassthrough = (
   { symbols }: Translation,
   nameShapeMap: Map<string, Shape<ad.Num>>,
@@ -3837,17 +3905,29 @@ const processPassthrough = (
     const propName = key.slice(i + 1);
     const shape = nameShapeMap.get(shapeName);
     if (shape) {
+      const { path: shapePath } = shape;
+      const propPath: StylePathToUnindexedObject<A> = {
+        tag: "Object",
+        nodeType: "SyntheticStyle",
+        access: {
+          tag: "Member",
+          parent: shapePath,
+          name: propName,
+        },
+      };
       if (Object.keys(shape).includes(propName)) continue;
       if (value.tag === "Val") {
         if (value.contents.tag === "FloatV" || value.contents.tag === "StrV") {
           shape.passthrough.set(propName, value.contents);
         } else {
           return err(
-            badShapeParamTypeError(key, value, "StrV or FloatV", true),
+            badShapeParamTypeError(propPath, value, "StrV or FloatV", true),
           );
         }
       } else {
-        return err(badShapeParamTypeError(key, value, "StrV or FloatV", true));
+        return err(
+          badShapeParamTypeError(propPath, value, "StrV or FloatV", true),
+        );
       }
     }
   }
@@ -3908,6 +3988,7 @@ export const compileStyleHelper = async (
   const rng = seedrandom(variation);
   const varyingValues: number[] = [];
   const inputs: ad.Var[] = [];
+  const inputIdxsByVar = new Map<ad.Var, number>();
   const metas: InputMeta[] = [];
   const makeInput = (meta: InputMeta) => {
     const val =
@@ -3916,6 +3997,7 @@ export const compileStyleHelper = async (
     varyingValues.push(val);
     inputs.push(x);
     metas.push(meta);
+    inputIdxsByVar.set(x, inputs.length - 1);
     return x;
   };
 
@@ -3928,6 +4010,11 @@ export const compileStyleHelper = async (
     assignment.diagnostics.warnings,
   );
 
+  const inputIdxsByPath = getInputIdxsByPath(
+    translation.symbols,
+    inputIdxsByVar,
+  );
+
   log.info("translation (before genOptProblem)", translation);
 
   if (translation.diagnostics.errors.size > 0) {
@@ -3936,7 +4023,9 @@ export const compileStyleHelper = async (
 
   const groupGraph: GroupGraph = makeGroupGraph(
     getShapesList(translation, [
-      ...graph.nodes().filter((p) => typeof graph.node(p) === "string"),
+      ...graph
+        .nodes()
+        .filter((p) => typeof graph.node(p).contents === "string"),
     ]),
   );
 
@@ -3944,7 +4033,11 @@ export const compileStyleHelper = async (
 
   const { shapeOrdering: layerOrdering, warning: layeringWarning } =
     computeLayerOrdering(
-      [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
+      [
+        ...graph
+          .nodes()
+          .filter((p) => typeof graph.node(p).contents === "string"),
+      ],
       [...translation.layering],
       groupGraph,
     );
@@ -3955,18 +4048,31 @@ export const compileStyleHelper = async (
   }
 
   const shapes = getShapesList(translation, layerOrdering);
-
+  const translatableShapePaths = new Set<string>();
+  const scalableShapePaths = new Set<string>();
   const nameShapeMap = new Map<string, Shape<ad.Num>>();
-
   for (const shape of shapes) {
-    const shapeName = getAdValueAsString(shape.name);
-    nameShapeMap.set(shapeName, shape);
+    nameShapeMap.set(shape.name.contents, shape);
+    if (isTranslatable(shape)) {
+      translatableShapePaths.add(shape.name.contents);
+    }
+    if (isScalable(shape)) {
+      scalableShapePaths.add(shape.name.contents);
+    }
   }
 
   // fill in passthrough properties
   const passthroughResult = processPassthrough(translation, nameShapeMap);
   if (passthroughResult.isErr()) {
     return err(toStyleErrors([passthroughResult.error]));
+  }
+
+  const draggingConstraints = new Map<string, string>();
+  for (const [path, shape] of nameShapeMap) {
+    const constraint = shape.passthrough.get("draggingConstraint");
+    if (constraint !== undefined && constraint.tag === "StrV") {
+      draggingConstraints.set(path, constraint.contents);
+    }
   }
 
   const renderGraph = buildRenderGraph(
@@ -4016,6 +4122,13 @@ export const compileStyleHelper = async (
     params,
     currentStageIndex: 0,
     optStages: optimizationStages.value,
+    interactivityInfo: {
+      inputIdxsByPath,
+      translatableShapePaths,
+      scalableShapePaths,
+      shapesByPath: nameShapeMap,
+      draggingConstraints,
+    },
   };
 
   log.info("init state from GenOptProblem", initState);

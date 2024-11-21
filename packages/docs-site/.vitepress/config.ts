@@ -46,7 +46,7 @@ const indexableFunctionDocs = () => {
     }\n\n**Parameters:**\n\n${showParams(v.params)}`;
   });
   const constraints = Object.entries(constrDict).map(([k, v]: any) => {
-    return `### ${v.name} {#constraint-${v.name.toLowerCase()}}\n\n${
+    return `### ${v.name} {#constraint-${v.name}}\n\n${
       v.description
     }\n\n**Parameters:**\n\n${showParams(v.params)}`;
   });
@@ -63,7 +63,7 @@ const indexableFunctionDocs = () => {
 };
 
 // https://github.com/vuejs/vitepress/issues/529#issuecomment-1151186631
-const customElements = [
+export const customElements = [
   "math",
   "maction",
   "maligngroup",
@@ -223,6 +223,11 @@ export default defineConfig({
         activeMatch: "/docs/tutorial",
       },
       { text: "Docs", link: "/docs/ref", activeMatch: "/docs/ref" },
+      {
+        text: "Bloom",
+        link: "/docs/bloom/tutorial/getting_started",
+        activeMatch: "/docs/bloom",
+      },
       { text: "Blog", link: "/blog", activeMatch: "/blog" },
       { text: "Team", link: "/docs/team" },
       { text: "Editor", link: "/try/index.html", target: "_blank" },
@@ -261,6 +266,41 @@ export default defineConfig({
               link: "/docs/tutorial/predicates",
             },
             { text: "Functions", link: "/docs/tutorial/functions" },
+          ],
+        },
+      ],
+      "/docs/bloom": [
+        {
+          text: "Bloom",
+          items: [
+            {
+              text: "Tutorial",
+              items: [
+                {
+                  text: "Getting Started",
+                  link: "/docs/bloom/tutorial/getting_started",
+                },
+                {
+                  text: "Hello, Diagram",
+                  link: "/docs/bloom/tutorial/hello_diagram",
+                },
+                {
+                  text: "Procedural Diagramming and Optimization",
+                  link: "/docs/bloom/tutorial/optimization",
+                },
+                {
+                  text: "Interactivity",
+                  link: "/docs/bloom/tutorial/interactivity",
+                },
+              ],
+            },
+            {
+              text: "Examples",
+              link: "/docs/bloom/examples",
+            },
+            {
+              text: "<a href='/bloom-docs/index.html' target='_blank'>Reference</a>",
+            },
           ],
         },
       ],
@@ -374,6 +414,10 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              text: "Interactivity (experimental)",
+              link: "/docs/ref/Interactivity",
+            },
           ],
         },
         {
@@ -411,6 +455,15 @@ export default defineConfig({
         },
       ],
       "/blog": [
+        {
+          text: "September 2024",
+          items: [
+            {
+              text: "Bloom: Optimization-Driven Interactive Diagramming",
+              link: "/blog/bloom",
+            },
+          ],
+        },
         {
           text: "August 2023",
           items: [

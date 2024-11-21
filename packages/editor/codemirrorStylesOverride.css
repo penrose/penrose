@@ -1,0 +1,23 @@
+.cm-tooltip-lint {
+  :visited {
+    color: black;
+  }
+  a {
+    color: black;
+  }
+}
+
+.hide-underline {
+  :visited {
+    text-decoration: none;
+  }
+  a {
+    text-decoration: none;
+  }
+}
+
+/* Styles CodeMirror tooltip */
+.tooltip {
+  max-width: 500px;
+  padding: 5px;
+}

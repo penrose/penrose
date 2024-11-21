@@ -1,12 +1,15 @@
 import {
   Canvas,
   collectLabels,
+  Interaction,
+  InteractivityInfo,
   isPenroseError,
   LabelCache,
   LabelData,
   LabelMeasurements,
   mathjaxInit,
   Num,
+  PartialInteractivityInfo,
   PenroseError,
   PenroseWarning,
   Shape,
@@ -14,6 +17,7 @@ import {
   State,
 } from "@penrose/core";
 import { LogLevels } from "consola";
+import { pick } from "lodash";
 import { Result } from "true-myth";
 
 // Config
@@ -79,8 +83,10 @@ export type StepSequenceState =
 export type StepSequenceInfo = {
   layoutStats: LayoutStats;
   parent: HistoryLoc | null;
+  child: StepSequenceID | null;
   state: StepSequenceState;
   variation: string;
+  pinnedInputPaths: Map<string, Set<number>>;
 };
 
 /**
@@ -101,20 +107,20 @@ export type LayoutState = {
   shapes: Shape<number>[];
   labelMeasurements: LabelMeasurements;
   variation: string;
-};
-
-/** Minimal state needed for rendering */
-export type RenderState = {
-  canvas: Canvas;
-  shapes: Shape<number>[];
-  labelCache: LabelCache;
-  variation: string;
+  interactivityInfo: PartialInteractivityInfo;
 };
 
 /** Info for a successful compile */
 export type CompileInfo = {
   diagramId: DiagramID;
   warnings: PenroseWarning[];
+};
+
+export type InteractionInfo = {
+  sequenceId: StepSequenceID;
+  // performance optimization: we pass back the last history so we can immediately
+  // update the stored info without a poll
+  historyInfo: HistoryInfo;
 };
 
 // Message types
@@ -144,14 +150,16 @@ export type MessageRequestData =
   | CompileRequestData
   | PollRequestData
   | ComputeLayoutRequestData
-  | ResampleRequestData;
+  | ResampleRequestData
+  | InteractionRequestData;
 
 /** Result type contained in a `MessageResponse` */
 export type MessageResult =
   | CompileResult
   | PollResult
   | ComputeLayoutResult
-  | ResampleResult;
+  | ResampleResult
+  | InteractionResult;
 
 /** Data contained in a `Notification` */
 export type NotificationData =
@@ -165,10 +173,10 @@ export enum MessageTags {
   Poll = "Poll",
   ComputeLayout = "ComputeLayout",
   DiscardDiagram = "DiscardDiagram",
-  DiscardStepSequence = "DiscardStepSequence",
   Init = "Init",
   LabelMeasurements = "LabelMeasurements",
   Resample = "Resample",
+  Interaction = "Interaction",
 }
 
 // Request Data
@@ -196,6 +204,13 @@ export type ResampleRequestData = {
   tag: MessageTags.Resample;
   diagramId: DiagramID;
   variation: string;
+};
+
+export type InteractionRequestData = {
+  tag: MessageTags.Interaction;
+  diagramId: DiagramID;
+  parentHistoryLoc: HistoryLoc;
+  interaction: Interaction;
 };
 
 // Notification Data
@@ -258,6 +273,12 @@ export type ResampleResult = TaggedResult<
   MessageTags.Resample
 >;
 
+export type InteractionResult = TaggedResult<
+  InteractionInfo,
+  InvalidDiagramIDError | InvalidHistoryLocError | InteractionError,
+  MessageTags.Interaction
+>;
+
 // Errors
 
 export type InvalidDiagramIDError = {
@@ -276,10 +297,16 @@ export type OptimizationError = {
   error: unknown;
 };
 
+export type InteractionError = {
+  tag: "InteractionError";
+  message: string;
+};
+
 export type OptimizerError =
   | OptimizationError
   | InvalidDiagramIDError
-  | InvalidHistoryLocError;
+  | InvalidHistoryLocError
+  | InteractionError;
 
 // Utils
 
@@ -489,6 +516,9 @@ export const showOptimizerError = (error: OptimizerError): string => {
       )}\n    History Info: ${JSON.stringify([
         ...error.historyInfo.entries(),
       ])}\n`;
+
+    case "InteractionError":
+      return `InteractionError: ${error.message}`;
   }
 };
 
@@ -565,12 +595,23 @@ export const collectAndSeparateLabels = async (
   return Result.ok(separateRenderedLabels(labelCache.value));
 };
 
+export const getPartialInteractivityInfo = (
+  interactivityInfo: InteractivityInfo,
+): PartialInteractivityInfo => {
+  return pick(interactivityInfo, [
+    "translatableShapePaths",
+    "scalableShapePaths",
+    "draggingConstraints",
+  ]);
+};
+
 export const stateToLayoutState = (state: State): LayoutState => {
   return {
     variation: state.variation,
     labelMeasurements: separateRenderedLabels(state.labelCache).optLabelCache,
     canvas: state.canvas,
     shapes: state.computeShapes(state.varyingValues),
+    interactivityInfo: getPartialInteractivityInfo(state.interactivityInfo),
   };
 };
 

@@ -1,6 +1,6 @@
 {
   "name": "@penrose/solids",
-  "version": "4.0.0-alpha.0",
+  "version": "4.0.0-alpha.5",
   "private": true,
   "type": "module",
   "exports": {
@@ -9,7 +9,7 @@
     "default": "./dist/ssr/index.js"
   },
   "dependencies": {
-    "@penrose/core": "^4.0.0-alpha.0",
+    "@penrose/core": "^4.0.0-alpha.5",
     "markdown-it": "^13.0.1",
     "markdown-it-mathjax3": "^4.3.2",
     "solid-js": "^1"

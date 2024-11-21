@@ -3,7 +3,7 @@ import { compileDomain } from "./compiler/Domain.js";
 import { compileStyle } from "./compiler/Style.js";
 import { compileSubstance } from "./compiler/Substance.js";
 import { start, stepUntil } from "./engine/Optimizer.js";
-import { PathResolver, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
+import { PathResolver, toSVG } from "./renderer/Renderer.js";
 import * as ad from "./types/ad.js";
 import { DomainEnv } from "./types/domain.js";
 import { PenroseError } from "./types/errors.js";
@@ -199,54 +199,6 @@ export const diagram = async (
 };
 
 /**
- * Embed an interactive Penrose diagram in a DOM node.
- *
- * @param prog a Penrose trio and variation
- * @param pathResolver a resolver function for fetching Style imports
- * @param node a node in the DOM tree
- * @param name the name of the diagram
- */
-export const interactiveDiagram = async (
-  prog: {
-    substance: string;
-    style: string;
-    domain: string;
-    variation: string;
-    excludeWarnings: string[];
-  },
-  node: HTMLElement,
-  pathResolver: PathResolver,
-  name?: string,
-): Promise<void> => {
-  const updateData = async (state: State) => {
-    const stepped = optimizeOrThrow(state);
-    const rendering = await toInteractiveSVG(
-      stepped,
-      updateData,
-      pathResolver,
-      name ?? "",
-    );
-    node.replaceChild(rendering, node.firstChild!);
-  };
-  const res = await compile(prog);
-  if (res.isOk()) {
-    const state: State = res.value;
-    const optimized = optimizeOrThrow(state);
-    const rendering = await toInteractiveSVG(
-      optimized,
-      updateData,
-      pathResolver,
-      name ?? "",
-    );
-    node.appendChild(rendering);
-  } else {
-    throw Error(
-      `Error when generating Penrose diagram: ${showError(res.error)}`,
-    );
-  }
-};
-
-/**
  * Given a trio of Domain, Substance, and Style programs, compile them into an initial `State`.
  * @param domainProg a Domain program string
  * @param subProg a Substance program string
@@ -312,7 +264,7 @@ export const compileTrio = async (prog: {
   const domainRes: Result<DomainEnv, PenroseError> = compileDomain(prog.domain);
   if (domainRes.isOk()) {
     const subRes: Result<SubstanceEnv, PenroseError> = andThen(
-      (env) => compileSubstance(prog.substance, env),
+      (env: DomainEnv) => compileSubstance(prog.substance, env),
       domainRes,
     );
 
@@ -398,6 +350,7 @@ export type PenroseFn = Fn;
 
 export * from "./api.js";
 export { checkDomain, compileDomain, parseDomain } from "./compiler/Domain.js";
+export { computeLayerOrdering } from "./compiler/Style.js";
 export {
   checkSubstance,
   compileSubstance,
@@ -405,16 +358,33 @@ export {
   prettyCompiledSubstance,
   prettySubstance,
 } from "./compiler/Substance.js";
+export { genGradient } from "./engine/Autodiff.js";
+export {
+  compileCompGraph,
+  mapShape,
+  mapValueNumeric,
+} from "./engine/EngineUtils.js";
 export { start } from "./engine/Optimizer.js";
 export { constrDict } from "./lib/Constraints.js";
 export { compDict } from "./lib/Functions.js";
 export { objDict } from "./lib/Objectives.js";
-export { RenderShapes, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
+export { RenderShapes, toSVG } from "./renderer/Renderer.js";
 export type { PathResolver } from "./renderer/Renderer.js";
-export { makeCanvas, simpleContext } from "./shapes/Samplers.js";
-export type { Canvas } from "./shapes/Samplers.js";
+export type { Circle } from "./shapes/Circle.js";
+export type { Ellipse } from "./shapes/Ellipse.js";
+export type { Equation } from "./shapes/Equation.js";
+export type { Group } from "./shapes/Group.js";
+export type { Image } from "./shapes/Image.js";
+export type { Line } from "./shapes/Line.js";
+export type { Path } from "./shapes/Path.js";
+export type { Polygon } from "./shapes/Polygon.js";
+export type { Rectangle } from "./shapes/Rectangle.js";
+export { makeCanvas, simpleContext, uniform } from "./shapes/Samplers.js";
+export type { Canvas, InputMeta } from "./shapes/Samplers.js";
 export { sampleShape, shapeTypes } from "./shapes/Shapes.js";
-export type { ShapeType } from "./shapes/Shapes.js";
+export type { Shape, ShapeType } from "./shapes/Shapes.js";
+export type { Text } from "./shapes/Text.js";
+export { isVar } from "./types/ad.js";
 export type { DomainEnv } from "./types/domain.js";
 export type {
   DomainError,
@@ -426,6 +396,7 @@ export type {
 export type { CompFunc } from "./types/functions.js";
 export * from "./types/state.js";
 export type { SubProg } from "./types/substance.js";
+export { valueTypeDesc } from "./types/types.js";
 export * as Value from "./types/value.js";
 export {
   collectLabels,
@@ -433,22 +404,36 @@ export {
   mathjaxInit,
 } from "./utils/CollectLabels.js";
 export {
+  err,
   errLocs,
   isPenroseError,
+  ok,
   runtimeError,
   showError,
 } from "./utils/Error.js";
 export type { Result } from "./utils/Error.js";
+export { default as Graph } from "./utils/Graph.js";
+export { buildRenderGraph, makeGroupGraph } from "./utils/GroupGraph.js";
+export * from "./utils/InteractionUtils.js";
 export {
   allWarnings,
+  boolV,
+  clipDataV,
+  colorV,
   describeType,
+  floatV,
   hexToRgba,
+  isKeyOf,
+  pathDataV,
   prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
+  ptListV,
   rgbaToHex,
+  shapeListV,
+  strV,
+  vectorV,
   zip2,
 } from "./utils/Util.js";
 
 export { parser as domainParser } from "./parser/DomainParser.js";
-export type { Shape } from "./shapes/Shapes.js";

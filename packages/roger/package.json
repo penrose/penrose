@@ -1,6 +1,6 @@
 {
   "name": "@penrose/roger",
-  "version": "4.0.0-alpha.0",
+  "version": "4.0.0-alpha.5",
   "description": "",
   "type": "module",
   "main": "dist/index.js",
@@ -30,7 +30,7 @@
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "dependencies": {
-    "@penrose/core": "^4.0.0-alpha.0",
+    "@penrose/core": "^4.0.0-alpha.5",
     "canvas": "^2.8.0",
     "chalk": "^3.0.0",
     "chokidar": "^3.5.3",
@@ -48,5 +48,6 @@
     "@types/node": "^12.12.68",
     "@types/ws": "^8.5.4",
     "@types/yargs": "^17.0.24"
-  }
+  },
+  "gitHead": "edad5498aeabe85b1c5b320ca862faa879ff1d23"
 }

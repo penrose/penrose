@@ -1,0 +1,71 @@
+canvas {
+    width = 1000
+    height = 600
+}
+
+global {
+    angle = ?
+    background = Rectangle {
+      center: (0, 0)
+      width: canvas.width
+      height: canvas.height
+      fillColor: hsva(angle * 100, 20, 100, 0.8)
+    }
+    source = (?, ?)
+    sicon = Circle {
+        center: source
+        fillColor: hsva(angle * 100, 20, 100, 1)
+        style: "filter: blur(4px)"
+        r: 10
+    }
+    ssicon = Circle {
+        center: source
+        fillColor: hsva(angle * 100, 0, 100, 1)
+        r: 5
+    }
+    object = (0, 0)
+    iconn = Circle {
+        center: object
+        fillColor: #000000ff
+        r: 200
+        style: "visibility: hidden"
+    }
+    icon = Ellipse {
+        center: object
+        fillColor: #000000ff
+        rx: 400
+        ry: 250
+    }
+    ensure contains(iconn, sicon)
+    -- encourage vdist(object, source) > 390
+    -- encourage angleOf(object - source) == angle
+    background below icon
+    background below sicon
+    sicon above icon
+}
+
+forall Ray r {
+    r.angle = global.angle + random(-0.5, 0.5)
+    r.direction = (cos(r.angle), sin(r.angle))
+    r.pt = rayIntersect(global.icon, global.source, r.direction)
+    line = Line {
+        start: global.source
+        end: r.pt
+        strokeWidth: .5
+        strokeColor: hsva(100 * r.angle, 20, 80, 0.3)
+        ensureOnCanvas: false
+    }
+    r.n = rayIntersectNormal(global.icon, global.source, r.direction)
+    r.newang = angleFrom(-r.direction, r.n)
+    r.newang2 = r.angle + 2 * r.newang
+    r.newdir = -(cos(r.newang2), sin(r.newang2))
+    r.pt2 = rayIntersect(global.icon, r.pt, r.newdir)
+    line3 = Line {
+        start: r.pt
+        end: r.pt2
+        strokeWidth: .5
+        strokeColor: hsva(100 * r.angle, 20, 80, 0.5)
+        ensureOnCanvas: false
+    }
+    line below global.sicon
+}

@@ -3,6 +3,143 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v4.0.0-alpha.5](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.5) (2024-10-28)
+
+### :warning: BREAKING CHANGE
+
+- separate Substance environment and remove unused features (#1677)
+
+### :rocket: New Feature
+
+- 4.0.0-alpha.4 ([#1865](https://github.com/penrose/penrose/issues/1865)) ([3cce51d](https://github.com/penrose/penrose/commit/3cce51d26af58058c66c6703680ddad083840ec2))
+- codemirror migration ([#1798](https://github.com/penrose/penrose/issues/1798)) ([59d77f2](https://github.com/penrose/penrose/commit/59d77f22822cc28a32daf812f0b8c4b9e791786c))
+- substance literal values ([#1682](https://github.com/penrose/penrose/issues/1682)) ([7c1978f](https://github.com/penrose/penrose/commit/7c1978f4e33498828d6893d7d8f9257d2f1f839b))
+
+### :bug: Bug Fix
+
+- UI bugs in `edgeworth` ([#1706](https://github.com/penrose/penrose/issues/1706)) ([c255e39](https://github.com/penrose/penrose/commit/c255e39176c118662f91108ac9ab59682966acc6))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+
+### :nail_care: Polish
+
+- simplified shared `Grid` and custom `Grid` in Edgeworth ([#1729](https://github.com/penrose/penrose/issues/1729)) ([a7c9d4d](https://github.com/penrose/penrose/commit/a7c9d4d5d8cc44b3544afb826da3a7002ef55cff))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- bump version to 4.0.0-alpha.3 ([#1851](https://github.com/penrose/penrose/issues/1851)) ([e6746f9](https://github.com/penrose/penrose/commit/e6746f9dab99dd86b0955f5c582b223d5246f0c8))
+- simplify names of `IsSubset` and `NotIntersecting` ([#1724](https://github.com/penrose/penrose/issues/1724)) ([b5e8cb8](https://github.com/penrose/penrose/commit/b5e8cb8675c63f279e9e769913b24c1ec8055b23))
+- simplify the implementation of `edgeworth` ([#1708](https://github.com/penrose/penrose/issues/1708)) ([299c3d3](https://github.com/penrose/penrose/commit/299c3d33d9675e030a5a1969e6b85d7c87249cd1))
+
+## [v4.0.0-alpha.4](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.4) (2024-10-28)
+
+### :warning: BREAKING CHANGE
+
+- separate Substance environment and remove unused features (#1677)
+
+### :rocket: New Feature
+
+- codemirror migration ([#1798](https://github.com/penrose/penrose/issues/1798)) ([59d77f2](https://github.com/penrose/penrose/commit/59d77f22822cc28a32daf812f0b8c4b9e791786c))
+- substance literal values ([#1682](https://github.com/penrose/penrose/issues/1682)) ([7c1978f](https://github.com/penrose/penrose/commit/7c1978f4e33498828d6893d7d8f9257d2f1f839b))
+
+### :bug: Bug Fix
+
+- UI bugs in `edgeworth` ([#1706](https://github.com/penrose/penrose/issues/1706)) ([c255e39](https://github.com/penrose/penrose/commit/c255e39176c118662f91108ac9ab59682966acc6))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+
+### :nail_care: Polish
+
+- simplified shared `Grid` and custom `Grid` in Edgeworth ([#1729](https://github.com/penrose/penrose/issues/1729)) ([a7c9d4d](https://github.com/penrose/penrose/commit/a7c9d4d5d8cc44b3544afb826da3a7002ef55cff))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- bump version to 4.0.0-alpha.3 ([#1851](https://github.com/penrose/penrose/issues/1851)) ([e6746f9](https://github.com/penrose/penrose/commit/e6746f9dab99dd86b0955f5c582b223d5246f0c8))
+- simplify names of `IsSubset` and `NotIntersecting` ([#1724](https://github.com/penrose/penrose/issues/1724)) ([b5e8cb8](https://github.com/penrose/penrose/commit/b5e8cb8675c63f279e9e769913b24c1ec8055b23))
+- simplify the implementation of `edgeworth` ([#1708](https://github.com/penrose/penrose/issues/1708)) ([299c3d3](https://github.com/penrose/penrose/commit/299c3d33d9675e030a5a1969e6b85d7c87249cd1))
+
+## [v4.0.0-alpha.3](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.3) (2024-09-21)
+
+### :warning: BREAKING CHANGE
+
+- separate Substance environment and remove unused features (#1677)
+
+### :rocket: New Feature
+
+- codemirror migration ([#1798](https://github.com/penrose/penrose/issues/1798)) ([59d77f2](https://github.com/penrose/penrose/commit/59d77f22822cc28a32daf812f0b8c4b9e791786c))
+- substance literal values ([#1682](https://github.com/penrose/penrose/issues/1682)) ([7c1978f](https://github.com/penrose/penrose/commit/7c1978f4e33498828d6893d7d8f9257d2f1f839b))
+
+### :bug: Bug Fix
+
+- UI bugs in `edgeworth` ([#1706](https://github.com/penrose/penrose/issues/1706)) ([c255e39](https://github.com/penrose/penrose/commit/c255e39176c118662f91108ac9ab59682966acc6))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+
+### :nail_care: Polish
+
+- simplified shared `Grid` and custom `Grid` in Edgeworth ([#1729](https://github.com/penrose/penrose/issues/1729)) ([a7c9d4d](https://github.com/penrose/penrose/commit/a7c9d4d5d8cc44b3544afb826da3a7002ef55cff))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- simplify names of `IsSubset` and `NotIntersecting` ([#1724](https://github.com/penrose/penrose/issues/1724)) ([b5e8cb8](https://github.com/penrose/penrose/commit/b5e8cb8675c63f279e9e769913b24c1ec8055b23))
+- simplify the implementation of `edgeworth` ([#1708](https://github.com/penrose/penrose/issues/1708)) ([299c3d3](https://github.com/penrose/penrose/commit/299c3d33d9675e030a5a1969e6b85d7c87249cd1))
+
+## [v4.0.0-alpha.2](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.2) (2024-09-21)
+
+### :warning: BREAKING CHANGE
+
+- separate Substance environment and remove unused features (#1677)
+
+### :rocket: New Feature
+
+- codemirror migration ([#1798](https://github.com/penrose/penrose/issues/1798)) ([59d77f2](https://github.com/penrose/penrose/commit/59d77f22822cc28a32daf812f0b8c4b9e791786c))
+- substance literal values ([#1682](https://github.com/penrose/penrose/issues/1682)) ([7c1978f](https://github.com/penrose/penrose/commit/7c1978f4e33498828d6893d7d8f9257d2f1f839b))
+
+### :bug: Bug Fix
+
+- UI bugs in `edgeworth` ([#1706](https://github.com/penrose/penrose/issues/1706)) ([c255e39](https://github.com/penrose/penrose/commit/c255e39176c118662f91108ac9ab59682966acc6))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+
+### :nail_care: Polish
+
+- simplified shared `Grid` and custom `Grid` in Edgeworth ([#1729](https://github.com/penrose/penrose/issues/1729)) ([a7c9d4d](https://github.com/penrose/penrose/commit/a7c9d4d5d8cc44b3544afb826da3a7002ef55cff))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- simplify names of `IsSubset` and `NotIntersecting` ([#1724](https://github.com/penrose/penrose/issues/1724)) ([b5e8cb8](https://github.com/penrose/penrose/commit/b5e8cb8675c63f279e9e769913b24c1ec8055b23))
+- simplify the implementation of `edgeworth` ([#1708](https://github.com/penrose/penrose/issues/1708)) ([299c3d3](https://github.com/penrose/penrose/commit/299c3d33d9675e030a5a1969e6b85d7c87249cd1))
+
+## [v4.0.0-alpha.1] (2024-07-11)
+
+### :warning: BREAKING CHANGE
+
+- separate Substance environment and remove unused features (#1677)
+
+### :rocket: New Feature
+
+- codemirror migration ([#1798](https://github.com/penrose/penrose/issues/1798)) ([59d77f2](https://github.com/penrose/penrose/commit/59d77f22822cc28a32daf812f0b8c4b9e791786c))
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+- substance literal values ([#1682](https://github.com/penrose/penrose/issues/1682)) ([7c1978f](https://github.com/penrose/penrose/commit/7c1978f4e33498828d6893d7d8f9257d2f1f839b))
+
+### :bug: Bug Fix
+
+- UI bugs in `edgeworth` ([#1706](https://github.com/penrose/penrose/issues/1706)) ([c255e39](https://github.com/penrose/penrose/commit/c255e39176c118662f91108ac9ab59682966acc6))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+
+### :nail_care: Polish
+
+- simplified shared `Grid` and custom `Grid` in Edgeworth ([#1729](https://github.com/penrose/penrose/issues/1729)) ([a7c9d4d](https://github.com/penrose/penrose/commit/a7c9d4d5d8cc44b3544afb826da3a7002ef55cff))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- simplify names of `IsSubset` and `NotIntersecting` ([#1724](https://github.com/penrose/penrose/issues/1724)) ([b5e8cb8](https://github.com/penrose/penrose/commit/b5e8cb8675c63f279e9e769913b24c1ec8055b23))
+
 ## [v4.0.0-alpha.0] (2024-05-07)
 
 ### :warning: BREAKING CHANGE

@@ -53,7 +53,7 @@ const RefreshIcon = ({ className }: SVGProps<SVGSVGElement>) => (
   </Svg>
 );
 
-const Refresh = styled(RefreshIcon)`
+export const Refresh = styled(RefreshIcon)`
   user-select: none;
   width: 25px;
   height: 25px;
@@ -117,7 +117,7 @@ const HeaderText = styled.div`
   font-family: monospace;
 `;
 
-const ResampleBtn = styled.button`
+export const ResampleBtn = styled.button`
   display: inline-block;
   cursor: pointer;
   height: 26px;

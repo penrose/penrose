@@ -71,7 +71,7 @@ const RenderEquation = (
   // Map/Fill the shape attributes while keeping track of input properties mapped
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
-  attrToNotAutoMap.push(...attrTitle(shape, elem));
+  attrToNotAutoMap.push(...attrTitle(shape, elem, renderOptions.titleCache));
 
   const retrievedLabel = labels.get(getAdValueAsString(shape.name));
 

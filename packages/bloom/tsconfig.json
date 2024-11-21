@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "dist",
+    "lib": ["es5", "es6", "es7", "esnext", "dom"],
+    "sourceMap": true,
+    "jsx": "react-jsx",
+    "rootDir": "src",
+    "module": "node16",
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": ["src", "index.d.ts"]
+}

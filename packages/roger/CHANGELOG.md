@@ -3,6 +3,99 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v4.0.0-alpha.5](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.5) (2024-10-28)
+
+### :rocket: New Feature
+
+- 4.0.0-alpha.4 ([#1865](https://github.com/penrose/penrose/issues/1865)) ([3cce51d](https://github.com/penrose/penrose/commit/3cce51d26af58058c66c6703680ddad083840ec2))
+- `--dump-metadata` in `roger` ([#1717](https://github.com/penrose/penrose/issues/1717)) ([98b96a5](https://github.com/penrose/penrose/commit/98b96a51a123d69e9525beda7f4b887f359be956))
+- dump SVG option in `roger` ([#1697](https://github.com/penrose/penrose/issues/1697)) ([243b306](https://github.com/penrose/penrose/commit/243b306946045e306180390303aff3347d037006))
+
+### :bug: Bug Fix
+
+- show `roger` version ([#1736](https://github.com/penrose/penrose/issues/1736)) ([11ff419](https://github.com/penrose/penrose/commit/11ff41901aa176c32f15c436cf44c17d7d0ce495))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- bump version to 4.0.0-alpha.3 ([#1851](https://github.com/penrose/penrose/issues/1851)) ([e6746f9](https://github.com/penrose/penrose/commit/e6746f9dab99dd86b0955f5c582b223d5246f0c8))
+- delete deprecated file extensions from Roger ([#1675](https://github.com/penrose/penrose/issues/1675)) ([12ff3d0](https://github.com/penrose/penrose/commit/12ff3d069ed7b4478642a23e126cc08c45a32e7f))
+- rename venn to euler diagrams ([#1756](https://github.com/penrose/penrose/issues/1756)) ([355b130](https://github.com/penrose/penrose/commit/355b130e044f613a6fab7abe55681ab5f0df4fee))
+
+## [v4.0.0-alpha.4](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.4) (2024-10-28)
+
+### :rocket: New Feature
+
+- `--dump-metadata` in `roger` ([#1717](https://github.com/penrose/penrose/issues/1717)) ([98b96a5](https://github.com/penrose/penrose/commit/98b96a51a123d69e9525beda7f4b887f359be956))
+- dump SVG option in `roger` ([#1697](https://github.com/penrose/penrose/issues/1697)) ([243b306](https://github.com/penrose/penrose/commit/243b306946045e306180390303aff3347d037006))
+
+### :bug: Bug Fix
+
+- show `roger` version ([#1736](https://github.com/penrose/penrose/issues/1736)) ([11ff419](https://github.com/penrose/penrose/commit/11ff41901aa176c32f15c436cf44c17d7d0ce495))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- bump version to 4.0.0-alpha.3 ([#1851](https://github.com/penrose/penrose/issues/1851)) ([e6746f9](https://github.com/penrose/penrose/commit/e6746f9dab99dd86b0955f5c582b223d5246f0c8))
+- delete deprecated file extensions from Roger ([#1675](https://github.com/penrose/penrose/issues/1675)) ([12ff3d0](https://github.com/penrose/penrose/commit/12ff3d069ed7b4478642a23e126cc08c45a32e7f))
+- rename venn to euler diagrams ([#1756](https://github.com/penrose/penrose/issues/1756)) ([355b130](https://github.com/penrose/penrose/commit/355b130e044f613a6fab7abe55681ab5f0df4fee))
+
+## [v4.0.0-alpha.3](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.3) (2024-09-21)
+
+### :rocket: New Feature
+
+- `--dump-metadata` in `roger` ([#1717](https://github.com/penrose/penrose/issues/1717)) ([98b96a5](https://github.com/penrose/penrose/commit/98b96a51a123d69e9525beda7f4b887f359be956))
+- dump SVG option in `roger` ([#1697](https://github.com/penrose/penrose/issues/1697)) ([243b306](https://github.com/penrose/penrose/commit/243b306946045e306180390303aff3347d037006))
+
+### :bug: Bug Fix
+
+- show `roger` version ([#1736](https://github.com/penrose/penrose/issues/1736)) ([11ff419](https://github.com/penrose/penrose/commit/11ff41901aa176c32f15c436cf44c17d7d0ce495))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- delete deprecated file extensions from Roger ([#1675](https://github.com/penrose/penrose/issues/1675)) ([12ff3d0](https://github.com/penrose/penrose/commit/12ff3d069ed7b4478642a23e126cc08c45a32e7f))
+- rename venn to euler diagrams ([#1756](https://github.com/penrose/penrose/issues/1756)) ([355b130](https://github.com/penrose/penrose/commit/355b130e044f613a6fab7abe55681ab5f0df4fee))
+
+## [v4.0.0-alpha.2](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.2) (2024-09-21)
+
+### :rocket: New Feature
+
+- `--dump-metadata` in `roger` ([#1717](https://github.com/penrose/penrose/issues/1717)) ([98b96a5](https://github.com/penrose/penrose/commit/98b96a51a123d69e9525beda7f4b887f359be956))
+- dump SVG option in `roger` ([#1697](https://github.com/penrose/penrose/issues/1697)) ([243b306](https://github.com/penrose/penrose/commit/243b306946045e306180390303aff3347d037006))
+
+### :bug: Bug Fix
+
+- show `roger` version ([#1736](https://github.com/penrose/penrose/issues/1736)) ([11ff419](https://github.com/penrose/penrose/commit/11ff41901aa176c32f15c436cf44c17d7d0ce495))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- delete deprecated file extensions from Roger ([#1675](https://github.com/penrose/penrose/issues/1675)) ([12ff3d0](https://github.com/penrose/penrose/commit/12ff3d069ed7b4478642a23e126cc08c45a32e7f))
+- rename venn to euler diagrams ([#1756](https://github.com/penrose/penrose/issues/1756)) ([355b130](https://github.com/penrose/penrose/commit/355b130e044f613a6fab7abe55681ab5f0df4fee))
+
+## [v4.0.0-alpha.1] (2024-07-11)
+
+### :rocket: New Feature
+
+- `--dump-metadata` in `roger` ([#1717](https://github.com/penrose/penrose/issues/1717)) ([98b96a5](https://github.com/penrose/penrose/commit/98b96a51a123d69e9525beda7f4b887f359be956))
+- dump SVG option in `roger` ([#1697](https://github.com/penrose/penrose/issues/1697)) ([243b306](https://github.com/penrose/penrose/commit/243b306946045e306180390303aff3347d037006))
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+
+### :bug: Bug Fix
+
+- show `roger` version ([#1736](https://github.com/penrose/penrose/issues/1736)) ([11ff419](https://github.com/penrose/penrose/commit/11ff41901aa176c32f15c436cf44c17d7d0ce495))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- delete deprecated file extensions from Roger ([#1675](https://github.com/penrose/penrose/issues/1675)) ([12ff3d0](https://github.com/penrose/penrose/commit/12ff3d069ed7b4478642a23e126cc08c45a32e7f))
+- rename venn to euler diagrams ([#1756](https://github.com/penrose/penrose/issues/1756)) ([355b130](https://github.com/penrose/penrose/commit/355b130e044f613a6fab7abe55681ab5f0df4fee))
+
 ## [v4.0.0-alpha.0] (2024-05-07)
 
 ### :rocket: New Feature

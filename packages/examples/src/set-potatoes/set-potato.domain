@@ -1,0 +1,14 @@
+type Set
+type Relation
+type Element
+type Arrow
+
+constructor Relate(Element p1, Element p2) -> Arrow
+
+predicate SetsAreRelated(Set s1, Relation r, Set s2)  -- ensure that set centers are horizontally spread out
+predicate SetHasElement(Set s, Element p1)  -- ensure appropriate overlap and common center.x
+predicate RelationHasArrow(Relation r, Arrow a)  -- ensure common color for all arrows in a relation
+predicate ArrowRelatesElements(Element p1, Arrow a, Element p2)  -- ensure that arrow endpoints are at the center of the elements
+
+predicate SetsShareDomainOrCodomain(Set s1, Set s2)  -- encourage vertical alignment of set centers if they share a source or target
+predicate SetOverlapsRelation(Set s, Relation r)  -- ensure no overlap between set and arrows

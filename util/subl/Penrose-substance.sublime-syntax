@@ -1,0 +1,269 @@
+%YAML 1.2
+---
+name: Penrose Substance
+scope: source.substance
+
+file_extensions:
+  - substance
+
+variables:
+  name: \b[a-zA-Z_]\w*\b
+
+contexts:
+  main:
+    - include: comment
+    - include: string
+    - include: string_latex
+
+    - match: \b(Label|AutoLabel|NoLabel)\b
+      scope: keyword.declaration.label.substance
+    - match: \b(All|None)\b
+      scope: keyword.other.substance
+
+    - match: \b(for)\b
+      scope: keyword.control.loop.for.substance
+      push:
+        - meta_scope: source.for.substance
+        - match: \s*({{name}})\s+(in)\s+
+          captures:
+            1: variable.parameter.substance
+            2: keyword.control.substance
+        - include: expression
+        - match: \b(where)\b
+          scope: keyword.control.conditional.select.substance
+          pop: true
+        - match: $
+          pop: true
+
+    - match: \b({{name}})\s*(?=\()
+      captures:
+        1: variable.function.substance
+
+    - match: ^\s*(((Let)|({{name}}))\s+)?({{name}})\s*(:=)\s*
+      captures:
+        3: keyword.declaration.substance
+        4: storage.type.substance
+        5: entity.name.constant.substance
+        6: keyword.operator.assignment.substance
+
+    - match: ^\s*(({{name}})\s+)?({{name}})
+      captures:
+        2: storage.type.substance
+        3: entity.name.constant.substance
+      push:
+        - match: \s*(,)\s*({{name}})
+          captures:
+            1: punctuation.separator.sequence.substance
+            2: entity.name.constant.substance
+        - include: comment
+        - include: string
+        - include: string_latex
+        - match: (?=$)
+          pop: true
+
+    - include: expression
+
+  expression:
+    - include: operators
+
+    - match: '\b(true|false)\b'
+      scope: constant.language.boolean.lean
+
+    - include: number
+
+  operators:
+    - match: ([-+*/%^]|\bmod\b)
+      scope: keyword.operator.arithmetic.substance
+    - match: (==|!=|<|>|<=|>=)
+      scope: keyword.operator.comparison.substance
+    - match: (\&\&|\|\||!)
+      scope: keyword.operator.logical.substance
+
+  comment:
+    - match: --
+      scope: comment.line.domain
+      push:
+        - meta_scope: comment.line.domain
+        - match: \b(TODO|FIXME|XXX|NOTE)\b
+          scope: comment.keyword.domain
+        - match: $
+          pop: true
+
+  string:
+    - match: '"'
+      scope: string.quoted.double.domain
+      push:
+        - meta_scope: string.quoted.double.domain
+        - match: \\.
+          scope: constant.character.escape.domain
+        - match: '"'
+          pop: true
+
+  string_latex:
+    - match: '\$'
+      scope: string.quoted.other.latex.substance
+      push:
+        - match: '\$'
+          scope: string.quoted.other.latex.substance
+          pop: true
+        - include: scope:source.latex
+
+  number:
+    - match: |-
+        (?ix) # hexadecimal color literal
+          (\#) # prefix
+          \b
+          [0-9a-f]++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.color.hexadecimal.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+
+    - match: |-
+        (?ix)  # hexadecimal float literal
+          [+\-]? # optional number sign
+          \b
+          # special text
+          (inf|nan)
+          \b
+      scope: constant.numeric.float.special.csv
+
+    - match: |-
+        (?ix)  # hexadecimal float literal
+          [+\-]? # optional number sign
+          \b
+          (0x) # prefix
+          # significand
+          (?: (\.) (?=p)  # invalid
+            |        [0-9a-f]*+ ([0-9a-z]*?) [0-9a-f]*+
+              (?: \. [0-9a-f]*+ ([0-9a-z.]*?) [0-9a-f]*+ )? )
+          # exponent (required)
+          (?: (p) (?:        [+\-]  [0-9]++ ([0-9a-z]*?)
+                    | (?=[0-9a-z.]) [0-9]*+ ([0-9a-z.]*?) )
+            | (p) )
+          # remaining valid chars and type specifier suffix
+          [0-9]*+ (f?)
+          \b (?!\.)
+      scope: constant.numeric.float.hexadecimal.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+        2: invalid.illegal.number.missing-fragment.significand.csv
+        3: invalid.illegal.numeric-literal-character.float.whole-number.csv
+        4: invalid.illegal.numeric-literal-character.float.fraction.csv
+        5: keyword.other.exponent.hexadecimal.csv
+        6: invalid.illegal.numeric-literal-character.float.exponent.csv
+        7: invalid.illegal.numeric-literal-character.float.exponent.csv
+        8: invalid.illegal.number.missing-fragment.exponent.csv
+        9: constant.numeric.other.suffix.csv
+    - match: |-
+        (?ix)  # hexadecimal float literal, without required exponent
+          [+\-]? # optional number sign
+          \b
+          (0x) # prefix
+          # significand (at least a period)
+               [0-9a-f]*+ ([0-9a-z&&[^p]]*?) [0-9a-f]*+
+          (\.) [0-9a-f]*+ ([0-9a-z.&&[^p]]*?) [0-9a-f]*+
+          (?:(?<=\.)|\b) (?!\.)
+      scope: constant.numeric.float.hexadecimal.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+        2: invalid.illegal.numeric-literal-character.float.whole-number.csv
+        3: constant.numeric.other.decimalpoint.csv
+        4: invalid.illegal.numeric-literal-character.float.fraction.csv
+    - match: |-
+        (?ix)  # decimal float literal
+          [+\-]? # optional number sign
+          (?!0x) # prefix
+          \b
+          # significand (at least a period)
+               [0-9]++ ([0-9a-z&&[^e]]*?) [0-9]*+
+          (\.) [0-9]*+ ([0-9a-z.&&[^e]]*?) [0-9]*+
+          # exponent (optional)
+          (?: (e) (?: [+\-]  [0-9]++ ([0-9a-z]*?)
+                    |        [0-9]++ ([0-9a-z.]*?) )
+            | ( p     [+\-]? [0-9]++
+              | [ep]                  [0-9a-z.]*?) )?
+          (?:(?<=\.)|\b) (?!\.)
+      scope: constant.numeric.float.decimal.csv
+      captures:
+        1: invalid.illegal.numeric-literal-character.float.whole-number.csv
+        2: constant.numeric.other.decimalpoint.csv
+        3: invalid.illegal.numeric-literal-character.float.whole-number.csv
+        4: keyword.other.exponent.decimal.csv
+        5: invalid.illegal.numeric-literal-character.float.exponent.csv
+        6: invalid.illegal.numeric-literal-character.float.exponent.csv
+        7: invalid.illegal.numeric-literal-character.float.exponent.csv
+    - match: |-
+        (?ix)  # decimal float literal
+          [+\-]? # optional number sign
+          (?!0x) # prefix
+          # significand (at least a period)
+          (\.) [0-9]++ ([0-9a-z.&&[^e]]*?) [0-9]*+
+          # exponent (optional)
+          (?: (e) (?: [+\-]  [0-9]++ ([0-9a-z]*?)
+                    |        [0-9]++ ([0-9a-z.]*?) )
+            | ( p     [+\-]? [0-9]++
+              | [ep]                  [0-9a-z.]*?) )?
+          (?:(?<=\.)|\b) (?!\.)
+      scope: constant.numeric.float.decimal.csv
+      captures:
+        1: constant.numeric.other.decimalpoint.csv
+        2: invalid.illegal.numeric-literal-character.float.whole-number.csv
+        3: keyword.other.exponent.decimal.csv
+        4: invalid.illegal.numeric-literal-character.float.exponent.csv
+        5: invalid.illegal.numeric-literal-character.float.exponent.csv
+        6: invalid.illegal.numeric-literal-character.float.exponent.csv
+    - match: |-
+        (?ix) # zero
+          [+\-]? # optional number sign
+          \b
+          (0[xbo])? # prefix
+          0++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.integer.zero.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+    - match: |-
+        (?ix) # invalid (empty) number literal
+          [+\-]? # optional number sign
+          \b
+          (?: (0x) | (0b) ) # prefix
+          \b (?!\.)
+      scope: invalid.illegal.invalid-number-literal.csv
+    - match: |-
+        (?ix) # hexadecimal integer literal
+          [+\-]? # optional number sign
+          \b
+          (0x) # prefix
+          [0-9a-f]++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.integer.hexadecimal.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+    - match: |-
+        (?ix) # binary integer literal
+          [+\-]? # optional number sign
+          \b
+          (0b) # prefix
+          [01]++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.integer.binary.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+    - match: |-
+        (?ix) # octal integer literal
+          [+\-]? # optional number sign
+          \b
+          (0|0o) # prefix
+          [0-7]++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.integer.octal.csv
+      captures:
+        1: constant.numeric.other.prefix.csv
+    - match: |-
+        (?ix) # decimal integer literal
+          [+\-]? # optional number sign
+          \b
+          [0-9]++ # iterate over number characters
+          \b (?!\.)
+      scope: constant.numeric.integer.decimal.csv

@@ -1,6 +1,6 @@
 {
   "name": "@penrose/docs-site",
-  "version": "4.0.0-alpha.0",
+  "version": "4.0.0-alpha.5",
   "type": "module",
   "private": true,
   "scripts": {
@@ -8,6 +8,8 @@
     "build-decls": ":",
     "copy-editor": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try",
     "build-shapedefs": "shx rm -f ./src/shapedefs.json && node ./scripts/shapedefs.js ./src/shapedefs.json",
+    "build-bloom-ref": "mkdir public/bloom-docs || rm -rf public/bloom-docs/* && cp -r ../bloom/docs/* public/bloom-docs && touch public/bloom-docs/.gitignore && echo '*' > public/bloom-docs/.gitignore",
+    "bundle-bloom": "cp ../bloom/dist/bloom.min.js public/bloom.min.js",
     "dev": "vitepress dev",
     "preview": "vitepress preview",
     "typecheck": ":"
@@ -23,10 +25,22 @@
         "dependsOn": [
           "^build",
           "copy-editor",
-          "build-shapedefs"
+          "build-shapedefs",
+          "build-bloom-ref",
+          "bundle-bloom"
         ]
       },
       "build-shapedefs": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "build-bloom-ref": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "bundle-bloom": {
         "dependsOn": [
           "^build"
         ]
@@ -46,22 +60,31 @@
     }
   },
   "dependencies": {
-    "@penrose/components": "^4.0.0-alpha.0",
-    "@penrose/examples": "^4.0.0-alpha.0",
+    "@penrose/bloom": "^4.0.0-alpha.5",
+    "@penrose/components": "^4.0.0-alpha.5",
+    "@penrose/examples": "^4.0.0-alpha.5",
+    "@types/prismjs": "^1.26.4",
+    "markdown-it": "^13.0.1",
+    "markdown-it-katex": "^2.0.3",
+    "prismjs": "^1.29.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-simple-code-editor": "^0.14.1",
     "veaury": "^2.3.11"
   },
   "devDependencies": {
-    "@penrose/core": "^4.0.0-alpha.0",
-    "@penrose/editor": "^4.0.0-alpha.0",
-    "@penrose/roger": "^4.0.0-alpha.0",
+    "@penrose/core": "^4.0.0-alpha.5",
+    "@penrose/editor": "^4.0.0-alpha.5",
+    "@penrose/roger": "^4.0.0-alpha.5",
     "@tailwindcss/typography": "^0.5.4",
     "@types/markdown-it": "^12.2.3",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-vue": "^5.1.2",
+    "@vitejs/plugin-vue-jsx": "^4.0.0",
     "chalk": "^3.0.0",
-    "markdown-it": "^13.0.1",
-    "markdown-it-katex": "^2.0.3",
     "shikiji": "^0.10.0-beta.6",
     "shx": "^0.3.3",
     "tailwindcss": "^3.1.8",
-    "vitepress": "^1.0.0-rc.39"
+    "vitepress": "^1.3"
   }
 }

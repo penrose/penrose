@@ -194,8 +194,8 @@ AnnotatedFloat { ("?" ("[" Number "]")? (!postfix StageSpecifier)? | Number) }
 // AnnotatedFloat { ("?" | Number) } 
 ComputationFunction { Identifier !call "(" commaSep<Expr> ")" }
 StyVarExpr {
-	kw<"listof"> Identifier kw<"from"> Identifier |
-	(kw<"numberof"> | kw<"nameof">) Identifier
+	kw<"listof"> Identifier kw<"from"> Path |
+	(kw<"numberof"> | kw<"nameof">) Path
 }
 List { "[" commaSep<Expr> "]" }
 Tuple { "{" Expr "," Expr "}" }

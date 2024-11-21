@@ -13,12 +13,13 @@ import {
   collectorHeaderOptions,
   exprKws,
   getComputationFns,
-  getConstraints,
+  getConstraints_Objectives,
   getNamespaceProps,
   getNamespaces,
   getPredOptions,
   getShapeNames,
   getShapeProps,
+  getStageNameOpts,
   getTypeOptions,
   headerOptions,
   selectorHeaderOptions,
@@ -133,6 +134,21 @@ export const createStyleAutocomplete = (
       }
     }
 
+    // Stage Name autocomplete
+    if (
+      goUpToTarget(nodeBefore, "StageSpecifier") &&
+      // Avoid suggesting where "in"/"except" go
+      parentNode?.prevSibling != null
+    ) {
+      const topNode = syntaxTree(context.state).topNode;
+      const styleProg = context.state.doc.toString();
+
+      return {
+        from: word.from,
+        options: getStageNameOpts(topNode, styleProg),
+      };
+    }
+
     // Top level kw completion (forall, collect, layout)
     if (parentNode?.parent?.name === "Header") {
       completionOpts = completionOpts.concat(headerOptions);
@@ -165,9 +181,9 @@ export const createStyleAutocomplete = (
         .concat(getShapeNames(shapeDefns));
     }
 
-    // Constraint completion (following "encourage" and "ensure")
+    // Constraint + Objective fn completion (following "encourage" and "ensure")
     if (goUpToTarget(nodeBefore, "ObjConstrBody") != null) {
-      completionOpts = completionOpts.concat(getConstraints());
+      completionOpts = completionOpts.concat(getConstraints_Objectives());
     }
 
     /*

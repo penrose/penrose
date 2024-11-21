@@ -1,8 +1,12 @@
+import { Completion } from "@codemirror/autocomplete";
 import { SyntaxNode } from "@lezer/common";
-import { compDict, constrDict } from "@penrose/core";
+import { compDict, constrDict, objDict } from "@penrose/core";
+import Markdown from "markdown-it";
+import markdownItKatex from "markdown-it-katex";
 import { DomainCache, ShapeDefinitions, ShapeProperties } from "../../types";
 import {
   extractText,
+  toParamString,
   traverseCursorDown,
   traverseCursorUp,
 } from "../hooksUtils";
@@ -17,14 +21,42 @@ export const getShapeProps = (shapeProps: ShapeProperties) => {
   ]);
 };
 
-export const getConstraints = () => {
-  return Object.entries(constrDict).flatMap(([key, value]) => [
+export const makeInfoFn = (dict: any, name: string) => {
+  // Required type for info DOM element rendering
+  return (completion: Completion) => {
+    let paramStr = toParamString(dict, name);
+    let desc = dict.description ?? "";
+
+    const md = Markdown();
+    md.use(markdownItKatex);
+    var result = md.render(desc);
+
+    let dom = document.createElement("div");
+    dom.innerHTML =
+      '<span style="color: #4B69C6;">' + paramStr + "</span><br>" + result;
+
+    return { dom };
+  };
+};
+
+export const getConstraints_Objectives = () => {
+  let constrArr = Object.entries(constrDict).flatMap(([key, value]) => [
     {
       label: key,
       type: "function ",
-      info: "description" in value ? value.description : "",
+      info: makeInfoFn(value, key),
     },
   ]);
+
+  let objArr = Object.entries(objDict).flatMap(([key, value]) => [
+    {
+      label: key,
+      type: "function ",
+      info: makeInfoFn(value, key),
+    },
+  ]);
+
+  return objArr.concat(constrArr);
 };
 
 export const getComputationFns = () => {
@@ -32,7 +64,7 @@ export const getComputationFns = () => {
     {
       label: value.name,
       type: "function",
-      info: "description" in value ? value.description : "",
+      info: makeInfoFn(value, key),
     },
   ]);
 };
@@ -41,7 +73,6 @@ export const getShapeNames = (shapeDefns: ShapeDefinitions) => {
   return Object.entries(shapeDefns).flatMap(([key, value]) => [
     {
       label: `${key} `,
-      // idk what the property type here should be
       type: "class",
       info: "",
     },
@@ -141,6 +172,45 @@ export const getNamespaceProps = (
     }));
   }
   return [];
+};
+
+/*
+ * Returns an array of every stage name defined in style
+ */
+export const getStageNames = (
+  topNode: SyntaxNode,
+  styleProg: string,
+): string[] => {
+  // topNode is type input, walk down into items
+  const itemsNode = topNode.getChild("Items");
+  if (itemsNode === null) return [];
+  const itemNodes = itemsNode.getChildren("Item");
+  let stageNames = [] as string[];
+
+  itemNodes.forEach((node: SyntaxNode) => {
+    // Will shortcircuit if any not found
+    let stages = node
+      .getChild("LayoutStages")
+      ?.getChild("StageList")
+      ?.getChildren("Stage");
+
+    if (stages) {
+      stages.forEach((stageNode: SyntaxNode) => {
+        stageNames.push(extractText(styleProg, stageNode.to, stageNode.from));
+      });
+    }
+  });
+
+  return stageNames;
+};
+
+export const getStageNameOpts = (topNode: SyntaxNode, styleProg: string) => {
+  let stageNames = getStageNames(topNode, styleProg);
+  return stageNames.map((name) => ({
+    label: `${name}`,
+    type: "text",
+    info: "",
+  }));
 };
 
 export const exprKws = ["true", "false", "listof"].map((name) => ({

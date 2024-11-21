@@ -3,7 +3,8 @@
   "compilerOptions": {
     "noEmit": true,
     "jsx": "react-jsx",
-    "moduleResolution": "node" // styled-components breaks with ESM module resolution
+    "moduleResolution": "node", // styled-components breaks with ESM module resolution
+    "resolveJsonModule": true
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

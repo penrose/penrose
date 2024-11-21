@@ -10,7 +10,7 @@ import { RenderProps } from "./Renderer.js";
 
 const RenderCircle = (
   shape: Circle<number>,
-  { canvasSize }: RenderProps,
+  { canvasSize, titleCache }: RenderProps,
 ): SVGCircleElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "circle");
 
@@ -21,7 +21,7 @@ const RenderCircle = (
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrCenter(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
-  attrToNotAutoMap.push(...attrTitle(shape, elem));
+  attrToNotAutoMap.push(...attrTitle(shape, elem, titleCache));
 
   elem.setAttribute("r", Math.max(0, shape.r.contents).toString());
   attrToNotAutoMap.push("r");
