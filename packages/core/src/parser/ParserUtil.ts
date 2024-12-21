@@ -97,12 +97,15 @@ export const rangeOf = (token: moo.Token | SourceRange): SourceRange => {
 };
 
 const before = (loc1: SourceLoc, loc2: SourceLoc) => {
+  // @ts-expect-error refactoring
   if (loc1.line < loc2.line) {
     return true;
   }
+  // @ts-expect-error refactoring
   if (loc1.line > loc2.line) {
     return false;
   }
+  // @ts-expect-error refactoring
   return loc1.col < loc2.col;
 };
 

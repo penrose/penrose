@@ -19,7 +19,7 @@
     "typecheck": ":",
     "storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192 --openssl-legacy-provider' storybook dev -p 6006",
     "build-storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192 --openssl-legacy-provider' storybook build",
-    "build-parsers": "lezer-generator src/editing/parser/style/style.grammar -o src/editing/parser/style/style.js && lezer-generator src/editing/parser/domain/domain.grammar -o src/editing/parser/domain/domain.js && lezer-generator src/editing/parser/substance/substance.grammar -o src/editing/parser/substance/substance.js"
+    "build-parsers": "lezer-generator src/editing/parser/style/style.grammar -o src/editing/parser/style/style.js && lezer-generator src/editing/parser/substance/substance.grammar -o src/editing/parser/substance/substance.js"
   },
   "nx": {
     "targets": {

@@ -34,6 +34,7 @@
     "src/__testfixtures__/transformtest.input.ts",
     "src/__testfixtures__/transformtest.output.ts",
     "src/parser/DomainParser.ts",
+    "src/parser/DomainParser.terms.ts",
     "src/parser/StyleParser.ts",
     "src/parser/SubstanceParser.ts"
   ]
