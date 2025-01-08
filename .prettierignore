@@ -18,6 +18,7 @@
 /packages/docs-site/.vitepress/cache/
 /packages/docs-site/build/
 /packages/docs-site/public/bloom-docs/
+/packages/docs-set/public/bloom.min.js
 /packages/docs-site/public/try/
 /packages/docs-site/src/shapedefs.json
 /packages/examples/src/registry.ts
