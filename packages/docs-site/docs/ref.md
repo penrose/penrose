@@ -35,7 +35,7 @@ The beauty of Penrose is you get to "stand atop giants" by using the existing St
 
 The language reference pages define the syntax and introduce language features for Domain, Substance, and Style:
 
-- [Domain language reference](/docs/ref/domain/usage)
-- [Substance language reference](/docs/ref/substance/usage)
-- [Style language reference](/docs/ref/style/usage)
+- [Domain language reference](/docs/ref/domain/overview)
+- [Substance language reference](/docs/ref/substance/overview)
+- [Style language reference](/docs/ref/style/overview)
   - For documentation on our library of constraints, objectives and functions, refer to the [Function Library](/docs/ref/style/functions) page.
