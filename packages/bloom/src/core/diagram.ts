@@ -188,94 +188,125 @@ export class Diagram {
     }
   };
 
+  private initialRender = async (): Promise<{
+    svg: SVGElement;
+    nameElemMap: Map<string, SVGElement>;
+    draggingRef: { dragging: boolean };
+  }> => {
+    const { svg, nameElemMap } = await this.render();
+    const draggingRef = { dragging: false };
+    for (const [name, elem] of nameElemMap) {
+      elem.setAttribute("pointer-events", "painted");
+      if (this.draggingConstraints.has(name)) {
+        // get rid of tooltip
+        elem.insertBefore(
+          document.createElementNS("http://www.w3.org/2000/svg", "title"),
+          elem.firstChild,
+        );
+        let lastDx = 0;
+        let lastDy = 0;
+        const translateFn = makeTranslateOnMouseDown(
+          svg,
+          elem,
+          this.getCanvas(),
+          name,
+          async (path, dx, dy) => {
+            this.translate(path, dx - lastDx, dy - lastDy);
+            lastDx = dx;
+            lastDy = dy;
+          },
+          ([x, y]) => this.draggingConstraints.get(name)!([x, y], this),
+          undefined,
+          () => {
+            this.endDrag(name);
+            draggingRef.dragging = false;
+            lastDx = 0;
+            lastDy = 0;
+          },
+        );
+        elem.addEventListener("pointerdown", (e) => {
+          this.beginDrag(name);
+          draggingRef.dragging = true;
+          translateFn(e);
+        });
+      }
+      if (this.eventListeners.has(name)) {
+        const listeners = this.eventListeners.get(name)!;
+        for (const [event, listener] of listeners) {
+          elem.addEventListener(event, (e: any) => listener(e, this));
+        }
+      }
+    }
+    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+    svg.setAttribute("pointer-events", "none");
+    svg.style.width = "100%";
+    svg.style.height = "100%";
+
+    return { svg, nameElemMap, draggingRef };
+  };
+
+  private copyAttrs = (src: Element, dest: Element) => {
+    for (let i = 0; i < src.children.length; i++) {
+      this.copyAttrs(src.children[i], dest.children[i]);
+    }
+
+    for (let i = 0; i < src.attributes.length; i++) {
+      const attr = src.attributes[i];
+      dest.setAttribute(attr.name, attr.value);
+    }
+  };
+
   /**
    * Returns an HTMLElement presenting an interactive diagram. This element should
    * be appended added to an existing document node to be visible. The element is
    * styled by default with "width: 100%; height: 100%l touch-action: none".
    */
   getInteractiveElement = () => {
-    let dragging = false;
     const parentElement = document.createElement("div");
     parentElement.style.height = "100%";
     parentElement.style.width = "100%";
     parentElement.style.touchAction = "none";
+
+    let svg: SVGElement | null = null;
+    let nameElemMap: Map<string, SVGElement> | null = null;
+    let draggingRef: { dragging: boolean } | null = null;
 
     const optimizationLoop = async () => {
       return await this.optimizationStep();
     };
 
     const renderLoop = async () => {
-      const { svg, nameElemMap } = await this.render();
-      svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-      svg.setAttribute("pointer-events", "none");
-      svg.style.width = "100%";
-      svg.style.height = "100%";
-      for (const [name, elem] of nameElemMap) {
-        elem.setAttribute("pointer-events", "painted");
-        if (this.draggingConstraints.has(name)) {
-          // get rid of tooltip
-          elem.insertBefore(
-            document.createElementNS("http://www.w3.org/2000/svg", "title"),
-            elem.firstChild,
-          );
-          elem.setAttribute("cursor", dragging ? "grabbing" : "grab");
-          const translateFn = makeTranslateOnMouseDown(
-            svg,
-            elem,
-            this.getCanvas(),
-            name,
-            (() => {
-              let lastDx = 0;
-              let lastDy = 0;
-              return async (path, dx, dy) => {
-                this.translate(path, dx - lastDx, dy - lastDy);
-                lastDx = dx;
-                lastDy = dy;
-              };
-            })(),
-            ([x, y]) => this.draggingConstraints.get(name)!([x, y], this),
-            undefined,
-            () => {
-              this.endDrag(name);
-              dragging = false;
-            },
-          );
-          elem.addEventListener("pointerdown", (e) => {
-            this.beginDrag(name);
-            dragging = true;
-            translateFn(e);
-          });
-        }
-        if (this.eventListeners.has(name)) {
-          const listeners = this.eventListeners.get(name)!;
-          for (const [event, listener] of listeners) {
-            elem.addEventListener(event, (e: any) => {
-              // If the event is fired simply because the element was replaced,
-              // ignore it
-              if ("relatedTarget" in e && "target" in e) {
-                const relatedTitle = Array.from(
-                  e.target?.getElementsByTagName?.("title"),
-                ).at(-1) as SVGTitleElement;
-                const targetTitle = Array.from(
-                  e.relatedTarget?.getElementsByTagName?.("title"),
-                ).at(-1) as SVGTitleElement;
-                if (
-                  relatedTitle &&
-                  targetTitle &&
-                  relatedTitle.textContent === targetTitle.textContent
-                ) {
-                  return;
-                }
-              }
-              listener(e, this);
-            });
+      if (svg === null || nameElemMap === null || draggingRef === null) {
+        const {
+          svg: newSvg,
+          nameElemMap: newNameElemMap,
+          draggingRef: newDraggingRef,
+        } = await this.initialRender();
+
+        svg = newSvg;
+        nameElemMap = newNameElemMap;
+        draggingRef = newDraggingRef;
+
+        parentElement.appendChild(svg);
+      } else {
+        const { nameElemMap: newNameElemMap } = await this.render();
+
+        for (const [name, elem] of newNameElemMap) {
+          const oldElem = nameElemMap.get(name);
+          if (oldElem) {
+            this.copyAttrs(elem, oldElem);
+            if (this.draggingConstraints.has(name)) {
+              oldElem.setAttribute(
+                "cursor",
+                draggingRef.dragging ? "grabbing" : "grab",
+              );
+            }
+          } else {
+            throw new Error(`Shape ${name} not found in old element map`);
           }
         }
       }
-      if (parentElement.lastChild) {
-        parentElement.removeChild(parentElement.lastChild);
-      }
-      parentElement.appendChild(svg);
+
       return this.optimizationLooper.isRunning();
     };
 
