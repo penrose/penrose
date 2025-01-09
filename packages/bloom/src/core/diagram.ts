@@ -295,10 +295,12 @@ export class Diagram {
           const oldElem = nameElemMap.get(name);
           if (oldElem) {
             this.copyAttrs(elem, oldElem);
-            oldElem.setAttribute(
-              "cursor",
-              draggingRef.dragging ? "grabbing" : "grab",
-            );
+            if (this.draggingConstraints.has(name)) {
+              oldElem.setAttribute(
+                "cursor",
+                draggingRef.dragging ? "grabbing" : "grab",
+              );
+            }
           } else {
             throw new Error(`Shape ${name} not found in old element map`);
           }
