@@ -727,6 +727,18 @@ export class DiagramBuilder {
     inner.push([event, listener]);
   };
 
+  removeEventListener = (
+    shape: Shape,
+    event: string,
+    listener: (e: any, diagram: Diagram) => void,
+  ) => {
+    if (!this.eventListeners.has(shape.name)) return;
+    const inner = this.eventListeners.get(shape.name)!;
+    const idx = inner.findIndex(([e, l]) => e === event && l === listener);
+    if (idx === -1) return;
+    inner.splice(idx, 1);
+  }
+
   private addOnCanvasConstraints = () => {
     for (const shape of this.shapes) {
       if (shape.ensureOnCanvas) {
