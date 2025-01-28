@@ -766,7 +766,7 @@ const emitUnary = (
     case "expm1":
       return builtins.expm1(x);
     case "floor":
-      return rose.ceil(x);
+      return rose.floor(x);
     case "log":
       return builtins.log(x);
     case "log2":
