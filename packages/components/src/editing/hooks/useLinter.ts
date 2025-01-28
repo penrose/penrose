@@ -81,7 +81,9 @@ export const createLinter = (
         const errMarkers = errPairs
           .filter(({ loc }) => loc.type.toLowerCase() === languageType)
           .map(({ loc, err }) => ({
+            // @ts-expect-error refactoring
             from: getPos(loc.range.start.line, loc.range.start.col, text),
+            // @ts-expect-error refactoring
             to: getPos(loc.range.end.line, loc.range.end.col, text),
             message: showError(err),
             renderMessage: renderMarker(showError(err), languageType, false),
@@ -91,7 +93,9 @@ export const createLinter = (
         const warningMarkers = warningPairs
           .filter(({ loc }) => loc.type.toLowerCase() === languageType)
           .map(({ loc, err: warn }) => ({
+            // @ts-expect-error refactoring
             from: getPos(loc.range.start.line, loc.range.start.col, text),
+            // @ts-expect-error refactoring
             to: getPos(loc.range.end.line, loc.range.end.col, text),
             message: showError(warn),
             severity: "warning",

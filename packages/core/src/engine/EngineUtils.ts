@@ -537,7 +537,7 @@ export const compileCompGraph = async (
 //#region translation operations
 
 export const dummySourceLoc = (): SourceLoc => {
-  return { line: -1, col: -1 };
+  return -1;
 };
 
 export const isConcrete = (node: ASTNode<A>): node is ConcreteNode =>

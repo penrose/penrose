@@ -1170,7 +1170,9 @@ export const genericStyleError = (messages: StyleError[]): PenroseError => ({
 
 /* name stands for "`loc` concrete" */
 const locc = (nodeType: NodeType, node: SourceRange): string => {
+  // @ts-expect-error refactoring
   return `line ${node.start.line}, column ${
+    // @ts-expect-error refactoring
     node.start.col + 1
   } of ${nodeType} program`;
 };

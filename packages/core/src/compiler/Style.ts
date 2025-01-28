@@ -1876,20 +1876,20 @@ const makeFakeIntPathAssign = (name: string, value: number): PathAssign<C> => {
     nodeType: "Style",
     type: undefined,
     path: {
-      start: { line: 0, col: 0 },
-      end: { line: 0, col: 0 },
+      start: -1,
+      end: -1,
       tag: "Path",
       nodeType: "Style",
       members: [],
       indices: [],
       name: {
-        start: { line: 0, col: 0 },
-        end: { line: 0, col: 0 },
+        start: -1,
+        end: -1,
         tag: "StyVar",
         nodeType: "Style",
         contents: {
-          start: { line: 0, col: 0 },
-          end: { line: 0, col: 0 },
+          start: -1,
+          end: -1,
           tag: "Identifier",
           nodeType: "Style",
           type: "value",
@@ -1898,14 +1898,14 @@ const makeFakeIntPathAssign = (name: string, value: number): PathAssign<C> => {
       },
     },
     value: {
-      start: { line: 0, col: 0 },
-      end: { line: 0, col: 0 },
+      start: -1,
+      end: -1,
       tag: "Fix",
       nodeType: "Style",
       contents: value,
     },
-    start: { line: 0, col: 0 },
-    end: { line: 0, col: 0 },
+    start: -1,
+    end: -1,
   };
 };
 
@@ -1987,8 +1987,8 @@ export const buildAssignment = (
   // insert Substance label string; use dummy AST node location pattern from
   // `engine/ParserUtil`
   const range: SourceRange = {
-    start: { line: 1, col: 1 },
-    end: { line: 1, col: 1 },
+    start: 0,
+    end: 0,
   };
   const assignment: Assignment = {
     diagnostics: { errors: im.List(), warnings: im.List() },

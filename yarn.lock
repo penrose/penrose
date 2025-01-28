@@ -4452,7 +4452,7 @@
 
 "@replit/codemirror-css-color-picker@^6.1.1":
   version "6.1.1"
-  resolved "https://registry.npmjs.org/@replit/codemirror-css-color-picker/-/codemirror-css-color-picker-6.1.1.tgz"
+  resolved "https://registry.yarnpkg.com/@replit/codemirror-css-color-picker/-/codemirror-css-color-picker-6.1.1.tgz#9b68652d7ff56e3cc491fd7e26584d1f08e5b659"
   integrity sha512-e/wYHcgt3HRDpvYuwqXyjv3LEY6VyFjJeDQK1UtFmaykp86R6Cbw3ULH9pvuJuelaW6nS4CVtIRHuOfbFLlqwQ==
 
 "@replit/codemirror-vim@^6.2.1":
@@ -6105,9 +6105,9 @@
     "@codemirror/view" "^6.0.0"
 
 "@uiw/codemirror-extensions-color@^4.22.2":
-  version "4.22.2"
-  resolved "https://registry.npmjs.org/@uiw/codemirror-extensions-color/-/codemirror-extensions-color-4.22.2.tgz"
-  integrity sha512-WA9fpRCMPWv3brsobg8ck9VlU6jevrcLHAlSfVWjoi3Dmxwo3W50IH5t34NP1Q7DjXQtx7tDEEY/mG99SyGTrQ==
+  version "4.23.6"
+  resolved "https://registry.yarnpkg.com/@uiw/codemirror-extensions-color/-/codemirror-extensions-color-4.23.6.tgz#6e092375f72b0db35c42de96a45a89afcbfc051f"
+  integrity sha512-lsreSTSyqemtKCJeIK/kIyLcoZwebUhKbdymJ7VkmWdHxKkHiykWYAo2lKgDtgHmFBwglQnXb/kAatQ6/uezog==
   dependencies:
     colors-named "^1.0.0"
     colors-named-hex "^1.0.0"

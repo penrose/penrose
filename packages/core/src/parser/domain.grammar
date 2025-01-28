@@ -1,5 +1,7 @@
 @top Program { (declaration semi)* }
 
+semi { ";" | insertSemi }
+
 declaration {
     TypeDecl |
     Predicate |
@@ -84,6 +86,5 @@ blockCommentNewline { "\n" }
 
 @detectDelim
 // https://lezer.codemirror.net/examples/javascript/
-@external tokens insertSemicolon from "./domainTokens.js" { insertSemi }
-@context trackNewline from "./domainTokens.js"
-semi { ";" | insertSemi }
+@external tokens insertSemicolon from "./DomainTokens.js" { insertSemi }
+@context trackNewline from "./DomainTokens.js"

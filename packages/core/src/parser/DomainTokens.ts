@@ -5,7 +5,7 @@ import {
   insertSemi,
   newline,
   spaces,
-} from "./domain.terms.js";
+} from "./DomainParser.terms.js";
 
 export const trackNewline = new ContextTracker({
   start: false,
@@ -24,5 +24,5 @@ export const insertSemicolon = new ExternalTokenizer(
       input.acceptToken(insertSemi);
     }
   },
-  { contextual: false, fallback: true },
+  { contextual: true, fallback: true },
 );
