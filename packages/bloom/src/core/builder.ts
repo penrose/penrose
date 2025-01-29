@@ -234,7 +234,6 @@ export class DiagramBuilder {
   private nextId = 0;
   private partialLayering: [string, string][] = [];
   private pinnedInputs: Set<number> = new Set();
-  private dragNamesAndConstrs: Map<string, DragConstraint> = new Map();
   private externalInputs: Set<SharedInput> = new Set();
   private lassoStrength: number;
   private interactiveOnlyShapes: Set<Shape> = new Set();
@@ -642,11 +641,21 @@ export class DiagramBuilder {
    * Build the diagram.
    */
   build = async (): Promise<Diagram> => {
-    this.addDragConstraints();
-    this.addOnCanvasConstraints();
+    const dragNamesAndConstrs = this.getDragConstraints();
+    const onCanvasConstraints = this.getOnCanvasConstraints();
+
+    const inputs =
+      this.lassoStrength !== 0
+        ? [...this.inputs, ...this.makeLassoInputs()]
+        : [...this.inputs];
+    const pinnedInputs = new Set(this.pinnedInputs);
+    const constraints = [...this.constraints, ...onCanvasConstraints];
+    const objectives = [...this.objectives];
 
     if (this.lassoStrength !== 0) {
-      this.makeLassoInputs();
+      for (let i = 0; i < this.inputs.length; i++) {
+        pinnedInputs.add(i + this.inputs.length);
+      }
     }
 
     const nameShapeMap = this.getNameShapeMap();
@@ -676,14 +685,14 @@ export class DiagramBuilder {
     const diagram = await Diagram.create({
       canvas: this.canvas,
       variation: this.variation,
-      inputs: this.inputs,
-      constraints: this.constraints,
-      objectives: this.objectives,
+      inputs,
+      constraints,
+      objectives,
       shapes: orderedShapes,
       nameShapeMap,
       namedInputs: this.namedInputs,
       pinnedInputs: this.pinnedInputs,
-      draggingConstraints: this.dragNamesAndConstrs,
+      draggingConstraints: dragNamesAndConstrs,
       inputIdxsByPath: this.getTranslatedInputIdxsByPath(),
       lassoStrength: this.lassoStrength,
       sharedInputs: this.externalInputs,
@@ -737,38 +746,43 @@ export class DiagramBuilder {
     const idx = inner.findIndex(([e, l]) => e === event && l === listener);
     if (idx === -1) return;
     inner.splice(idx, 1);
-  }
+  };
 
-  private addOnCanvasConstraints = () => {
+  private getOnCanvasConstraints = () => {
+    const onCanvasConstraints: Num[] = [];
     for (const shape of this.shapes) {
       if (shape.ensureOnCanvas) {
-        this.ensure(
+        onCanvasConstraints.push(
           constraints.onCanvas(shape, this.canvas.width, this.canvas.height),
         );
       }
     }
+    return onCanvasConstraints;
   };
 
-  private addDragConstraints = () => {
-    const addDragConstraint = (shape: Drag & Shape) => {
+  private getDragConstraints = () => {
+    const getDragConstraint = (shape: Drag & Shape): DragConstraint => {
       if (shape.dragConstraint) {
-        this.dragNamesAndConstrs.set(shape.name, shape.dragConstraint);
+        return shape.dragConstraint;
       } else {
-        this.dragNamesAndConstrs.set(shape.name, ([x, y]) => [x, y]);
+        return ([x, y]) => [x, y];
       }
     };
 
+    const dragConstraints = new Map<string, DragConstraint>();
     for (const shape of this.shapes) {
       if (shape.shapeType === ShapeType.Group) {
         for (const s of (shape as Group).shapes) {
           if ("drag" in s && s.drag) {
-            addDragConstraint(s);
+            dragConstraints.set(s.name, getDragConstraint(s));
           }
         }
       } else if ("drag" in shape && shape.drag) {
-        addDragConstraint(shape);
+        dragConstraints.set(shape.name, getDragConstraint(shape));
       }
     }
+
+    return dragConstraints;
   };
 
   private getTranslatedInputIdxsByPath = () => {
@@ -845,9 +859,19 @@ export class DiagramBuilder {
     return nameShapeMap;
   };
 
-  private makeLassoInputs = () => {
-    this.inputs.map((i) =>
-      this.input({ init: i.handle.val, optimized: false }),
-    );
+  private makeLassoInputs = (): InputInfo[] => {
+    return this.inputs.map((i) => ({
+      handle: {
+        tag: "Var",
+        val: i.handle.val,
+      },
+      meta: {
+        init: {
+          tag: "Sampled",
+          sampler: () => 0,
+        },
+        stages: "All",
+      },
+    }));
   };
 }
