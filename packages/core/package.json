@@ -22,7 +22,7 @@
     "!dist/**/*.test.d.ts"
   ],
   "scripts": {
-    "build-parsers": "nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts && lezer-generator --typeScript src/parser/domain.grammar -o src/parser/DomainParser.ts",
+    "build-parsers": "lezer-generator --typeScript src/parser/substance.grammar -o src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts && lezer-generator --typeScript src/parser/domain.grammar -o src/parser/DomainParser.ts",
     "build": "tsc",
     "bundle": "vite build",
     "watch": "yarn build --watch",
@@ -106,7 +106,7 @@
     "recursive-diff": "^1.0.8",
     "rose": "^0.4.9",
     "seedrandom": "^3.0.5",
-    "true-myth": "^4.1.0"
+    "true-myth": "^8.5.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.149",

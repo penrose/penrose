@@ -16,12 +16,12 @@ import trio from "./trio.js";
 
 const compiled = await compile(trio);
 // handle compilation errors
-if (compiled.isErr()) {
+if (compiled.isErr) {
   throw new Error(showError(compiled.error));
 }
 const converged = optimize(compiled.value);
 // handle optimization errors
-if (converged.isErr()) {
+if (converged.isErr) {
   throw new Error(showError(converged.error));
 }
 // render the diagram state as an SVG
@@ -197,7 +197,7 @@ import { compile, isOptimized, showError } from "@penrose/core";
 
 const example = async (trio) => {
   const compiled = await compile(trio);
-  if (compiled.isErr()) throw Error(showError(compiled.error));
+  if (compiled.isErr) throw Error(showError(compiled.error));
   console.log(isOptimized(compiled.value)); // false
   const optimized = optimize(trio);
   console.log(isOptimized(optimized.value)); // true
@@ -222,7 +222,7 @@ const compiled = await compile({
   variation: "super varied",
 });
 
-if (compiled.isErr()) {
+if (compiled.isErr) {
   // spoiler alert: it is indeed Err
   console.error(compiled.error);
 }

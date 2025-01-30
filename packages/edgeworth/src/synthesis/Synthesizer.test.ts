@@ -54,7 +54,7 @@ const initSynth = (
 ): Synthesizer => {
   let subEnv;
   const subRes = compileSubstance(substance, domEnv);
-  if (subRes.isOk()) {
+  if (subRes.isOk) {
     subEnv = subRes.value;
   }
   const synth = new Synthesizer(

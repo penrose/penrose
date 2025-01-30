@@ -46,10 +46,10 @@ const getSubRes = (
   substanceSrc: string,
 ): [SubstanceEnv, DomainEnv] => {
   const envOrError = compileDomain(domainSrc);
-  if (envOrError.isOk()) {
+  if (envOrError.isOk) {
     const domEnv = envOrError.value;
     const subRes = compileSubstance(substanceSrc, domEnv);
-    if (subRes.isOk()) {
+    if (subRes.isOk) {
       const subEnv = subRes.value;
       return [subEnv, domEnv];
     } else {

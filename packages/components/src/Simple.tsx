@@ -47,7 +47,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
     this.penroseState = undefined;
     this.setState({ error: undefined });
     const compilerResult = await compile(this.props);
-    if (compilerResult.isOk()) {
+    if (compilerResult.isOk) {
       this.penroseState = compilerResult.value;
       this.setState({ error: undefined }); // clear out errors
     } else {
@@ -58,7 +58,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
   converge = async (): Promise<void> => {
     if (this.penroseState) {
       const stepped = optimize(this.penroseState);
-      if (stepped.isOk()) {
+      if (stepped.isOk) {
         this.penroseState = stepped.value;
       } else {
         this.setState({ error: stepped.error });
@@ -73,7 +73,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       !isOptimized(this.penroseState)
     ) {
       const state = stepTimes(this.penroseState, this.props.stepSize ?? 1);
-      if (state.isErr()) {
+      if (state.isErr) {
         this.setState({ error: state.error });
       } else {
         this.penroseState = state.value;

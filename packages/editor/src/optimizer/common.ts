@@ -588,7 +588,7 @@ export const collectAndSeparateLabels = async (
 > => {
   const convert = mathjaxInit();
   const labelCache = await collectLabels(shapes, convert);
-  if (labelCache.isErr()) {
+  if (labelCache.isErr) {
     return Result.err(labelCache.error);
   }
 

@@ -158,7 +158,7 @@ export class Diagram {
       const steppedState = step(this.state, {
         until: (): boolean => i++ >= 1,
       });
-      if (steppedState.isErr()) {
+      if (steppedState.isErr) {
         throw steppedState.error;
       } else {
         // if we successfully took an optimization step
@@ -553,7 +553,7 @@ export class Diagram {
     const labelCache = await collectLabels(shapes, convert);
     mathjax.handlers.unregister(handler);
 
-    if (labelCache.isErr()) {
+    if (labelCache.isErr) {
       throw labelCache.error;
     }
 

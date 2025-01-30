@@ -68,10 +68,10 @@ export const checkNamed = (
   trans: Translation,
 ): Result<Named<ad.Num>, StyleError> => {
   const name = checkProp(path, "name", trans, checkStrV);
-  if (name.isErr()) return err(name.error);
+  if (name.isErr) return err(name.error);
 
   const ensureOnCanvas = checkProp(path, "ensureOnCanvas", trans, checkBoolV);
-  if (ensureOnCanvas.isErr()) return err(ensureOnCanvas.error);
+  if (ensureOnCanvas.isErr) return err(ensureOnCanvas.error);
 
   return ok({
     name: name.value,
@@ -84,16 +84,16 @@ export const checkStroke = (
   trans: Translation,
 ): Result<Stroke<ad.Num>, StyleError> => {
   const strokeWidth = checkProp(path, "strokeWidth", trans, checkFloatV);
-  if (strokeWidth.isErr()) return err(strokeWidth.error);
+  if (strokeWidth.isErr) return err(strokeWidth.error);
 
   const strokeStyle = checkProp(path, "strokeStyle", trans, checkStrV);
-  if (strokeStyle.isErr()) return err(strokeStyle.error);
+  if (strokeStyle.isErr) return err(strokeStyle.error);
 
   const strokeColor = checkProp(path, "strokeColor", trans, checkColorV);
-  if (strokeColor.isErr()) return err(strokeColor.error);
+  if (strokeColor.isErr) return err(strokeColor.error);
 
   const strokeDasharray = checkProp(path, "strokeDasharray", trans, checkStrV);
-  if (strokeDasharray.isErr()) return err(strokeDasharray.error);
+  if (strokeDasharray.isErr) return err(strokeDasharray.error);
 
   return ok({
     strokeWidth: strokeWidth.value,
@@ -108,7 +108,7 @@ export const checkFill = (
   trans: Translation,
 ): Result<Fill<ad.Num>, StyleError> => {
   const fillColor = checkProp(path, "fillColor", trans, checkColorV);
-  if (fillColor.isErr()) return err(fillColor.error);
+  if (fillColor.isErr) return err(fillColor.error);
 
   return ok({ fillColor: fillColor.value });
 };
@@ -118,7 +118,7 @@ export const checkCenter = (
   trans: Translation,
 ): Result<Center<ad.Num>, StyleError> => {
   const center = checkProp(path, "center", trans, checkVectorV);
-  if (center.isErr()) return err(center.error);
+  if (center.isErr) return err(center.error);
 
   return ok({ center: center.value });
 };
@@ -128,10 +128,10 @@ export const checkRect = (
   trans: Translation,
 ): Result<Rect<ad.Num>, StyleError> => {
   const width = checkProp(path, "width", trans, checkFloatV);
-  if (width.isErr()) return err(width.error);
+  if (width.isErr) return err(width.error);
 
   const height = checkProp(path, "height", trans, checkFloatV);
-  if (height.isErr()) return err(height.error);
+  if (height.isErr) return err(height.error);
 
   return ok({ width: width.value, height: height.value });
 };
@@ -146,7 +146,7 @@ export const checkArrow = (
     trans,
     checkFloatV,
   );
-  if (startArrowheadSize.isErr()) return err(startArrowheadSize.error);
+  if (startArrowheadSize.isErr) return err(startArrowheadSize.error);
 
   const endArrowheadSize = checkProp(
     path,
@@ -154,13 +154,13 @@ export const checkArrow = (
     trans,
     checkFloatV,
   );
-  if (endArrowheadSize.isErr()) return err(endArrowheadSize.error);
+  if (endArrowheadSize.isErr) return err(endArrowheadSize.error);
 
   const startArrowhead = checkProp(path, "startArrowhead", trans, checkStrV);
-  if (startArrowhead.isErr()) return err(startArrowhead.error);
+  if (startArrowhead.isErr) return err(startArrowhead.error);
 
   const endArrowhead = checkProp(path, "endArrowhead", trans, checkStrV);
-  if (endArrowhead.isErr()) return err(endArrowhead.error);
+  if (endArrowhead.isErr) return err(endArrowhead.error);
 
   const flipStartArrowhead = checkProp(
     path,
@@ -168,7 +168,7 @@ export const checkArrow = (
     trans,
     checkBoolV,
   );
-  if (flipStartArrowhead.isErr()) return err(flipStartArrowhead.error);
+  if (flipStartArrowhead.isErr) return err(flipStartArrowhead.error);
 
   return ok({
     startArrowheadSize: startArrowheadSize.value,
@@ -184,7 +184,7 @@ export const checkCorner = (
   trans: Translation,
 ): Result<Corner<ad.Num>, StyleError> => {
   const cornerRadius = checkProp(path, "cornerRadius", trans, checkFloatV);
-  if (cornerRadius.isErr()) return err(cornerRadius.error);
+  if (cornerRadius.isErr) return err(cornerRadius.error);
 
   return ok({ cornerRadius: cornerRadius.value });
 };
@@ -194,7 +194,7 @@ export const checkRotate = (
   trans: Translation,
 ): Result<Rotate<ad.Num>, StyleError> => {
   const rotation = checkProp(path, "rotation", trans, checkFloatV);
-  if (rotation.isErr()) return err(rotation.error);
+  if (rotation.isErr) return err(rotation.error);
 
   return ok({ rotation: rotation.value });
 };
@@ -204,7 +204,7 @@ export const checkScale = (
   trans: Translation,
 ): Result<Scale<ad.Num>, StyleError> => {
   const scale = checkProp(path, "scale", trans, checkFloatV);
-  if (scale.isErr()) return err(scale.error);
+  if (scale.isErr) return err(scale.error);
 
   return ok({ scale: scale.value });
 };
@@ -214,7 +214,7 @@ export const checkPoly = (
   trans: Translation,
 ): Result<Poly<ad.Num>, StyleError> => {
   const points = checkProp(path, "points", trans, checkPtListV);
-  if (points.isErr()) return err(points.error);
+  if (points.isErr) return err(points.error);
 
   return ok({ points: points.value });
 };
@@ -224,10 +224,10 @@ export const checkString = (
   trans: Translation,
 ): Result<StringProps<ad.Num>, StyleError> => {
   const string = checkProp(path, "string", trans, checkStrV);
-  if (string.isErr()) return err(string.error);
+  if (string.isErr) return err(string.error);
 
   const fontSize = checkProp(path, "fontSize", trans, checkStrV);
-  if (fontSize.isErr()) return err(fontSize.error);
+  if (fontSize.isErr) return err(fontSize.error);
 
   return ok({
     string: string.value,

@@ -120,7 +120,7 @@ const tex2svg = async (
 
     // Render the label
     const output = convert(contents);
-    if (output.isErr()) {
+    if (output.isErr) {
       resolve(err(`MathJax could not render $${contents}$: ${output.error}`));
       return;
     }
@@ -251,7 +251,7 @@ export const collectLabels = async (
       const shapeName = getAdValueAsString(s.name);
       const svg = await tex2svg(s, convert);
 
-      if (svg.isErr()) {
+      if (svg.isErr) {
         return err({
           errorType: "SubstanceError",
           tag: "Fatal",
@@ -295,7 +295,7 @@ export const collectLabels = async (
     } else if (s.shapeType === "Group") {
       const subShapes = getValueAsShapeList(s.shapes);
       const subLabels = await collectLabels(subShapes, convert);
-      if (subLabels.isErr()) {
+      if (subLabels.isErr) {
         return subLabels;
       }
       for (const [key, value] of subLabels.value.entries()) {

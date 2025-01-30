@@ -27,7 +27,7 @@ describe("Common", () => {
       x.shape = Circle {
   }
     `;
-    expect(parseStyle(prog).isErr()).toEqual(true);
+    expect(parseStyle(prog).isErr).toEqual(true);
   });
   test("type keyword check", () => {
     const prog = `
@@ -202,14 +202,14 @@ where C := intersect ( A, B ) ;\
   test("cannot set as clauses for decls", () => {
     const prog = `forall Set A, B; Map f as Const -- should fail because decls can't be aliased
 `;
-    expect(parseStyle(prog).isErr()).toEqual(true);
+    expect(parseStyle(prog).isErr).toEqual(true);
   });
   test("cannot set as clauses for bindings", () => {
     const prog = `
     forall Set x; Set y where y := Baz(x) as foo {}
     `;
     const parsed = parseStyle(prog);
-    if (parsed.isErr()) {
+    if (parsed.isErr) {
       expect(parsed.error.message)
         .toEqual(`Error: Syntax error at line 2 col 43:
 
@@ -232,7 +232,7 @@ Unexpected as token: "as". Instead, I was expecting to see one of the following:
   test("cannot set subVars as aliases", () => {
     const prog = "forall Set x; Set y where Subset(x,y) as `A` {}";
     const parsed = parseStyle(prog);
-    if (parsed.isErr()) {
+    if (parsed.isErr) {
       expect(parsed.error.message)
         .toEqual(`Error: Syntax error at line 1 col 42:
 

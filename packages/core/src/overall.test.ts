@@ -94,14 +94,14 @@ describe("Determinism", () => {
       variation,
       excludeWarnings: [],
     });
-    if (resCompile.isErr()) {
+    if (resCompile.isErr) {
       throw Error(showError(resCompile.error));
     }
     const stateSample1NotOpt = resCompile.value;
     const svgSample1NotOpt = await render(stateSample1NotOpt);
 
     const resSample1Opt = optimize(stateSample1NotOpt);
-    if (resSample1Opt.isErr()) {
+    if (resSample1Opt.isErr) {
       throw Error(showError(resSample1Opt.error));
     }
     const stateSample1Opt = resSample1Opt.value;
@@ -111,7 +111,7 @@ describe("Determinism", () => {
     const svgSample2NotOpt = await render(stateSample2NotOpt);
 
     const resSample2Opt = optimize(stateSample2NotOpt);
-    if (resSample2Opt.isErr()) {
+    if (resSample2Opt.isErr) {
       throw Error(showError(resSample2Opt.error));
     }
     const stateSample2Opt = resSample2Opt.value;
@@ -121,7 +121,7 @@ describe("Determinism", () => {
     const svgSample3NotOpt = await render(stateSample3NotOpt);
 
     const resSample3Opt = optimize(stateSample3NotOpt);
-    if (resSample3Opt.isErr()) {
+    if (resSample3Opt.isErr) {
       throw Error(showError(resSample3Opt.error));
     }
     const stateSample3Opt = resSample3Opt.value;
@@ -149,7 +149,7 @@ describe("Determinism", () => {
       variation,
       excludeWarnings: [],
     });
-    if (resCompile.isErr()) {
+    if (resCompile.isErr) {
       throw Error(showError(resCompile.error));
     }
 
@@ -157,7 +157,7 @@ describe("Determinism", () => {
     const svg1NotOpt = await render(state1NotOpt);
 
     const resOptimize1 = optimize(state1NotOpt);
-    if (resOptimize1.isErr()) {
+    if (resOptimize1.isErr) {
       throw Error(showError(resOptimize1.error));
     }
     const state1Opt = resOptimize1.value;
@@ -169,7 +169,7 @@ describe("Determinism", () => {
     const svg2NotOpt = await render(state2NotOpt);
 
     const resOptimize2 = optimize(state2NotOpt);
-    if (resOptimize2.isErr()) {
+    if (resOptimize2.isErr) {
       throw Error(showError(resOptimize2.error));
     }
     const state2Opt = resOptimize2.value;
@@ -191,10 +191,10 @@ describe("Energy API", () => {
       variation: "energy overall",
       excludeWarnings: [],
     });
-    if (res.isOk()) {
+    if (res.isOk) {
       const stateEvaled = res.value;
       const stateOpt = optimize(stateEvaled);
-      if (stateOpt.isErr()) {
+      if (stateOpt.isErr) {
         throw Error("optimization failed");
       }
       const stateOptimized = stateOpt.value;
@@ -215,7 +215,7 @@ describe("Energy API", () => {
       variation: "energy filtered",
       excludeWarnings: [],
     });
-    if (res.isOk()) {
+    if (res.isOk) {
       // NOTE: delibrately not cache the overall objective and re-generate for original and filtered states
       const state = res.value;
       const smallerThanFns = state.constrFns.filter((c) => {
@@ -260,10 +260,10 @@ describe("Run individual functions", () => {
       excludeWarnings: [],
     });
 
-    if (res.isOk()) {
+    if (res.isOk) {
       const stateEvaled = res.value;
       const stateOpt = optimize(stateEvaled);
-      if (stateOpt.isErr()) {
+      if (stateOpt.isErr) {
         throw Error("optimization failed");
       }
       const stateOptimizedValue = stateOpt.value;

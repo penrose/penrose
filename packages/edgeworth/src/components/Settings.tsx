@@ -146,7 +146,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
 
     const result = compileDomain(domain);
     let env;
-    if (result.isOk()) {
+    if (result.isOk) {
       env = {
         types: {
           tag: "Type",
@@ -186,7 +186,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   // at any point in time, instead, we should display a helpful error message.
   updateDomainEnv = (newDomain: string) => {
     const result = compileDomain(newDomain);
-    if (result.isOk()) {
+    if (result.isOk) {
       console.log("compiling domain");
       this.setState({
         domainEnv: {

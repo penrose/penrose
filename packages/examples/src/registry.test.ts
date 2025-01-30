@@ -51,7 +51,7 @@ const renderTrio = async (
     variation,
     excludeWarnings: [],
   });
-  if (compilerOutput.isErr()) {
+  if (compilerOutput.isErr) {
     const err = compilerOutput.error;
     throw new Error(`Compilation failed:\n${showError(err)}`);
   }
@@ -60,7 +60,7 @@ const renderTrio = async (
   const optimizing = process.hrtime.bigint();
 
   const optimizedOutput = optimize(initialState);
-  if (optimizedOutput.isErr()) {
+  if (optimizedOutput.isErr) {
     const err = optimizedOutput.error;
     throw new Error(`Optimization failed:\n${showError(err)}`);
   }

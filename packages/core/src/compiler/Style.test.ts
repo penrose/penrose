@@ -250,7 +250,7 @@ describe("Staged constraints", () => {
       layout = [ShapeLayout, LabelLayout, Overall]
       `,
     });
-    expect(S.getLayoutStages(ex2).unsafelyUnwrap()).toEqual([
+    expect(S.getLayoutStages(ex2).unwrapOr(undefined)).toEqual([
       "ShapeLayout",
       "LabelLayout",
       "Overall",
@@ -737,7 +737,7 @@ Bond(O, H2)`;
     result: Result<State, PenroseError>,
     errorType: string,
   ) => {
-    if (result.isErr()) {
+    if (result.isErr) {
       const res: PenroseError = result.error;
       if (res.errorType !== "StyleError") {
         throw Error(
@@ -789,7 +789,7 @@ predicate Subset(Set s1, Set s2)
 
     const domRes: Result<DomainEnv, PenroseError> = compileDomain(domainProg);
 
-    if (domRes.isErr()) {
+    if (domRes.isErr) {
       throw new Error("Domain compilation should not fail");
     }
 
@@ -798,7 +798,7 @@ predicate Subset(Set s1, Set s2)
       domRes.value,
     );
 
-    if (subRes.isErr()) {
+    if (subRes.isErr) {
       throw new Error("Substance compilation should not fail");
     }
 

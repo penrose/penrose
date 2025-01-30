@@ -83,19 +83,19 @@ export const checkCircle = (
   trans: Translation,
 ): Result<Circle<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
-  if (named.isErr()) return err(named.error);
+  if (named.isErr) return err(named.error);
 
   const stroke = checkStroke(path, trans);
-  if (stroke.isErr()) return err(stroke.error);
+  if (stroke.isErr) return err(stroke.error);
 
   const fill = checkFill(path, trans);
-  if (fill.isErr()) return err(fill.error);
+  if (fill.isErr) return err(fill.error);
 
   const center = checkCenter(path, trans);
-  if (center.isErr()) return err(center.error);
+  if (center.isErr) return err(center.error);
 
   const r = checkProp(path, "r", trans, checkFloatV);
-  if (r.isErr()) return err(r.error);
+  if (r.isErr) return err(r.error);
 
   return ok({
     ...named.value,
@@ -114,22 +114,22 @@ export const checkEllipse = (
   trans: Translation,
 ): Result<Ellipse<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
-  if (named.isErr()) return err(named.error);
+  if (named.isErr) return err(named.error);
 
   const stroke = checkStroke(path, trans);
-  if (stroke.isErr()) return err(stroke.error);
+  if (stroke.isErr) return err(stroke.error);
 
   const fill = checkFill(path, trans);
-  if (fill.isErr()) return err(fill.error);
+  if (fill.isErr) return err(fill.error);
 
   const center = checkCenter(path, trans);
-  if (center.isErr()) return err(center.error);
+  if (center.isErr) return err(center.error);
 
   const rx = checkProp(path, "rx", trans, checkFloatV);
-  if (rx.isErr()) return err(rx.error);
+  if (rx.isErr) return err(rx.error);
 
   const ry = checkProp(path, "ry", trans, checkFloatV);
-  if (ry.isErr()) return err(ry.error);
+  if (ry.isErr) return err(ry.error);
 
   return ok({
     ...named.value,
@@ -149,28 +149,28 @@ export const checkEquation = (
   trans: Translation,
 ): Result<Equation<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
-  if (named.isErr()) return err(named.error);
+  if (named.isErr) return err(named.error);
 
   const fill = checkFill(path, trans);
-  if (fill.isErr()) return err(fill.error);
+  if (fill.isErr) return err(fill.error);
 
   const center = checkCenter(path, trans);
-  if (center.isErr()) return err(center.error);
+  if (center.isErr) return err(center.error);
 
   const rect = checkRect(path, trans);
-  if (rect.isErr()) return err(rect.error);
+  if (rect.isErr) return err(rect.error);
 
   const rotate = checkRotate(path, trans);
-  if (rotate.isErr()) return err(rotate.error);
+  if (rotate.isErr) return err(rotate.error);
 
   const string = checkString(path, trans);
-  if (string.isErr()) return err(string.error);
+  if (string.isErr) return err(string.error);
 
   const ascent = checkProp(path, "ascent", trans, checkFloatV);
-  if (ascent.isErr()) return err(ascent.error);
+  if (ascent.isErr) return err(ascent.error);
 
   const descent = checkProp(path, "descent", trans, checkFloatV);
-  if (descent.isErr()) return err(descent.error);
+  if (descent.isErr) return err(descent.error);
 
   return ok({
     ...named.value,
@@ -192,13 +192,13 @@ export const checkGroup = (
   trans: Translation,
 ): Result<Group<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
-  if (named.isErr()) return err(named.error);
+  if (named.isErr) return err(named.error);
 
   const shapes = checkProp(path, "shapes", trans, checkShapeListV);
-  if (shapes.isErr()) return err(shapes.error);
+  if (shapes.isErr) return err(shapes.error);
 
   const clipPath = checkProp(path, "clipPath", trans, checkClipDataV);
-  if (clipPath.isErr()) return err(clipPath.error);
+  if (clipPath.isErr) return err(clipPath.error);
 
   return ok({
     ...named.value,
@@ -215,19 +215,19 @@ export const checkImage = (
   trans: Translation,
 ): Result<Image<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
-  if (named.isErr()) return err(named.error);
+  if (named.isErr) return err(named.error);
 
   const center = checkCenter(path, trans);
-  if (center.isErr()) return err(center.error);
+  if (center.isErr) return err(center.error);
 
   const rect = checkRect(path, trans);
-  if (rect.isErr()) return err(rect.error);
+  if (rect.isErr) return err(rect.error);
 
   const rotate = checkRotate(path, trans);
-  if (rotate.isErr()) return err(rotate.error);
+  if (rotate.isErr) return err(rotate.error);
 
   const href = checkProp(path, "href", trans, checkStrV);
-  if (href.isErr()) return err(href.error);
+  if (href.isErr) return err(href.error);
 
   const preserveAspectRatio = checkProp(
     path,
@@ -235,7 +235,7 @@ export const checkImage = (
     trans,
     checkStrV,
   );
-  if (preserveAspectRatio.isErr()) return err(preserveAspectRatio.error);
+  if (preserveAspectRatio.isErr) return err(preserveAspectRatio.error);
 
   return ok({
     ...named.value,
@@ -255,25 +255,25 @@ export const checkLine = (
   trans: Translation,
 ): Result<Line<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
-  if (named.isErr()) return err(named.error);
+  if (named.isErr) return err(named.error);
 
   const stroke = checkStroke(path, trans);
-  if (stroke.isErr()) return err(stroke.error);
+  if (stroke.isErr) return err(stroke.error);
 
   const arrow = checkArrow(path, trans);
-  if (arrow.isErr()) return err(arrow.error);
+  if (arrow.isErr) return err(arrow.error);
 
   const start = checkProp(path, "start", trans, checkVectorV);
-  if (start.isErr()) return err(start.error);
+  if (start.isErr) return err(start.error);
 
   const end = checkProp(path, "end", trans, checkVectorV);
-  if (end.isErr()) return err(end.error);
+  if (end.isErr) return err(end.error);
 
   const strokeLinecap = checkProp(path, "strokeLinecap", trans, checkStrV);
-  if (strokeLinecap.isErr()) return err(strokeLinecap.error);
+  if (strokeLinecap.isErr) return err(strokeLinecap.error);
 
   const fill = checkFill(path, trans);
-  if (fill.isErr()) return err(fill.error);
+  if (fill.isErr) return err(fill.error);
 
   return ok({
     ...named.value,
@@ -294,22 +294,22 @@ export const checkPath = (
   trans: Translation,
 ): Result<Path<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
-  if (named.isErr()) return err(named.error);
+  if (named.isErr) return err(named.error);
 
   const stroke = checkStroke(path, trans);
-  if (stroke.isErr()) return err(stroke.error);
+  if (stroke.isErr) return err(stroke.error);
 
   const fill = checkFill(path, trans);
-  if (fill.isErr()) return err(fill.error);
+  if (fill.isErr) return err(fill.error);
 
   const arrow = checkArrow(path, trans);
-  if (arrow.isErr()) return err(arrow.error);
+  if (arrow.isErr) return err(arrow.error);
 
   const strokeLinecap = checkProp(path, "strokeLinecap", trans, checkStrV);
-  if (strokeLinecap.isErr()) return err(strokeLinecap.error);
+  if (strokeLinecap.isErr) return err(strokeLinecap.error);
 
   const d = checkProp(path, "d", trans, checkPathDataV);
-  if (d.isErr()) return err(d.error);
+  if (d.isErr) return err(d.error);
 
   return ok({
     ...named.value,
@@ -329,19 +329,19 @@ export const checkPolygon = (
   trans: Translation,
 ): Result<Polygon<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
-  if (named.isErr()) return err(named.error);
+  if (named.isErr) return err(named.error);
 
   const stroke = checkStroke(path, trans);
-  if (stroke.isErr()) return err(stroke.error);
+  if (stroke.isErr) return err(stroke.error);
 
   const fill = checkFill(path, trans);
-  if (fill.isErr()) return err(fill.error);
+  if (fill.isErr) return err(fill.error);
 
   const scale = checkScale(path, trans);
-  if (scale.isErr()) return err(scale.error);
+  if (scale.isErr) return err(scale.error);
 
   const poly = checkPoly(path, trans);
-  if (poly.isErr()) return err(poly.error);
+  if (poly.isErr) return err(poly.error);
 
   return ok({
     ...named.value,
@@ -360,22 +360,22 @@ export const checkPolyline = (
   trans: Translation,
 ): Result<Polyline<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
-  if (named.isErr()) return err(named.error);
+  if (named.isErr) return err(named.error);
 
   const stroke = checkStroke(path, trans);
-  if (stroke.isErr()) return err(stroke.error);
+  if (stroke.isErr) return err(stroke.error);
 
   const fill = checkFill(path, trans);
-  if (fill.isErr()) return err(fill.error);
+  if (fill.isErr) return err(fill.error);
 
   const scale = checkScale(path, trans);
-  if (scale.isErr()) return err(scale.error);
+  if (scale.isErr) return err(scale.error);
 
   const poly = checkPoly(path, trans);
-  if (poly.isErr()) return err(poly.error);
+  if (poly.isErr) return err(poly.error);
 
   const strokeLinecap = checkProp(path, "strokeLinecap", trans, checkStrV);
-  if (strokeLinecap.isErr()) return err(strokeLinecap.error);
+  if (strokeLinecap.isErr) return err(strokeLinecap.error);
 
   return ok({
     ...named.value,
@@ -395,25 +395,25 @@ export const checkRectangle = (
   trans: Translation,
 ): Result<Rectangle<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
-  if (named.isErr()) return err(named.error);
+  if (named.isErr) return err(named.error);
 
   const stroke = checkStroke(path, trans);
-  if (stroke.isErr()) return err(stroke.error);
+  if (stroke.isErr) return err(stroke.error);
 
   const fill = checkFill(path, trans);
-  if (fill.isErr()) return err(fill.error);
+  if (fill.isErr) return err(fill.error);
 
   const center = checkCenter(path, trans);
-  if (center.isErr()) return err(center.error);
+  if (center.isErr) return err(center.error);
 
   const rotate = checkRotate(path, trans);
-  if (rotate.isErr()) return err(rotate.error);
+  if (rotate.isErr) return err(rotate.error);
 
   const rect = checkRect(path, trans);
-  if (rect.isErr()) return err(rect.error);
+  if (rect.isErr) return err(rect.error);
 
   const corner = checkCorner(path, trans);
-  if (corner.isErr()) return err(corner.error);
+  if (corner.isErr) return err(corner.error);
 
   return ok({
     ...named.value,
@@ -434,52 +434,52 @@ export const checkText = (
   trans: Translation,
 ): Result<Text<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
-  if (named.isErr()) return err(named.error);
+  if (named.isErr) return err(named.error);
 
   const stroke = checkStroke(path, trans);
-  if (stroke.isErr()) return err(stroke.error);
+  if (stroke.isErr) return err(stroke.error);
 
   const fill = checkFill(path, trans);
-  if (fill.isErr()) return err(fill.error);
+  if (fill.isErr) return err(fill.error);
 
   const center = checkCenter(path, trans);
-  if (center.isErr()) return err(center.error);
+  if (center.isErr) return err(center.error);
 
   const rect = checkRect(path, trans);
-  if (rect.isErr()) return err(rect.error);
+  if (rect.isErr) return err(rect.error);
 
   const rotate = checkRotate(path, trans);
-  if (rotate.isErr()) return err(rotate.error);
+  if (rotate.isErr) return err(rotate.error);
 
   const string = checkString(path, trans);
-  if (string.isErr()) return err(string.error);
+  if (string.isErr) return err(string.error);
 
   const visibility = checkProp(path, "visibility", trans, checkStrV);
-  if (visibility.isErr()) return err(visibility.error);
+  if (visibility.isErr) return err(visibility.error);
 
   const fontFamily = checkProp(path, "fontFamily", trans, checkStrV);
-  if (fontFamily.isErr()) return err(fontFamily.error);
+  if (fontFamily.isErr) return err(fontFamily.error);
 
   const fontSizeAdjust = checkProp(path, "fontSizeAdjust", trans, checkStrV);
-  if (fontSizeAdjust.isErr()) return err(fontSizeAdjust.error);
+  if (fontSizeAdjust.isErr) return err(fontSizeAdjust.error);
 
   const fontStretch = checkProp(path, "fontStretch", trans, checkStrV);
-  if (fontStretch.isErr()) return err(fontStretch.error);
+  if (fontStretch.isErr) return err(fontStretch.error);
 
   const fontStyle = checkProp(path, "fontStyle", trans, checkStrV);
-  if (fontStyle.isErr()) return err(fontStyle.error);
+  if (fontStyle.isErr) return err(fontStyle.error);
 
   const fontVariant = checkProp(path, "fontVariant", trans, checkStrV);
-  if (fontVariant.isErr()) return err(fontVariant.error);
+  if (fontVariant.isErr) return err(fontVariant.error);
 
   const fontWeight = checkProp(path, "fontWeight", trans, checkStrV);
-  if (fontWeight.isErr()) return err(fontWeight.error);
+  if (fontWeight.isErr) return err(fontWeight.error);
 
   const textAnchor = checkProp(path, "textAnchor", trans, checkStrV);
-  if (textAnchor.isErr()) return err(textAnchor.error);
+  if (textAnchor.isErr) return err(textAnchor.error);
 
   const lineHeight = checkProp(path, "lineHeight", trans, checkStrV);
-  if (lineHeight.isErr()) return err(lineHeight.error);
+  if (lineHeight.isErr) return err(lineHeight.error);
 
   const alignmentBaseline = checkProp(
     path,
@@ -487,7 +487,7 @@ export const checkText = (
     trans,
     checkStrV,
   );
-  if (alignmentBaseline.isErr()) return err(alignmentBaseline.error);
+  if (alignmentBaseline.isErr) return err(alignmentBaseline.error);
 
   const dominantBaseline = checkProp(
     path,
@@ -495,13 +495,13 @@ export const checkText = (
     trans,
     checkStrV,
   );
-  if (dominantBaseline.isErr()) return err(dominantBaseline.error);
+  if (dominantBaseline.isErr) return err(dominantBaseline.error);
 
   const ascent = checkProp(path, "ascent", trans, checkFloatV);
-  if (ascent.isErr()) return err(ascent.error);
+  if (ascent.isErr) return err(ascent.error);
 
   const descent = checkProp(path, "descent", trans, checkFloatV);
-  if (descent.isErr()) return err(descent.error);
+  if (descent.isErr) return err(descent.error);
 
   return ok({
     ...named.value,

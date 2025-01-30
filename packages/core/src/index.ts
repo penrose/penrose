@@ -89,7 +89,7 @@ export const stepTimes = (
 ): Result<State, PenroseError> => {
   let i = 0;
   const steppedState = step(state, { until: (): boolean => i++ >= numSteps });
-  if (steppedState.isErr()) {
+  if (steppedState.isErr) {
     return steppedState;
   } else {
     const state = steppedState.value;
@@ -127,7 +127,7 @@ export const stepNextStage = (state: State): Result<State, PenroseError> => {
   while (!isOptimized(currentState)) {
     // step until convergence of the current stage.
     const res = step(currentState, { until: () => false });
-    if (res.isOk()) {
+    if (res.isOk) {
       currentState = res.value;
     } else {
       return res;
@@ -147,7 +147,7 @@ export const optimize = (state: State): Result<State, PenroseError> => {
       currentState = nextStage(currentState);
     }
     const res = step(currentState, { until: () => false });
-    if (res.isOk()) {
+    if (res.isOk) {
       currentState = res.value;
     } else {
       return res;
@@ -158,7 +158,7 @@ export const optimize = (state: State): Result<State, PenroseError> => {
 
 const optimizeOrThrow = (state: State): State => {
   const result = optimize(state);
-  if (result.isErr()) {
+  if (result.isErr) {
     throw Error(showError(result.error));
   } else {
     return result.value;
@@ -186,7 +186,7 @@ export const diagram = async (
   name?: string,
 ): Promise<void> => {
   const res = await compile(prog);
-  if (res.isOk()) {
+  if (res.isOk) {
     const state: State = res.value;
     const optimized = optimizeOrThrow(state);
     const rendered = await toSVG(optimized, pathResolver, name ?? "");
@@ -213,7 +213,7 @@ export const compile = async (prog: {
 }): Promise<Result<State, PenroseError>> => {
   const domRes: Result<DomainEnv, PenroseError> = compileDomain(prog.domain);
 
-  if (domRes.isErr()) {
+  if (domRes.isErr) {
     return err(domRes.error);
   }
 
@@ -222,7 +222,7 @@ export const compile = async (prog: {
     domRes.value,
   );
 
-  if (subRes.isErr()) {
+  if (subRes.isErr) {
     return err(subRes.error);
   }
 
@@ -234,7 +234,7 @@ export const compile = async (prog: {
     domRes.value,
   );
 
-  if (styRes.isErr()) {
+  if (styRes.isErr) {
     return styRes;
   } else {
     const state = styRes.value;
@@ -245,7 +245,7 @@ export const compile = async (prog: {
       convert,
     );
 
-    if (labelCache.isErr()) {
+    if (labelCache.isErr) {
       return err(labelCache.error);
     }
     return ok(
@@ -262,13 +262,13 @@ export const compileTrio = async (prog: {
   excludeWarnings?: string[];
 }): Promise<Result<State, PenroseError>> => {
   const domainRes: Result<DomainEnv, PenroseError> = compileDomain(prog.domain);
-  if (domainRes.isOk()) {
+  if (domainRes.isOk) {
     const subRes: Result<SubstanceEnv, PenroseError> = andThen(
       (env: DomainEnv) => compileSubstance(prog.substance, env),
       domainRes,
     );
 
-    if (subRes.isOk()) {
+    if (subRes.isOk) {
       const styRes: Result<State, PenroseError> = await compileStyle(
         prog.variation,
         prog.style,

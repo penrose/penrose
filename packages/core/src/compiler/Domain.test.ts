@@ -13,7 +13,7 @@ const contextHas = (
   expectedFunctions: string[],
   expectedPredicates: string[],
 ) => {
-  if (res.isOk()) {
+  if (res.isOk) {
     const {
       types,
       constructorDecls: constructors,
@@ -40,7 +40,7 @@ describe("Common", () => {
   B <: A
  `;
     const res = compileDomain(prog);
-    if (res.isOk()) {
+    if (res.isOk) {
       const env = res.value;
       const typeA = env.types.get("A")!;
       const typeB = env.types.get("B")!;
@@ -138,8 +138,8 @@ predicate MyNormalPredicate(MyType a, MyType b)
       "MyExcellentPredicate2",
     ];
     contextHas(res, [], [], [], predicates);
-    expect(res.isOk()).toEqual(true);
-    if (res.isOk()) {
+    expect(res.isOk).toEqual(true);
+    if (res.isOk) {
       let env = res.value;
       expect(env.predicateDecls.get("MyNormalPredicate")!.symmetric).toEqual(
         false,
@@ -168,7 +168,7 @@ predicate MyNormalPredicate(MyType a, MyType b)
 describe("Errors", () => {
   const expectErrorOf = (prog: string, errorType: string) => {
     const result = compileDomain(prog);
-    if (result.isErr()) {
+    if (result.isErr) {
       if (printError) console.log(showError(result.error));
       expect(result.error.tag).toBe(errorType);
     } else {

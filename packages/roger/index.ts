@@ -55,7 +55,7 @@ const optimize = async (
     }
     let j = 0;
     const res = step(currentState, { until: () => j++ >= numSteps });
-    if (res.isOk()) {
+    if (res.isOk) {
       currentState = res.value;
     } else {
       return res;
@@ -100,7 +100,7 @@ const render = async (
     excludeWarnings,
   });
   const compileEnd = process.hrtime(compileStart);
-  if (compilerOutput.isErr()) {
+  if (compilerOutput.isErr) {
     const err = compilerOutput.error;
     throw new Error(`Compilation failed:\n${showError(err)}`);
   }
@@ -111,7 +111,7 @@ const render = async (
   const convergeStart = process.hrtime();
   let optimizedState;
   const optimizedOutput = await optimize(initialState, onStep);
-  if (optimizedOutput.isOk()) {
+  if (optimizedOutput.isOk) {
     optimizedState = optimizedOutput.value;
   } else {
     throw new Error(

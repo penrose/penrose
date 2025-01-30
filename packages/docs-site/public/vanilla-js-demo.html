@@ -69,9 +69,9 @@
         variation: `test`,
       };
       const compiled = await compile(trio);
-      if (compiled.isErr()) console.error(showError(compiled.error));
+      if (compiled.isErr) console.error(showError(compiled.error));
       const optimized = optimize(compiled.value);
-      if (optimized.isErr()) console.error(showError(optimized.error));
+      if (optimized.isErr) console.error(showError(optimized.error));
       document
         .getElementById("penrose")
         .appendChild(await toSVG(optimized.value));

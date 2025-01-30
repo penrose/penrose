@@ -120,7 +120,7 @@ symmetric predicate Disjoint(Set, Set)
     ];
     // These are what the parser generates
     const areSymmetric: boolean[] = validateDomain(tree, prog)
-      .unsafelyUnwrap()
+      .unwrapOr(undefined)!
       .statements.map((stmt) => {
         return (<PredicateDecl<SourceRange>>stmt).symmetric;
       });

@@ -1,7 +1,7 @@
+import { SyntaxNode, Tree } from "@lezer/common";
 import im from "immutable";
-import nearley from "nearley";
-import { lastLocation, prettyParseError } from "../parser/ParserUtil.js";
-import substanceGrammar from "../parser/SubstanceParser.js";
+import Result, { err, ok } from "true-myth/result";
+import { parser } from "../parser/SubstanceParser.js";
 import {
   A,
   ASTNode,
@@ -41,6 +41,7 @@ import {
   NoLabel,
   NumExpr,
   NumberConstant,
+  RangeAssign,
   Stmt,
   StmtSet,
   SubArgExpr,
@@ -51,13 +52,10 @@ import {
   TypeApp,
 } from "../types/substance.js";
 import {
-  Result,
   all,
   argLengthMismatch,
   duplicateName,
-  err,
   every,
-  ok,
   parseError,
   safeChain,
   typeMismatch,
@@ -70,49 +68,611 @@ import {
   isLiteralType,
   isSubtype,
   numberType,
+  printNode,
   stringType,
   toDomType,
 } from "./Domain.js";
 
+const extractText = (src: string, to: number, from: number) =>
+  src.slice(from, to);
+
 export const parseSubstance = (
   prog: string,
 ): Result<SubProg<C>, ParseError> => {
-  const parser = new nearley.Parser(
-    nearley.Grammar.fromCompiled(substanceGrammar),
-  );
-  try {
-    const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
-    if (results.length > 0) {
-      const ast: SubProg<C> = results[0];
-      return ok(ast);
-    } else {
+  const res = parser.parse(prog);
+  let errorNode: SyntaxNode | undefined;
+  res.iterate({
+    enter: (node) => {
+      if (node.type.isError) errorNode = node.node;
+    },
+  });
+  if (errorNode) {
+    return err(
+      parseError("error parsing Substance", errorNode.from, "Substance"),
+    );
+  }
+  return validateSubstance(res, prog);
+};
+
+const validateSubstance = (
+  ast: Tree,
+  src: string,
+): Result<SubProg<C>, ParseError> => {
+  const stmts = [];
+  if (ast.topNode.firstChild !== null) {
+    const cursor = ast.topNode.firstChild.cursor();
+    do {
+      const nodeType = cursor.node.type.name;
+      if (nodeType === "LineComment" || nodeType === "BlockComment") continue;
+      stmts.push(cursor.node);
+    } while (cursor.nextSibling());
+  }
+
+  const stmtResults = stmts.map((node) => validateStmt(node, src));
+
+  const stmtsResult = all(stmtResults);
+
+  if (stmtsResult.isOk) {
+    return ok({
+      tag: "SubProg",
+      statements: stmtsResult.value,
+      start: 0,
+      end: ast.length,
+      nodeType: "Substance",
+    });
+  }
+  return err(stmtsResult.error[0]);
+};
+
+const validateStmt = (
+  node: SyntaxNode,
+  src: string,
+): Result<SubStmt<C>, ParseError> => {
+  const stmt = node;
+
+  switch (stmt.type.name) {
+    case "TypeApp":
+      return validateTypeApp(stmt, src);
+    case "PredicateApp":
+      return validatePredicate(stmt, src);
+    case "Fn_ConsApp":
+      return validateFnConsApp(stmt, src);
+    case "Labeling":
+      return validateLabeling(stmt, src);
+    default:
       return err(
         parseError(
-          `Unexpected end of input`,
-          lastLocation(parser),
+          `Unknown statement type: ${stmt.type.name}`,
+          stmt.from,
           "Substance",
         ),
       );
-    }
-  } catch (e) {
-    return err(
-      parseError(prettyParseError(e), lastLocation(parser), "Substance"),
-    );
   }
 };
 
-/**
- * Top-level function for the Substance parser and checker. Given a Substance program string and Domain environment, it outputs either a `PenroseError` or `Env` and `SubstanceEnv` contexts.
- *
- * @param prog Substance program string
- * @param env  Domain environment
- */
+const validateTypeApp = (
+  node: SyntaxNode,
+  src: string,
+): Result<Decl<C> | DeclList<C> | StmtSet<C>, ParseError> => {
+  const type = node.getChild("NamedId");
+  const ids = node.getChildren("Identifier");
+  const iset = node.getChild("IndexedStatement");
+
+  if (!type || ids.length === 0) {
+    return err(parseError("Invalid type application", node.from, "Substance"));
+  }
+
+  const typeApp: TypeApp<C> = {
+    tag: "TypeApp",
+    name: validateID(type.firstChild!, src),
+    ...meta(node),
+  };
+
+  // Create base statement (Decl or DeclList)
+  const baseStmt: Decl<C> | DeclList<C> =
+    ids.length === 1
+      ? {
+          tag: "Decl",
+          type: typeApp,
+          name: validateID(ids[0], src),
+          ...meta(node),
+        }
+      : {
+          tag: "DeclList",
+          type: typeApp,
+          names: ids.map((id) => validateID(id, src)),
+          ...meta(node),
+        };
+
+  // If there's an index set, wrap in StmtSet
+  if (iset) {
+    const indexStmt = validateIndexSet(iset, src);
+    if (indexStmt.isErr) {
+      return err(indexStmt.error);
+    }
+    return ok({
+      tag: "StmtSet",
+      stmt: baseStmt,
+      iset: indexStmt.value,
+      ...meta(node),
+    });
+  }
+
+  return ok(baseStmt);
+};
+
+// Helper to validate index set
+const validateIndexSet = (
+  node: SyntaxNode,
+  src: string,
+): Result<IndexSet<C>, ParseError> => {
+  console.log(printNode(node, src));
+
+  const condition = node.getChild("BooleanExpression");
+
+  // Parse ranges
+  const indices: RangeAssign<C>[] = [];
+  const cursor = node.cursor();
+
+  do {
+    if (cursor.type.name === "Identifier") {
+      const variable = validateID(cursor.node, src);
+      cursor.next(); // Skip 'in'
+      cursor.next(); // Move to Range
+
+      const range = validateRange(cursor.node, src);
+      if (range.isErr) return range;
+
+      indices.push({
+        tag: "RangeAssign",
+        variable,
+        range: range.value,
+        ...meta(cursor.node),
+      });
+    }
+  } while (cursor.nextSibling());
+
+  // Parse condition if present
+  let boolExpr: BooleanExpr<C> | undefined;
+  if (condition) {
+    const expr = validateBooleanExpr(condition, src);
+    if (expr.isErr) return err(expr.error);
+    boolExpr = expr.value;
+  }
+
+  return ok({
+    tag: "IndexSet",
+    indices,
+    condition: boolExpr,
+    ...meta(node),
+  });
+};
+
+// You'll need these helper functions as well:
+const validateRange = (
+  node: SyntaxNode,
+  src: string,
+): Result<Range<C>, ParseError> => {
+  const nums = node.getChildren("Number");
+  if (nums.length !== 2) {
+    return err(parseError("Invalid range", node.from, "Substance"));
+  }
+
+  return ok({
+    tag: "Range",
+    low: validateNumber(nums[0], src),
+    high: validateNumber(nums[1], src),
+    ...meta(node),
+  });
+};
+
+const validateNumber = (node: SyntaxNode, src: string): NumberConstant<C> => ({
+  tag: "NumberConstant",
+  contents: Number(extractText(src, node.to, node.from)),
+  ...meta(node),
+});
+
+const validateBooleanExpr = (
+  node: SyntaxNode,
+  src: string,
+): Result<BooleanExpr<C>, ParseError> => {
+  // Base case: true/false literals
+  if (node.type.name === "Boolean") {
+    return ok({
+      tag: "BooleanConstant",
+      value: extractText(src, node.to, node.from) === "true",
+      ...meta(node),
+    });
+  }
+
+  // Comparison operator between numeric expressions
+  if (node.getChild("CompareOp")) {
+    const operator = node.getChild("CompareOp");
+    const left = node.getChild("NumericExpression", null, "CompareOp");
+    const right = node.getChild("NumericExpression", "CompareOp");
+
+    if (!left || !right || !operator) {
+      return err(
+        parseError("Invalid comparison expression", node.from, "Substance"),
+      );
+    }
+
+    const leftExpr = validateNumericExpr(left, src);
+    if (leftExpr.isErr) return err(leftExpr.error);
+
+    const rightExpr = validateNumericExpr(right, src);
+    if (rightExpr.isErr) return err(rightExpr.error);
+
+    return ok({
+      tag: "ComparisonExpr",
+      operator: extractText(src, operator.to, operator.from) as
+        | "=="
+        | "!="
+        | "<"
+        | "<="
+        | ">"
+        | ">=",
+      left: leftExpr.value,
+      right: rightExpr.value,
+      ...meta(node),
+    });
+  }
+
+  // Boolean operators
+  const boolOp = node.getChild("BoolOp");
+  if (boolOp) {
+    const operator = extractText(src, boolOp.to, boolOp.from);
+
+    // Unary operator (!)
+    if (operator === "!") {
+      const arg = node.getChild("BooleanExpression");
+      if (!arg) {
+        return err(
+          parseError(
+            "Invalid unary boolean expression",
+            node.from,
+            "Substance",
+          ),
+        );
+      }
+      const argExpr = validateBooleanExpr(arg, src);
+      if (argExpr.isErr) return argExpr;
+
+      return ok({
+        tag: "UnaryBooleanExpr",
+        operator: "!",
+        arg: argExpr.value,
+        ...meta(node),
+      });
+    }
+
+    // Binary operators (&& and ||)
+    const left = node.getChild("BooleanExpression");
+    const right = node.getChild("BooleanExpression", left?.to);
+    if (!left || !right) {
+      return err(
+        parseError("Invalid binary boolean expression", node.from, "Substance"),
+      );
+    }
+
+    const leftExpr = validateBooleanExpr(left, src);
+    if (leftExpr.isErr) return leftExpr;
+
+    const rightExpr = validateBooleanExpr(right, src);
+    if (rightExpr.isErr) return rightExpr;
+
+    return ok({
+      tag: "BinaryBooleanExpr",
+      operator: operator as "&&" | "||",
+      left: leftExpr.value,
+      right: rightExpr.value,
+      ...meta(node),
+    });
+  }
+
+  return err(parseError("Invalid boolean expression", node.from, "Substance"));
+};
+
+const validateNumericExpr = (
+  node: SyntaxNode,
+  src: string,
+): Result<NumExpr<C>, ParseError> => {
+  // If there's only one child, it's an id or number
+  const child = node.firstChild;
+  if (child && !child.nextSibling) {
+    // Handle identifiers
+    if (child.type.name === "Identifier") {
+      return ok(validateID(child, src));
+    }
+    // Handle number literals
+    else if (child.type.name === "Number") {
+      return ok(validateNumber(child, src));
+    } else {
+      return err(
+        parseError("Invalid numeric expression", node.from, "Substance"),
+      );
+    }
+  }
+
+  // Handle arithmetic operators
+  const arithOp = node.getChild("ArithOp");
+  if (arithOp) {
+    const operator = extractText(src, arithOp.to, arithOp.from);
+
+    // Unary minus
+    if (operator === "-" && node.getChild("NumericExpression")) {
+      const arg = node.getChild("NumericExpression");
+      if (!arg) {
+        return err(
+          parseError("Invalid unary expression", node.from, "Substance"),
+        );
+      }
+      const argExpr = validateNumericExpr(arg, src);
+      if (argExpr.isErr) return argExpr;
+
+      return ok({
+        tag: "UnaryExpr",
+        operator: "-",
+        arg: argExpr.value,
+        ...meta(node),
+      });
+    }
+
+    // Binary operators
+
+    const left = node.getChild("NumericExpression");
+    const right = node.getChild("NumericExpression", "ArithOp");
+    if (!left || !right) {
+      return err(
+        parseError("Invalid binary expression", node.from, "Substance"),
+      );
+    }
+
+    const leftExpr = validateNumericExpr(left, src);
+    if (leftExpr.isErr) return leftExpr;
+
+    const rightExpr = validateNumericExpr(right, src);
+    if (rightExpr.isErr) return rightExpr;
+
+    return ok({
+      tag: "BinaryExpr",
+      operator: operator as "+" | "-" | "*" | "/" | "%" | "^",
+      left: leftExpr.value,
+      right: rightExpr.value,
+      ...meta(node),
+    });
+  }
+
+  return err(parseError("Invalid numeric expression", node.from, "Substance"));
+};
+
+// You'll also need validateBooleanExpr() to handle conditions,
+// but that's a larger piece that would need to be implemented separately
+
+const validatePredicate = (
+  node: SyntaxNode,
+  src: string,
+): Result<ApplyPredicate<C>, ParseError> => {
+  const name = node.getChild("NamedId");
+  const args = node.getChild("ArgList");
+
+  if (!name || !args) {
+    return err(parseError("Invalid predicate", node.from, "Substance"));
+  }
+
+  return ok({
+    tag: "ApplyPredicate",
+    name: validateID(name.firstChild!, src),
+    args: validateArgs(args, src),
+    ...meta(node),
+  });
+};
+
+const validateFnConsApp = (
+  node: SyntaxNode,
+  src: string,
+): Result<Bind<C> | DeclBind<C>, ParseError> => {
+  const let_ = node.getChild("Let");
+  const typeNode = node.getChild("NamedId", null, "Assignment");
+  const varNode = node.getChild("Identifier");
+  const fnName = node.getChild("NamedId", "Assignment");
+  const args = node.getChild("ArgList");
+
+  if (!varNode || !fnName || !args) {
+    return err(
+      parseError(
+        "Invalid function/constructor application",
+        node.from,
+        "Substance",
+      ),
+    );
+  }
+
+  const func: Func<C> = {
+    tag: "Func",
+    name: validateID(fnName.firstChild!, src),
+    args: validateArgs(args, src),
+    ...meta(node),
+  };
+
+  if (typeNode && !let_) {
+    // Type declaration + binding
+    return ok({
+      tag: "DeclBind",
+      type: {
+        tag: "TypeApp",
+        name: validateID(typeNode.firstChild!, src),
+        ...meta(typeNode),
+      },
+      variable: validateID(varNode, src),
+      expr: func,
+      ...meta(node),
+    });
+  }
+
+  // Simple binding
+  return ok({
+    tag: "Bind",
+    variable: validateID(varNode, src),
+    expr: func,
+    ...meta(node),
+  });
+};
+
+const validateLabeling = (
+  node: SyntaxNode,
+  src: string,
+): Result<LabelDecl<C> | AutoLabel<C> | NoLabel<C>, ParseError> => {
+  const autoLabel = node.getChild("AutoLabel");
+  const label = node.getChild("Label");
+  const noLabel = node.getChild("NoLabel");
+
+  if (autoLabel) {
+    const all = node.getChild("All");
+    const ids = node.getChildren("Identifier");
+
+    const option: LabelOption<C> = all
+      ? { tag: "DefaultLabels", ...meta(all) }
+      : {
+          tag: "LabelIDs",
+          variables: ids.map((id) => validateID(id, src)),
+          ...meta(node),
+        };
+
+    return ok({
+      tag: "AutoLabel",
+      option,
+      ...meta(node),
+    });
+  } else if (label) {
+    const str = node.getChild("String");
+    const tex = node.getChild("TeX");
+    const identifier = node.getChild("Identifier");
+
+    if (!(str || tex) || !identifier) {
+      return err(
+        parseError("Invalid label declaration", node.from, "Substance"),
+      );
+    }
+    const labelNode = (str || tex) as SyntaxNode;
+    const labelStr = extractText(src, labelNode.to, labelNode.from);
+    return ok({
+      tag: "LabelDecl",
+      variable: validateID(identifier, src),
+      label: {
+        tag: "StringLit",
+        type: "string",
+        contents: labelStr.slice(1, -1), // Remove first and last characters (the $ signs)
+        ...meta(labelNode),
+      },
+      labelType: tex ? "MathLabel" : "TextLabel",
+      ...meta(node),
+    });
+  } else if (noLabel) {
+    const ids = node.getChildren("Identifier");
+    return ok({
+      tag: "NoLabel",
+      args: ids.map((id) => validateID(id, src)),
+      ...meta(node),
+    });
+  }
+
+  return err(parseError("Invalid labeling statement", node.from, "Substance"));
+};
+
+const validateArgs = (node: SyntaxNode, src: string): SubArgExpr<C>[] => {
+  const args: SubArgExpr<C>[] = [];
+
+  // Handle each child of the ArgList
+  for (let child = node.firstChild; child; child = child.nextSibling) {
+    switch (child.type.name) {
+      case "Identifier":
+        args.push(validateID(child, src));
+        break;
+
+      case "String": {
+        const literal: StringLit<C> = {
+          tag: "StringLit",
+          contents: extractText(src, child.to, child.from).slice(1, -1), // Remove quotes
+          ...meta(child),
+        };
+        args.push({
+          tag: "LiteralSubExpr",
+          contents: literal,
+          ...meta(child),
+        });
+        break;
+      }
+
+      case "Number": {
+        const num = Number(extractText(src, child.to, child.from));
+        const numberLiteral: NumberConstant<C> = {
+          tag: "NumberConstant",
+          contents: num,
+          ...meta(child),
+        };
+        args.push({
+          tag: "LiteralSubExpr",
+          contents: numberLiteral,
+          ...meta(child),
+        });
+        break;
+      }
+
+      case "ArithOp": {
+        // Handle negative numbers
+        if (child.nextSibling?.type.name === "Number") {
+          const num = -Number(
+            extractText(src, child.nextSibling.to, child.nextSibling.from),
+          );
+          const numberLiteral: NumberConstant<C> = {
+            tag: "NumberConstant",
+            contents: num,
+            ...meta(child),
+          };
+          args.push({
+            tag: "LiteralSubExpr",
+            contents: numberLiteral,
+            ...meta(child),
+          });
+          child = child.nextSibling; // Skip the number since we processed it
+        }
+        break;
+      }
+
+      case ",": // Skip commas
+        break;
+
+      default:
+        // Skip other tokens like parentheses
+        break;
+    }
+  }
+
+  return args;
+};
+
+const validateID = (node: SyntaxNode, src: string): Identifier<C> => ({
+  tag: "Identifier",
+  type: "identifier",
+  value: extractText(src, node.to, node.from),
+  ...meta(node),
+});
+
+const meta = (
+  node: SyntaxNode,
+): { start: number; end: number; nodeType: "Substance" } => ({
+  start: node.from,
+  end: node.to,
+  nodeType: "Substance",
+});
+
 export const compileSubstance = (
   prog: string,
   domEnv: DomainEnv,
 ): Result<SubstanceEnv, PenroseError> => {
   const astOk = parseSubstance(prog);
-  if (astOk.isOk()) {
+  if (astOk.isOk) {
     const ast = astOk.value;
     // prepare Substance env
     const subEnv = initSubstanceEnv();
@@ -463,7 +1023,7 @@ const evalISet = (iset: IndexSet<A>): Result<ISetSubst[], SubstanceError> => {
     const substitutions = cprod.map((cprod) => new Map(cprod));
 
     const condVals = all(substitutions.map((s) => evalCond(condition, s)));
-    if (condVals.isErr()) {
+    if (condVals.isErr) {
       // Outputting the first error because if there were to be multiple errors,
       // the errors will all be the same, caused by different substitutions.
       return err(condVals.error[0]);
@@ -487,13 +1047,13 @@ const evalCond = (
     const { operator, left, right } = b;
     if (operator === "&&") {
       const lValRes = evalCond(left, subst);
-      if (lValRes.isErr()) return err(lValRes.error);
+      if (lValRes.isErr) return err(lValRes.error);
       // short-circuiting - if left side is false, then return false.
       if (!lValRes.value) return ok(false);
       else return evalCond(right, subst);
     } else {
       const lValRes = evalCond(left, subst);
-      if (lValRes.isErr()) return err(lValRes.error);
+      if (lValRes.isErr) return err(lValRes.error);
       // short-cirsuiting - if left side is true, then return true
       if (lValRes.value) return ok(true);
       else return evalCond(right, subst);
@@ -505,9 +1065,9 @@ const evalCond = (
   } else {
     const { operator, left, right } = b;
     const lValRes = evalNum(left, subst);
-    if (lValRes.isErr()) return err(lValRes.error);
+    if (lValRes.isErr) return err(lValRes.error);
     const rValRes = evalNum(right, subst);
-    if (rValRes.isErr()) return err(rValRes.error);
+    if (rValRes.isErr) return err(rValRes.error);
 
     const lVal = lValRes.value,
       rVal = rValRes.value;
@@ -537,7 +1097,7 @@ const evalNum = (
   subst: ISetSubst,
 ): Result<number, SubstanceError> => {
   const result = evalNumHelper(n, subst);
-  if (result.isErr()) return err(result.error);
+  if (result.isErr) return err(result.error);
 
   const value = result.value;
 
@@ -567,9 +1127,9 @@ const evalNumHelper = (
   } else {
     const { operator, left, right } = n;
     const lValRes = evalNum(left, subst);
-    if (lValRes.isErr()) return err(lValRes.error);
+    if (lValRes.isErr) return err(lValRes.error);
     const rValRes = evalNum(right, subst);
-    if (rValRes.isErr()) return err(rValRes.error);
+    if (rValRes.isErr) return err(rValRes.error);
 
     const lVal = lValRes.value,
       rVal = rValRes.value;
@@ -666,7 +1226,7 @@ const substSubArgExpr = (
   if (tag === "Identifier") {
     // first, if the identifier coincides with the iset index variable, then just use the value of that variable.
     const n = substISetVarNumber(expr.value, expr, subst);
-    if (n.isOk()) {
+    if (n.isOk) {
       return ok({
         ...expr,
         tag: "LiteralSubExpr",
@@ -696,7 +1256,7 @@ const substISetFunc = (
       substSubArgExpr(arg, subst).andThen((sArg) => ok([...curr, sArg])),
     ok([]),
   );
-  if (substArgs.isErr()) {
+  if (substArgs.isErr) {
     return err(substArgs.error);
   }
 
@@ -712,9 +1272,9 @@ const substISetBind = (
 ): Result<Bind<A>, SubstanceError> => {
   const { variable, expr } = bind;
   const substVariable = substISetId(variable, subst);
-  if (substVariable.isErr()) return err(substVariable.error);
+  if (substVariable.isErr) return err(substVariable.error);
   const substExpr = substISetExpr(expr, subst);
-  if (substExpr.isErr()) return err(substExpr.error);
+  if (substExpr.isErr) return err(substExpr.error);
   return ok({
     ...bind,
     variable: substVariable.value,
@@ -728,9 +1288,9 @@ const substISetDeclBind = (
 ): Result<DeclBind<A>, SubstanceError> => {
   const { variable, expr } = declBind;
   const substVariable = substISetId(variable, subst);
-  if (substVariable.isErr()) return err(substVariable.error);
+  if (substVariable.isErr) return err(substVariable.error);
   const substExpr = substISetExpr(expr, subst);
-  if (substExpr.isErr()) return err(substExpr.error);
+  if (substExpr.isErr) return err(substExpr.error);
   return ok({
     ...declBind,
     variable: substVariable.value,
@@ -748,7 +1308,7 @@ const substISetPredicate = (
       substSubArgExpr(arg, subst).andThen((sArg) => ok([...curr, sArg])),
     ok([]),
   );
-  if (substArgs.isErr()) {
+  if (substArgs.isErr) {
     return err(substArgs.error);
   }
 
@@ -777,7 +1337,8 @@ const substISetAutoLabel = (
     const substVariablesResult = all(
       variables.map((variable) => substISetId(variable, subst)),
     );
-    if (substVariablesResult.isErr()) {
+    if (substVariablesResult.isErr) {
+      // NOTE: return first error
       return err(substVariablesResult.error[0]);
     }
 
@@ -799,7 +1360,8 @@ const substISetNoLabel = (
   const substVariablesResult = all(
     variables.map((variable) => substISetId(variable, subst)),
   );
-  if (substVariablesResult.isErr()) {
+  if (substVariablesResult.isErr) {
+    // return first error
     return err(substVariablesResult.error[0]);
   }
 
@@ -836,7 +1398,7 @@ export const checkDecl = (
   // check type constructor
   const typeOk = checkTypeApp(type, domEnv, allowLiteralType);
   // need to make sure that the types are not built-in types
-  if (typeOk.isErr()) return err([typeOk.error]);
+  if (typeOk.isErr) return err([typeOk.error]);
 
   return createVars(type, [nameId], subEnv, decl);
 };
@@ -849,17 +1411,17 @@ const checkDeclISet = (
   const { stmt: decl, iset } = stmtSet;
   const { type, name: uncompiledNameId } = decl;
   const typeOk = checkTypeApp(type, domEnv);
-  if (typeOk.isErr()) return err([typeOk.error]);
+  if (typeOk.isErr) return err([typeOk.error]);
 
   const isetSubstsResult = evalISet(iset);
-  if (isetSubstsResult.isErr()) return err([isetSubstsResult.error]);
+  if (isetSubstsResult.isErr) return err([isetSubstsResult.error]);
 
   const isetSubsts = isetSubstsResult.value;
   const substIdsResult = all(
     isetSubsts.map((subst) => substISetId(uncompiledNameId, subst)),
   );
 
-  if (substIdsResult.isErr()) {
+  if (substIdsResult.isErr) {
     return err(substIdsResult.error);
   }
 
@@ -868,7 +1430,7 @@ const checkDeclISet = (
   return createVars(type, substIds, subEnv, decl);
 };
 
-const checkDeclList = (
+export const checkDeclList = (
   stmt: DeclList<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
@@ -878,7 +1440,7 @@ const checkDeclList = (
 
   // check type constructor
   const typeOk = checkTypeApp(type, domEnv);
-  if (typeOk.isErr()) {
+  if (typeOk.isErr) {
     return err([typeOk.error]);
   }
 
@@ -893,10 +1455,10 @@ const checkDeclListISet = (
   const { stmt: declList, iset } = stmtSet;
   const { type, names: uncompiledNameIds } = declList;
   const typeOk = checkTypeApp(type, domEnv);
-  if (typeOk.isErr()) return err([typeOk.error]);
+  if (typeOk.isErr) return err([typeOk.error]);
 
   const isetSubstsResult = evalISet(iset);
-  if (isetSubstsResult.isErr()) return err([isetSubstsResult.error]);
+  if (isetSubstsResult.isErr) return err([isetSubstsResult.error]);
 
   const isetSubsts = isetSubstsResult.value;
   const substIdsResult = all(
@@ -909,7 +1471,7 @@ const checkDeclListISet = (
       .flat(),
   );
 
-  if (substIdsResult.isErr()) {
+  if (substIdsResult.isErr) {
     return err(substIdsResult.error);
   }
 
@@ -1000,7 +1562,7 @@ const checkDeclBind = (
   }
 
   const declResult = checkDecl(decl, domEnv, subEnv);
-  if (declResult.isErr()) return err(declResult.error);
+  if (declResult.isErr) return err(declResult.error);
   const { subEnv: checkedDeclEnv, contents: checkedDecls } = declResult.value;
 
   const bind: Bind<A> = {
@@ -1013,7 +1575,7 @@ const checkDeclBind = (
   }
 
   const bindResult = checkBind(bind, domEnv, checkedDeclEnv);
-  if (bindResult.isErr()) return err(bindResult.error);
+  if (bindResult.isErr) return err(bindResult.error);
   const { subEnv: checkedBindEnv, contents: checkedBinds } = bindResult.value;
 
   return ok({
@@ -1218,13 +1780,13 @@ const checkStmtISet = <T extends StmtSet<A>>(
 ): CheckerResult<CompiledSubStmt<A>[]> => {
   const { stmt, iset } = stmtSet;
   const isetSubstsResult = evalISet(iset);
-  if (isetSubstsResult.isErr()) return err([isetSubstsResult.error]);
+  if (isetSubstsResult.isErr) return err([isetSubstsResult.error]);
 
   const isetSubsts = isetSubstsResult.value;
   const substStmtsResult = all(
     isetSubsts.map((subst) => substFunc(stmt, subst)),
   );
-  if (substStmtsResult.isErr()) {
+  if (substStmtsResult.isErr) {
     return err(substStmtsResult.error);
   }
   const substStmts = substStmtsResult.value;
@@ -1234,7 +1796,7 @@ const checkStmtISet = <T extends StmtSet<A>>(
     (substStmt, curr: WithEnv<CompiledSubStmt<A>[]>) => {
       const { subEnv: currEnv, contents: currStmts } = curr;
       const checked = checkerFunc(substStmt, domEnv, currEnv);
-      if (checked.isErr()) return err(checked.error);
+      if (checked.isErr) return err(checked.error);
       const { subEnv: checkedEnv, contents: newStmts } = checked.value;
       return ok({
         subEnv: checkedEnv,
@@ -1395,7 +1957,7 @@ const matchArg = (
   // we add this special check
 
   // If we allow undeclared variables that refer to literals
-  if (exprOk.isErr() && allowUndeclaredVarToLiteral) {
+  if (exprOk.isErr && allowUndeclaredVarToLiteral) {
     const allErrorTags = exprOk.error.map((e) => e.tag);
     // If there is only one error and that error is due to an undeclared variable
     if (allErrorTags.length === 1 && allErrorTags[0] === "VarNotFound") {

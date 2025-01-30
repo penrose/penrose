@@ -300,7 +300,7 @@ const checkDeclPattern = (
   // The correct behavior should not be to throw an error. It just simply should not generate a matching.
 
   // add all errors
-  if (res.isErr()) {
+  if (res.isErr) {
     return addErrSel(
       selEnv,
       res.error.map((error) => {
@@ -395,7 +395,7 @@ const checkRelPattern = (
 
       const res = checkBind(subBind, domEnv, selEnv, true);
 
-      if (res.isErr()) {
+      if (res.isErr) {
         return addErrSel(
           selEnv,
           res.error.map((error) => ({
@@ -420,7 +420,7 @@ const checkRelPattern = (
       const subPred = toSubPred(rel);
       const res = checkPredicate(subPred, domEnv, selEnv, true);
 
-      if (res.isErr()) {
+      if (res.isErr) {
         return addErrSel(
           selEnv,
           res.error.map((error) => ({
@@ -1660,7 +1660,7 @@ const checkPathAndUpdateExpr = (
     const dict = resolveScope(assignment, scope);
 
     const res = f(field, prop, dict, path);
-    if (res.isErr()) {
+    if (res.isErr) {
       return addDiags(oneErr(res.error), assignment);
     }
 
@@ -1708,7 +1708,7 @@ const insertExpr = (
       const warns: StyleWarning[] = [];
       if (prop === undefined) {
         const source = processExpr(expr);
-        if (source.isErr()) {
+        if (source.isErr) {
           return err(source.error);
         }
         if (fielded.has(field)) {
@@ -1784,11 +1784,11 @@ const processStmt = (
     case "PathAssign": {
       // TODO: check `stmt.type`
       const path = resolveLhsStylePath(block, assignment, stmt.path);
-      if (path.isErr()) {
+      if (path.isErr) {
         return addDiags(oneErr(path.error), assignment);
       }
       const expr = resolveStyleExpr(block, assignment, stmt.value);
-      if (expr.isErr()) {
+      if (expr.isErr) {
         return addDiags(oneErr(expr.error), assignment);
       }
       return insertExpr(block, path.value, expr.value, assignment);
@@ -1796,11 +1796,11 @@ const processStmt = (
     case "Override": {
       // resolve just once, not again between deleting and inserting
       const path = resolveLhsStylePath(block, assignment, stmt.path);
-      if (path.isErr()) {
+      if (path.isErr) {
         return addDiags(oneErr(path.error), assignment);
       }
       const expr = resolveStyleExpr(block, assignment, stmt.value);
-      if (expr.isErr()) {
+      if (expr.isErr) {
         return addDiags(oneErr(expr.error), assignment);
       }
       return insertExpr(
@@ -1812,7 +1812,7 @@ const processStmt = (
     }
     case "Delete": {
       const path = resolveLhsStylePath(block, assignment, stmt.contents);
-      if (path.isErr()) {
+      if (path.isErr) {
         return addDiags(oneErr(path.error), assignment);
       }
       return deleteExpr(path.value, assignment);
@@ -1846,7 +1846,7 @@ const processStmt = (
         },
       };
       const expr = resolveStyleExpr(block, assignment, stmt.contents);
-      if (expr.isErr()) {
+      if (expr.isErr) {
         return addDiags(oneErr(expr.error), assignment);
       }
       return insertExpr(block, path, expr.value, assignment);
@@ -2900,7 +2900,7 @@ const evalExpr = (
         trans,
       ).andThen(([left, right]) => {
         const res = evalBinOp(expr, left, right);
-        if (res.isErr()) {
+        if (res.isErr) {
           return err(oneErr(res.error));
         }
         return ok(val(res.value));
@@ -2920,7 +2920,7 @@ const evalExpr = (
     }
     case "CompApp": {
       const args = evalExprs(mut, canvas, layoutStages, expr.args, trans);
-      if (args.isErr()) {
+      if (args.isErr) {
         return err(args.error);
       }
       const argsWithExprs: ArgValWithExpr<ad.Num>[] = zip2(
@@ -2939,7 +2939,7 @@ const evalExpr = (
       }
       const f = compDict[name.value];
       const x = callCompFunc(mut, expr, f, argsWithExprs);
-      if (x.isErr()) return err(oneErr(x.error));
+      if (x.isErr) return err(oneErr(x.error));
       const { value, warnings } = x.value;
 
       trans.diagnostics.warnings = trans.diagnostics.warnings.push(...warnings);
@@ -3032,7 +3032,7 @@ const evalExpr = (
           },
           trans,
         );
-        if (parentValue.isErr()) {
+        if (parentValue.isErr) {
           return err(parentValue.error);
         }
         if (parentValue.value.tag === "ShapeVal") {
@@ -3051,7 +3051,7 @@ const evalExpr = (
             indices,
             trans,
           );
-          if (resolvedIndices.isErr()) {
+          if (resolvedIndices.isErr) {
             return err(resolvedIndices.error);
           }
           const indexValues: number[] = [];
@@ -3078,7 +3078,7 @@ const evalExpr = (
             parentValue.value.contents,
             indexValues,
           );
-          if (elem.isErr()) return err(oneErr(elem.error));
+          if (elem.isErr) return err(oneErr(elem.error));
           else return ok(val(elem.value));
         } else {
           return parentValue;
@@ -3114,14 +3114,14 @@ const evalExpr = (
           switch (expr.op) {
             case "UMinus": {
               const res = evalUMinus(expr, argVal.contents);
-              if (res.isErr()) {
+              if (res.isErr) {
                 return err(oneErr(res.error));
               }
               return ok(val(res.value));
             }
             case "UTranspose": {
               const res = evalUTranspose(expr, argVal.contents);
-              if (res.isErr()) {
+              if (res.isErr) {
                 return err(oneErr(res.error));
               }
               return ok(val(res.value));
@@ -3170,7 +3170,7 @@ const evalExpr = (
         }
       }
       const collected = collectIntoVal(result, expr);
-      if (collected.isErr()) {
+      if (collected.isErr) {
         return err(collected.error);
       } else {
         return ok(val(collected.value));
@@ -3332,7 +3332,7 @@ const translateExpr = (
     case "UnaryStyVarExpr":
     case "ResolvedPath": {
       const res = evalExpr(mut, canvas, layoutStages, e, trans);
-      if (res.isErr()) {
+      if (res.isErr) {
         return addDiags(res.error, trans);
       }
       return {
@@ -3343,7 +3343,7 @@ const translateExpr = (
     case "ConstrFn": {
       const { name, argExprs } = extractObjConstrBody(e.body);
       const args = evalExprs(mut, canvas, layoutStages, argExprs, trans);
-      if (args.isErr()) {
+      if (args.isErr) {
         return addDiags(args.error, trans);
       }
       const argsWithExprs: ArgValWithExpr<ad.Num>[] = zip2(
@@ -3362,7 +3362,7 @@ const translateExpr = (
         );
       }
       const output = callObjConstrFunc(e, constrDict[fname], argsWithExprs);
-      if (output.isErr()) {
+      if (output.isErr) {
         return addDiags(oneErr(output.error), trans);
       }
 
@@ -3389,7 +3389,7 @@ const translateExpr = (
     case "ObjFn": {
       const { name, argExprs } = extractObjConstrBody(e.body);
       const args = evalExprs(mut, canvas, layoutStages, argExprs, trans);
-      if (args.isErr()) {
+      if (args.isErr) {
         return addDiags(args.error, trans);
       }
       const argsWithExprs: ArgValWithExpr<ad.Num>[] = zip2(
@@ -3414,7 +3414,7 @@ const translateExpr = (
         stages.map((s) => s.value),
       );
       const output = callObjConstrFunc(e, objDict[fname], argsWithExprs);
-      if (output.isErr()) {
+      if (output.isErr) {
         return addDiags(oneErr(output.error), trans);
       }
       const { value, warnings } = output.value;
@@ -3434,7 +3434,7 @@ const translateExpr = (
     case "Layering": {
       const { left, right, layeringOp } = e;
       const leftResolved = evalExpr(mut, canvas, layoutStages, left, trans);
-      if (leftResolved.isErr()) {
+      if (leftResolved.isErr) {
         return addDiags(leftResolved.error, trans);
       }
       if (leftResolved.value.tag !== "ShapeVal") {
@@ -3450,7 +3450,7 @@ const translateExpr = (
         right.map((p) => evalExpr(mut, canvas, layoutStages, p, trans)),
       );
 
-      if (rightResolved.isErr()) {
+      if (rightResolved.isErr) {
         return addDiags(rightResolved.error[0], trans);
       }
       for (let i = 0; i < e.right.length; i++) {
@@ -3553,7 +3553,7 @@ export const translate = (
       // nothing
     } else if (typeof e === "string") {
       const shape = evalGPI(path, e, trans);
-      if (shape.isErr()) {
+      if (shape.isErr) {
         trans.diagnostics.errors = trans.diagnostics.errors.push(shape.error);
       } else {
         trans.symbols = trans.symbols.set(pathStr, {
@@ -3953,7 +3953,7 @@ export const compileStyleHelper = async (
 > => {
   const astOk = parseStyle(stySource);
   let styProg;
-  if (astOk.isOk()) {
+  if (astOk.isOk) {
     styProg = astOk.value;
   } else {
     return err({ ...astOk.error, errorType: "StyleError" });
@@ -3963,7 +3963,7 @@ export const compileStyleHelper = async (
 
   // preprocess stage info
   const optimizationStages = getLayoutStages(styProg);
-  if (optimizationStages.isErr()) {
+  if (optimizationStages.isErr) {
     return err(toStyleErrors([optimizationStages.error]));
   }
 
@@ -3981,7 +3981,7 @@ export const compileStyleHelper = async (
   const canvas = getCanvasDim("width", graph).andThen((w) =>
     getCanvasDim("height", graph).map((h) => makeCanvas(w, h)),
   );
-  if (canvas.isErr()) {
+  if (canvas.isErr) {
     return err(toStyleErrors([canvas.error]));
   }
 
@@ -4063,7 +4063,7 @@ export const compileStyleHelper = async (
 
   // fill in passthrough properties
   const passthroughResult = processPassthrough(translation, nameShapeMap);
-  if (passthroughResult.isErr()) {
+  if (passthroughResult.isErr) {
     return err(toStyleErrors([passthroughResult.error]));
   }
 

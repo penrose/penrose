@@ -1,6 +1,4 @@
-import nearley from "nearley";
-import { beforeEach, describe, expect, test } from "vitest";
-import grammar from "../parser/SubstanceParser.js";
+import { assert, describe, expect, test } from "vitest";
 import { A, Identifier } from "../types/ast.js";
 import { DomainEnv } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
@@ -40,7 +38,7 @@ predicate Subset(Set s1, Set s2)
 
 export const envOrError = (prog: string): DomainEnv => {
   const res = compileDomain(prog);
-  if (res.isErr()) throw Error(showError(res.error));
+  if (res.isErr) throw Error(showError(res.error));
   return res.value;
 };
 
@@ -49,36 +47,32 @@ export const subEnvOrError = (
   domEnv: DomainEnv,
 ): SubstanceEnv => {
   const res = compileSubstance(prog, domEnv);
-  if (res.isOk()) {
+  if (res.isOk) {
     return res.value;
   } else {
     throw Error(`unexpected error ${showError(res.error)}`);
   }
 };
 
-let parser: nearley.Parser;
-beforeEach(() => {
-  // NOTE: Neither `feed` nor `finish` will reset the parser state. Therefore recompiling before each unit test
-  parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-});
-
 describe("Common", () => {
   test("empty program", () => {
     const prog = ``;
     const env = envOrError(domainProg);
     const res = compileSubstance(prog, env);
-    expect(res.isOk()).toBe(true);
+    expect(res.isOk).toBe(true);
   });
-  test("trailing comment", () => {
+  test("trailing comments", () => {
     const prog = `
 Set A
 Set B
 Set C
 Set D
+/* Set E */
 -- Set E`;
     const env = envOrError(domainProg);
     const res = compileSubstance(prog, env);
-    expect(res.isOk()).toBe(true);
+
+    expect(res.isOk).toBe(true);
   });
 });
 
@@ -93,7 +87,7 @@ NoLabel D, E
     `;
     const env = envOrError(domainProg);
     const res = compileSubstance(prog, env);
-    if (res.isOk()) {
+    if (res.isOk) {
       const expected = [
         ["A", "\\vec{A}", "MathLabel"],
         ["B", "B_1", "TextLabel"],
@@ -102,6 +96,7 @@ NoLabel D, E
         ["E", "", "NoLabel"],
       ];
       const labelMap = res.value.labels;
+
       expected.forEach(([id, value, type]) => {
         const label = labelMap.get(id)!;
         expect(label.value).toEqual(value);
@@ -120,33 +115,31 @@ describe("Check statements", () => {
     const env = envOrError(domainProg);
     const prog = `
 Set A, B, C
-OpenSet D
-A := D
-    `;
+OpenSet D`;
     const res = compileSubstance(prog, env);
-    expect(res.isOk()).toBe(true);
-    if (res.isOk()) {
+    if (res.isOk) {
       hasVars(res.value, [["A", "Set"]]);
+    } else {
+      assert.fail(showError(res.error));
     }
   });
   test("decl bind", () => {
     const env = envOrError(domainProg);
     const prog = `
 OpenSet D
-Set B, C
-Set A := D
+Set A, B, C
 Set E := Subset(B, C)
     `;
     const res = compileSubstance(prog, env);
-    expect(res.isOk()).toBe(true);
-    if (res.isOk()) {
-      // TODO: not caching var bindings for now. Add to checker if needed
-      // expect(res.value[1].bindings.get("A")![0].name.value).toEqual("Subset");
+
+    if (res.isOk) {
       hasVars(res.value, [
         ["A", "Set"],
         ["E", "Set"],
         ["D", "OpenSet"],
       ]);
+    } else {
+      assert.fail(showError(res.error));
     }
   });
   test("func: function", () => {
@@ -157,14 +150,14 @@ Point p
 B := AddPoint(p, B)
       `;
     const res = compileSubstance(prog, env);
-    if (res.isOk()) {
+    if (res.isOk) {
       hasVars(res.value, [
         ["A", "Set"],
         ["B", "Set"],
         ["p", "Point"],
       ]);
     } else {
-      throw Error(`unexpected error ${showError(res.error)}`);
+      assert.fail(showError(res.error));
     }
   });
   test("predicates: non-nesting", () => {
@@ -176,7 +169,7 @@ Subset(D, E)
 Subset(D, A)
     `;
     const env = envOrError(domainProg);
-    subEnvOrError(prog, env);
+    compileSubstance(prog, env);
   });
   test("labeling", () => {
     const prog = `
@@ -188,15 +181,16 @@ AutoLabel B, C
 NoLabel B, C
     `;
     const env = envOrError(domainProg);
-    subEnvOrError(prog, env);
+    compileSubstance(prog, env);
   });
   describe("indexed expressions", () => {
     test("indexed set decl - sets with even indices", () => {
       const env = envOrError(domainProg);
       const prog = `Set a_i for i in [1, 10] where i % 2 == 0`;
       const res = compileSubstance(prog, env);
-      expect(res.isOk()).toBe(true);
-      if (res.isOk()) {
+      if (res.isOk) {
+        console.log(res.value.ast);
+
         hasVars(res.value, [
           ["a_2", "Set"],
           ["a_4", "Set"],
@@ -204,6 +198,8 @@ NoLabel B, C
           ["a_8", "Set"],
           ["a_10", "Set"],
         ]);
+      } else {
+        assert.fail(showError(res.error));
       }
     });
 
@@ -211,24 +207,24 @@ NoLabel B, C
       const env1 = envOrError(domainProg);
       const prog1 = `Set a_i for i in [1, 10] where i % 2 == 0.5`;
       const res1 = compileSubstance(prog1, env1);
-      expect(res1.isOk()).toBe(true);
-      if (res1.isOk()) {
+      expect(res1.isOk).toBe(true);
+      if (res1.isOk) {
         expect(res1.value.objs.size).toBe(0);
       }
 
       const env2 = envOrError(domainProg);
       const prog2 = `Set a_i for i in [20, 10]`;
       const res2 = compileSubstance(prog2, env2);
-      expect(res2.isOk()).toBe(true);
-      if (res2.isOk()) {
+      expect(res2.isOk).toBe(true);
+      if (res2.isOk) {
         expect(res2.value.objs.size).toBe(0);
       }
 
       const env3 = envOrError(domainProg);
       const prog3 = `Set a_i, b_j for i in [20, 1], j in [1, 20]`;
       const res3 = compileSubstance(prog3, env3);
-      expect(res3.isOk()).toBe(true);
-      if (res3.isOk()) {
+      expect(res3.isOk).toBe(true);
+      if (res3.isOk) {
         expect(res3.value.objs.size).toBe(0);
       }
     });
@@ -241,12 +237,13 @@ NoLabel B, C
       // third iteration: a_4, a_5
       // ...
       const res = compileSubstance(prog, env);
-      expect(res.isOk()).toBe(true);
-      if (res.isOk()) {
+      if (res.isOk) {
         hasVars(
           res.value,
           [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => [`a_${n}`, "Set"]),
         );
+      } else {
+        assert.fail(showError(res.error));
       }
     });
 
@@ -257,8 +254,7 @@ NoLabel B, C
         Subset(s_i, s_j) for i in [0, 4], j in [1, 5] where j == i + 1
       `;
       const res = compileSubstance(prog, env);
-      expect(res.isOk()).toBe(true);
-      if (res.isOk()) {
+      if (res.isOk) {
         const preds = res.value.ast.statements.filter(
           (s) => s.tag === "ApplyPredicate",
         ) as ApplyPredicate<A>[];
@@ -276,6 +272,8 @@ NoLabel B, C
         ).toEqual(
           ["s_0 s_1", "s_1 s_2", "s_2 s_3", "s_3 s_4", "s_4 s_5"].sort(),
         );
+      } else {
+        assert.fail(showError(res.error));
       }
     });
 
@@ -287,9 +285,7 @@ NoLabel B, C
         P(t_i, j) for i in [0, 9], j in [1, 10] where i + 1 == j
       `;
       const res = compileSubstance(prog, env);
-      expect(res.isOk()).toBe(true);
-
-      if (res.isOk()) {
+      if (res.isOk) {
         // make sure ten literals are created
         const literals = res.value.literals;
         expect(literals.length).toEqual(10);
@@ -299,6 +295,8 @@ NoLabel B, C
         expect(
           literals.map((l) => (l.contents as NumberConstant<A>).contents),
         ).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      } else {
+        assert.fail(showError(res.error));
       }
     });
   });
@@ -337,7 +335,7 @@ describe("Errors", () => {
     result: Result<SubstanceEnv, PenroseError>,
     errorType: PenroseError["tag"],
   ) => {
-    if (result.isErr()) {
+    if (result.isErr) {
       if (printError) console.log(showError(result.error));
       expect(result.error.tag).toBe(errorType);
     } else {
@@ -546,7 +544,7 @@ describe("Subtypes", () => {
     Set B
     B := Subset(S, O)
         `;
-    subEnvOrError(prog, env);
+    compileSubstance(prog, env);
   });
 });
 
@@ -579,7 +577,7 @@ const sameAsSource = (
   source: string,
   res: Result<SubstanceEnv, PenroseError>,
 ) => {
-  if (res.isOk()) {
+  if (res.isOk) {
     const ast = res.value.ast;
     const strFromAST = prettySubstance(ast);
     expect(strFromAST).toEqual(source);

@@ -27,7 +27,7 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
         diagram.diagramId,
         historyLoc,
       );
-      if (state.isErr()) {
+      if (state.isErr) {
         setWaiting(false);
         setDiagram((diagram) => ({
           ...diagram,

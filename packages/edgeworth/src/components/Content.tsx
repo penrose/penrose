@@ -165,12 +165,12 @@ export class Content extends React.Component<ContentProps, ContentState> {
     const envOrError = compileDomain(dsl);
 
     // initialize synthesizer
-    if (envOrError.isOk()) {
+    if (envOrError.isOk) {
       const domEnv = envOrError.value;
       let subEnv;
       if (sub.length > 0) {
         const subRes = compileSubstance(sub, domEnv);
-        if (subRes.isOk()) {
+        if (subRes.isOk) {
           subEnv = subRes.value;
         } else {
           console.log(
@@ -197,7 +197,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
       //         domain: this.state.domain,
       //         variation: `${i}`,
       //       });
-      //       return res.isOk();
+      //       return res.isOk;
       //     }),
       //   );
       //   const missing = numPrograms - compiled.filter((c) => c).length;

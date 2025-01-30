@@ -35,7 +35,7 @@ const domEnv: DomainEnv = compileDomain(domain).unsafelyUnwrap();
 
 const compile = (src: string): SubProg<A> => {
   const compiled = compileSubstance(src, domEnv);
-  if (compiled.isErr()) {
+  if (compiled.isErr) {
     throw new Error(src + "    " + showError(compiled.error));
   }
   return compiled.value.ast;

@@ -273,7 +273,7 @@ const startOptimize = (
       const steppedState = step(penroseState!, {
         until: (): boolean => j++ >= numStepsPerYield,
       });
-      if (steppedState.isErr()) {
+      if (steppedState.isErr) {
         stepSequenceInfo.state = {
           tag: "OptimizationError",
           error: steppedState.error,

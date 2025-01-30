@@ -1,0 +1,138 @@
+@top Program { (statement semi)* }
+@precedence {typeapp, fn_consapp, binary, singleton, times @left, plus @left, unaryBoolOp, binaryBoolOp @left}
+
+statement {
+    TypeApp |
+    PredicateApp |
+    Fn_ConsApp |
+    Labeling
+}
+
+kw<term> { @specialize[@name={term}]<Identifier, term> }
+
+TypeApp {
+    !typeapp NamedId commaSep1<Identifier> (IndexedStatement)?
+}
+
+PredicateApp {
+    NamedId ArgList (IndexedStatement)?
+}
+
+Fn_ConsApp {
+    // object_name := function_constructor_name (argument_list)
+    !fn_consapp Identifier Assignment NamedId ArgList (IndexedStatement)? |
+    // type_name object_name := function_constructor_name (argument_list)
+    !fn_consapp NamedId Identifier Assignment NamedId ArgList (IndexedStatement)? |
+    // Let object_name := function_constructor_name (argument_list)
+    kw<"Let"> Identifier Assignment NamedId ArgList (IndexedStatement)?
+}
+
+Labeling {
+    kw<"AutoLabel"> (kw<"All"> | commaSep1<Identifier>) |
+    kw<"Label"> Identifier (TeX | String) (IndexedStatement)?|
+    kw<"NoLabel"> commaSep1<Identifier> (IndexedStatement)?
+}
+
+ArgList {
+    "(" commaSep<(Identifier | String | Number | (ArithOp<"-">) Number | (ArithOp<"-">))> ")"
+}
+
+IndexedStatement {
+    kw<"for"> indexer (condition)?
+}
+
+indexer {
+    (Identifier kw<"in"> Range) ("," Identifier kw<"in"> Range)*
+}
+
+Range {
+    "[" Number "," Number "]"
+}
+
+condition {
+    kw<"where"> BooleanExpression
+}
+
+// For use in autocomplete identification
+Assignment {
+    ":="
+}
+
+// For use in autocomplete identification
+NamedId {
+    Identifier 
+}
+
+BooleanExpression {
+    Boolean |
+    !unaryBoolOp BoolOp<"!"> BooleanExpression |
+    BooleanExpression !binaryBoolOp (BoolOp<"&&"> | BoolOp<"||">) BooleanExpression |
+    NumericExpression CompareOp NumericExpression |
+    "(" BooleanExpression ")"
+}
+
+NumericExpression {
+    Number |
+    Identifier |
+    (ArithOp<"-">) NumericExpression |
+    NumericExpression !times (ArithOp<"/"> | ArithOp<"%"> | ArithOp<"mod"> | ArithOp<"*"> | ArithOp<"^">) NumericExpression |
+    NumericExpression !plus (ArithOp<"+" | "-">) NumericExpression |
+    "(" NumericExpression ")"
+}
+
+CompareOp { ("<" | ">" | "==" | "!=") "="? }
+ArithOp<tkn> { tkn }
+BoolOp<tkn> {tkn}
+
+// For autocomplete identification
+Sep {
+    ","
+}
+
+commaSep<content> {
+    (content (Sep content)*)?
+  }
+
+commaSep1<content> {
+    content (Sep content)*
+}
+
+@tokens {
+	identifierChar { @asciiLetter | $[_$\u{a1}-\u{10ffff}] }
+  	word { identifierChar (identifierChar | @digit)* }
+    Identifier { word }
+    // this might be way too inclusive 
+    TeX {"$" ![$]+ "$"}
+    LineComment[@export] { "--" ![\n]* }
+    spaces[@export] { $[\u0009 \u000b\u00a0]+ }
+    newline[@export] { $[\r\n] }
+	Number {
+		(@digit+ ("." (@digit)*)? | "." @digit+)
+		(("e" | "E") ("+" | "-")? @digit+)?
+	}
+    Boolean {"true" | "false"}
+    String { '"' (!["\\] | "\\" _)* '"' }
+
+    @precedence {Number, Identifier}
+    @precedence {Boolean, Identifier}
+    @precedence {LineComment, "-"}
+
+}
+
+@skip {} {
+BlockComment { "/*" (blockCommentContent | blockCommentNewline)* blockCommentEnd }
+}
+
+@local tokens {
+blockCommentEnd { "*/" }
+blockCommentNewline { "\n" }
+@else blockCommentContent
+}
+
+semi { ";" | insertSemi }
+
+@skip { spaces | newline| LineComment | BlockComment }
+@external tokens insertSemicolon from "./substanceTokens.js" { insertSemi }
+@context trackNewline from "./substanceTokens.js"
+
+@detectDelim

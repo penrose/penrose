@@ -160,7 +160,7 @@ export default function DiagramPanel() {
       newHistoryLoc,
     );
 
-    if (layoutResult.isErr()) {
+    if (layoutResult.isErr) {
       newDiagram = {
         ...newDiagram,
         error: isPenroseError(layoutResult.error)

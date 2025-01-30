@@ -73,9 +73,9 @@ export const validateDomain = (
 
   const statementsOrErr = all<DomainStmt<C>, ParseError>(res);
 
-  if (statementsOrErr.isErr()) {
+  if (statementsOrErr.isErr) {
     return err(statementsOrErr.error[0]);
-  } else if (subtypeDeclOrErr.isErr()) {
+  } else if (subtypeDeclOrErr.isErr) {
     return err(subtypeDeclOrErr.error[0]);
   } else {
     return ok({
@@ -310,7 +310,7 @@ export const compileDomain = (
   prog: string,
 ): Result<DomainEnv, PenroseError> => {
   const astOk = parseDomain(prog);
-  if (astOk.isOk()) {
+  if (astOk.isOk) {
     const ast = astOk.value;
     return checkDomain(ast).match({
       Ok: (env) => ok(env),
@@ -555,7 +555,7 @@ const checkSymmetricArgs = (
   envOk: Result<DomainEnv, DomainError>,
   expr: PredicateDecl<C>,
 ): CheckerResult => {
-  if (envOk.isOk()) {
+  if (envOk.isOk) {
     const env = envOk.value;
     // If it's symmetric
     if (expr.symmetric) {

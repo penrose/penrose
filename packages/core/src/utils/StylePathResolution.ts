@@ -89,7 +89,7 @@ export const resolveLhsStylePath = (
   original: Path<A>,
 ): Result<ResolvedUnindexedStylePath<A>, StyleError> => {
   const resolved = resolveStylePath(block, assignment, original);
-  if (resolved.isErr()) return err(resolved.error);
+  if (resolved.isErr) return err(resolved.error);
 
   if (resolved.value.tag === "Object") {
     const { access } = resolved.value;
@@ -120,7 +120,7 @@ export const resolveStylePath = (
     assignment,
     original,
   );
-  if (withoutIndex.isErr()) {
+  if (withoutIndex.isErr) {
     return err(withoutIndex.error);
   }
 
@@ -142,7 +142,7 @@ export const resolveStylePath = (
     indices.map((index) => resolveStyleExpr(block, assignment, index)),
   );
 
-  if (resolvedIndices.isErr()) {
+  if (resolvedIndices.isErr) {
     return err(resolvedIndices.error[0]);
   }
 
@@ -179,7 +179,7 @@ export const resolveStylePathWithoutIndex = (
   let parts: Identifier<A>[] = [firstPart, ...original.members];
   while (parts.length > 0) {
     const r = resolveStylePathHelper({ block, subst }, assignment, curr, parts);
-    if (r.isErr()) {
+    if (r.isErr) {
       return err(r.error);
     } else {
       const { result, remaining } = r.value;
@@ -366,7 +366,7 @@ const resolvePath = (
   p: Path<A>,
 ): Result<ResolvedPath<A>, StyleError> => {
   const resolved = resolveStylePath(block, assignment, p);
-  if (resolved.isErr()) {
+  if (resolved.isErr) {
     return err(resolved.error);
   }
   return ok({
@@ -384,9 +384,9 @@ const resolveStyleFunctionCall = (
   const resolvee = (e: Expr<A>) => resolveStyleExpr(block, assignment, e);
   if (body.tag === "InlineComparison") {
     const a1 = resolvee(body.arg1);
-    if (a1.isErr()) return err(a1.error);
+    if (a1.isErr) return err(a1.error);
     const a2 = resolvee(body.arg2);
-    if (a2.isErr()) return err(a2.error);
+    if (a2.isErr) return err(a2.error);
     return ok({
       ...body,
       arg1: a1.value,
@@ -394,7 +394,7 @@ const resolveStyleFunctionCall = (
     });
   } else {
     const a = all(body.args.map(resolvee));
-    if (a.isErr()) return err(a.error[0]);
+    if (a.isErr) return err(a.error[0]);
     return ok({
       ...body,
       args: a.value,
@@ -419,9 +419,9 @@ export const resolveStyleExpr = (
       return ok(expr);
     case "BinOp": {
       const l = resolvee(expr.left);
-      if (l.isErr()) return err(l.error);
+      if (l.isErr) return err(l.error);
       const r = resolvee(expr.right);
-      if (r.isErr()) return err(r.error);
+      if (r.isErr) return err(r.error);
       return ok({
         ...expr,
         left: l.value,
@@ -430,7 +430,7 @@ export const resolveStyleExpr = (
     }
     case "UOp": {
       const a = resolvee(expr.arg);
-      if (a.isErr()) return err(a.error);
+      if (a.isErr) return err(a.error);
       return ok({
         ...expr,
         arg: a.value,
@@ -438,9 +438,9 @@ export const resolveStyleExpr = (
     }
     case "Layering": {
       const l = resolvep(expr.left);
-      if (l.isErr()) return err(l.error);
+      if (l.isErr) return err(l.error);
       const r = all(expr.right.map(resolvep));
-      if (r.isErr()) return err(r.error[0]);
+      if (r.isErr) return err(r.error[0]);
       return ok({
         ...expr,
         left: l.value,
@@ -450,7 +450,7 @@ export const resolveStyleExpr = (
     case "List":
     case "Vector": {
       const c = all(expr.contents.map(resolvee));
-      if (c.isErr()) return err(c.error[0]);
+      if (c.isErr) return err(c.error[0]);
       return ok({
         ...expr,
         contents: c.value,
@@ -458,9 +458,9 @@ export const resolveStyleExpr = (
     }
     case "Tuple": {
       const c0 = resolvee(expr.contents[0]);
-      if (c0.isErr()) return err(c0.error);
+      if (c0.isErr) return err(c0.error);
       const c1 = resolvee(expr.contents[1]);
-      if (c1.isErr()) return err(c1.error);
+      if (c1.isErr) return err(c1.error);
       return ok({
         ...expr,
         contents: [c0.value, c1.value],
@@ -468,7 +468,7 @@ export const resolveStyleExpr = (
     }
     case "CompApp": {
       const a = all(expr.args.map(resolvee));
-      if (a.isErr()) return err(a.error[0]);
+      if (a.isErr) return err(a.error[0]);
       return ok({
         ...expr,
         args: a.value,
@@ -477,7 +477,7 @@ export const resolveStyleExpr = (
     case "ObjFn":
     case "ConstrFn": {
       const b = resolveStyleFunctionCall(block, assignment, expr.body);
-      if (b.isErr()) return err(b.error);
+      if (b.isErr) return err(b.error);
       return ok({
         ...expr,
         body: b.value,
@@ -488,7 +488,7 @@ export const resolveStyleExpr = (
         expr.properties.map(
           (pDecl): Result<Resolved<PropertyDecl<A>>, StyleError> => {
             const v = resolvee(pDecl.value);
-            if (v.isErr()) return err(v.error);
+            if (v.isErr) return err(v.error);
             return ok({
               ...pDecl,
               value: v.value,
@@ -496,7 +496,7 @@ export const resolveStyleExpr = (
           },
         ),
       );
-      if (ps.isErr()) return err(ps.error[0]);
+      if (ps.isErr) return err(ps.error[0]);
       return ok({
         ...expr,
         properties: ps.value,
@@ -504,7 +504,7 @@ export const resolveStyleExpr = (
     }
     case "UnaryStyVarExpr": {
       const a = resolvep(expr.arg);
-      if (a.isErr()) return err(a.error);
+      if (a.isErr) return err(a.error);
       return ok({
         ...expr,
         arg: a.value,
@@ -512,7 +512,7 @@ export const resolveStyleExpr = (
     }
     case "CollectionAccess": {
       const n = resolvep(expr.name);
-      if (n.isErr()) return err(n.error);
+      if (n.isErr) return err(n.error);
       return ok({
         ...expr,
         name: n.value,

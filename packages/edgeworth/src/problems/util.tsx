@@ -23,12 +23,12 @@ const generateProgs = (
 ) => {
   const envOrError = compileDomain(domain);
   // initialize synthesizer
-  if (envOrError.isOk()) {
+  if (envOrError.isOk) {
     const domEnv = envOrError.value;
     let subEnv;
     if (substance.length > 0) {
       const subRes = compileSubstance(substance, domEnv);
-      if (subRes.isOk()) {
+      if (subRes.isOk) {
         subEnv = subRes.value;
       } else {
         console.error(

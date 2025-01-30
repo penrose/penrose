@@ -17406,6 +17406,11 @@ trim-newlines@^3.0.0:
   resolved "https://registry.npmjs.org/true-myth/-/true-myth-4.1.1.tgz"
   integrity sha512-rqy30BSpxPznbbTcAcci90oZ1YR4DqvKcNXNerG5gQBU2v4jk0cygheiul5J6ExIMrgDVuanv/MkGfqZbKrNNg==
 
+"true-myth@^8.5.0":
+  version "8.5.0"
+  resolved "https://registry.yarnpkg.com/true-myth/-/true-myth-8.5.0.tgz#0cf4f1c6c5d6e933f8dda80eb841e1c1c958888a"
+  integrity sha512-EkMeamfavFmcWk7K5daj9V90uQM3A4RVSiWqvhAKvdNqjsagXnTuR3+h4x8NZlo2APBqLSLxt2K7/mktP789MA==
+
 ts-api-utils@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/ts-api-utils/-/ts-api-utils-1.0.1.tgz"

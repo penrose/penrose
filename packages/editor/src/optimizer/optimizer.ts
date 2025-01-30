@@ -141,7 +141,7 @@ export default class Optimizer {
       sequenceId: 0,
       frame: 0,
     });
-    if (renderState.isErr()) {
+    if (renderState.isErr) {
       return taggedErr(
         MessageTags.Compile,
         isPenroseError(renderState.error)
@@ -208,7 +208,7 @@ export default class Optimizer {
       const svgCacheResult = await collectAndSeparateLabels(
         result.value.shapes,
       );
-      if (svgCacheResult.isErr()) {
+      if (svgCacheResult.isErr) {
         return Result.err(svgCacheResult.error);
       }
       svgCache = svgCacheResult.value.svgCache;

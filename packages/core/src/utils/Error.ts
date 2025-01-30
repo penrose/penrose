@@ -1,4 +1,5 @@
 import { Result } from "true-myth";
+import { and, andThen, ap, err, isErr, match, ok, or } from "true-myth/result";
 import { isConcrete } from "../engine/EngineUtils.js";
 import { shapeTypes } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
@@ -63,18 +64,6 @@ import {
   subObjectToUniqueName,
   toErrorLoc,
 } from "./Util.js";
-const {
-  or,
-  and,
-  ok,
-  err,
-  andThen,
-  match,
-  ap,
-  unsafelyUnwrap,
-  isErr,
-  unsafelyGetErr,
-} = Result;
 
 // #region error rendering and construction
 
@@ -1229,7 +1218,7 @@ export const all = <Ok, Error>(
   const oks = [];
   const errs = [];
   for (const res of results) {
-    if (res.isOk()) {
+    if (res.isOk) {
       oks.push(res.value);
     } else {
       errs.push(res.error);
@@ -1242,18 +1231,6 @@ export const all = <Ok, Error>(
 };
 
 // NOTE: re-export all true-myth types to reduce boilerplate
-export {
-  Result,
-  and,
-  andThen,
-  ap,
-  err,
-  isErr,
-  match,
-  ok,
-  or,
-  unsafelyGetErr,
-  unsafelyUnwrap,
-};
+export { Result, and, andThen, ap, err, isErr, match, ok, or };
 
 // #endregion

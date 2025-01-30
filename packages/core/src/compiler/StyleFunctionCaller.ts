@@ -32,7 +32,7 @@ export const callCompFunc = (
   args: ArgValWithExpr<ad.Num>[],
 ): Result<MayWarn<Value<ad.Num>>, StyleError> => {
   const checkedArgs = checkArgs(callExpr, func, args);
-  if (checkedArgs.isErr()) return err(checkedArgs.error);
+  if (checkedArgs.isErr) return err(checkedArgs.error);
   try {
     const { value, warnings } = func.body(context, ...checkedArgs.value);
     return ok({
@@ -71,7 +71,7 @@ export const callObjConstrFunc = (
   args: ArgValWithExpr<ad.Num>[],
 ): Result<MayWarn<ad.Num>, StyleError> => {
   const checkedArgs = checkArgs(callExpr, func, args);
-  if (checkedArgs.isErr()) return err(checkedArgs.error);
+  if (checkedArgs.isErr) return err(checkedArgs.error);
   try {
     const { value, warnings } = func.body(...checkedArgs.value);
     return ok({
@@ -127,7 +127,7 @@ export const checkArgs = (
     const formalArg = func.params[i];
     const actualArg: ArgValWithExpr<ad.Num> | undefined = args[i];
     const v = checkArg(callExpr, func.name, formalArg, actualArg);
-    if (v.isErr()) return err(v.error);
+    if (v.isErr) return err(v.error);
     vals.push(v.value);
   }
   return ok(vals);

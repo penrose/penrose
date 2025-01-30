@@ -104,7 +104,7 @@ const forwardRequest = async (
   const worker = getWorkerOrError(diagramId);
 
   let result: any;
-  if (worker.isErr()) {
+  if (worker.isErr) {
     result = taggedErr(data.tag, worker.error);
   } else {
     result = await request(
@@ -121,7 +121,7 @@ const forwardRequest = async (
 /** Forward a notification to the worker with `diagramId` */
 const forwardNotification = (diagramId: DiagramID, data: NotificationData) => {
   const worker = getWorkerOrError(diagramId);
-  if (worker.isErr()) {
+  if (worker.isErr) {
     throw new Error("Invalid diagram id for notification forward");
   }
 
