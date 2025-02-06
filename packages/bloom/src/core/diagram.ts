@@ -23,7 +23,7 @@ import consola, { LogLevels } from "consola";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SharedInput } from "./builder.js";
 import { DragConstraint } from "./types.js";
-import { CallbackLooper, mathjaxInitWithHandler, stateToSVG } from "./utils.js";
+import { CallbackLooper, mathjaxInitWithHandler, setNoFillIfTransparent, stateToSVG } from "./utils.js";
 
 const log = consola.create({ level: LogLevels.warn }).withTag("diagram");
 
@@ -196,6 +196,7 @@ export class Diagram {
     const { svg, nameElemMap } = await this.render();
     const draggingRef = { dragging: false };
     for (const [name, elem] of nameElemMap) {
+      setNoFillIfTransparent(elem);
       elem.setAttribute("pointer-events", "painted");
       if (this.draggingConstraints.has(name)) {
         // get rid of tooltip
@@ -301,6 +302,7 @@ export class Diagram {
                 draggingRef.dragging ? "grabbing" : "grab",
               );
             }
+            setNoFillIfTransparent(oldElem);
           } else {
             throw new Error(`Shape ${name} not found in old element map`);
           }
