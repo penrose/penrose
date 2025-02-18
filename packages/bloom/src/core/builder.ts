@@ -748,6 +748,21 @@ export class DiagramBuilder {
     inner.splice(idx, 1);
   };
 
+  setOptimized = (name: string, optimized: boolean) => {
+    if (!this.namedInputs.has(name)) {
+      throw new Error("No named input with name '" + name + "'");
+    }
+
+    const ipt = this.namedInputs.get(name)!;
+
+    if (optimized) {
+      this.pinnedInputs.delete(ipt);
+    } else {
+      // set not optimized
+      this.pinnedInputs.add(ipt);
+    }
+  };
+
   private getOnCanvasConstraints = () => {
     const onCanvasConstraints: Num[] = [];
     for (const shape of this.shapes) {
