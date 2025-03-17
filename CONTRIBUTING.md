@@ -31,7 +31,9 @@
 
 ## Prerequisites
 
-Be sure you have these tools installed:
+If you're using [Nix][] (with [flakes][] enabled) and [direnv][], you can skip this whole section, because the `flake.nix` file at the root of this repo contains everything you need and will automatically activate once you enter your clone of this repository and run `direnv allow`.
+
+Otherwise, be sure you have these tools installed:
 
 - [Git][]
 
@@ -42,7 +44,7 @@ Be sure you have these tools installed:
 
   - [Yarn][] v1.x
 
-Depending on your platform, here are some extra instructions:
+And then depending on your platform, here are some extra instructions:
 
 ### Apple Silicon
 
@@ -443,6 +445,8 @@ yarn lerna publish from-package --pre-dist-tag develop
 [commit]: https://github.com/git-guides/git-commit
 [conventional commit guidelines]: https://www.conventionalcommits.org/en/v1.0.0/
 [create a fork]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
+[direnv]: https://direnv.net/
+[flakes]: https://wiki.nixos.org/wiki/Flakes
 [git]: https://git-scm.com/downloads
 [good first issues]: https://github.com/penrose/penrose/issues?q=is%3Aopen+is%3Aissue+label%3A%22kind%3Agood+first+issue%22
 [guide for installing nvm and node.js]: https://logfetch.com/install-node-npm-wsl2/
@@ -450,6 +454,7 @@ yarn lerna publish from-package --pre-dist-tag develop
 [homebrew]: https://brew.sh/
 [install dependencies]: https://classic.yarnpkg.com/en/docs/installing-dependencies
 [merge conflicts]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/resolving-a-merge-conflict-using-the-command-line
+[nix]: https://nixos.org/
 [node-canvas]: https://www.npmjs.com/package/canvas
 [node.js]: https://nodejs.org/en/download/
 [npm]: https://www.npmjs.com/
