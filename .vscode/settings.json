@@ -19,5 +19,6 @@
   "files.insertFinalNewline": false,
   "files.trimFinalNewlines": false,
   "files.trimTrailingWhitespace": false,
+  "nix.formatterPath": "nixfmt",
   "search.useParentIgnoreFiles": true
 }

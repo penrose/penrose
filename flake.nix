@@ -24,6 +24,7 @@
               giflib
               libpng
               librsvg
+              nixfmt-rfc-style
               pango
               pixman
               pkg-config
