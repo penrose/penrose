@@ -90,6 +90,9 @@ export class Diagram {
   private eventListeners;
   private optimizationLooper = new CallbackLooper("MessageChannel");
   private renderLooper = new CallbackLooper("AnimationFrame");
+  private onOptimizationFinished = (xs: number[]) => {};
+  private onOptimizationStepped = (xs: number[]) => {};
+  private onOptimizationStarted = (xs: number[]) => {};
 
   /**
    * Create a new renderable diagram. This should not be called directly; use
@@ -178,15 +181,26 @@ export class Diagram {
 
       if (isOptimized(this.state)) {
         log.info("Optimization finished");
+        this.onOptimizationFinished(this.copyNonLassoVaryingVals());
         return false; // from the opt step
       } else {
+        this.onOptimizationStepped(this.copyNonLassoVaryingVals());
         return true;
       }
     } catch (err: unknown) {
       log.info(`Optimization failed: ${err}`);
+      this.onOptimizationFinished(this.copyNonLassoVaryingVals());
       return false;
     }
   };
+
+  private copyNonLassoVaryingVals = () => {
+    if (this.lassoEnabled) {
+      return this.state.varyingValues.slice(0, this.state.varyingValues.length / 2);
+    } else {
+      return this.state.varyingValues.slice();
+    }
+  }
 
   private initialRender = async (): Promise<{
     svg: SVGElement;
@@ -444,6 +458,18 @@ export class Diagram {
     this.inputEffects.get(name)!.add(fn);
   };
 
+  setOnOptimizationFinished = (fn: (xs: number[]) => void) => {
+    this.onOptimizationFinished = fn;
+  }
+
+  setOnOptimizationStepped = (fn: (xs: number[]) => void) => {
+    this.onOptimizationStepped = fn;
+  }
+
+  setOnOptimizationStarted = (fn: (xs: number[]) => void) => {
+    this.onOptimizationStarted = fn;
+  }
+
   /**
    * Remove an effect from an input.
    * @param name The name of the input
@@ -491,6 +517,7 @@ export class Diagram {
   private resetOptimization = () => {
     this.state.params = start(this.state.varyingValues.length);
     this.state.currentStageIndex = 0;
+    this.onOptimizationStarted(this.copyNonLassoVaryingVals());
   };
 
   private applyPins = (state: PenroseState) => {
