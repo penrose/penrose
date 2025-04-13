@@ -2,10 +2,13 @@
 
 <!-- toc -->
 
-- [Prerequisites](#prerequisites)
-  - [Apple Silicon](#apple-silicon)
-  - [Windows WSL](#windows-wsl)
 - [Setup](#setup)
+  - [Nix](#nix)
+    - [direnv](#direnv)
+  - [Without Nix](#without-nix)
+    - [Apple Silicon](#apple-silicon)
+    - [Windows WSL](#windows-wsl)
+  - [Finishing setup](#finishing-setup)
 - [Development](#development)
   - [Run](#run)
   - [Production build](#production-build)
@@ -29,13 +32,99 @@
 
 <!-- tocstop -->
 
-## Prerequisites
+## Setup
 
-If you're using [Nix][], this repository provides a [flake][] with all these prerequisites, letting you skip this whole section.
+First, you must already have [Git][] installed, to clone [this repository][].
+The recommended way to do so is via the [GitHub CLI][]; once you have that
+installed and [set up][gh auth login], run this command:
 
-Otherwise, be sure you have these tools installed:
+```sh
+gh repo clone penrose/penrose
+```
 
-- [Git][]
+Then, enter the directory holding the repository clone you just made:
+
+```sh
+cd penrose
+```
+
+The rest of this document assumes you are running commands from this directory,
+unless otherwise specified.
+
+### Nix
+
+Building Penrose from source requires you to have _specific versions_ of a few
+other pieces of software installed. Speaking from experience, getting the right
+versions of everything here is difficult, so you _may_ want to consider using
+[Nix][] to guarantee that you have the right versions of everything. However,
+Nix is definitely not for everyone, so by all means feel free to use the
+[Without Nix](#without-nix) section instead to install everything manually.
+
+First, install Nix if you haven't already. Then, enable [flakes][]. Probably the
+easiest way to do that is to put this line in the file `~/.config/nix/nix.conf`:
+
+```
+experimental-features = nix-command flakes
+```
+
+If you're new to Nix, that file probably doesn't exist yet, so you can create it
+with those contents by just running this command:
+
+```sh
+echo 'experimental-features = nix-command flakes' > ~/.config/nix/nix.conf
+```
+
+Now, you could run the following command to create a nested shell within your
+existing terminal, which will have all the software you need available:
+
+```sh
+nix develop
+```
+
+You can use `exit` at any time to go back out of the nested shell to your
+original one. If you want, you can stop right here and skip to the [Finishing
+setup](#finishing-setup) section; or if you want a bit more developer
+convenience then keep reading.
+
+#### direnv
+
+Running `nix develop` does work, but then you'll only be able to have the
+software installed in terminals where you've run `nix develop`. A more automatic
+approach is to install [direnv][], which will let you automatically put all the
+right programs into your existing terminal whenever you enter this directory,
+and take them out whenever you leave.
+
+If you're still in a `nix develop` shell, go ahead and `exit` it. Then once
+you've installed direnv, you can create the appropriate `.envrc` file in this
+directory by running this command:
+
+```sh
+echo 'use flake' > .envrc
+```
+
+That tells direnv that you want it to use the [`flake.nix`](flake.nix) file in
+this repository. Then, run the following command to tell direnv that the setup
+in this repository is safe to use:
+
+```sh
+direnv allow
+```
+
+You should see some output as direnv sets up the environment, and then the right
+versions of everything should be available in your terminal!
+
+Now if you leave this directory e.g. by running `cd ..`, you'll see a message
+saying `direnv: unloading` and all the programs listed in `flake.nix` will
+disappear. If you enter again via `cd penrose`, you'll see a longer message
+starting with `direnv: loading` and all the programs will be available again.
+
+If you're a VS Code user, you're highly recommended to also install the [direnv
+VS Code extension][], which allows all your other VS Code extensions to also
+pick up on the programs provided by `flake.nix` and your `.envrc`.
+
+### Without Nix
+
+If you're not using Nix, be sure to have these tools installed:
 
 - [Python][] 3.10 or below (if using Linux or Mac, we recommend installing via
   [Pyenv][])
@@ -46,7 +135,7 @@ Otherwise, be sure you have these tools installed:
 
 And then depending on your platform, here are some extra instructions:
 
-### Apple Silicon
+#### Apple Silicon
 
 If you're using an ARM-based Mac, [node-canvas][] (one of our dependencies) also
 requires some additional packages to be installed. Install [Homebrew][] if you
@@ -64,25 +153,17 @@ you may run `python3 --version` again and find that you now have Python 3.12
 installed. Using [Pyenv][] is a great way to prevent these shenanigans from
 messing with your Penrose setup!
 
-### Windows WSL
+#### Windows WSL
 
 Here are some WSL-specific guides:
 
 - [Guide for installing nvm and Node.js][]
 - [Guide for installing Yarn][]
 
-## Setup
+### Finishing setup
 
-Once you've installed all prerequisites, [clone][] [this repo][]. Then open a
-terminal in your clone of it; for instance, if you cloned it via the terminal,
-run this command:
-
-```sh
-cd penrose/
-```
-
-The rest of this document assumes you are running commands from this directory,
-unless otherwise specified. Next [install dependencies][] from [npm][]:
+Once you've gotten all the right software (whether via Nix or otherwise), there
+are only a couple setup steps remaining. [Install dependencies][] from [npm][]:
 
 ```sh
 yarn
@@ -94,8 +175,8 @@ Then, build the dependencies of our `roger` tool.
 yarn build:roger
 ```
 
-Finally, enter the directory of `roger` to install it as a global binary executable, and then come
-back to this directory:
+Finally, enter the directory of `roger` to install it as a global binary
+executable, and then come back to this directory:
 
 ```sh
 pushd packages/roger/
@@ -445,8 +526,12 @@ yarn lerna publish from-package --pre-dist-tag develop
 [commit]: https://github.com/git-guides/git-commit
 [conventional commit guidelines]: https://www.conventionalcommits.org/en/v1.0.0/
 [create a fork]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
-[flake]: https://wiki.nixos.org/wiki/Flakes
+[direnv]: https://direnv.net/
+[direnv VS Code extension]: https://marketplace.visualstudio.com/items?itemName=mkhl.direnv
+[flakes]: https://wiki.nixos.org/wiki/Flakes
+[gh auth login]: https://cli.github.com/manual/gh_auth_login
 [git]: https://git-scm.com/downloads
+[github cli]: https://github.com/cli/cli#installation
 [good first issues]: https://github.com/penrose/penrose/issues?q=is%3Aopen+is%3Aissue+label%3A%22kind%3Agood+first+issue%22
 [guide for installing nvm and node.js]: https://logfetch.com/install-node-npm-wsl2/
 [guide for installing yarn]: https://dev.to/bonstine/installing-yarn-on-wsl-38p2
@@ -465,7 +550,7 @@ yarn lerna publish from-package --pre-dist-tag develop
 [pyenv]: https://github.com/pyenv/pyenv
 [remote]: https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
 [that link]: http://localhost:3000/try/
-[this repo]: https://github.com/penrose/penrose
+[this repository]: https://github.com/penrose/penrose
 [yarn]: https://classic.yarnpkg.com/lang/en/docs/install/
 [semantic versioning]: https://semver.org
 [github release]: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
