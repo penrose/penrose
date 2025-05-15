@@ -358,11 +358,12 @@ export const mathjaxInitWithHandler = () => {
 export const setNoFillIfTransparent = (shape: SVGElement) => {
   const fillOpacityStart = shape.outerHTML.indexOf("fill-opacity");
   if (fillOpacityStart === -1) return;
-  const fillOpacityContent = shape.outerHTML.indexOf('"', fillOpacityStart + "fill-opacity".length) + 1;
+  const fillOpacityContent =
+    shape.outerHTML.indexOf('"', fillOpacityStart + "fill-opacity".length) + 1;
   const fillOpacityEnd = shape.outerHTML.indexOf('"', fillOpacityContent);
   if (shape.outerHTML.slice(fillOpacityContent, fillOpacityEnd) === "0") {
     shape.setAttribute("fill", "none");
   }
-}
+};
 
 export { makeCanvas as canvas } from "@penrose/core";
