@@ -6,6 +6,8 @@
 *.log
 *#
 *~
+/.direnv/
+/.envrc
 /target/
 dist/
 node_modules/
