@@ -207,6 +207,8 @@ export class Diagram {
     nameElemMap: Map<string, SVGElement>;
     draggingRef: { dragging: boolean };
   }> => {
+    while (await this.optimizationStep()) { /* empty */ }
+
     const { svg, nameElemMap } = await this.render();
     const draggingRef = { dragging: false };
     for (const [name, elem] of nameElemMap) {
