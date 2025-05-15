@@ -23,7 +23,12 @@ import consola, { LogLevels } from "consola";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SharedInput } from "./builder.js";
 import { DragConstraint } from "./types.js";
-import { CallbackLooper, mathjaxInitWithHandler, stateToSVG } from "./utils.js";
+import {
+  CallbackLooper,
+  mathjaxInitWithHandler,
+  setNoFillIfTransparent,
+  stateToSVG,
+} from "./utils.js";
 
 const log = consola.create({ level: LogLevels.warn }).withTag("diagram");
 
@@ -90,6 +95,9 @@ export class Diagram {
   private eventListeners;
   private optimizationLooper = new CallbackLooper("MessageChannel");
   private renderLooper = new CallbackLooper("AnimationFrame");
+  private onOptimizationFinished = (xs: number[]) => {};
+  private onOptimizationStepped = (xs: number[]) => {};
+  private onOptimizationStarted = (xs: number[]) => {};
 
   /**
    * Create a new renderable diagram. This should not be called directly; use
@@ -178,13 +186,27 @@ export class Diagram {
 
       if (isOptimized(this.state)) {
         log.info("Optimization finished");
+        this.onOptimizationFinished(this.copyNonLassoVaryingVals());
         return false; // from the opt step
       } else {
+        this.onOptimizationStepped(this.copyNonLassoVaryingVals());
         return true;
       }
     } catch (err: unknown) {
       log.info(`Optimization failed: ${err}`);
+      this.onOptimizationFinished(this.copyNonLassoVaryingVals());
       return false;
+    }
+  };
+
+  private copyNonLassoVaryingVals = () => {
+    if (this.lassoEnabled) {
+      return this.state.varyingValues.slice(
+        0,
+        this.state.varyingValues.length / 2,
+      );
+    } else {
+      return this.state.varyingValues.slice();
     }
   };
 
@@ -193,9 +215,14 @@ export class Diagram {
     nameElemMap: Map<string, SVGElement>;
     draggingRef: { dragging: boolean };
   }> => {
+    while (await this.optimizationStep()) {
+      /* empty */
+    }
+
     const { svg, nameElemMap } = await this.render();
     const draggingRef = { dragging: false };
     for (const [name, elem] of nameElemMap) {
+      setNoFillIfTransparent(elem);
       elem.setAttribute("pointer-events", "painted");
       if (this.draggingConstraints.has(name)) {
         // get rid of tooltip
@@ -301,6 +328,7 @@ export class Diagram {
                 draggingRef.dragging ? "grabbing" : "grab",
               );
             }
+            setNoFillIfTransparent(oldElem);
           } else {
             throw new Error(`Shape ${name} not found in old element map`);
           }
@@ -442,6 +470,18 @@ export class Diagram {
     this.inputEffects.get(name)!.add(fn);
   };
 
+  setOnOptimizationFinished = (fn: (xs: number[]) => void) => {
+    this.onOptimizationFinished = fn;
+  };
+
+  setOnOptimizationStepped = (fn: (xs: number[]) => void) => {
+    this.onOptimizationStepped = fn;
+  };
+
+  setOnOptimizationStarted = (fn: (xs: number[]) => void) => {
+    this.onOptimizationStarted = fn;
+  };
+
   /**
    * Remove an effect from an input.
    * @param name The name of the input
@@ -489,6 +529,7 @@ export class Diagram {
   private resetOptimization = () => {
     this.state.params = start(this.state.varyingValues.length);
     this.state.currentStageIndex = 0;
+    this.onOptimizationStarted(this.copyNonLassoVaryingVals());
   };
 
   private applyPins = (state: PenroseState) => {
