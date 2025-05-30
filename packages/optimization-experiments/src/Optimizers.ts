@@ -157,7 +157,6 @@ export class ExteriorPointOptimizer implements Optimizer {
   ) {
     this.unconstrainedOptimizer = unconstrainedOptimizer;
     this.params = params;
-    console.log("init weight: ", this.weight);
   }
 
   step = (state: PenroseState): OptimizerResult => {
@@ -201,7 +200,6 @@ export class ExteriorPointOptimizer implements Optimizer {
           this.lastXs = [...nowXs];
           this.lastEnergy = nowEnergy;
           this.unconstrainedOptimizer.reset();
-          console.log("weight: ", this.weight);
           return { tag: "Unconverged", outputs: unconstrainedResult.outputs };
         }
       }
@@ -331,13 +329,13 @@ export class AdaptiveGradientDescentOptimizer
 
 export class LBGFSOptimizer implements Optimizer {
   private params: PenroseParams | null = null;
+  private lastOutputs: OptOutputs | null = null;
 
   step = (state: PenroseState): OptimizerResult => {
     if (!this.params) {
       this.params = initParams(state.varyingValues.length);
     }
 
-    let i = 0;
     const masks = state.constraintSets.get(
       state.optStages[state.currentStageIndex],
     )!;
@@ -345,9 +343,13 @@ export class LBGFSOptimizer implements Optimizer {
     for (let j = 0; j < state.varyingValues.length; j++) {
       inputs[j] = state.varyingValues[j];
     }
+
+    let i = 0;
     this.params = stepUntil(
-      (x: Float64Array, weight: number, grad: Float64Array): number =>
-        state.gradient(masks, x, weight, grad).phi,
+      (x: Float64Array, weight: number, grad: Float64Array): number => {
+        this.lastOutputs = state.gradient(masks, x, weight, grad);
+        return this.lastOutputs.phi;
+      },
       inputs,
       this.params,
       () => i++ >= 1,
@@ -364,8 +366,8 @@ export class LBGFSOptimizer implements Optimizer {
           tag: "Unconverged",
           outputs: {
             phi: this.params!.lastUOenergy ?? 0,
-            objectives: [],
-            constraints: [],
+            objectives: this.lastOutputs?.objectives ?? [],
+            constraints: this.lastOutputs?.constraints ?? [],
           },
         };
 
@@ -374,8 +376,8 @@ export class LBGFSOptimizer implements Optimizer {
           tag: "Converged",
           outputs: {
             phi: this.params!.lastUOenergy ?? 0,
-            objectives: [],
-            constraints: [],
+            objectives: this.lastOutputs?.objectives ?? [],
+            constraints: this.lastOutputs?.constraints ?? [],
           },
         };
 

@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
-import { DiagramPanel } from "./DiagramPanel.js";
 import {
   AdaptiveGradientDescentOptimizer,
   ExteriorPointOptimizer,
   GradientDescentOptimizer,
   LBGFSOptimizer,
-} from "./Optimizers.js";
+} from "../Optimizers.js";
+import { DiagramPanel } from "./DiagramPanel.js";
 import { TrioInfo, TrioSelector } from "./TrioSelector.js";
 
 function App() {
@@ -41,7 +41,7 @@ function App() {
     switch (optimizer) {
       case "gd":
         return gdOptimizer;
-      case "adagrad":
+      case "adaptive gd":
         return adagradOptimizer;
       case "penrose":
         return penroseOptimizer;
@@ -56,7 +56,7 @@ function App() {
       {/* Optimizer dropdown */}
       <select onChange={(e) => setOptimizer(e.target.value)}>
         <option value="gd">Gradient Descent</option>
-        <option value="adagrad">Adagrad</option>
+        <option value="adaptive gd">Adaptive Gradient Descent</option>
         <option value="penrose">Penrose</option>
       </select>
 
