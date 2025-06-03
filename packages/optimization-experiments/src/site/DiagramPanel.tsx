@@ -11,7 +11,6 @@ import { Trio } from "@penrose/examples/dist/index.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Optimizer } from "./Optimizers.js";
 import { TrioInfo } from "./TrioSelector.js";
-import { removeStaging } from "../utils.js";
 
 class MessageChannelLooper {
   private channel: MessageChannel;
@@ -141,7 +140,7 @@ export const DiagramPanel = ({
     (async () => {
       const { state } = await compileTrio(trioInfo.trio);
       console.log("compiled trio", trioInfo.trio);
-      setPenroseState(removeStaging(state));
+      setPenroseState(state);
     })();
   }, [trioInfo]);
 

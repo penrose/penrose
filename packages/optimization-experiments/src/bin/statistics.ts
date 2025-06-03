@@ -42,7 +42,9 @@ const sampleDiagram = (
   const toPenalty = (x: number) => Math.max(0, x) * Math.max(0, x);
 
   const objectiveSum = objectives.reduce((acc, x) => acc + x, 0);
-  const constraintSum = constraints.map(toPenalty).reduce((acc, x) => acc + x, 0);
+  const constraintSum = constraints
+    .map(toPenalty)
+    .reduce((acc, x) => acc + x, 0);
 
   return {
     objectives: objectiveSum,
@@ -51,28 +53,29 @@ const sampleDiagram = (
 };
 
 // compute mean, stddev, and histogram for objectives and constraints
-const computeStatistics = (
-  values: number[],
-): EnergyStatistics => {
+const computeStatistics = (values: number[]): EnergyStatistics => {
   const mean = values.reduce((acc, x) => acc + x, 0) / values.length;
 
   // compute sample mean
-  const squaredDiffs = values.map(x => (x - mean) ** 2);
-  const variance = squaredDiffs.reduce((acc, x) => acc + x, 0) / (values.length - 1);
+  const squaredDiffs = values.map((x) => (x - mean) ** 2);
+  const variance =
+    squaredDiffs.reduce((acc, x) => acc + x, 0) / (values.length - 1);
   const stddev = Math.sqrt(variance);
 
   // compute sample skewness
   const n = values.length;
-  const skewness = n > 1
-    ? (values.reduce((acc, x) => acc + ((x - mean) ** 3), 0))
-      / (n * (stddev ** 3))
-    : 0;
+  const skewness =
+    n > 1
+      ? values.reduce((acc, x) => acc + (x - mean) ** 3, 0) / (n * stddev ** 3)
+      : 0;
 
   // compute sample kurtosis
-  const kurtosis = n > 1
-    ? (values.reduce((acc, x) => acc + ((x - mean) ** 4), 0))
-      / (n * (stddev ** 4)) - 3
-    : 0;
+  const kurtosis =
+    n > 1
+      ? values.reduce((acc, x) => acc + (x - mean) ** 4, 0) /
+          (n * stddev ** 4) -
+        3
+      : 0;
 
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -102,7 +105,9 @@ export const computeDiagramExploration = (
 
     const elapsedTime = self.performance.now() - startTime;
     if (elapsedTime > maxMs) {
-      console.log(`Stopping sampling after ${samples.length} samples due to time limit.`);
+      console.log(
+        `Stopping sampling after ${samples.length} samples due to time limit.`,
+      );
       break;
     }
   }

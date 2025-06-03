@@ -84,7 +84,7 @@ const lines = [
   "const trio = async (x: Promise<{ default: Trio }>): Promise<Trio> =>",
   "  (await x).default;",
   "",
-  "const entries: [string, Meta][] = [",
+  "export const entries: [string, Meta][] = [",
 ];
 for (const [k, v] of Object.entries(registry)) {
   lines.push(`  [${JSON.stringify(k)}, {`);

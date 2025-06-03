@@ -7,13 +7,12 @@
     "dev": "vite",
     "build-bin": "tsc",
     "build-site": "vite build",
-    "collect": "node dist/bin/collect-statistics.js",
+    "collect": "node dist/bin/collect.js",
     "preview": "vite preview"
   },
   "dependencies": {
     "@penrose/core": "^4.0.0-alpha.5",
     "@penrose/examples": "^4.0.0-alpha.5",
-    "@penrose/roger": "^4.0.0-alpha.5",
     "global-jsdom": "^26.0.0",
     "jsdom": "^26.1.0",
     "react": "^19.1.0",

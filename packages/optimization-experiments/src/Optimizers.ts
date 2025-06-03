@@ -36,6 +36,7 @@ export type Failed = {
 export enum FailedReason {
   NaN,
   MaxIterations,
+  Unknown,
 }
 
 export interface GradientDescentParams {
@@ -345,15 +346,39 @@ export class LBGFSOptimizer implements Optimizer {
     }
 
     let i = 0;
-    this.params = stepUntil(
-      (x: Float64Array, weight: number, grad: Float64Array): number => {
-        this.lastOutputs = state.gradient(masks, x, weight, grad);
-        return this.lastOutputs.phi;
-      },
-      inputs,
-      this.params,
-      () => i++ >= 1,
-    );
+
+    try {
+      this.params = stepUntil(
+        (x: Float64Array, weight: number, grad: Float64Array): number => {
+          this.lastOutputs = state.gradient(masks, x, weight, grad);
+          return this.lastOutputs.phi;
+        },
+        inputs,
+        this.params,
+        () => i++ >= 1,
+      );
+    } catch (error) {
+      if (
+        typeof error === "object" &&
+        error &&
+        "message" in error &&
+        typeof "message" === "string"
+      ) {
+        const message = error.message as string;
+        if (message.includes("NaN")) {
+          console.error(
+            "LBGFS optimization failed: NaN encountered in inputs.",
+          );
+          return { tag: "Failed", reason: FailedReason.NaN };
+        } else {
+          console.error(`LBGFS optimization failed: ${message}`);
+          return { tag: "Failed", reason: FailedReason.Unknown };
+        }
+      }
+
+      console.error("LBGFS optimization failed: Unknown error", error);
+      return { tag: "Failed", reason: FailedReason.Unknown };
+    }
 
     for (let j = 0; j < state.varyingValues.length; j++) {
       state.varyingValues[j] = this.params.lastUOstate?.[j] ?? 0;
