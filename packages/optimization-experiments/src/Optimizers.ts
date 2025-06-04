@@ -1,19 +1,27 @@
-import { PenroseState } from "@penrose/core";
+import { PenroseState, resample } from "@penrose/core";
 import {
   Params as PenroseParams,
   start as initParams,
   stepUntil,
 } from "@penrose/core/dist/engine/Optimizer";
 import { OptOutputs } from "@penrose/core/dist/types/ad";
+import { removeStaging } from "./utils.js";
 
 export interface UnconstrainedOptimizer {
+  init: (state: PenroseState) => void;
   step: (state: PenroseState, constraintWeight: number) => OptimizerResult;
-  reset: () => void;
 }
 
 export interface Optimizer {
+  tag: "Optimizer"; // branding to distinguish from staged optimizers
+  init: (state: PenroseState) => void;
   step: (state: PenroseState) => OptimizerResult;
-  reset: () => void;
+}
+
+export interface StagedOptimizer {
+  tag: "StagedOptimizer"; // branding to distinguish from optimizers
+  init: (state: PenroseState) => void;
+  step: (state: PenroseState) => OptimizerResult;
 }
 
 export type OptimizerResult = Unconverged | Converged | Failed;
@@ -58,6 +66,10 @@ export class GradientDescentOptimizer implements UnconstrainedOptimizer {
 
   constructor(params: GradientDescentParams) {
     this.params = params;
+  }
+
+  init = (state: PenroseState) => {
+    this.currentIteration = 0;
   }
 
   step = (state: PenroseState, constraintWeight: number): OptimizerResult => {
@@ -109,10 +121,6 @@ export class GradientDescentOptimizer implements UnconstrainedOptimizer {
 
     return { tag: "Unconverged", outputs }; // Continue optimization
   };
-
-  reset = () => {
-    this.currentIteration = 0;
-  };
 }
 
 export type ExteriorPointParams = {
@@ -146,6 +154,8 @@ export const getEnergy = (state: PenroseState, weight: number): number => {
 };
 
 export class ExteriorPointOptimizer implements Optimizer {
+  tag = "Optimizer" as const;
+
   private unconstrainedOptimizer: UnconstrainedOptimizer;
   private params: ExteriorPointParams;
   private lastXs: number[] | null = null;
@@ -160,19 +170,19 @@ export class ExteriorPointOptimizer implements Optimizer {
     this.params = params;
   }
 
+  init = (state: PenroseState) => {
+    this.unconstrainedOptimizer.init(state);
+    this.lastXs = [...state.varyingValues];
+    this.lastEnergy = getEnergy(state, this.weight);
+    this.weight = 1;
+  }
+
   step = (state: PenroseState): OptimizerResult => {
-    if (this.lastXs === null) {
-      this.lastXs = [...state.varyingValues];
-    }
-
-    if (this.lastEnergy === null) {
-      this.lastEnergy = getEnergy(state, this.weight);
-    }
-
     const unconstrainedResult = this.unconstrainedOptimizer.step(
       state,
       this.weight,
     );
+
     switch (unconstrainedResult.tag) {
       case "Unconverged":
         return unconstrainedResult;
@@ -200,7 +210,7 @@ export class ExteriorPointOptimizer implements Optimizer {
           this.weight *= this.params.weightGrowthFactor;
           this.lastXs = [...nowXs];
           this.lastEnergy = nowEnergy;
-          this.unconstrainedOptimizer.reset();
+          this.unconstrainedOptimizer.init(state);
           return { tag: "Unconverged", outputs: unconstrainedResult.outputs };
         }
       }
@@ -209,13 +219,6 @@ export class ExteriorPointOptimizer implements Optimizer {
         return unconstrainedResult;
       }
     }
-  };
-
-  reset = () => {
-    this.unconstrainedOptimizer.reset();
-    this.lastXs = null;
-    this.lastEnergy = null;
-    this.weight = 1;
   };
 }
 
@@ -233,6 +236,13 @@ export class AdaptiveGradientDescentOptimizer
     this.stepSize = params.stepSize;
   }
 
+  init = (state: PenroseState) => {
+    this.currentIteration = 0;
+    this.lastOutputs = null;
+    this.gradient = new Float64Array(state.inputs.length);
+    this.stepSize = this.params.stepSize;
+  }
+
   step = (state: PenroseState, constraintWeight: number): OptimizerResult => {
     if (this.currentIteration >= this.params.maxIterations!) {
       console.error("Adaptive gradient descent failed: max iterations reached");
@@ -245,18 +255,17 @@ export class AdaptiveGradientDescentOptimizer
       inputs[i] = state.varyingValues[i];
     }
 
-    if (!this.gradient) {
-      this.gradient = new Float64Array(state.inputs.length);
+    if (!this.lastOutputs) {
       this.lastOutputs = state.gradient(
         state.constraintSets.get(state.optStages[state.currentStageIndex])!,
         inputs,
         constraintWeight,
-        this.gradient,
+        this.gradient!,
       );
     }
 
     const l2norm = Math.sqrt(
-      this.gradient.reduce(
+      this.gradient!.reduce(
         (acc, val) => acc + Math.abs(val) * Math.abs(val),
         0,
       ),
@@ -280,7 +289,7 @@ export class AdaptiveGradientDescentOptimizer
       }
 
       for (let i = 0; i < state.varyingValues.length; i++) {
-        inputsCopy[i] = inputs[i] - this.stepSize * this.gradient[i];
+        inputsCopy[i] = inputs[i] - this.stepSize * this.gradient![i];
       }
 
       if (!allFinite(inputsCopy)) {
@@ -319,18 +328,18 @@ export class AdaptiveGradientDescentOptimizer
 
     return { tag: "Unconverged", outputs: this.lastOutputs }; // Continue optimization
   };
-
-  reset = () => {
-    this.currentIteration = 0;
-    this.lastOutputs = null;
-    this.gradient = null;
-    this.stepSize = this.params.stepSize;
-  };
 }
 
 export class LBGFSOptimizer implements Optimizer {
+  tag = "Optimizer" as const;
+
   private params: PenroseParams | null = null;
   private lastOutputs: OptOutputs | null = null;
+
+  init = (state: PenroseState) => {
+    this.params = null;
+    this.lastOutputs = null;
+  }
 
   step = (state: PenroseState): OptimizerResult => {
     if (!this.params) {
@@ -415,8 +424,177 @@ export class LBGFSOptimizer implements Optimizer {
         };
     }
   };
-
-  reset = () => {
-    this.params = null;
-  };
 }
+
+interface Problem {
+  state: PenroseState;
+  optimizer: Optimizer;
+  lastResult: OptimizerResult | null;
+}
+
+export class MultiStartStagedOptimizer implements StagedOptimizer {
+  tag = "StagedOptimizer" as const;
+
+  private createOptimizer: () => Optimizer;
+  private numStarts: number;
+  private problems: Problem[] = [];
+  private alwaysPreferSatisfied: boolean;
+  private constraintEnergyThreshold: number;
+  private justStarted = true;
+
+  constructor(
+    createOptimizer: () => Optimizer,
+    numStarts: number,
+    alwaysPreferSatisfied: boolean = true,
+    constraintEnergyThreshold = 1e-1,
+  ) {
+    this.alwaysPreferSatisfied = alwaysPreferSatisfied;
+    this.constraintEnergyThreshold = constraintEnergyThreshold;
+    this.numStarts = numStarts;
+    this.createOptimizer = createOptimizer;
+  }
+
+  init = (state: PenroseState) => {
+    this.problems = [];
+    this.justStarted = true;
+  }
+
+  step = (state: PenroseState): OptimizerResult => {
+    if (this.justStarted) {
+      // Initialize states only once at the beginning
+
+      this.problems = [];
+
+      for (let i = 0; i < this.numStarts; i++) {
+        const optimizer = this.createOptimizer();
+
+        let newState = {
+          ...state,
+          varyingValues: [...state.varyingValues], // un-alias
+        };
+        newState.variation = `${newState.variation}-${i}`;
+        newState = resample(newState);
+
+        optimizer.init(newState);
+
+        this.problems.push({
+          state: newState,
+          optimizer,
+          lastResult: null,
+        });
+
+        this.justStarted = false;
+      }
+    }
+
+    for (let i = 0; i < this.problems.length; i++) {
+      const optimizer = this.problems[i].optimizer;
+      if (this.problems[i].lastResult === null
+        || this.problems[i].lastResult!.tag === "Unconverged") {
+        this.problems[i].lastResult = optimizer.step(this.problems[i].state);
+      }
+    }
+
+    this.problems = this.problems.filter(problem => problem.lastResult!.tag !== "Failed");
+    if (this.problems.length === 0) {
+      console.error("All optimizers failed.");
+      return { tag: "Failed", reason: FailedReason.Unknown };
+    }
+
+
+    // if always prefer satsified, these are only the satisfied results
+    // otherwise all non-failed results
+    const preferredProblems =
+      this.problems.filter(problem => {
+        const result = problem.lastResult!;
+
+        if (result.tag === "Failed") return false;
+        if (!this.alwaysPreferSatisfied) return true;
+
+        const constraintEnergy = result.outputs.constraints.reduce(
+          (acc, c) => acc + Math.max(0, c) ** 2,
+          0,
+        );
+        return constraintEnergy <= this.constraintEnergyThreshold;
+      });
+
+    const findBest = (problems: Problem[]): Problem => {
+      return problems.reduce((best, current) => {
+        if (best.lastResult!.tag === "Failed") return current;
+        if (current.lastResult!.tag === "Failed") return best;
+        if (current.lastResult!.outputs.phi < best.lastResult!.outputs.phi) return current;
+        return best;
+      });
+    };
+
+    let bestProblem: Problem;
+    if (preferredProblems.length > 0) {
+      // If we have preferred results, find the best among them
+      bestProblem = findBest(preferredProblems);
+    } else {
+      // If no preferred results, return the best non-failed result
+      bestProblem = findBest(this.problems);
+    }
+
+    const bestResult = bestProblem.lastResult! as Converged | Unconverged;
+    const bestState = bestProblem.state;
+
+    // update the original state with the best state
+    Object.assign(state, bestState);
+
+    const allConverged =
+      this.problems.every(problem => problem.lastResult!.tag === "Converged");
+    if (allConverged) {
+      console.log("All optimizers converged.");
+    }
+
+    if (allConverged) {
+      if (bestState.currentStageIndex < bestState.optStages.length - 1) {
+        // move on to next stage
+        for (const p of this.problems) {
+          p.state.currentStageIndex++;
+          p.optimizer.init(p.state);
+        }
+        return { tag: "Unconverged", outputs: bestResult.outputs };
+      } else {
+        // optimization converged
+        return { tag: "Converged", outputs: bestResult.outputs };
+      }
+    } else {
+      // continue with current stage
+      return { tag: "Unconverged", outputs: bestResult.outputs };
+    }
+  }
+}
+
+export class BasicStagedOptimizer implements StagedOptimizer {
+  tag = "StagedOptimizer" as const;
+
+  private optimizer: Optimizer;
+
+  constructor(optimizer: Optimizer) {
+    this.optimizer = optimizer;
+  }
+
+  init = (state: PenroseState) => {
+    this.optimizer.init(state);
+  }
+
+  step = (state: PenroseState): OptimizerResult => {
+    const result = this.optimizer.step(state);
+
+    if (result.tag === "Converged") {
+      if (state.currentStageIndex < state.optStages.length - 1) {
+        state.currentStageIndex++;
+        this.optimizer.init(state);
+        return { tag: "Unconverged", outputs: result.outputs };
+      } else {
+        return result; // optimization converged
+      }
+    } else {
+      return result; // continue with current stage
+    }
+  }
+}
+
+

@@ -9,8 +9,8 @@ import { OptOutputs } from "@penrose/core/dist/types/ad";
 import { generateVariation } from "@penrose/editor/src/state/variation.js";
 import { Trio } from "@penrose/examples/dist/index.js";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Optimizer } from "./Optimizers.js";
 import { TrioInfo } from "./TrioSelector.js";
+import { StagedOptimizer } from "../Optimizers.js";
 
 class MessageChannelLooper {
   private channel: MessageChannel;
@@ -74,7 +74,7 @@ export const DiagramPanel = ({
   optimizer,
 }: {
   trioInfo: TrioInfo;
-  optimizer: Optimizer;
+  optimizer: StagedOptimizer;
 }) => {
   const [penroseState, setPenroseState] = useState<PenroseState | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -85,7 +85,10 @@ export const DiagramPanel = ({
 
   const renderCallback = useMemo(() => {
     console.log("new render callback");
-    optimizer.reset();
+
+    if (!penroseState) return async () => false;
+
+    optimizer.init(penroseState);
 
     return async () => {
       if (!penroseState) return false;
@@ -114,22 +117,10 @@ export const DiagramPanel = ({
       }
 
       switch (optimizerResult.tag) {
-        case "Converged":
-          if (
-            penroseState.currentStageIndex <
-            penroseState.optStages.length - 1
-          ) {
-            penroseState.currentStageIndex++;
-            optimizer.reset();
-            return true;
-          } else {
-            return false;
-          }
-          break;
-
         case "Unconverged":
           return true;
 
+        case "Converged":
         case "Failed":
           return false;
       }
@@ -177,7 +168,7 @@ export const DiagramPanel = ({
               s.variation = generateVariation();
               return resample(s);
             });
-            optimizer.reset();
+            optimizer.init(penroseState);
           }}
         >
           Resample
