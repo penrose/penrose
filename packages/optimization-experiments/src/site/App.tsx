@@ -1,15 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BasicStagedOptimizer,
   ExteriorPointOptimizer,
-  LBGFSOptimizer, LineSearchGDOptimizer, MultiStartStagedOptimizer, StagedOptimizer
+  LBGFSOptimizer, LineSearchGDOptimizer, MultiStartStagedOptimizer, SimulatedAnnealing, StagedOptimizer
 } from "../Optimizers.js";
 import { DiagramPanel } from "./DiagramPanel.js";
 import { TrioInfo, TrioSelector } from "./TrioSelector.js";
 
 function App() {
   const [trioInfo, setTrioInfo] = useState<TrioInfo | null>(null);
-  const [optimizer, setOptimizer] = useState<string>("line search gd");
+  const [optimizer, setOptimizer] = useState<StagedOptimizer | null>(null);
 
   const lineSearchGDOptimizer = useMemo(() => {
     console.log("new line search gd optimizer!");
@@ -29,42 +29,62 @@ function App() {
       16);
   }, []);
 
-  const optimizerObj: StagedOptimizer = useMemo(() => {
-    setTrioInfo((t) => (t ? { ...t } : null));
+  const saLineSearchGDOptimizer = useMemo(() => {
+    console.log("new SA line search gd optimizer!");
+    const lineSearchGD = new LineSearchGDOptimizer();
+    const simulatedAnnealing = new SimulatedAnnealing(lineSearchGD, {
+      initialTemperature: 10,
+      coolingRate: 0.01,
+      stiffeningRate: 0.05
+    });
+    const staged = new BasicStagedOptimizer(simulatedAnnealing);
+    return staged;
+  }, []);
 
-    switch (optimizer) {
+  const strToOptimizer = (str: string): StagedOptimizer => {
+    switch (str) {
       case "line search gd":
         return lineSearchGDOptimizer;
       case "penrose":
         return penroseOptimizer;
       case "multi-penrose":
         return multiStartPenroseOptimizer;
+      case "SA line search gd":
+        return saLineSearchGDOptimizer;
       default:
-        throw new Error(`Unknown optimizer: ${optimizer}`);
+        throw new Error(`Unknown optimizer: ${str}`);
     }
-  }, [optimizer]);
+  };
+
+  useEffect(() => {
+    setOptimizer(strToOptimizer("line search gd"));
+  }, []);
+
+  console.log(trioInfo)
+  console.log(optimizer);
 
   return (
     <>
       <TrioSelector setTrioInfo={setTrioInfo} />
       {/* Optimizer dropdown */}
-      <select onChange={(e) => setOptimizer(e.target.value)}>
+      <select onChange={(e) => setOptimizer(strToOptimizer(e.target.value))}>
         <option value="line search gd">Line Search Gradient Descent</option>
         <option value="penrose">Penrose</option>
         <option value="multi-penrose">Multi-start Penrose</option>
+        <option value="SA line search gd">Simulated Annealing Line Search GD</option>
         {/* Add more optimizers here as needed */}
       </select>
 
-      {trioInfo && (
+      {trioInfo && optimizer &&
         <div
           style={{
             display: "grid",
             marginTop: "2em",
           }}
         >
-          <DiagramPanel trioInfo={trioInfo} optimizer={optimizerObj} />
+          <DiagramPanel trioInfo={trioInfo} optimizer={optimizer} />
         </div>
-      )}
+      }
     </>
   );
 }

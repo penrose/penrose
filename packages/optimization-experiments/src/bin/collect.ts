@@ -2,7 +2,7 @@ import "global-jsdom/register";
 
 import { entries, Trio } from "@penrose/examples";
 import fs from "fs";
-import { compileTrio } from "../utils.js";
+import { compileTrio, removeStaging } from "../utils.js";
 import { computeDiagramExploration } from "./statistics.js";
 import { estimateSuccessRates } from "./success-rate.js";
 
@@ -38,7 +38,7 @@ const computeStatistics = async () => {
     }
 
     const explorationInfo = computeDiagramExploration(
-      state,
+      removeStaging(state),
       sampler,
       maxSamplesPerDim,
       maxMs,

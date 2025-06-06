@@ -37,3 +37,18 @@ export const compileTrio = async (trio: Trio): Promise<PenroseState | null> => {
   }
   return result.value;
 };
+
+export const normal = (d: number): number[] => {
+  const arr = new Array(d);
+  for (let i = 0; i < d; i += 2) {
+    const u1 = Math.random();
+    const u2 = Math.random();
+    const r = Math.sqrt(-2 * Math.log(u1));
+    const theta = 2 * Math.PI * u2;
+    arr[i] = r * Math.cos(theta);
+    if (i + 1 < d) {
+      arr[i + 1] = r * Math.sin(theta);
+    }
+  }
+  return arr;
+};

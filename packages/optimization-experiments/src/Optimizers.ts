@@ -5,7 +5,7 @@ import {
   stepUntil,
 } from "@penrose/core/dist/engine/Optimizer";
 import { OptOutputs } from "@penrose/core/dist/types/ad";
-import { removeStaging } from "./utils.js";
+import { normal, removeStaging } from "./utils.js";
 
 export interface UnconstrainedOptimizer {
   init: (state: PenroseState) => void;
@@ -640,4 +640,67 @@ export class BasicStagedOptimizer implements StagedOptimizer {
   }
 }
 
+export interface SimulatedAnnealingParams {
+  initialTemperature: number;
+  coolingRate: number;
+  stiffeningRate: number;
+}
 
+export const DefaultSimulatedAnnealingParams: SimulatedAnnealingParams = {
+  initialTemperature: 10,
+  coolingRate: 0.01,
+  stiffeningRate: 0.02,
+}
+
+export class SimulatedAnnealing implements Optimizer {
+  tag = "Optimizer" as const;
+
+  private optimizer: UnconstrainedOptimizer;
+  private params: SimulatedAnnealingParams;
+  private temperature: number;
+  private weight: number;
+
+  constructor(
+    optimizer: UnconstrainedOptimizer,
+    params: SimulatedAnnealingParams = DefaultSimulatedAnnealingParams
+  ) {
+    this.params = params;
+    this.optimizer = optimizer;
+    this.temperature = this.params.initialTemperature;
+    this.weight = 1;
+  }
+
+  init = (state: PenroseState) => {
+    this.temperature = this.params.initialTemperature;
+    this.weight = 1;
+    this.optimizer.init(state);
+  }
+
+  step = (state: PenroseState): OptimizerResult => {
+    const result = this.optimizer.step(state, this.weight);
+
+    if (result.tag === "Failed") {
+      return result; // optimization failed
+    }
+
+    if (result.tag === "Converged") {
+      return result; // optimization converged
+    }
+
+    // Unconverged case
+    const stdNormal = normal(state.varyingValues.length);
+    for (let i = 0; i < state.varyingValues.length; i++) {
+      const inputMask = state.constraintSets.get(
+        state.optStages[state.currentStageIndex],
+      )!.inputMask;
+      if (!inputMask[i]) continue;
+      state.varyingValues[i] += stdNormal[i] * this.temperature;
+    }
+
+    // Decrease the temperature
+    this.temperature *= (1 - this.params.coolingRate);
+    this.weight *= (1 + this.params.stiffeningRate);
+
+    return { tag: "Unconverged", outputs: result.outputs };
+  }
+}
