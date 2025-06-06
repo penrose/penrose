@@ -1,32 +1,19 @@
 import { useMemo, useState } from "react";
 import {
-  AdaptiveGradientDescentOptimizer, BasicStagedOptimizer,
+  BasicStagedOptimizer,
   ExteriorPointOptimizer,
-  GradientDescentOptimizer,
-  LBGFSOptimizer, MultiStartStagedOptimizer, StagedOptimizer
+  LBGFSOptimizer, LineSearchGDOptimizer, MultiStartStagedOptimizer, StagedOptimizer
 } from "../Optimizers.js";
 import { DiagramPanel } from "./DiagramPanel.js";
 import { TrioInfo, TrioSelector } from "./TrioSelector.js";
 
 function App() {
   const [trioInfo, setTrioInfo] = useState<TrioInfo | null>(null);
-  const [optimizer, setOptimizer] = useState<string>("gd");
+  const [optimizer, setOptimizer] = useState<string>("line search gd");
 
-  const gdOptimizer = useMemo(() => {
-    console.log("new optimizer!");
-    const gd = new GradientDescentOptimizer({
-      stepSize: 1e-2,
-      minGradient: 1e-2,
-    });
-    return new BasicStagedOptimizer(new ExteriorPointOptimizer(gd));
-  }, []);
-
-  const adagradOptimizer = useMemo(() => {
-    console.log("new adagrad optimizer!");
-    const gd = new AdaptiveGradientDescentOptimizer({
-      stepSize: 1e-2,
-      minGradient: 1e-2,
-    });
+  const lineSearchGDOptimizer = useMemo(() => {
+    console.log("new line search gd optimizer!");
+    const gd = new LineSearchGDOptimizer();
     return new BasicStagedOptimizer(new ExteriorPointOptimizer(gd));
   }, []);
 
@@ -46,10 +33,8 @@ function App() {
     setTrioInfo((t) => (t ? { ...t } : null));
 
     switch (optimizer) {
-      case "gd":
-        return gdOptimizer;
-      case "adaptive gd":
-        return adagradOptimizer;
+      case "line search gd":
+        return lineSearchGDOptimizer;
       case "penrose":
         return penroseOptimizer;
       case "multi-penrose":
@@ -64,8 +49,7 @@ function App() {
       <TrioSelector setTrioInfo={setTrioInfo} />
       {/* Optimizer dropdown */}
       <select onChange={(e) => setOptimizer(e.target.value)}>
-        <option value="gd">Gradient Descent</option>
-        <option value="adaptive gd">Adaptive Gradient Descent</option>
+        <option value="line search gd">Line Search Gradient Descent</option>
         <option value="penrose">Penrose</option>
         <option value="multi-penrose">Multi-start Penrose</option>
         {/* Add more optimizers here as needed */}

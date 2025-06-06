@@ -222,34 +222,44 @@ export class ExteriorPointOptimizer implements Optimizer {
   };
 }
 
-export class AdaptiveGradientDescentOptimizer
+export interface LineSearchGDParams {
+  stateChangeStop: number;
+  energyChangeStop: number;
+  armijoParam: number;
+  curvatureParam: number;
+  maxLineSearchIterations: number;
+
+}
+
+export const DefaultLineSearchGDParams: LineSearchGDParams = {
+  stateChangeStop: 1e-4,
+  energyChangeStop: 1e-4,
+  armijoParam: 0.001,
+  curvatureParam: 0.9,
+  maxLineSearchIterations: 20,
+}
+
+export class LineSearchGDOptimizer
   implements UnconstrainedOptimizer
 {
-  private params: GradientDescentParams;
+  private params: LineSearchGDParams;
   private currentIteration: number = 0;
   private gradient: Float64Array | null = null;
   private lastOutputs: OptOutputs | null = null;
-  private stepSize: number;
 
-  constructor(params: GradientDescentParams) {
+  constructor(params: LineSearchGDParams = DefaultLineSearchGDParams) {
     this.params = params;
-    this.stepSize = params.stepSize;
   }
 
   init = (state: PenroseState) => {
     this.currentIteration = 0;
     this.lastOutputs = null;
     this.gradient = new Float64Array(state.inputs.length);
-    this.stepSize = this.params.stepSize;
   }
 
   step = (state: PenroseState, constraintWeight: number): OptimizerResult => {
-    if (this.currentIteration >= this.params.maxIterations!) {
-      console.error("Adaptive gradient descent failed: max iterations reached");
-      return { tag: "Failed", reason: FailedReason.MaxIterations }; // Optimization failed
-    }
+    // Perform a single step of gd
 
-    // Perform a single step of adaptive gradient descent
     const inputs = new Float64Array(state.inputs.length);
     for (let i = 0; i < state.inputs.length; i++) {
       inputs[i] = state.varyingValues[i];
@@ -264,70 +274,103 @@ export class AdaptiveGradientDescentOptimizer
       );
     }
 
-    const l2norm = Math.sqrt(
-      this.gradient!.reduce(
-        (acc, val) => acc + Math.abs(val) * Math.abs(val),
+    const searchDir = this.gradient!.map(x => -x);
+    const oldGradDotSearchDir = this.gradient!.reduce(
+      (acc, val, i) => acc + val * searchDir[i],
+      0,
+    );
+    const phi = this.lastOutputs.phi;
+
+    const nextInputs = new Float64Array(state.inputs.length);
+    const nextGradient = new Float64Array(state.inputs.length);
+    let nextOutputs;
+    const testConditions = (stepSize: number): { armijo: boolean, curvature: boolean} => {
+      for (let i = 0; i < state.varyingValues.length; i++) {
+        nextInputs[i] = inputs[i] + stepSize * searchDir[i];
+      }
+
+      if (!allFinite(nextInputs)) {
+        throw new Error("Line search failed: NaN or Inf in nextInputs");
+      }
+
+      nextOutputs = state.gradient(
+        state.constraintSets.get(state.optStages[state.currentStageIndex])!,
+        nextInputs,
+        constraintWeight,
+        nextGradient,
+      );
+
+      const newGradDotSearchDir = nextGradient!.reduce(
+        (acc, val, i) => acc + val * searchDir[i],
+        0,
+      );
+
+      const armijo =
+        nextOutputs.phi <= phi + this.params.armijoParam * stepSize * oldGradDotSearchDir;
+
+      const curvature =
+        newGradDotSearchDir >= this.params.curvatureParam * oldGradDotSearchDir;
+
+      return { armijo, curvature };
+    };
+
+    // Perform line search
+    let lo = 0;
+    let high = Infinity;
+    let stepSize = 1;
+    let steps = 0;
+    while (true) {
+      const { armijo, curvature } = testConditions(stepSize);
+
+      if (!armijo) high = stepSize;
+      else if (!curvature) lo = stepSize;
+      else break; // both conditions satisfied
+
+      if (high < Infinity) {
+        stepSize = (lo + high) / 2; // already found upper bound
+      } else {
+        stepSize = 2 * lo; // did not find upper bound
+      }
+
+      steps++;
+
+      if (steps >= this.params.maxLineSearchIterations) {
+        console.warn("Line search exhausted. Continuing at current step size.");
+        break;
+      }
+    }
+
+    console.log(`Line search step size: ${stepSize}`);
+
+    this.lastOutputs = nextOutputs!;
+    this.gradient = nextGradient;
+
+    for (let i = 0; i < state.varyingValues.length; i++) {
+      state.varyingValues[i] = nextInputs[i];
+    }
+
+    this.currentIteration++;
+
+    // Check for convergence
+    const deltaXsNorm = Math.sqrt(
+      nextInputs.reduce(
+        (acc, x, i) => acc + (x - inputs[i]) ** 2,
         0,
       ),
     );
-    if (l2norm < this.params.minGradient) {
-      // Stop optimization if the gradient is small enough
+
+    const deltaEnergy = Math.abs(nextOutputs!.phi - phi);
+    if (
+      deltaXsNorm < this.params.stateChangeStop ||
+      deltaEnergy < this.params.energyChangeStop
+    ) {
+      // Optimization converged
       return { tag: "Converged", outputs: this.lastOutputs! };
+    } else {
+      // Continue optimization
+      return { tag: "Unconverged", outputs: this.lastOutputs! };
     }
-
-    let inputsCopy = new Float64Array(state.inputs.length);
-    let gradientCopy = new Float64Array(state.inputs.length);
-    let outputs;
-    let i = 0;
-    while (true) {
-      i++;
-      if (i > 100) {
-        console.error(
-          "Adaptive gradient descent failed: max internal iterations reached",
-        );
-        return { tag: "Failed", reason: FailedReason.MaxIterations }; // Optimization failed
-      }
-
-      for (let i = 0; i < state.varyingValues.length; i++) {
-        inputsCopy[i] = inputs[i] - this.stepSize * this.gradient![i];
-      }
-
-      if (!allFinite(inputsCopy)) {
-        this.stepSize *= 0.5;
-        continue;
-      }
-
-      outputs = state.gradient(
-        state.constraintSets.get(state.optStages[state.currentStageIndex])!,
-        inputsCopy,
-        constraintWeight,
-        gradientCopy,
-      );
-
-      // Calculate the energy change
-      const currentEnergy = outputs.phi;
-      const energyChange = currentEnergy - this.lastOutputs!.phi;
-      console.log(
-        `Energy change: ${energyChange}, Step size: ${this.stepSize}`,
-      );
-
-      if (energyChange <= 0) break;
-
-      this.stepSize *= 0.5; // Reduce step size if energy increases
-    }
-
-    this.stepSize *= 2;
-
-    // update values
-    this.gradient = gradientCopy;
-    this.lastOutputs = outputs;
-
-    for (let i = 0; i < state.varyingValues.length; i++) {
-      state.varyingValues[i] = inputsCopy[i];
-    }
-
-    return { tag: "Unconverged", outputs: this.lastOutputs }; // Continue optimization
-  };
+  }
 }
 
 export class LBGFSOptimizer implements Optimizer {
