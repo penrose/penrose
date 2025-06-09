@@ -62,7 +62,7 @@ export const estimateSuccessRates = async (
 
       let timedout = false;
 
-      optimizer.reset();
+      optimizer.init(state);
       state.variation = sampler();
       state.currentStageIndex = 0;
       state = resample(state);
@@ -91,7 +91,7 @@ export const estimateSuccessRates = async (
             } else {
               // go to next stage
               state.currentStageIndex++;
-              optimizer.reset();
+              optimizer.init(state);
             }
             break;
 
