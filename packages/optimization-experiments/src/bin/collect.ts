@@ -2,16 +2,56 @@ import "global-jsdom/register";
 
 import { entries, Trio } from "@penrose/examples";
 import fs from "fs";
+import yargs from "yargs";
 import { compileTrio, removeStaging } from "../utils.js";
 import { computeDiagramExploration } from "./statistics.js";
 import { estimateSuccessRates } from "./success-rate.js";
+import {
+  BasicStagedOptimizer,
+  ExteriorPointOptimizer,
+  LBGFSOptimizer,
+  LineSearchGDOptimizer,
+  MultiStartStagedOptimizer, SimulatedAnnealing, StagedOptimizer
+} from "../Optimizers.js";
 
-const args = process.argv.slice(2);
-const mode = args[0];
-const outputDir = args.length > 1 ? args[1] : "collect-output";
+// make sure to update CLI options if you add/remove optimizers
+type OptimizerName =
+  | "line-search-gd"
+  | "lbfgs"
+  | "multi-start-lbfgs"
+  | "simulated-annealing-lbfgs";
+
+const getOptimizer = (name: OptimizerName): StagedOptimizer => {
+  switch (name) {
+    case "line-search-gd":
+      return new BasicStagedOptimizer(
+        new ExteriorPointOptimizer(
+          new LineSearchGDOptimizer()
+        )
+      );
+
+    case "lbfgs":
+      return new BasicStagedOptimizer(
+        new ExteriorPointOptimizer(
+          new LBGFSOptimizer()
+        )
+      );
+
+    case "multi-start-lbfgs":
+      return new MultiStartStagedOptimizer(
+        () => new LBGFSOptimizer(),
+        16
+      );
+
+    case "simulated-annealing-lbfgs":
+      return new SimulatedAnnealing(
+        new LBGFSOptimizer()
+      );
+  }
+}
 
 const maxSamplesPerDim = 50;
-const totalMinutes = 30;
+const totalMinutes = 1;
 const totalMs = totalMinutes * 60 * 1000;
 const maxMs = totalMs / entries.length;
 console.log(`Max time per entry: ${maxMs} ms`);
@@ -26,7 +66,11 @@ const namesAndTrios = (
   )
 ).filter((x) => x !== null) as [string, Trio][];
 
-const computeStatistics = async () => {
+const computeStatistics = async (
+  argv: {
+    outputDir: string;
+  }
+) => {
   let nextVariation = 0;
   const sampler = () => `${nextVariation++}`;
 
@@ -45,7 +89,7 @@ const computeStatistics = async () => {
     );
 
     // save explorationInfo to output directory
-    const outputFile = `${outputDir}/${name}.json`;
+    const outputFile = `${argv.outputDir}/${name}.json`;
     const outputFileDir = outputFile.split("/").slice(0, -1).join("/");
     fs.mkdirSync(outputFileDir, { recursive: true });
     fs.writeFileSync(outputFile, JSON.stringify(explorationInfo, null, 2));
@@ -54,28 +98,61 @@ const computeStatistics = async () => {
   }
 };
 
-const computeSuccessRates = async () => {
+const computeSuccessRates = async (
+  argv: {
+    outputDir: string;
+    optimizer: OptimizerName;
+  }
+) => {
+  const optimizer = getOptimizer(argv.optimizer);
+
   const successRates = await estimateSuccessRates(
     namesAndTrios,
     maxSamplesPerDim,
     maxMs,
+    optimizer
   );
 
   // save success rates to output directory
-  const outputFile = `${outputDir}/success-rates.json`;
-  fs.mkdirSync(outputDir, { recursive: true });
+  const outputFile = `${argv.outputDir}/success-rates.json`;
+  fs.mkdirSync(argv.outputDir, { recursive: true });
   fs.writeFileSync(
     outputFile,
     JSON.stringify(Object.fromEntries(successRates), null, 2),
   );
 };
 
-switch (mode) {
-  case "statistics":
-    await computeStatistics();
-    break;
-
-  case "success-rate":
-    await computeSuccessRates();
-    break;
-}
+yargs(process.argv.slice(2))
+  .option("output-dir", {
+    alias: "o",
+    type: "string",
+    description: "Directory to save output files",
+    default: "collect-output",
+  })
+  .command(
+    "statistics",
+    "Compute statistics for each trio",
+    () => {},
+    (argv) => computeStatistics(argv as any)
+  )
+  .command(
+    "success-rate <optimizer>",
+    "Estimate success rates for each trio using the specified optimizer",
+    (yargs) => {
+      return yargs
+        .positional("optimizer", {
+          describe: "Name of the optimizer to use",
+          type: "string",
+          choices: [
+            "line-search-gd",
+            "lbfgs",
+            "multi-start-lbfgs",
+            "simulated-annealing-lbfgs"
+          ],
+        })
+    },
+    (argv) => computeSuccessRates(argv as any)
+  )
+  .demandCommand()
+  .help()
+  .parse();

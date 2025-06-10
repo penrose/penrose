@@ -1,4 +1,4 @@
-import { compile, PenroseState } from "@penrose/core";
+import { compile,Expr,Index,PenroseState,Var,Vec, Member, Rec } from "@penrose/core";
 import { Trio } from "@penrose/examples";
 
 export const removeStaging = (state: PenroseState): PenroseState => {
@@ -52,3 +52,183 @@ export const normal = (d: number): number[] => {
   }
   return arr;
 };
+
+const unfold = (node: Index | Member): Expr => {
+  const innerProp = (node.tag === "Index") ? "vec" : "rec";
+  
+  const inner: Vec | Rec = (node as any)[innerProp];
+
+  const unfoldedInner = (
+    inner.tag === "Index" || inner.tag === "Member" ?
+      unfold(inner) : inner
+  ) as Vec | Rec;
+
+  switch (unfoldedInner.tag) {
+    case "Index":
+    case "Member":
+    case "Call":
+    case "PolyRoots":
+      return {
+        ...node,
+        [innerProp]: unfoldedInner,
+      };
+
+    case "LitRec":
+      return unfoldedInner.mems[(node as Member).member];
+
+    case "LitVec":
+      return unfoldedInner.elems[(node as Index).index];
+  }
+}
+
+/**
+ * Calculates input masks for each optimization stage based on analyzing the 
+ * graph structure of compiled function outputs. The resulting masks are ANDed with 
+ * the existing input masks from state.constraintSets to filter only inputs that
+ * are both enabled and can affect the energy.
+ */
+export const calculateDependentInputs = (state: PenroseState): Map<string, boolean[]> => {
+  const inputMasks = new Map<string, boolean[]>();
+
+  const varToIdxMap = new Map<Var, number>();
+  // Create a map of variable names to their indices
+  state.inputs.forEach((input, index) => {
+    varToIdxMap.set(input.handle, index);
+  });
+  
+  // Helper function to extract variable dependencies from a compiled function output graph
+  const extractInputDependencies = (output: Expr): Set<number> => {
+    const dependencies = new Set<number>();
+
+    const traverse = (node: Expr): void => {
+      if (typeof node === "number") return;
+
+      switch (node.tag) {
+        case "Var": {
+          const index = varToIdxMap.get(node);
+          if (index !== undefined) {
+            dependencies.add(index);
+          }
+          break;
+        }
+
+        case "Unary":
+          traverse(node.param);
+          break;
+
+        case "Binary":
+          traverse(node.left);
+          traverse(node.right);
+          break;
+
+        case "Ternary":
+          traverse(node.cond);
+          traverse(node.then);
+          traverse(node.els);
+          break;
+
+        case "Nary":
+          node.params.forEach(traverse);
+          break;
+
+        case "LitVec":
+          node.elems.forEach(traverse);
+          break;
+
+        case "LitRec":
+          Object.values(node.mems).forEach(traverse);
+          break;
+
+        case "Index": {
+          const unfolded = unfold(node);
+
+          // ensure we actually make progress
+          if (typeof unfolded === "object" && unfolded.tag === "Index") {
+            traverse(unfolded.vec);
+          } else {
+            traverse(unfolded);
+          }
+          break;
+        }
+
+        case "Member": {
+          const unfolded = unfold(node);
+
+          // ensure we actually make progress
+          if (typeof unfolded === "object" && unfolded.tag === "Member") {
+            traverse(unfolded.rec);
+          } else {
+            traverse(unfolded);
+          }
+          break;
+        }
+
+        case "Call":
+          return node.args.forEach(traverse);
+
+        case "PolyRoots":
+          return node.coeffs.forEach(traverse);
+
+        case "Logic":
+          traverse(node.left);
+          traverse(node.right);
+          break;
+
+        case "Not":
+          traverse(node.param);
+          break;
+
+        case "Comp":
+          traverse(node.left);
+          traverse(node.right);
+          break;
+      }
+    };
+
+    traverse(output);
+    return dependencies;
+  };
+
+  // Process each optimization stage
+  for (const stage of state.optStages) {
+    const dependencyMask = new Array(state.inputs.length).fill(false);
+
+    // Get functions active in this stage
+    const activeFunctions = [
+      ...state.objFns.filter(fn =>
+        fn.optStages === "All" ||
+        fn.optStages.has(stage)
+      ),
+      ...state.constrFns.filter(fn =>
+        fn.optStages === "All" ||
+        fn.optStages.has(stage)
+      )
+    ];
+
+    // Analyze dependencies for each active function
+    for (const fn of activeFunctions) {
+      const inputIndices = extractInputDependencies(fn.output);
+
+      // Mark dependent inputs as true
+      inputIndices.forEach(index => {
+        if (index >= 0 && index < state.inputs.length) {
+          dependencyMask[index] = true;
+        }
+      });
+    }
+
+    // AND with existing input mask for this stage
+    const existingMask = state.constraintSets.get(stage)?.inputMask ||
+                        new Array(state.inputs.length).fill(true);
+
+    const finalMask = dependencyMask.map((canAffect, index) =>
+      canAffect && existingMask[index]
+    );
+
+    inputMasks.set(stage, finalMask);
+  }
+
+  return inputMasks;
+};
+
+

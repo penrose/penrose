@@ -5,7 +5,7 @@ import {
   stepUntil,
 } from "@penrose/core/dist/engine/Optimizer";
 import { OptOutputs } from "@penrose/core/dist/types/ad";
-import { normal, removeStaging } from "./utils.js";
+import { calculateDependentInputs, normal, removeStaging } from "./utils.js";
 
 export interface UnconstrainedOptimizer {
   init: (state: PenroseState) => void;
@@ -47,7 +47,7 @@ export enum FailedReason {
   Unknown,
 }
 
-export interface GradientDescentParams {
+export interface GDParams {
   stepSize: number;
   minGradient: number;
   maxIterations?: number;
@@ -60,11 +60,11 @@ const allFinite = (arr: Float64Array): boolean => {
   return true;
 };
 
-export class GradientDescentOptimizer implements UnconstrainedOptimizer {
-  private params: GradientDescentParams;
+export class GDOptimizer implements UnconstrainedOptimizer {
+  private params: GDParams;
   private currentIteration: number = 0;
 
-  constructor(params: GradientDescentParams) {
+  constructor(params: GDParams) {
     this.params = params;
   }
 
@@ -484,6 +484,7 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
   private alwaysPreferSatisfied: boolean;
   private constraintEnergyThreshold: number;
   private justStarted = true;
+  private dependentInputs: boolean[] = [];
 
   constructor(
     createOptimizer: () => Optimizer,
@@ -500,6 +501,19 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
   init = (state: PenroseState) => {
     this.problems = [];
     this.justStarted = true;
+
+    const dependentInputMasks = calculateDependentInputs(state);
+
+    // "or" all masks
+   this.dependentInputs = new Array(state.varyingValues.length).fill(false);
+    for (let i = 0; i < state.varyingValues.length; i++) {
+      for (const mask of dependentInputMasks.values()) {
+        if (mask[i]) {
+          this.dependentInputs[i] = true;
+          break;
+        }
+      }
+    }
   }
 
   step = (state: PenroseState): OptimizerResult => {
@@ -511,12 +525,20 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
       for (let i = 0; i < this.numStarts; i++) {
         const optimizer = this.createOptimizer();
 
+        const oldValues = state.varyingValues;
+
         let newState = {
           ...state,
-          varyingValues: [...state.varyingValues], // un-alias
+          varyingValues: [...oldValues], // un-alias
         };
         newState.variation = `${newState.variation}-${i}`;
         newState = resample(newState);
+        for (let j = 0; j < newState.varyingValues.length; j++) {
+          if (!this.dependentInputs[j]) {
+            // if not dependent, reset
+            newState.varyingValues[j] = oldValues[j];
+          }
+        }
 
         optimizer.init(newState);
 
@@ -597,6 +619,7 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
         for (const p of this.problems) {
           p.state.currentStageIndex++;
           p.optimizer.init(p.state);
+          p.lastResult = null;
         }
         return { tag: "Unconverged", outputs: bestResult.outputs };
       } else {
@@ -643,22 +666,22 @@ export class BasicStagedOptimizer implements StagedOptimizer {
 export interface SimulatedAnnealingParams {
   initialTemperature: number;
   coolingRate: number;
-  stiffeningRate: number;
+  constraintWeight: number;
 }
 
 export const DefaultSimulatedAnnealingParams: SimulatedAnnealingParams = {
   initialTemperature: 10,
-  coolingRate: 0.01,
-  stiffeningRate: 0.02,
+  coolingRate: 0.001,
+  constraintWeight: 10,
 }
 
-export class SimulatedAnnealing implements Optimizer {
-  tag = "Optimizer" as const;
+export class SimulatedAnnealing implements StagedOptimizer {
+  tag = "StagedOptimizer" as const;
 
   private optimizer: UnconstrainedOptimizer;
   private params: SimulatedAnnealingParams;
   private temperature: number;
-  private weight: number;
+  private energyDependencyMasks: Map<string, boolean[]> = new Map();
 
   constructor(
     optimizer: UnconstrainedOptimizer,
@@ -667,39 +690,34 @@ export class SimulatedAnnealing implements Optimizer {
     this.params = params;
     this.optimizer = optimizer;
     this.temperature = this.params.initialTemperature;
-    this.weight = 1;
   }
 
   init = (state: PenroseState) => {
     this.temperature = this.params.initialTemperature;
-    this.weight = 1;
     this.optimizer.init(state);
+    this.energyDependencyMasks = calculateDependentInputs(state);
   }
 
   step = (state: PenroseState): OptimizerResult => {
-    const result = this.optimizer.step(state, this.weight);
+    const result = this.optimizer.step(state, this.params.constraintWeight);
 
-    if (result.tag === "Failed") {
-      return result; // optimization failed
-    }
-
-    if (result.tag === "Converged") {
-      return result; // optimization converged
+    if (result.tag === "Failed" || result.tag === "Converged") {
+      return result;
     }
 
     // Unconverged case
     const stdNormal = normal(state.varyingValues.length);
+    const inputMask = this.energyDependencyMasks.get(
+      state.optStages[state.currentStageIndex],
+    )!;
+
     for (let i = 0; i < state.varyingValues.length; i++) {
-      const inputMask = state.constraintSets.get(
-        state.optStages[state.currentStageIndex],
-      )!.inputMask;
       if (!inputMask[i]) continue;
       state.varyingValues[i] += stdNormal[i] * this.temperature;
     }
 
     // Decrease the temperature
     this.temperature *= (1 - this.params.coolingRate);
-    this.weight *= (1 + this.params.stiffeningRate);
 
     return { tag: "Unconverged", outputs: result.outputs };
   }

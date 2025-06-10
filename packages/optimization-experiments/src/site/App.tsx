@@ -31,12 +31,8 @@ function App() {
 
   const saLineSearchGDOptimizer = useMemo(() => {
     console.log("new SA line search gd optimizer!");
-    const lineSearchGD = new LineSearchGDOptimizer();
-    const simulatedAnnealing = new SimulatedAnnealing(lineSearchGD, {
-      initialTemperature: 10,
-      coolingRate: 0.01,
-      stiffeningRate: 0.05
-    });
+    const lbfgs = new LBGFSOptimizer();
+    const simulatedAnnealing = new SimulatedAnnealing(lbfgs);
     const staged = new BasicStagedOptimizer(simulatedAnnealing);
     return staged;
   }, []);
@@ -49,7 +45,7 @@ function App() {
         return penroseOptimizer;
       case "multi-penrose":
         return multiStartPenroseOptimizer;
-      case "SA line search gd":
+      case "SA lbfgs":
         return saLineSearchGDOptimizer;
       default:
         throw new Error(`Unknown optimizer: ${str}`);
@@ -71,7 +67,7 @@ function App() {
         <option value="line search gd">Line Search Gradient Descent</option>
         <option value="penrose">Penrose</option>
         <option value="multi-penrose">Multi-start Penrose</option>
-        <option value="SA line search gd">Simulated Annealing Line Search GD</option>
+        <option value="SA lbfgs">Simulated Annealing L-BFGS</option>
         {/* Add more optimizers here as needed */}
       </select>
 

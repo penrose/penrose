@@ -1,6 +1,6 @@
 import { resample } from "@penrose/core";
 import { Trio } from "@penrose/examples";
-import { ExteriorPointOptimizer, LBGFSOptimizer } from "../Optimizers.js";
+import { StagedOptimizer } from "../Optimizers.js";
 import { compileTrio } from "../utils.js";
 
 const maxConstraintEnergy = 1e-1;
@@ -16,11 +16,14 @@ export const estimateSuccessRates = async (
   namesAndTrios: [string, Trio][],
   maxSamplesPerDim: number,
   maxMsPerTrio: number,
+  optimizer: StagedOptimizer,
 ): Promise<Map<string, SuccessRateResult>> => {
   const results: Map<string, SuccessRateResult> = new Map();
-  const optimizer = new ExteriorPointOptimizer(new LBGFSOptimizer());
 
   for (const [name, trio] of namesAndTrios) {
+    console.log("---------------")
+    console.log(`Estimating success rates for ${name}`);
+
     const startTime = performance.now();
     let state = await compileTrio(trio);
 
@@ -118,9 +121,11 @@ export const estimateSuccessRates = async (
       failures: numFailures,
     };
 
-    console.log(
-      `Results for ${name}: ${numSamples} samples, ${numSuccesses} successes, ${numBadMinima} bad minima, ${numFailures} failures`,
-    );
+    console.log(`Results for ${name}:`);
+    console.log(`  Samples: ${result.samples}`);
+    console.log(`  Successes: ${result.successes}`);
+    console.log(`  Bad minima: ${result.badMinima}`);
+    console.log(`  Failures: ${result.failures}`);
 
     results.set(name, result);
   }
