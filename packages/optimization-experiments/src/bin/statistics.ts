@@ -93,21 +93,18 @@ const computeStatistics = (values: number[]): EnergyStatistics => {
 export const computeDiagramExploration = (
   state: PenroseState,
   sampler: () => string,
-  maxSamplesPerDim: number,
-  maxMs: number,
+  numSamples: number,
+  timeout: number,
 ): DiagramExplorationInfo => {
   const startTime = self.performance.now();
 
   const samples: DiagramSample[] = [];
-  const maxSamples = maxSamplesPerDim * state.inputs.length;
-  for (let i = 0; i < maxSamples; i++) {
+  for (let i = 0; i < numSamples; i++) {
     samples.push(sampleDiagram(state, sampler));
 
     const elapsedTime = self.performance.now() - startTime;
-    if (elapsedTime > maxMs) {
-      console.log(
-        `Stopping sampling after ${samples.length} samples due to time limit.`,
-      );
+    if (elapsedTime > timeout * 1000) {
+      console.warn(`Timed out after ${samples.length} samples.`);
       break;
     }
   }

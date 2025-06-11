@@ -5,7 +5,7 @@ import {
   stepUntil,
 } from "@penrose/core/dist/engine/Optimizer";
 import { OptOutputs } from "@penrose/core/dist/types/ad";
-import { calculateDependentInputs, normal, removeStaging } from "./utils.js";
+import { calculateDependentInputs, normal } from "./utils.js";
 
 export interface UnconstrainedOptimizer {
   init: (state: PenroseState) => void;
@@ -70,7 +70,7 @@ export class GDOptimizer implements UnconstrainedOptimizer {
 
   init = (state: PenroseState) => {
     this.currentIteration = 0;
-  }
+  };
 
   step = (state: PenroseState, constraintWeight: number): OptimizerResult => {
     if (this.currentIteration >= this.params.maxIterations!) {
@@ -175,7 +175,7 @@ export class ExteriorPointOptimizer implements Optimizer {
     this.lastXs = [...state.varyingValues];
     this.lastEnergy = getEnergy(state, this.weight);
     this.weight = 1;
-  }
+  };
 
   step = (state: PenroseState): OptimizerResult => {
     const unconstrainedResult = this.unconstrainedOptimizer.step(
@@ -228,7 +228,6 @@ export interface LineSearchGDParams {
   armijoParam: number;
   curvatureParam: number;
   maxLineSearchIterations: number;
-
 }
 
 export const DefaultLineSearchGDParams: LineSearchGDParams = {
@@ -237,11 +236,9 @@ export const DefaultLineSearchGDParams: LineSearchGDParams = {
   armijoParam: 0.001,
   curvatureParam: 0.9,
   maxLineSearchIterations: 20,
-}
+};
 
-export class LineSearchGDOptimizer
-  implements UnconstrainedOptimizer
-{
+export class LineSearchGDOptimizer implements UnconstrainedOptimizer {
   private params: LineSearchGDParams;
   private currentIteration: number = 0;
   private gradient: Float64Array | null = null;
@@ -255,7 +252,7 @@ export class LineSearchGDOptimizer
     this.currentIteration = 0;
     this.lastOutputs = null;
     this.gradient = new Float64Array(state.inputs.length);
-  }
+  };
 
   step = (state: PenroseState, constraintWeight: number): OptimizerResult => {
     // Perform a single step of gd
@@ -274,7 +271,7 @@ export class LineSearchGDOptimizer
       );
     }
 
-    const searchDir = this.gradient!.map(x => -x);
+    const searchDir = this.gradient!.map((x) => -x);
     const oldGradDotSearchDir = this.gradient!.reduce(
       (acc, val, i) => acc + val * searchDir[i],
       0,
@@ -284,7 +281,9 @@ export class LineSearchGDOptimizer
     const nextInputs = new Float64Array(state.inputs.length);
     const nextGradient = new Float64Array(state.inputs.length);
     let nextOutputs;
-    const testConditions = (stepSize: number): { armijo: boolean, curvature: boolean} => {
+    const testConditions = (
+      stepSize: number,
+    ): { armijo: boolean; curvature: boolean } => {
       for (let i = 0; i < state.varyingValues.length; i++) {
         nextInputs[i] = inputs[i] + stepSize * searchDir[i];
       }
@@ -306,7 +305,8 @@ export class LineSearchGDOptimizer
       );
 
       const armijo =
-        nextOutputs.phi <= phi + this.params.armijoParam * stepSize * oldGradDotSearchDir;
+        nextOutputs.phi <=
+        phi + this.params.armijoParam * stepSize * oldGradDotSearchDir;
 
       const curvature =
         newGradDotSearchDir >= this.params.curvatureParam * oldGradDotSearchDir;
@@ -353,10 +353,7 @@ export class LineSearchGDOptimizer
 
     // Check for convergence
     const deltaXsNorm = Math.sqrt(
-      nextInputs.reduce(
-        (acc, x, i) => acc + (x - inputs[i]) ** 2,
-        0,
-      ),
+      nextInputs.reduce((acc, x, i) => acc + (x - inputs[i]) ** 2, 0),
     );
 
     const deltaEnergy = Math.abs(nextOutputs!.phi - phi);
@@ -370,7 +367,7 @@ export class LineSearchGDOptimizer
       // Continue optimization
       return { tag: "Unconverged", outputs: this.lastOutputs! };
     }
-  }
+  };
 }
 
 export class LBGFSOptimizer implements Optimizer {
@@ -382,7 +379,7 @@ export class LBGFSOptimizer implements Optimizer {
   init = (state: PenroseState) => {
     this.params = null;
     this.lastOutputs = null;
-  }
+  };
 
   step = (state: PenroseState): OptimizerResult => {
     if (!this.params) {
@@ -505,7 +502,7 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
     const dependentInputMasks = calculateDependentInputs(state);
 
     // "or" all masks
-   this.dependentInputs = new Array(state.varyingValues.length).fill(false);
+    this.dependentInputs = new Array(state.varyingValues.length).fill(false);
     for (let i = 0; i < state.varyingValues.length; i++) {
       for (const mask of dependentInputMasks.values()) {
         if (mask[i]) {
@@ -514,7 +511,7 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
         }
       }
     }
-  }
+  };
 
   step = (state: PenroseState): OptimizerResult => {
     if (this.justStarted) {
@@ -554,40 +551,43 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
 
     for (let i = 0; i < this.problems.length; i++) {
       const optimizer = this.problems[i].optimizer;
-      if (this.problems[i].lastResult === null
-        || this.problems[i].lastResult!.tag === "Unconverged") {
+      if (
+        this.problems[i].lastResult === null ||
+        this.problems[i].lastResult!.tag === "Unconverged"
+      ) {
         this.problems[i].lastResult = optimizer.step(this.problems[i].state);
       }
     }
 
-    this.problems = this.problems.filter(problem => problem.lastResult!.tag !== "Failed");
+    this.problems = this.problems.filter(
+      (problem) => problem.lastResult!.tag !== "Failed",
+    );
     if (this.problems.length === 0) {
       console.error("All optimizers failed.");
       return { tag: "Failed", reason: FailedReason.Unknown };
     }
 
-
     // if always prefer satsified, these are only the satisfied results
     // otherwise all non-failed results
-    const preferredProblems =
-      this.problems.filter(problem => {
-        const result = problem.lastResult!;
+    const preferredProblems = this.problems.filter((problem) => {
+      const result = problem.lastResult!;
 
-        if (result.tag === "Failed") return false;
-        if (!this.alwaysPreferSatisfied) return true;
+      if (result.tag === "Failed") return false;
+      if (!this.alwaysPreferSatisfied) return true;
 
-        const constraintEnergy = result.outputs.constraints.reduce(
-          (acc, c) => acc + Math.max(0, c) ** 2,
-          0,
-        );
-        return constraintEnergy <= this.constraintEnergyThreshold;
-      });
+      const constraintEnergy = result.outputs.constraints.reduce(
+        (acc, c) => acc + Math.max(0, c) ** 2,
+        0,
+      );
+      return constraintEnergy <= this.constraintEnergyThreshold;
+    });
 
     const findBest = (problems: Problem[]): Problem => {
       return problems.reduce((best, current) => {
         if (best.lastResult!.tag === "Failed") return current;
         if (current.lastResult!.tag === "Failed") return best;
-        if (current.lastResult!.outputs.phi < best.lastResult!.outputs.phi) return current;
+        if (current.lastResult!.outputs.phi < best.lastResult!.outputs.phi)
+          return current;
         return best;
       });
     };
@@ -607,8 +607,9 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
     // update the original state with the best state
     Object.assign(state, bestState);
 
-    const allConverged =
-      this.problems.every(problem => problem.lastResult!.tag === "Converged");
+    const allConverged = this.problems.every(
+      (problem) => problem.lastResult!.tag === "Converged",
+    );
     if (allConverged) {
       console.log("All optimizers converged.");
     }
@@ -630,7 +631,7 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
       // continue with current stage
       return { tag: "Unconverged", outputs: bestResult.outputs };
     }
-  }
+  };
 }
 
 export class BasicStagedOptimizer implements StagedOptimizer {
@@ -644,7 +645,7 @@ export class BasicStagedOptimizer implements StagedOptimizer {
 
   init = (state: PenroseState) => {
     this.optimizer.init(state);
-  }
+  };
 
   step = (state: PenroseState): OptimizerResult => {
     const result = this.optimizer.step(state);
@@ -660,7 +661,7 @@ export class BasicStagedOptimizer implements StagedOptimizer {
     } else {
       return result; // continue with current stage
     }
-  }
+  };
 }
 
 export interface SimulatedAnnealingParams {
@@ -673,10 +674,10 @@ export const DefaultSimulatedAnnealingParams: SimulatedAnnealingParams = {
   initialTemperature: 10,
   coolingRate: 0.001,
   constraintWeight: 10,
-}
+};
 
-export class SimulatedAnnealing implements StagedOptimizer {
-  tag = "StagedOptimizer" as const;
+export class SimulatedAnnealing implements Optimizer {
+  tag = "Optimizer" as const;
 
   private optimizer: UnconstrainedOptimizer;
   private params: SimulatedAnnealingParams;
@@ -685,7 +686,7 @@ export class SimulatedAnnealing implements StagedOptimizer {
 
   constructor(
     optimizer: UnconstrainedOptimizer,
-    params: SimulatedAnnealingParams = DefaultSimulatedAnnealingParams
+    params: SimulatedAnnealingParams = DefaultSimulatedAnnealingParams,
   ) {
     this.params = params;
     this.optimizer = optimizer;
@@ -696,7 +697,7 @@ export class SimulatedAnnealing implements StagedOptimizer {
     this.temperature = this.params.initialTemperature;
     this.optimizer.init(state);
     this.energyDependencyMasks = calculateDependentInputs(state);
-  }
+  };
 
   step = (state: PenroseState): OptimizerResult => {
     const result = this.optimizer.step(state, this.params.constraintWeight);
@@ -717,8 +718,8 @@ export class SimulatedAnnealing implements StagedOptimizer {
     }
 
     // Decrease the temperature
-    this.temperature *= (1 - this.params.coolingRate);
+    this.temperature *= 1 - this.params.coolingRate;
 
     return { tag: "Unconverged", outputs: result.outputs };
-  }
+  };
 }

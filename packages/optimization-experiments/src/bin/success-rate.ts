@@ -14,14 +14,14 @@ export interface SuccessRateResult {
 
 export const estimateSuccessRates = async (
   namesAndTrios: [string, Trio][],
-  maxSamplesPerDim: number,
-  maxMsPerTrio: number,
   optimizer: StagedOptimizer,
+  numSamples: number,
+  timeout: number,
 ): Promise<Map<string, SuccessRateResult>> => {
   const results: Map<string, SuccessRateResult> = new Map();
 
   for (const [name, trio] of namesAndTrios) {
-    console.log("---------------")
+    console.log("---------------");
     console.log(`Estimating success rates for ${name}`);
 
     const startTime = performance.now();
@@ -41,8 +41,8 @@ export const estimateSuccessRates = async (
     let nextSampleNum = 0;
     const sampler = () => `${nextSampleNum++}`;
 
-    if (performance.now() - startTime > maxMsPerTrio) {
-      console.warn(`Stopping ${name} after 0 samples due to time limit`);
+    if (performance.now() - startTime > timeout * 1000) {
+      console.warn(`$Timed out after 0 samples.`);
       results.set(name, {
         samples: 0,
         successes: 0,
@@ -52,14 +52,14 @@ export const estimateSuccessRates = async (
       continue;
     }
 
-    let numSamples = 0;
+    let takenSamples = 0;
     let numSuccesses = 0;
     let numBadMinima = 0;
     let numFailures = 0;
 
-    for (let i = 0; i < maxSamplesPerDim * state.inputs.length; i++) {
-      if (performance.now() - startTime > maxMsPerTrio) {
-        console.log(`Stopping ${name} after ${i} samples due to time limit`);
+    for (let i = 0; i < numSamples; i++) {
+      if (performance.now() - startTime > timeout * 1000) {
+        console.warn(`Timed out after ${i} samples.`);
         break;
       }
 
@@ -72,8 +72,8 @@ export const estimateSuccessRates = async (
 
       let shouldStop = false;
       while (!shouldStop) {
-        if (performance.now() - startTime > maxMsPerTrio) {
-          console.log(`Stopping ${name} after ${i} samples due to time limit`);
+        if (performance.now() - startTime > timeout * 1000) {
+          console.warn(`Timed out after ${i} samples.`);
           timedout = true;
           break;
         }
@@ -111,11 +111,11 @@ export const estimateSuccessRates = async (
 
       if (timedout) break;
 
-      numSamples++;
+      takenSamples++;
     }
 
     const result = {
-      samples: numSamples,
+      samples: takenSamples,
       successes: numSuccesses,
       badMinima: numBadMinima,
       failures: numFailures,

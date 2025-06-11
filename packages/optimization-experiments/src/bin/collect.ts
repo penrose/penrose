@@ -3,16 +3,22 @@ import "global-jsdom/register";
 import { entries, Trio } from "@penrose/examples";
 import fs from "fs";
 import yargs from "yargs";
-import { compileTrio, removeStaging } from "../utils.js";
-import { computeDiagramExploration } from "./statistics.js";
-import { estimateSuccessRates } from "./success-rate.js";
 import {
   BasicStagedOptimizer,
   ExteriorPointOptimizer,
   LBGFSOptimizer,
   LineSearchGDOptimizer,
-  MultiStartStagedOptimizer, SimulatedAnnealing, StagedOptimizer
+  MultiStartStagedOptimizer,
+  SimulatedAnnealing,
+  StagedOptimizer,
 } from "../Optimizers.js";
+import { compileTrio, removeStaging } from "../utils.js";
+import { computeDiagramExploration } from "./statistics.js";
+import { estimateSuccessRates } from "./success-rate.js";
+
+const defaultOutputDir = "collect-output";
+const defaultNumSamples = 100;
+const defaultTimeout = 30; // in seconds
 
 // make sure to update CLI options if you add/remove optimizers
 type OptimizerName =
@@ -25,36 +31,23 @@ const getOptimizer = (name: OptimizerName): StagedOptimizer => {
   switch (name) {
     case "line-search-gd":
       return new BasicStagedOptimizer(
-        new ExteriorPointOptimizer(
-          new LineSearchGDOptimizer()
-        )
+        new ExteriorPointOptimizer(new LineSearchGDOptimizer()),
       );
 
     case "lbfgs":
       return new BasicStagedOptimizer(
-        new ExteriorPointOptimizer(
-          new LBGFSOptimizer()
-        )
+        new ExteriorPointOptimizer(new LBGFSOptimizer()),
       );
 
     case "multi-start-lbfgs":
-      return new MultiStartStagedOptimizer(
-        () => new LBGFSOptimizer(),
-        16
-      );
+      return new MultiStartStagedOptimizer(() => new LBGFSOptimizer(), 16);
 
     case "simulated-annealing-lbfgs":
-      return new SimulatedAnnealing(
-        new LBGFSOptimizer()
+      return new BasicStagedOptimizer(
+        new SimulatedAnnealing(new LBGFSOptimizer()),
       );
   }
-}
-
-const maxSamplesPerDim = 50;
-const totalMinutes = 1;
-const totalMs = totalMinutes * 60 * 1000;
-const maxMs = totalMs / entries.length;
-console.log(`Max time per entry: ${maxMs} ms`);
+};
 
 const namesAndTrios = (
   await Promise.all(
@@ -66,11 +59,11 @@ const namesAndTrios = (
   )
 ).filter((x) => x !== null) as [string, Trio][];
 
-const computeStatistics = async (
-  argv: {
-    outputDir: string;
-  }
-) => {
+const computeStatistics = async (argv: {
+  outputDir: string;
+  numSamples: number;
+  timeout: number;
+}) => {
   let nextVariation = 0;
   const sampler = () => `${nextVariation++}`;
 
@@ -84,8 +77,8 @@ const computeStatistics = async (
     const explorationInfo = computeDiagramExploration(
       removeStaging(state),
       sampler,
-      maxSamplesPerDim,
-      maxMs,
+      argv.numSamples,
+      argv.timeout,
     );
 
     // save explorationInfo to output directory
@@ -98,19 +91,19 @@ const computeStatistics = async (
   }
 };
 
-const computeSuccessRates = async (
-  argv: {
-    outputDir: string;
-    optimizer: OptimizerName;
-  }
-) => {
+const computeSuccessRates = async (argv: {
+  outputDir: string;
+  optimizer: OptimizerName;
+  numSamples: number;
+  timeout: number;
+}) => {
   const optimizer = getOptimizer(argv.optimizer);
 
   const successRates = await estimateSuccessRates(
     namesAndTrios,
-    maxSamplesPerDim,
-    maxMs,
-    optimizer
+    optimizer,
+    argv.numSamples,
+    argv.timeout,
   );
 
   // save success rates to output directory
@@ -127,31 +120,42 @@ yargs(process.argv.slice(2))
     alias: "o",
     type: "string",
     description: "Directory to save output files",
-    default: "collect-output",
+    default: defaultOutputDir,
+  })
+  .option("num-samples", {
+    alias: "n",
+    type: "number",
+    description: "Number of samples per trio",
+    default: defaultNumSamples,
+  })
+  .option("timeout", {
+    alias: "t",
+    type: "number",
+    description: "Timeout in seconds for each trio",
+    default: defaultTimeout,
   })
   .command(
     "statistics",
     "Compute statistics for each trio",
     () => {},
-    (argv) => computeStatistics(argv as any)
+    (argv) => computeStatistics(argv as any),
   )
   .command(
     "success-rate <optimizer>",
     "Estimate success rates for each trio using the specified optimizer",
     (yargs) => {
-      return yargs
-        .positional("optimizer", {
-          describe: "Name of the optimizer to use",
-          type: "string",
-          choices: [
-            "line-search-gd",
-            "lbfgs",
-            "multi-start-lbfgs",
-            "simulated-annealing-lbfgs"
-          ],
-        })
+      return yargs.positional("optimizer", {
+        describe: "Name of the optimizer to use",
+        type: "string",
+        choices: [
+          "line-search-gd",
+          "lbfgs",
+          "multi-start-lbfgs",
+          "simulated-annealing-lbfgs",
+        ],
+      });
     },
-    (argv) => computeSuccessRates(argv as any)
+    (argv) => computeSuccessRates(argv as any),
   )
   .demandCommand()
   .help()
