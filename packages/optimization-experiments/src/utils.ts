@@ -91,6 +91,20 @@ const unfold = (node: Index | Member): Expr => {
   }
 };
 
+export const normalInPlace = (arr: Float64Array): void => {
+  const d = arr.length;
+  for (let i = 0; i < d; i += 2) {
+    const u1 = Math.random();
+    const u2 = Math.random();
+    const r = Math.sqrt(-2 * Math.log(u1));
+    const theta = 2 * Math.PI * u2;
+    arr[i] = r * Math.cos(theta);
+    if (i + 1 < d) {
+      arr[i + 1] = r * Math.sin(theta);
+    }
+  }
+};
+
 /**
  * Calculates input masks for each optimization stage based on analyzing the
  * graph structure of compiled function outputs. The resulting masks are ANDed with
@@ -228,4 +242,12 @@ export const calculateDependentInputs = (
   }
 
   return inputMasks;
+};
+
+export const vdot = (a: Float64Array, b: Float64Array): number => {
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result += a[i] * b[i];
+  }
+  return result;
 };

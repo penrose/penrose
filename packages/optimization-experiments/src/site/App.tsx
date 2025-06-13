@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  AutoMALAOptimizer,
   BasicStagedOptimizer,
   ExteriorPointOptimizer,
-  LBGFSOptimizer, LineSearchGDOptimizer, MultiStartStagedOptimizer, SimulatedAnnealing, StagedOptimizer
+  LBGFSOptimizer,
+  LineSearchGDOptimizer,
+  MALAOptimizer,
+  MultiStartStagedOptimizer,
+  StagedOptimizer,
 } from "../Optimizers.js";
 import { DiagramPanel } from "./DiagramPanel.js";
 import { TrioInfo, TrioSelector } from "./TrioSelector.js";
@@ -12,41 +17,55 @@ function App() {
   const [optimizer, setOptimizer] = useState<StagedOptimizer | null>(null);
 
   const lineSearchGDOptimizer = useMemo(() => {
-    console.log("new line search gd optimizer!");
     const gd = new LineSearchGDOptimizer();
     return new BasicStagedOptimizer(new ExteriorPointOptimizer(gd));
   }, []);
 
-  const penroseOptimizer = useMemo(() => {
-    console.log("new penrose optimizer!");
+  const lbfgsOptimizer = useMemo(() => {
     return new BasicStagedOptimizer(new LBGFSOptimizer());
   }, []);
 
-  const multiStartPenroseOptimizer = useMemo(() => {
-    console.log("new multi-penrose optimizer!");
+  const multiStartLbfgsOptimizer = useMemo(() => {
     return new MultiStartStagedOptimizer(
       () => new ExteriorPointOptimizer(new LBGFSOptimizer()),
-      16);
+      16,
+    );
   }, []);
 
-  const saLineSearchGDOptimizer = useMemo(() => {
-    console.log("new SA line search gd optimizer!");
-    const lbfgs = new LBGFSOptimizer();
-    const simulatedAnnealing = new SimulatedAnnealing(lbfgs);
-    const staged = new BasicStagedOptimizer(simulatedAnnealing);
-    return staged;
+  const malaOptimizer = useMemo(() => {
+    const mala = new MALAOptimizer({
+      initialTemperature: 100,
+      coolingRate: 0.001,
+      constraintWeight: 100,
+      stepSize: 0.0001,
+      minAcceptanceRate: 1e-5,
+    });
+    return new BasicStagedOptimizer(mala);
+  }, []);
+
+  const autoMalaOptimizer = useMemo(() => {
+    const mala = new AutoMALAOptimizer({
+      initTemperature: 1000,
+      coolingRate: 0.05,
+      constraintWeight: 100,
+      initStepSize: 1.0,
+      minTemperature: 0.1,
+    });
+    return new BasicStagedOptimizer(mala);
   }, []);
 
   const strToOptimizer = (str: string): StagedOptimizer => {
     switch (str) {
       case "line search gd":
         return lineSearchGDOptimizer;
-      case "penrose":
-        return penroseOptimizer;
-      case "multi-penrose":
-        return multiStartPenroseOptimizer;
-      case "SA lbfgs":
-        return saLineSearchGDOptimizer;
+      case "lbfgs":
+        return lbfgsOptimizer;
+      case "multi-lbfgs":
+        return multiStartLbfgsOptimizer;
+      case "mala":
+        return malaOptimizer;
+      case "auto-mala":
+        return autoMalaOptimizer;
       default:
         throw new Error(`Unknown optimizer: ${str}`);
     }
@@ -56,7 +75,7 @@ function App() {
     setOptimizer(strToOptimizer("line search gd"));
   }, []);
 
-  console.log(trioInfo)
+  console.log(trioInfo);
   console.log(optimizer);
 
   return (
@@ -64,14 +83,15 @@ function App() {
       <TrioSelector setTrioInfo={setTrioInfo} />
       {/* Optimizer dropdown */}
       <select onChange={(e) => setOptimizer(strToOptimizer(e.target.value))}>
-        <option value="line search gd">Line Search Gradient Descent</option>
-        <option value="penrose">Penrose</option>
-        <option value="multi-penrose">Multi-start Penrose</option>
-        <option value="SA lbfgs">Simulated Annealing L-BFGS</option>
+        <option value="line search gd">Line Search GD</option>
+        <option value="lbfgs">L-BFGS</option>
+        <option value="multi-lbfgs">Multi-start L-BFGS</option>
+        <option value="mala">Simulated Annealing (MALA)</option>
+        <option value="auto-mala">Simulated Annealing (AutoMALA)</option>
         {/* Add more optimizers here as needed */}
       </select>
 
-      {trioInfo && optimizer &&
+      {trioInfo && optimizer && (
         <div
           style={{
             display: "grid",
@@ -80,7 +100,7 @@ function App() {
         >
           <DiagramPanel trioInfo={trioInfo} optimizer={optimizer} />
         </div>
-      }
+      )}
     </>
   );
 }

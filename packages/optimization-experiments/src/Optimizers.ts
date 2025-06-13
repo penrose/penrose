@@ -5,7 +5,7 @@ import {
   stepUntil,
 } from "@penrose/core/dist/engine/Optimizer";
 import { OptOutputs } from "@penrose/core/dist/types/ad";
-import { calculateDependentInputs, normal } from "./utils.js";
+import { calculateDependentInputs, normal, normalInPlace } from "./utils.js";
 
 export interface UnconstrainedOptimizer {
   init: (state: PenroseState) => void;
@@ -664,62 +664,714 @@ export class BasicStagedOptimizer implements StagedOptimizer {
   };
 }
 
-export interface SimulatedAnnealingParams {
+export interface MALAParams {
   initialTemperature: number;
   coolingRate: number;
   constraintWeight: number;
+  stepSize: number;
+  minAcceptanceRate: number;
 }
 
-export const DefaultSimulatedAnnealingParams: SimulatedAnnealingParams = {
-  initialTemperature: 10,
+export const DefaultMALAParams: MALAParams = {
+  initialTemperature: 100,
   coolingRate: 0.001,
-  constraintWeight: 10,
+  constraintWeight: 100,
+  stepSize: 1.0,
+  minAcceptanceRate: 0.001,
 };
 
-export class SimulatedAnnealing implements Optimizer {
+export class MALAOptimizer implements Optimizer {
   tag = "Optimizer" as const;
 
-  private optimizer: UnconstrainedOptimizer;
-  private params: SimulatedAnnealingParams;
+  private params: MALAParams;
   private temperature: number;
   private energyDependencyMasks: Map<string, boolean[]> = new Map();
+  private lastGradient: Float64Array | null = null;
+  private lastOutputs: OptOutputs | null = null;
+  private lastInputs: Float64Array | null = null;
+  private runningAcceptanceRate: number = 1;
+  private numAcceptanceRateSamples: number = 0;
 
-  constructor(
-    optimizer: UnconstrainedOptimizer,
-    params: SimulatedAnnealingParams = DefaultSimulatedAnnealingParams,
-  ) {
+  // scratch to save allocations
+  private currGradient: Float64Array = new Float64Array(0);
+  private currInputs: Float64Array = new Float64Array(0);
+
+  constructor(params: MALAParams = DefaultMALAParams) {
     this.params = params;
-    this.optimizer = optimizer;
     this.temperature = this.params.initialTemperature;
   }
 
   init = (state: PenroseState) => {
     this.temperature = this.params.initialTemperature;
-    this.optimizer.init(state);
     this.energyDependencyMasks = calculateDependentInputs(state);
+    this.lastGradient = null;
+    this.lastOutputs = null;
+    this.lastInputs = null;
+    this.currGradient = new Float64Array(state.varyingValues.length);
+    this.currInputs = new Float64Array(state.varyingValues.length);
+    this.runningAcceptanceRate = 1;
+
+    console.log(
+      `MALA: Initialized with temperature ${this.temperature}, ${state.varyingValues.length} variables`,
+    );
+  };
+
+  // using inputs in this.currInputs,
+  // store gradient in currGradient and return outputs
+  private calcGrad = (state: PenroseState) => {
+    const inputs = this.currInputs;
+    const gradient = this.currGradient;
+    return state.gradient(
+      state.constraintSets.get(state.optStages[state.currentStageIndex])!,
+      inputs,
+      this.params.constraintWeight,
+      gradient,
+    );
+  };
+
+  private updateAcceptanceRate(succeeded: boolean) {
+    if (succeeded) {
+      this.runningAcceptanceRate = 0.99 * this.runningAcceptanceRate + 0.01;
+    } else {
+      this.runningAcceptanceRate = 0.99 * this.runningAcceptanceRate;
+    }
+  }
+
+  private swapGradientsAndInputs = () => {
+    const currGradTmp = this.currGradient;
+    this.currGradient = this.lastGradient!;
+    this.lastGradient = currGradTmp;
+
+    const currInputsTmp = this.currInputs;
+    this.currInputs = this.lastInputs!;
+    this.lastInputs = currInputsTmp;
   };
 
   step = (state: PenroseState): OptimizerResult => {
-    const result = this.optimizer.step(state, this.params.constraintWeight);
+    if (
+      this.lastOutputs === null ||
+      this.lastGradient === null ||
+      this.lastInputs === null
+    ) {
+      this.lastInputs = new Float64Array(state.varyingValues.length);
+      this.lastGradient = new Float64Array(state.varyingValues.length);
 
-    if (result.tag === "Failed" || result.tag === "Converged") {
-      return result;
+      for (let i = 0; i < state.varyingValues.length; i++) {
+        this.currInputs[i] = state.varyingValues[i];
+      }
+
+      this.lastOutputs = this.calcGrad(state);
+      this.swapGradientsAndInputs();
+
+      console.log(
+        `MALA: Initial state - Energy: ${this.lastOutputs.phi.toFixed(
+          6,
+        )}, Temperature: ${this.temperature.toFixed(4)}`,
+      );
     }
 
-    // Unconverged case
-    const stdNormal = normal(state.varyingValues.length);
-    const inputMask = this.energyDependencyMasks.get(
-      state.optStages[state.currentStageIndex],
-    )!;
+    if (this.runningAcceptanceRate < this.params.minAcceptanceRate) {
+      console.log(
+        `MALA: Running acceptance rate ${this.runningAcceptanceRate.toFixed(
+          4,
+        )} is below threshold ${
+          this.params.minAcceptanceRate
+        }. Stopping optimization.`,
+      );
+      return { tag: "Converged", outputs: this.lastOutputs };
+    }
+
+    for (let i = 0; i < this.currInputs.length; i++) {
+      this.currInputs[i] = this.lastInputs![i];
+    }
+
+    const maxAttempts = 10;
+    let numAttempts = 0;
+    for (;;) {
+      const stdNormal = normal(state.varyingValues.length);
+      const inputMask = this.energyDependencyMasks.get(
+        state.optStages[state.currentStageIndex],
+      )!;
+
+      for (let i = 0; i < this.currInputs.length; i++) {
+        if (inputMask[i]) {
+          this.currInputs[i] +=
+            this.params.stepSize * -this.lastGradient![i] +
+            stdNormal[i] *
+              Math.sqrt(2 * this.params.stepSize * this.temperature);
+        }
+      }
+
+      const currOutputs = this.calcGrad(state);
+      const currEnergy = currOutputs.phi;
+      const lastEnergy = this.lastOutputs!.phi;
+
+      const fwdNorm2 = this.currInputs.reduce(
+        (acc, xprime, i) =>
+          acc +
+          xprime -
+          this.lastInputs![i] +
+          this.params.stepSize * this.lastGradient![i],
+        0,
+      );
+
+      const bwdNorm2 = this.lastInputs!.reduce(
+        (acc, x, i) =>
+          acc +
+          x -
+          this.currInputs[i] +
+          this.params.stepSize * this.currGradient[i],
+        0,
+      );
+
+      const logAcceptanceProb =
+        (1 / this.temperature) * (lastEnergy - currEnergy) +
+        (1 / (4 * this.params.stepSize * this.temperature)) *
+          (fwdNorm2 - bwdNorm2);
+      const acceptanceProb = Math.exp(logAcceptanceProb);
+
+      if (isNaN(acceptanceProb) || acceptanceProb < 0) {
+        console.error(
+          `MALA step failed: NaN or invalid acceptance probability ${acceptanceProb}.`,
+        );
+        return { tag: "Failed", reason: FailedReason.Unknown };
+      }
+
+      const energyChange = currEnergy - lastEnergy;
+      const random = Math.random();
+
+      if (random < acceptanceProb) {
+        console.log(
+          `MALA: ACCEPTED - ΔE: ${energyChange.toFixed(
+            6,
+          )}, Prob: ${acceptanceProb.toFixed(6)}, T: ${this.temperature.toFixed(
+            4,
+          )}`,
+        );
+        this.updateAcceptanceRate(true);
+        this.lastOutputs = currOutputs;
+        this.swapGradientsAndInputs();
+        break; // exit while loop
+      } else {
+        console.log(
+          `MALA: REJECTED - ΔE: ${energyChange.toFixed(
+            6,
+          )}, Prob: ${acceptanceProb.toFixed(6)}, Random: ${random.toFixed(6)}`,
+        );
+      }
+
+      this.updateAcceptanceRate(false);
+      numAttempts++;
+
+      if (numAttempts >= maxAttempts) {
+        console.warn(
+          `MALA: Maximum attempts reached (${maxAttempts}). Continuing with last accepted state.`,
+        );
+        break; // exit while loop
+      }
+    }
 
     for (let i = 0; i < state.varyingValues.length; i++) {
-      if (!inputMask[i]) continue;
-      state.varyingValues[i] += stdNormal[i] * this.temperature;
+      state.varyingValues[i] = this.lastInputs[i];
     }
 
     // Decrease the temperature
     this.temperature *= 1 - this.params.coolingRate;
+    console.log(
+      `MALA: Step completed. Info:` +
+        ` Energy: ${this.lastOutputs!.phi.toFixed(6)}` +
+        `, Temperature: ${this.temperature.toFixed(4)}` +
+        `, Acceptance rate: ${this.runningAcceptanceRate.toFixed(4)}`,
+    );
 
-    return { tag: "Unconverged", outputs: result.outputs };
+    return { tag: "Unconverged", outputs: this.lastOutputs };
+  };
+}
+
+export interface AutoMALAOptimizerParams {
+  initStepSize: number;
+  initTemperature: number;
+  coolingRate: number;
+  constraintWeight: number;
+  minTemperature: number;
+}
+
+export const DefaultAutoMALAOptimizerParams: AutoMALAOptimizerParams = {
+  initTemperature: 1000,
+  coolingRate: 0.05,
+  constraintWeight: 100,
+  initStepSize: 1.0,
+  minTemperature: 0.1,
+};
+
+export class AutoMALAOptimizer implements Optimizer {
+  tag = "Optimizer" as const;
+
+  private params: AutoMALAOptimizerParams;
+  private temperature: number = 0;
+  private inputVariance: Float64Array = new Float64Array(0);
+  private massVector: Float64Array = new Float64Array(0);
+  private round: number = 0;
+  private stepInRound: number = 0;
+  private initStepSize: number = 1;
+  private dependentInputs: number[] = [];
+
+  private roundStepSizeMean: number = 0;
+  private roundInputsAggregate: {
+    mean: Float64Array;
+    m2: Float64Array;
+  } = {
+    mean: new Float64Array(0),
+    m2: new Float64Array(0),
+  };
+
+  private lastInputs: Float64Array = new Float64Array(0);
+  private lastGradient: Float64Array = new Float64Array(0);
+  private lastOutputs: OptOutputs = {
+    phi: 0,
+    objectives: [],
+    constraints: [],
+  };
+
+  // scratch; shouldn't be referenced directly outside of `step`
+  private inputs0: Float64Array = new Float64Array(0);
+  private inputs1: Float64Array = new Float64Array(0);
+  private momentum0: Float64Array = new Float64Array(0);
+  private momentum1: Float64Array = new Float64Array(0);
+  private gradient0: Float64Array = new Float64Array(0);
+  private gradient1: Float64Array = new Float64Array(0);
+
+  constructor(
+    params: AutoMALAOptimizerParams = DefaultAutoMALAOptimizerParams,
+  ) {
+    this.params = params;
+  }
+
+  init = (state: PenroseState) => {
+    this.temperature = this.params.initTemperature;
+    this.round = 0;
+    this.stepInRound = 0;
+    this.initStepSize = this.params.initStepSize;
+
+    const numInputs = state.varyingValues.length;
+    this.inputVariance = new Float64Array(numInputs);
+    this.massVector = new Float64Array(numInputs);
+    this.roundInputsAggregate.mean = new Float64Array(numInputs);
+    this.roundInputsAggregate.m2 = new Float64Array(numInputs);
+
+    for (let i = 0; i < numInputs; i++) {
+      this.inputVariance[i] = 1; // initial variance
+      this.massVector[i] = 1; // initial mass
+      this.roundInputsAggregate.mean[i] = 0;
+      this.roundInputsAggregate.m2[i] = 0;
+    }
+
+    // initialize scratch arrays
+    this.inputs0 = new Float64Array(numInputs);
+    this.inputs1 = new Float64Array(numInputs);
+    this.momentum0 = new Float64Array(numInputs);
+    this.momentum1 = new Float64Array(numInputs);
+    this.gradient0 = new Float64Array(numInputs);
+    this.gradient1 = new Float64Array(numInputs);
+
+    this.lastGradient = new Float64Array(numInputs);
+    this.lastInputs = new Float64Array(numInputs);
+
+    // copy the current values of the varying inputs
+    for (let i = 0; i < numInputs; i++) {
+      this.lastInputs[i] = state.varyingValues[i];
+      this.inputs0[i] = state.varyingValues[i];
+      this.inputs1[i] = state.varyingValues[i];
+    }
+
+    this.lastOutputs = this.calcGrad(state, this.lastInputs, this.lastGradient);
+
+    const dependentInputMasks = calculateDependentInputs(state);
+    const mask = dependentInputMasks.get(
+      state.optStages[state.currentStageIndex],
+    )!;
+    this.dependentInputs = [];
+    for (let i = 0; i < numInputs; i++) {
+      if (mask[i]) {
+        this.dependentInputs.push(i);
+      }
+    }
+
+    console.log(
+      `AutoMALA: Initialized with temperature ${this.temperature}, ${numInputs} variables`,
+    );
+  };
+
+  step = (state: PenroseState): OptimizerResult => {
+    if (this.temperature < this.params.minTemperature) {
+      return {
+        tag: "Converged",
+        outputs: this.lastOutputs,
+      };
+    }
+
+    if (this.stepInRound === 2 ** this.round) {
+      // start new round
+      this.startNewRound();
+    }
+
+    // choose random preconditioning
+    this.sampleMassVector();
+
+    // fill momentum0
+    const momentum0 = this.momentum0;
+    this.sampleMomentum(momentum0);
+
+    const inputsT = this.inputs0;
+    const momentumT = this.momentum1;
+    const gradientT = this.gradient0;
+
+    const [a, b] = this.sampleAB();
+
+    const result1 = this.selectStepSize(
+      state,
+      this.lastInputs,
+      momentum0,
+      this.lastGradient,
+      this.lastOutputs,
+      [a, b],
+      this.initStepSize,
+      inputsT,
+      momentumT,
+      gradientT,
+    );
+
+    if (this.stepInRound === 0) {
+      // ignore MH acceptance and reversbility
+      this.updateAggregates(result1.stepSize, inputsT);
+      this.stepInRound++;
+      this.swapFromScratch0();
+      this.lastOutputs = result1.endOutputs;
+      return {
+        tag: "Unconverged",
+        outputs: result1.endOutputs,
+      };
+    }
+
+    // const result2 = this.selectStepSize(
+    //   state,
+    //   inputsT,
+    //   momentumT,
+    //   gradientT,
+    //   result1.endOutputs,
+    //   [a, b],
+    //   this.initStepSize,
+    //   this.inputs1,
+    //   this.momentum0,
+    //   this.gradient1,
+    // );
+
+    if (
+      Math.random() > result1.acceptanceProb ||
+      !isFinite(result1.acceptanceProb) ||
+      !allFinite(inputsT) ||
+      !allFinite(gradientT)
+    ) {
+      // reject
+      // console.log(
+      //   `AutoMALA: REJECTED - j: ${
+      //     result1.j
+      //   }, acceptance prob: ${result1.acceptanceProb.toFixed(6)}`,
+      // );
+    } else {
+      // accept
+      // console.log(
+      //   `AutoMALA: ACCEPTED - j: ${
+      //     result1.j
+      //   }, acceptance prob: ${result1.acceptanceProb.toFixed(6)}`,
+      // );
+
+      this.swapFromScratch0();
+      this.lastOutputs = result1.endOutputs;
+
+      for (const i of this.dependentInputs) {
+        state.varyingValues[i] = this.lastInputs[i];
+      }
+    }
+
+    this.updateAggregates(result1.stepSize, this.lastInputs);
+    this.stepInRound++;
+
+    this.temperature *= 1 - this.params.coolingRate;
+
+    return {
+      tag: "Unconverged",
+      outputs: this.lastOutputs,
+    };
+  };
+
+  private swapFromScratch0 = () => {
+    const inputsTmp = this.lastInputs;
+    this.lastInputs = this.inputs0;
+    this.inputs0 = inputsTmp;
+
+    const gradientTmp = this.lastGradient;
+    this.lastGradient = this.gradient0;
+    this.gradient0 = gradientTmp;
+  };
+
+  private startNewRound = () => {
+    this.initStepSize = this.roundStepSizeMean;
+
+    this.roundStepSizeMean = 0;
+    for (const i of this.dependentInputs) {
+      this.inputVariance[i] = Math.max(
+        1e-2,
+        this.roundInputsAggregate.m2[i] / this.stepInRound,
+      );
+      this.roundInputsAggregate.mean[i] = 0;
+      this.roundInputsAggregate.m2[i] = 1;
+    }
+
+    this.stepInRound = 0;
+    this.round++;
+    console.log(
+      `AutoMALA: Starting new round ${
+        this.round
+      } with initial step size ${this.initStepSize.toFixed(6)}`,
+    );
+  };
+
+  private updateAggregates = (stepSize: number, inputs: Float64Array) => {
+    this.roundStepSizeMean +=
+      (stepSize - this.roundStepSizeMean) / (this.stepInRound + 1);
+
+    for (const i of this.dependentInputs) {
+      const delta = inputs[i] - this.roundInputsAggregate.mean[i];
+      this.roundInputsAggregate.mean[i] += delta / (this.stepInRound + 1);
+
+      const delta2 = inputs[i] - this.roundInputsAggregate.mean[i];
+      this.roundInputsAggregate.m2[i] += delta * delta2;
+    }
+  };
+
+  private sampleMomentum = (outMomentum: Float64Array) => {
+    normalInPlace(outMomentum);
+    for (const i of this.dependentInputs) {
+      outMomentum[i] *= Math.sqrt(this.massVector[i]);
+    }
+  };
+
+  private sampleAB = () => {
+    const [u1, u2] = [Math.random(), Math.random()];
+    return [Math.min(u1, u2), Math.max(u1, u2)];
+  };
+
+  private sampleMassVector = () => {
+    let eta;
+    const rand = Math.random();
+    if (rand < 1 / 3) {
+      eta = 0;
+    } else if (rand < 2 / 3) {
+      eta = (rand - 1 / 3) * 3;
+    } else {
+      eta = 1;
+    }
+
+    for (const i of this.dependentInputs) {
+      const invStddev = 1 / Math.sqrt(this.inputVariance[i]);
+      const invMass = invStddev * eta + (1 - eta);
+      // this.massVector[i] = (1 / invMass) ** 2;
+      this.massVector[i] = 1;
+    }
+  };
+
+  private calcGrad = (
+    state: PenroseState,
+    inputs: Float64Array,
+    gradient: Float64Array,
+  ): OptOutputs => {
+    const outputs = state.gradient(
+      state.constraintSets.get(state.optStages[state.currentStageIndex])!,
+      inputs,
+      this.params.constraintWeight,
+      gradient,
+    );
+
+    for (const i of this.dependentInputs) {
+      gradient[i] /= this.temperature;
+    }
+
+    return outputs;
+  };
+
+  private logMomentumPdfUnnorm = (momentum: Float64Array): number => {
+    // Unnormalized momentum PDF: exp(-0.5 * ||momentum||^2)
+    let sum = 0;
+    for (const i of this.dependentInputs) {
+      sum += momentum[i] ** 2 / (2 * this.massVector[i]);
+    }
+    return -sum;
+  };
+
+  private logAcceptanceProb = (
+    energy0: number,
+    energyT: number,
+    momentum0: Float64Array,
+    momentumT: Float64Array,
+  ): number => {
+    const p0 =
+      -energy0 / this.temperature + this.logMomentumPdfUnnorm(momentum0);
+    const pT =
+      -energyT / this.temperature + this.logMomentumPdfUnnorm(momentumT);
+    return pT - p0;
+  };
+
+  private leapfrog = (
+    state: PenroseState,
+    inInputs: Float64Array,
+    inMomentum: Float64Array,
+    inGradient: Float64Array,
+    stepSize: number,
+    outInputs: Float64Array,
+    outMomentum: Float64Array,
+    outGradient: Float64Array,
+  ): OptOutputs => {
+    // Perform a leapfrog step
+    for (const i of this.dependentInputs) {
+      outMomentum[i] = inMomentum[i] - 0.5 * stepSize * inGradient[i];
+    }
+
+    // Update inputs with the current momentum
+    for (const i of this.dependentInputs) {
+      outInputs[i] = inInputs[i] + stepSize * outMomentum[i];
+    }
+
+    for (let j = 0; j < 5; j++) {
+      // Calculate the gradient at the new inputs
+      this.calcGrad(state, outInputs, outGradient);
+
+      // Update momentum with the new gradient
+      for (const i of this.dependentInputs) {
+        outMomentum[i] -= stepSize * outGradient[i];
+      }
+
+      // update inputs one last time
+      for (const i of this.dependentInputs) {
+        outInputs[i] += stepSize * outMomentum[i];
+      }
+    }
+
+    const outputs = this.calcGrad(state, outInputs, outGradient);
+
+    for (const i of this.dependentInputs) {
+      outMomentum[i] -= 0.5 * stepSize * outGradient[i];
+    }
+
+    return outputs;
+  };
+
+  private selectStepSize = (
+    state: PenroseState,
+    inInputs: Float64Array,
+    inMomentum: Float64Array,
+    inGradient: Float64Array,
+    inOutputs: OptOutputs,
+    [a, b]: [number, number],
+    initStepSize: number,
+    outInputs: Float64Array,
+    outMomentum: Float64Array,
+    outGradient: Float64Array,
+  ): {
+    stepSize: number;
+    j: number;
+    acceptanceProb: number;
+    endOutputs: OptOutputs;
+  } => {
+    let stepSize = initStepSize;
+    const [loga, logb] = [Math.log(a), Math.log(b)];
+
+    const outputsT = this.leapfrog(
+      state,
+      inInputs,
+      inMomentum,
+      inGradient,
+      stepSize,
+      outInputs,
+      outMomentum,
+      outGradient,
+    );
+
+    const energy0 = inOutputs.phi;
+    const energyT = outputsT.phi;
+    const logAcceptanceProb = this.logAcceptanceProb(
+      energy0,
+      energyT,
+      inMomentum,
+      outMomentum,
+    );
+
+    let changeDir;
+    if (logAcceptanceProb < loga) {
+      changeDir = -1;
+    } else if (logAcceptanceProb > logb) {
+      changeDir = 1;
+    } else {
+      // initial step size works
+      return {
+        stepSize,
+        j: 0,
+        acceptanceProb: Math.exp(logAcceptanceProb),
+        endOutputs: outputsT,
+      };
+    }
+
+    let j = 0;
+    let shouldReturn = false;
+    while (true) {
+      stepSize *= 2 ** changeDir;
+      j += changeDir;
+
+      const outputsT = this.leapfrog(
+        state,
+        inInputs,
+        inMomentum,
+        inGradient,
+        stepSize,
+        outInputs,
+        outMomentum,
+        outGradient,
+      );
+
+      const energyT = outputsT.phi;
+      const logAcceptanceProb = this.logAcceptanceProb(
+        energy0,
+        energyT,
+        inMomentum,
+        outMomentum,
+      );
+
+      if (shouldReturn) {
+        // we overshot last time, now we're returning
+        return {
+          stepSize,
+          j,
+          acceptanceProb: Math.exp(logAcceptanceProb),
+          endOutputs: outputsT,
+        };
+      }
+
+      if (changeDir === 1 && logAcceptanceProb < logb) {
+        // we overshot--go back to last step, re-leapfrog, and return
+        stepSize /= 4;
+        j -= 2;
+        shouldReturn = true;
+        continue;
+      }
+
+      if (changeDir === -1 && logAcceptanceProb > loga) {
+        return {
+          stepSize,
+          j,
+          acceptanceProb: Math.exp(logAcceptanceProb),
+          endOutputs: outputsT,
+        };
+      }
+    }
   };
 }
