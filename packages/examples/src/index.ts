@@ -39,3 +39,6 @@ export interface OtherMeta extends BaseMeta {
 }
 
 export type Meta = TrioMeta | OtherMeta;
+
+export { entries } from "./registry.js";
+export { makeResolver } from "./resolver.js";

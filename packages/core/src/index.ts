@@ -384,7 +384,7 @@ export type { Canvas, InputMeta } from "./shapes/Samplers.js";
 export { sampleShape, shapeTypes } from "./shapes/Shapes.js";
 export type { Shape, ShapeType } from "./shapes/Shapes.js";
 export type { Text } from "./shapes/Text.js";
-export { isVar } from "./types/ad.js";
+export * from "./types/ad.js";
 export type { DomainEnv } from "./types/domain.js";
 export type {
   DomainError,
