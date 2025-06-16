@@ -335,12 +335,12 @@ export class LineSearchGDOptimizer implements UnconstrainedOptimizer {
       steps++;
 
       if (steps >= this.params.maxLineSearchIterations) {
-        console.warn("Line search exhausted. Continuing at current step size.");
+        // console.warn("Line search exhausted. Continuing at current step size.");
         break;
       }
     }
 
-    console.log(`Line search step size: ${stepSize}`);
+    // console.log(`Line search step size: ${stepSize}`);
 
     this.lastOutputs = nextOutputs!;
     this.gradient = nextGradient;
@@ -415,9 +415,9 @@ export class LBGFSOptimizer implements Optimizer {
       ) {
         const message = error.message as string;
         if (message.includes("NaN")) {
-          console.error(
-            "LBGFS optimization failed: NaN encountered in inputs.",
-          );
+          // console.error(
+          //   "LBGFS optimization failed: NaN encountered in inputs.",
+          // );
           return { tag: "Failed", reason: FailedReason.NaN };
         } else {
           console.error(`LBGFS optimization failed: ${message}`);
@@ -611,7 +611,7 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
       (problem) => problem.lastResult!.tag === "Converged",
     );
     if (allConverged) {
-      console.log("All optimizers converged.");
+      // console.log("All optimizers converged.");
     }
 
     if (allConverged) {
@@ -991,9 +991,9 @@ export class AutoMALAOptimizer implements Optimizer {
       }
     }
 
-    console.log(
-      `AutoMALA: Initialized with temperature ${this.temperature}, ${numInputs} variables`,
-    );
+    // console.log(
+    //   `AutoMALA: Initialized with temperature ${this.temperature}, ${numInputs} variables`,
+    // );
   };
 
   step = (state: PenroseState): OptimizerResult => {
@@ -1122,11 +1122,11 @@ export class AutoMALAOptimizer implements Optimizer {
     this.stepInRound = 0;
     this.firstStep = true;
     this.round++;
-    console.log(
-      `AutoMALA: Starting new round ${
-        this.round
-      } with initial step size ${this.initStepSize.toFixed(6)}`,
-    );
+    // console.log(
+    //   `AutoMALA: Starting new round ${
+    //     this.round
+    //   } with initial step size ${this.initStepSize.toFixed(6)}`,
+    // );
   };
 
   private updateAggregates = (stepSize: number, inputs: Float64Array) => {

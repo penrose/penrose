@@ -4,12 +4,13 @@ import { entries, Trio } from "@penrose/examples";
 import fs from "fs";
 import yargs from "yargs";
 import {
+  AutoMALAOptimizer,
   BasicStagedOptimizer,
   ExteriorPointOptimizer,
   LBGFSOptimizer,
   LineSearchGDOptimizer,
+  MALAOptimizer,
   MultiStartStagedOptimizer,
-  SimulatedAnnealing,
   StagedOptimizer,
 } from "../Optimizers.js";
 import { compileTrio, removeStaging } from "../utils.js";
@@ -25,7 +26,8 @@ type OptimizerName =
   | "line-search-gd"
   | "lbfgs"
   | "multi-start-lbfgs"
-  | "simulated-annealing-lbfgs";
+  | "mala"
+  | "automala";
 
 const getOptimizer = (name: OptimizerName): StagedOptimizer => {
   switch (name) {
@@ -42,10 +44,23 @@ const getOptimizer = (name: OptimizerName): StagedOptimizer => {
     case "multi-start-lbfgs":
       return new MultiStartStagedOptimizer(() => new LBGFSOptimizer(), 16);
 
-    case "simulated-annealing-lbfgs":
-      return new BasicStagedOptimizer(
-        new SimulatedAnnealing(new LBGFSOptimizer()),
-      );
+    case "mala":
+      return new MALAOptimizer({
+        initialTemperature: 100,
+        coolingRate: 0.001,
+        constraintWeight: 100,
+        stepSize: 0.0001,
+        minAcceptanceRate: 1e-5,
+      });
+
+    case "automala":
+      return new AutoMALAOptimizer({
+        initTemperature: 1000,
+        coolingRate: 0.05,
+        constraintWeight: 1000,
+        initStepSize: 1.0,
+        minTemperature: 0.1,
+      });
   }
 };
 
@@ -151,7 +166,8 @@ yargs(process.argv.slice(2))
           "line-search-gd",
           "lbfgs",
           "multi-start-lbfgs",
-          "simulated-annealing-lbfgs",
+          "mala",
+          "automala",
         ],
       });
     },
