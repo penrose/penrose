@@ -14,6 +14,7 @@
     "@penrose/core": "^4.0.0-alpha.5",
     "@penrose/examples": "^4.0.0-alpha.5",
     "@types/yargs": "^15",
+    "cli-progress": "^3.12.0",
     "global-jsdom": "^26.0.0",
     "jsdom": "^26.1.0",
     "react": "^19.1.0",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@types/cli-progress": "^3.11.6",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
