@@ -894,15 +894,9 @@ export interface AutoMALAOptimizerParams {
   coolingRate: number;
   constraintWeight: number;
   minTemperature: number;
+  maxStepSearches: number;
+  roundLength: number;
 }
-
-export const DefaultAutoMALAOptimizerParams: AutoMALAOptimizerParams = {
-  initTemperature: 1000,
-  coolingRate: 0.05,
-  constraintWeight: 100,
-  initStepSize: 1.0,
-  minTemperature: 0.1,
-};
 
 export class AutoMALAOptimizer implements Optimizer {
   tag = "Optimizer" as const;
@@ -915,6 +909,7 @@ export class AutoMALAOptimizer implements Optimizer {
   private stepInRound: number = 0;
   private initStepSize: number = 1;
   private dependentInputs: number[] = [];
+  private firstStep = true;
 
   private roundStepSizeMean: number = 0;
   private roundInputsAggregate: {
@@ -941,9 +936,7 @@ export class AutoMALAOptimizer implements Optimizer {
   private gradient0: Float64Array = new Float64Array(0);
   private gradient1: Float64Array = new Float64Array(0);
 
-  constructor(
-    params: AutoMALAOptimizerParams = DefaultAutoMALAOptimizerParams,
-  ) {
+  constructor(params: AutoMALAOptimizerParams) {
     this.params = params;
   }
 
@@ -952,6 +945,7 @@ export class AutoMALAOptimizer implements Optimizer {
     this.round = 0;
     this.stepInRound = 0;
     this.initStepSize = this.params.initStepSize;
+    this.firstStep = true;
 
     const numInputs = state.varyingValues.length;
     this.inputVariance = new Float64Array(numInputs);
@@ -1010,7 +1004,7 @@ export class AutoMALAOptimizer implements Optimizer {
       };
     }
 
-    if (this.stepInRound === 2 ** this.round) {
+    if (this.stepInRound === this.params.roundLength) {
       // start new round
       this.startNewRound();
     }
@@ -1028,7 +1022,7 @@ export class AutoMALAOptimizer implements Optimizer {
 
     const [a, b] = this.sampleAB();
 
-    const result1 = this.selectStepSize(
+    const result = this.selectStepSize(
       state,
       this.lastInputs,
       momentum0,
@@ -1041,37 +1035,19 @@ export class AutoMALAOptimizer implements Optimizer {
       gradientT,
     );
 
-    if (this.stepInRound === 0) {
-      // ignore MH acceptance and reversbility
-      this.updateAggregates(result1.stepSize, inputsT);
-      this.stepInRound++;
-      this.swapFromScratch0();
-      this.lastOutputs = result1.endOutputs;
+    if (result === null) {
+      // no valid step found
+      // don't want to increase step in round, since we could end up with
+      // no steps at the end of the round and not be able to calculate an average
+      // still decrease temperature to move towards convergence
+      this.temperature *= 1 - this.params.coolingRate;
       return {
         tag: "Unconverged",
-        outputs: result1.endOutputs,
+        outputs: this.lastOutputs,
       };
     }
 
-    // const result2 = this.selectStepSize(
-    //   state,
-    //   inputsT,
-    //   momentumT,
-    //   gradientT,
-    //   result1.endOutputs,
-    //   [a, b],
-    //   this.initStepSize,
-    //   this.inputs1,
-    //   this.momentum0,
-    //   this.gradient1,
-    // );
-
-    if (
-      Math.random() > result1.acceptanceProb ||
-      !isFinite(result1.acceptanceProb) ||
-      !allFinite(inputsT) ||
-      !allFinite(gradientT)
-    ) {
+    if (!this.firstStep && Math.random() > result.acceptanceProb) {
       // reject
       // console.log(
       //   `AutoMALA: REJECTED - j: ${
@@ -1086,15 +1062,16 @@ export class AutoMALAOptimizer implements Optimizer {
       //   }, acceptance prob: ${result1.acceptanceProb.toFixed(6)}`,
       // );
 
+      this.firstStep = false;
       this.swapFromScratch0();
-      this.lastOutputs = result1.endOutputs;
+      this.lastOutputs = result.endOutputs;
 
       for (const i of this.dependentInputs) {
         state.varyingValues[i] = this.lastInputs[i];
       }
     }
 
-    this.updateAggregates(result1.stepSize, this.lastInputs);
+    this.updateAggregates(result.stepSize, this.lastInputs);
     this.stepInRound++;
 
     this.temperature *= 1 - this.params.coolingRate;
@@ -1103,6 +1080,20 @@ export class AutoMALAOptimizer implements Optimizer {
       tag: "Unconverged",
       outputs: this.lastOutputs,
     };
+  };
+
+  private checkStepLegal = (
+    newInputs: Float64Array,
+    newGradient: Float64Array,
+    newOutputs: OptOutputs,
+  ): boolean => {
+    // Check if the new inputs and gradient are finite
+    if (!allFinite(newInputs) || !allFinite(newGradient)) {
+      return false;
+    }
+
+    // Check if the outputs are valid
+    return isFinite(newOutputs.phi);
   };
 
   private swapFromScratch0 = () => {
@@ -1129,6 +1120,7 @@ export class AutoMALAOptimizer implements Optimizer {
     }
 
     this.stepInRound = 0;
+    this.firstStep = true;
     this.round++;
     console.log(
       `AutoMALA: Starting new round ${
@@ -1282,7 +1274,7 @@ export class AutoMALAOptimizer implements Optimizer {
     j: number;
     acceptanceProb: number;
     endOutputs: OptOutputs;
-  } => {
+  } | null => {
     let stepSize = initStepSize;
     const [loga, logb] = [Math.log(a), Math.log(b)];
 
@@ -1307,7 +1299,10 @@ export class AutoMALAOptimizer implements Optimizer {
     );
 
     let changeDir;
-    if (logAcceptanceProb < loga) {
+    if (!this.checkStepLegal(outInputs, outGradient, outputsT)) {
+      // if the step is illegal, we have to change direction
+      changeDir = -1;
+    } else if (logAcceptanceProb < loga) {
       changeDir = -1;
     } else if (logAcceptanceProb > logb) {
       changeDir = 1;
@@ -1364,13 +1359,32 @@ export class AutoMALAOptimizer implements Optimizer {
         continue;
       }
 
-      if (changeDir === -1 && logAcceptanceProb > loga) {
+      if (
+        changeDir === -1 &&
+        logAcceptanceProb > loga &&
+        this.checkStepLegal(outInputs, outGradient, outputsT)
+      ) {
         return {
           stepSize,
           j,
           acceptanceProb: Math.exp(logAcceptanceProb),
           endOutputs: outputsT,
         };
+      }
+
+      if (Math.abs(j) > this.params.maxStepSearches) {
+        // we've gone too far in either direction, give up
+        console.warn(
+          `AutoMALA: Step size search exhausted after ${Math.abs(
+            j,
+          )} iterations. Continuing with current step size.`,
+        );
+        if (changeDir === 1) {
+          this.initStepSize *= 2;
+        } else {
+          this.initStepSize /= 2;
+        }
+        return null;
       }
     }
   };

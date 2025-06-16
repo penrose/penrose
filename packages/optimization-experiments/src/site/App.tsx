@@ -47,9 +47,11 @@ function App() {
     const mala = new AutoMALAOptimizer({
       initTemperature: 1000,
       coolingRate: 0.05,
-      constraintWeight: 100,
       initStepSize: 1.0,
+      constraintWeight: 1000,
       minTemperature: 0.1,
+      maxStepSearches: 30,
+      roundLength: 100,
     });
     return new BasicStagedOptimizer(mala);
   }, []);
