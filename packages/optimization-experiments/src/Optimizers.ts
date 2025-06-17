@@ -5,6 +5,7 @@ import {
   stepUntil,
 } from "@penrose/core/dist/engine/Optimizer";
 import { OptOutputs } from "@penrose/core/dist/types/ad";
+import seedrandom from "seedrandom";
 import { calculateDependentInputs, normal, normalInPlace } from "./utils.js";
 
 export interface UnconstrainedOptimizer {
@@ -903,22 +904,14 @@ export class AutoMALAOptimizer implements Optimizer {
 
   private params: AutoMALAOptimizerParams;
   private temperature: number = 0;
-  private inputVariance: Float64Array = new Float64Array(0);
   private massVector: Float64Array = new Float64Array(0);
   private round: number = 0;
   private stepInRound: number = 0;
   private initStepSize: number = 1;
   private dependentInputs: number[] = [];
   private firstStep = true;
-
+  private rng: seedrandom.prng = seedrandom("default");
   private roundStepSizeMean: number = 0;
-  private roundInputsAggregate: {
-    mean: Float64Array;
-    m2: Float64Array;
-  } = {
-    mean: new Float64Array(0),
-    m2: new Float64Array(0),
-  };
 
   private lastInputs: Float64Array = new Float64Array(0);
   private lastGradient: Float64Array = new Float64Array(0);
@@ -934,7 +927,6 @@ export class AutoMALAOptimizer implements Optimizer {
   private momentum0: Float64Array = new Float64Array(0);
   private momentum1: Float64Array = new Float64Array(0);
   private gradient0: Float64Array = new Float64Array(0);
-  private gradient1: Float64Array = new Float64Array(0);
 
   constructor(params: AutoMALAOptimizerParams) {
     this.params = params;
@@ -946,18 +938,13 @@ export class AutoMALAOptimizer implements Optimizer {
     this.stepInRound = 0;
     this.initStepSize = this.params.initStepSize;
     this.firstStep = true;
+    this.rng = seedrandom(state.variation);
 
     const numInputs = state.varyingValues.length;
-    this.inputVariance = new Float64Array(numInputs);
     this.massVector = new Float64Array(numInputs);
-    this.roundInputsAggregate.mean = new Float64Array(numInputs);
-    this.roundInputsAggregate.m2 = new Float64Array(numInputs);
 
     for (let i = 0; i < numInputs; i++) {
-      this.inputVariance[i] = 1; // initial variance
-      this.massVector[i] = 1; // initial mass
-      this.roundInputsAggregate.mean[i] = 0;
-      this.roundInputsAggregate.m2[i] = 0;
+      this.massVector[i] = 1; // initial mass (not changed, currently)
     }
 
     // initialize scratch arrays
@@ -966,7 +953,6 @@ export class AutoMALAOptimizer implements Optimizer {
     this.momentum0 = new Float64Array(numInputs);
     this.momentum1 = new Float64Array(numInputs);
     this.gradient0 = new Float64Array(numInputs);
-    this.gradient1 = new Float64Array(numInputs);
 
     this.lastGradient = new Float64Array(numInputs);
     this.lastInputs = new Float64Array(numInputs);
@@ -1009,9 +995,6 @@ export class AutoMALAOptimizer implements Optimizer {
       this.startNewRound();
     }
 
-    // choose random preconditioning
-    this.sampleMassVector();
-
     // fill momentum0
     const momentum0 = this.momentum0;
     this.sampleMomentum(momentum0);
@@ -1047,7 +1030,7 @@ export class AutoMALAOptimizer implements Optimizer {
       };
     }
 
-    if (!this.firstStep && Math.random() > result.acceptanceProb) {
+    if (!this.firstStep && this.rng.quick() > result.acceptanceProb) {
       // reject
       // console.log(
       //   `AutoMALA: REJECTED - j: ${
@@ -1110,14 +1093,6 @@ export class AutoMALAOptimizer implements Optimizer {
     this.initStepSize = this.roundStepSizeMean;
 
     this.roundStepSizeMean = 0;
-    for (const i of this.dependentInputs) {
-      this.inputVariance[i] = Math.max(
-        1e-2,
-        this.roundInputsAggregate.m2[i] / this.stepInRound,
-      );
-      this.roundInputsAggregate.mean[i] = 0;
-      this.roundInputsAggregate.m2[i] = 1;
-    }
 
     this.stepInRound = 0;
     this.firstStep = true;
@@ -1132,45 +1107,18 @@ export class AutoMALAOptimizer implements Optimizer {
   private updateAggregates = (stepSize: number, inputs: Float64Array) => {
     this.roundStepSizeMean +=
       (stepSize - this.roundStepSizeMean) / (this.stepInRound + 1);
-
-    for (const i of this.dependentInputs) {
-      const delta = inputs[i] - this.roundInputsAggregate.mean[i];
-      this.roundInputsAggregate.mean[i] += delta / (this.stepInRound + 1);
-
-      const delta2 = inputs[i] - this.roundInputsAggregate.mean[i];
-      this.roundInputsAggregate.m2[i] += delta * delta2;
-    }
   };
 
   private sampleMomentum = (outMomentum: Float64Array) => {
-    normalInPlace(outMomentum);
+    normalInPlace(outMomentum, this.rng);
     for (const i of this.dependentInputs) {
       outMomentum[i] *= Math.sqrt(this.massVector[i]);
     }
   };
 
   private sampleAB = () => {
-    const [u1, u2] = [Math.random(), Math.random()];
+    const [u1, u2] = [this.rng.quick(), this.rng.quick()];
     return [Math.min(u1, u2), Math.max(u1, u2)];
-  };
-
-  private sampleMassVector = () => {
-    let eta;
-    const rand = Math.random();
-    if (rand < 1 / 3) {
-      eta = 0;
-    } else if (rand < 2 / 3) {
-      eta = (rand - 1 / 3) * 3;
-    } else {
-      eta = 1;
-    }
-
-    for (const i of this.dependentInputs) {
-      const invStddev = 1 / Math.sqrt(this.inputVariance[i]);
-      const invMass = invStddev * eta + (1 - eta);
-      // this.massVector[i] = (1 / invMass) ** 2;
-      this.massVector[i] = 1;
-    }
   };
 
   private calcGrad = (

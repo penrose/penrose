@@ -10,6 +10,7 @@ import {
   compile,
 } from "@penrose/core";
 import { Trio } from "@penrose/examples";
+import seedrandom from "seedrandom";
 
 export const removeStaging = (state: PenroseState): PenroseState => {
   // "or" together all masks, and replace optStages with only one ("default")
@@ -91,11 +92,14 @@ const unfold = (node: Index | Member): Expr => {
   }
 };
 
-export const normalInPlace = (arr: Float64Array): void => {
+export const normalInPlace = (
+  arr: Float64Array,
+  rng: seedrandom.prng,
+): void => {
   const d = arr.length;
   for (let i = 0; i < d; i += 2) {
-    const u1 = Math.random();
-    const u2 = Math.random();
+    const u1 = rng.quick();
+    const u2 = rng.quick();
     const r = Math.sqrt(-2 * Math.log(u1));
     const theta = 2 * Math.PI * u2;
     arr[i] = r * Math.cos(theta);
