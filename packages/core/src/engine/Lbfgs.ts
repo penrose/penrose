@@ -58,13 +58,6 @@ const dot = (u: Float64Array, v: Float64Array): number => {
   return z;
 };
 
-const allFinite = (x: Float64Array): boolean => {
-  for (let i = 0; i < x.length; i++) {
-    if (!isFinite(x[i])) return false;
-  }
-  return true;
-};
-
 /**
  * Return the line search step size, having set `x` to the new point.
  *
@@ -101,7 +94,7 @@ const lineSearch = (
     const isArmijo = fx <= fx0 + cfg.armijo * t * dufAtx0;
     const isWolfe = -dot(r, grad) >= cfg.wolfe * dufAtx0; // weak Wolfe condition
 
-    if (!isArmijo || !allFinite(x) || !allFinite(grad) || !isFinite(fx)) b = t;
+    if (!isArmijo) b = t;
     else if (!isWolfe) a = t;
     else break; // found good interval
 
