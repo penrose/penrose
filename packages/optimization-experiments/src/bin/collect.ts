@@ -18,8 +18,9 @@ import { computeDiagramExploration } from "./statistics.js";
 import { estimateSuccessRates } from "./success-rate.js";
 
 const defaultOutputDir = "collect-output";
-const defaultNumSamples = 100;
-const defaultTimeout = 30; // in seconds
+const defaultNumSamples = 10;
+const defaultTimeout = 30; // in seconds, per trio
+const defaultStepTimeout = 3; // in seconds, per optimizer step
 
 // make sure to update CLI options if you add/remove optimizers
 type OptimizerName =
@@ -111,6 +112,7 @@ const computeSuccessRates = async (argv: {
   optimizer: OptimizerName;
   numSamples: number;
   timeout: number;
+	stepTimeout: number;
 }) => {
   const optimizer = getOptimizer(argv.optimizer);
 
@@ -149,6 +151,11 @@ yargs(process.argv.slice(2))
     description: "Timeout in seconds for each trio",
     default: defaultTimeout,
   })
+	.option("step-timeout", {
+		type: "number",
+		description: "Timeout in seconds for each optimizer step",
+		default: defaultStepTimeout,
+	})
   .command(
     "statistics",
     "Compute statistics for each trio",

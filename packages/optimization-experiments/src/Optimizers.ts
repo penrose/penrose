@@ -15,13 +15,13 @@ export interface UnconstrainedOptimizer {
 
 export interface Optimizer {
   tag: "Optimizer"; // branding to distinguish from staged optimizers
-  init: (state: PenroseState) => void;
+  init: (state: PenroseState, timeout?: number) => void;
   step: (state: PenroseState) => OptimizerResult;
 }
 
 export interface StagedOptimizer {
   tag: "StagedOptimizer"; // branding to distinguish from optimizers
-  init: (state: PenroseState) => void;
+  init: (state: PenroseState, timeout?: number) => void;
   step: (state: PenroseState) => OptimizerResult;
 }
 
@@ -43,9 +43,10 @@ export type Failed = {
 };
 
 export enum FailedReason {
-  NaN,
-  MaxIterations,
-  Unknown,
+  NaN = "NaN",
+  MaxIterations  = "MaxIterations",
+	Timeout  = "Timeout",
+  Unknown  = "Unknown",
 }
 
 export interface GDParams {
@@ -712,9 +713,9 @@ export class MALAOptimizer implements Optimizer {
     this.currInputs = new Float64Array(state.varyingValues.length);
     this.runningAcceptanceRate = 1;
 
-    console.log(
-      `MALA: Initialized with temperature ${this.temperature}, ${state.varyingValues.length} variables`,
-    );
+    // console.log(
+    //   `MALA: Initialized with temperature ${this.temperature}, ${state.varyingValues.length} variables`,
+    // );
   };
 
   // using inputs in this.currInputs,
@@ -928,11 +929,16 @@ export class AutoMALAOptimizer implements Optimizer {
   private momentum1: Float64Array = new Float64Array(0);
   private gradient0: Float64Array = new Float64Array(0);
 
+	private timeout: number;
+	private initTime: number;	
+
   constructor(params: AutoMALAOptimizerParams) {
     this.params = params;
   }
 
-  init = (state: PenroseState) => {
+  init = (state: PenroseState, timeout = 3000) => {
+		this.initTime = performance.now();
+		this.timeout = timeout;
     this.temperature = this.params.initTemperature;
     this.round = 0;
     this.stepInRound = 0;
@@ -983,6 +989,15 @@ export class AutoMALAOptimizer implements Optimizer {
   };
 
   step = (state: PenroseState): OptimizerResult => {
+		if(performance.now() - this.initTime > this.timeout) {
+			console.log("Timeout reached, stopping optimization.", this.timeout);
+			
+			return {
+				tag: "Failed",
+				reason: FailedReason.Timeout,
+			}
+		}
+		
     if (this.temperature < this.params.minTemperature) {
       return {
         tag: "Converged",
@@ -1097,11 +1112,11 @@ export class AutoMALAOptimizer implements Optimizer {
     this.stepInRound = 0;
     this.firstStep = true;
     this.round++;
-    // console.log(
-    //   `AutoMALA: Starting new round ${
-    //     this.round
-    //   } with initial step size ${this.initStepSize.toFixed(6)}`,
-    // );
+    console.log(
+      `AutoMALA: Starting new round ${
+        this.round
+      } with initial step size ${this.initStepSize.toFixed(6)}`,
+    );
   };
 
   private updateAggregates = (stepSize: number, inputs: Float64Array) => {
@@ -1265,8 +1280,17 @@ export class AutoMALAOptimizer implements Optimizer {
     }
 
     let j = 0;
+    let stepIndex = 0;
     let shouldReturn = false;
     while (true) {
+      stepIndex += 1;
+
+      if (stepSize < 1e-10 || stepSize > 1e10) {
+        // console.warn(
+        //   `AutoMALA: Step size overflowing (${stepSize}), giving up.`,
+        // );
+        return null;
+      }
       stepSize *= 2 ** changeDir;
       j += changeDir;
 

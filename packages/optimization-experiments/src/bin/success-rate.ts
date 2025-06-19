@@ -18,12 +18,13 @@ export const estimateSuccessRates = async (
   optimizer: StagedOptimizer,
   numSamples: number,
   timeout: number,
+	stepTimeout: number,
 ): Promise<Map<string, SuccessRateResult>> => {
   const multibar = new cliProgress.MultiBar(
     {
       clearOnComplete: true,
       format:
-        " {bar} | {name} | {value}/{total} | Elapsed: {duration_formatted} | ETA: {eta_formatted}",
+        " {bar} | {name} | {value}/{total} | Sampling {sampleCount}/{totalSamples} | Elapsed: {duration_formatted} | ETA: {eta_formatted}",
     },
     cliProgress.Presets.shades_grey,
   );
@@ -37,7 +38,7 @@ export const estimateSuccessRates = async (
   for (const [name, trio] of namesAndTrios) {
     // console.log("---------------");
     // console.log(`Estimating success rates for ${name}`);
-    trioBar.update(trioCount, { name });
+    trioBar.update(trioCount, { name, sampleCount: 0, totalSamples: numSamples });
 
     const startTime = performance.now();
     let state = await compileTrio(trio);
@@ -73,6 +74,8 @@ export const estimateSuccessRates = async (
     let numFailures = 0;
 
     for (let i = 0; i < numSamples; i++) {
+			trioBar.update(trioCount, { name, sampleCount: i + 1, totalSamples: numSamples });
+			trioBar.render();
       if (performance.now() - startTime > timeout * 1000) {
         // console.warn(`Timed out after ${i} samples.`);
         break;
@@ -80,7 +83,7 @@ export const estimateSuccessRates = async (
 
       let timedout = false;
 
-      optimizer.init(state);
+      optimizer.init(state, stepTimeout * 1000);
       state.variation = sampler();
       state.currentStageIndex = 0;
       state = resample(state);
@@ -119,12 +122,13 @@ export const estimateSuccessRates = async (
               break;
 
             case "Failed":
+							// console.error(`Error during optimization step: ${result.reason}`);
               numFailures++;
               shouldStop = true;
               break;
           }
         } catch (error) {
-          // console.error(`Error during optimization step: ${error}`);
+          console.error(`Error during optimization step: ${error}`);
           numFailures++;
           shouldStop = true;
         }
@@ -142,11 +146,11 @@ export const estimateSuccessRates = async (
       failures: numFailures,
     };
 
-    // console.log(`Results for ${name}:`);
-    // console.log(`  Samples: ${result.samples}`);
-    // console.log(`  Successes: ${result.successes}`);
-    // console.log(`  Bad minima: ${result.badMinima}`);
-    // console.log(`  Failures: ${result.failures}`);
+    console.log(`\nResults for ${name}:`);
+    console.log(`  Samples: ${result.samples}`);
+    console.log(`  Successes: ${result.successes}`);
+    console.log(`  Bad minima: ${result.badMinima}`);
+    console.log(`  Failures: ${result.failures}`);
 
     results.set(name, result);
     trioCount++;
