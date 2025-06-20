@@ -990,8 +990,6 @@ export class AutoMALAOptimizer implements Optimizer {
 
   step = (state: PenroseState): OptimizerResult => {
 		if(performance.now() - this.initTime > this.timeout) {
-			console.log("Timeout reached, stopping optimization.", this.timeout);
-			
 			return {
 				tag: "Failed",
 				reason: FailedReason.Timeout,

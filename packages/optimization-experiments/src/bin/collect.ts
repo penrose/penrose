@@ -20,7 +20,7 @@ import { estimateSuccessRates } from "./success-rate.js";
 const defaultOutputDir = "collect-output";
 const defaultNumSamples = 10;
 const defaultTimeout = 30; // in seconds, per trio
-const defaultStepTimeout = 3; // in seconds, per optimizer step
+const defaultSampleTimeout = 3; // in seconds, per sample
 
 // make sure to update CLI options if you add/remove optimizers
 type OptimizerName =
@@ -112,7 +112,7 @@ const computeSuccessRates = async (argv: {
   optimizer: OptimizerName;
   numSamples: number;
   timeout: number;
-	stepTimeout: number;
+	sampleTimeout: number;
 }) => {
   const optimizer = getOptimizer(argv.optimizer);
 
@@ -121,6 +121,7 @@ const computeSuccessRates = async (argv: {
     optimizer,
     argv.numSamples,
     argv.timeout,
+		argv.sampleTimeout
   );
 
   // save success rates to output directory
@@ -151,10 +152,10 @@ yargs(process.argv.slice(2))
     description: "Timeout in seconds for each trio",
     default: defaultTimeout,
   })
-	.option("step-timeout", {
+	.option("sample-timeout", {
 		type: "number",
-		description: "Timeout in seconds for each optimizer step",
-		default: defaultStepTimeout,
+		description: "Timeout in seconds for each sample of a trio",
+		default: defaultSampleTimeout,
 	})
   .command(
     "statistics",

@@ -18,7 +18,7 @@ export const estimateSuccessRates = async (
   optimizer: StagedOptimizer,
   numSamples: number,
   timeout: number,
-	stepTimeout: number,
+	sampleTimeout: number,
 ): Promise<Map<string, SuccessRateResult>> => {
   const multibar = new cliProgress.MultiBar(
     {
@@ -83,7 +83,7 @@ export const estimateSuccessRates = async (
 
       let timedout = false;
 
-      optimizer.init(state, stepTimeout * 1000);
+      optimizer.init(state, sampleTimeout * 1000);
       state.variation = sampler();
       state.currentStageIndex = 0;
       state = resample(state);
