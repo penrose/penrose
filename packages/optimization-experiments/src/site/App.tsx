@@ -6,75 +6,69 @@ import {
   LBGFSOptimizer,
   LineSearchGDOptimizer,
   MALAOptimizer,
-  MultiStartStagedOptimizer,
-  StagedOptimizer,
+  MultiStartStagedOptimizer, SimulatedAnnealing,
+  StagedOptimizer
 } from "../Optimizers.js";
 import { DiagramPanel } from "./DiagramPanel.js";
 import { TrioInfo, TrioSelector } from "./TrioSelector.js";
+import { AutoMALA } from "../samplers.js";
 
 function App() {
   const [trioInfo, setTrioInfo] = useState<TrioInfo | null>(null);
   const [optimizer, setOptimizer] = useState<StagedOptimizer | null>(null);
 
-  const lineSearchGDOptimizer = useMemo(() => {
-    const gd = new LineSearchGDOptimizer();
-    return new BasicStagedOptimizer(new ExteriorPointOptimizer(gd));
-  }, []);
-
-  const lbfgsOptimizer = useMemo(() => {
+  const lbfgs = useMemo(() => {
     return new BasicStagedOptimizer(new LBGFSOptimizer());
   }, []);
 
-  const multiStartLbfgsOptimizer = useMemo(() => {
+  const multiStartLbfgs = useMemo(() => {
     return new MultiStartStagedOptimizer(
       () => new ExteriorPointOptimizer(new LBGFSOptimizer()),
       16,
     );
   }, []);
 
-  const malaOptimizer = useMemo(() => {
-    const mala = new MALAOptimizer({
-      initialTemperature: 100,
-      coolingRate: 0.001,
-      constraintWeight: 100,
-      stepSize: 0.0001,
-      minAcceptanceRate: 1e-5,
-    });
-    return new BasicStagedOptimizer(mala);
-  }, []);
-
-  const autoMalaOptimizer = useMemo(() => {
-    const mala = new AutoMALAOptimizer({
-      initTemperature: 1000,
-      coolingRate: 0.05,
+  const autoMalaSA = useMemo(() => {
+    // const mala = new AutoMALAOptimizer({
+    //   initTemperature: 1000,
+    //   coolingRate: 0.05,
+    //   initStepSize: 1.0,
+    //   constraintWeight: 1000,
+    //   minTemperature: 0.1,
+    //   maxStepSearches: 30,
+    //   roundLength: 100,
+    // });
+    const autoMala = new AutoMALA({
       initStepSize: 1.0,
-      constraintWeight: 1000,
-      minTemperature: 0.1,
-      maxStepSearches: 30,
       roundLength: 100,
+      constraintWeight: 1000,
+      maxStepSearches: 30,
     });
-    return new BasicStagedOptimizer(mala);
+    const sa = new SimulatedAnnealing(
+      autoMala,
+      {
+        initTemperature: 1000,
+        coolingRate: 0.01,
+        minTemperature: 0.1,
+      });
+    return new BasicStagedOptimizer(sa);
   }, []);
 
   const strToOptimizer = (str: string): StagedOptimizer => {
     switch (str) {
-      case "line search gd":
-        return lineSearchGDOptimizer;
       case "lbfgs":
-        return lbfgsOptimizer;
+        return lbfgs;
       case "multi-lbfgs":
-        return multiStartLbfgsOptimizer;
-      case "mala":
-        return malaOptimizer;
-      case "auto-mala":
-        return autoMalaOptimizer;
+        return multiStartLbfgs;
+      case "sa-auto-mala":
+        return autoMalaSA;
       default:
         throw new Error(`Unknown optimizer: ${str}`);
     }
   };
 
   useEffect(() => {
-    setOptimizer(strToOptimizer("line search gd"));
+    setOptimizer(strToOptimizer("lbfgs"));
   }, []);
 
   console.log(trioInfo);
@@ -85,11 +79,9 @@ function App() {
       <TrioSelector setTrioInfo={setTrioInfo} />
       {/* Optimizer dropdown */}
       <select onChange={(e) => setOptimizer(strToOptimizer(e.target.value))}>
-        <option value="line search gd">Line Search GD</option>
         <option value="lbfgs">L-BFGS</option>
         <option value="multi-lbfgs">Multi-start L-BFGS</option>
-        <option value="mala">Simulated Annealing (MALA)</option>
-        <option value="auto-mala">Simulated Annealing (AutoMALA)</option>
+        <option value="sa-auto-mala">Simulated Annealing (AutoMALA)</option>
         {/* Add more optimizers here as needed */}
       </select>
 

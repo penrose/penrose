@@ -117,9 +117,7 @@ export const normalInPlace = (
  */
 export const calculateDependentInputs = (
   state: PenroseState,
-): Map<string, boolean[]> => {
-  const inputMasks = new Map<string, boolean[]>();
-
+): Map<string, Set<number>> => {
   const varToIdxMap = new Map<Var, number>();
   // Create a map of variable names to their indices
   state.inputs.forEach((input, index) => {
@@ -209,9 +207,10 @@ export const calculateDependentInputs = (
     return dependencies;
   };
 
+  const inputSets = new Map<string, Set<number>>();
+
   // Process each optimization stage
   for (const stage of state.optStages) {
-    const dependencyMask = new Array(state.inputs.length).fill(false);
 
     // Get functions active in this stage
     const activeOutputs = [...state.objFns, ...state.constrFns]
@@ -226,26 +225,23 @@ export const calculateDependentInputs = (
     // Analyze dependencies for active functions
     const inputIndices = extractInputDependencies(totalExpr);
 
-    // Mark dependent inputs as true
-    inputIndices.forEach((index) => {
-      if (index >= 0 && index < state.inputs.length) {
-        dependencyMask[index] = true;
-      }
-    });
 
     // AND with existing input mask for this stage
     const existingMask =
       state.constraintSets.get(stage)?.inputMask ||
       new Array(state.inputs.length).fill(true);
 
-    const finalMask = dependencyMask.map(
-      (canAffect, index) => canAffect && existingMask[index],
-    );
+    const finalSet = new Set<number>();
+    for (const idx of inputIndices) {
+      if (existingMask[idx]) {
+        finalSet.add(idx);
+      }
+    }
 
-    inputMasks.set(stage, finalMask);
+    inputSets.set(stage, finalSet);
   }
 
-  return inputMasks;
+  return inputSets;
 };
 
 export const vdot = (a: Float64Array, b: Float64Array): number => {
@@ -255,3 +251,11 @@ export const vdot = (a: Float64Array, b: Float64Array): number => {
   }
   return result;
 };
+
+export const allFinite = (arr: Float64Array): boolean => {
+  for (const value of arr) {
+    if (!isFinite(value)) return false;
+  }
+  return true;
+};
+
