@@ -50,75 +50,6 @@ export enum FailedReason {
   Unknown  = "Unknown",
 }
 
-export interface GDParams {
-  stepSize: number;
-  minGradient: number;
-  maxIterations?: number;
-}
-
-export class GDOptimizer implements UnconstrainedOptimizer {
-  private params: GDParams;
-  private currentIteration: number = 0;
-
-  constructor(params: GDParams) {
-    this.params = params;
-  }
-
-  init = (state: PenroseState) => {
-    this.currentIteration = 0;
-  };
-
-  step = (state: PenroseState, constraintWeight: number): OptimizerResult => {
-    if (this.currentIteration >= this.params.maxIterations!) {
-      console.error("Gradient descent failed: max iterations reached");
-      return { tag: "Failed", reason: FailedReason.MaxIterations }; // Optimization failed
-    }
-
-    // console.log(`Gradient descent iteration ${this.currentIteration}`);
-
-    // Perform a single step of gradient descent
-    const inputs = new Float64Array(state.inputs.length);
-    const gradient = new Float64Array(state.inputs.length);
-
-    // copy the current values of the varying inputs
-    for (let i = 0; i < state.inputs.length; i++) {
-      inputs[i] = state.varyingValues[i];
-    }
-
-    // Compute the gradient for each varying value
-    const outputs = state.gradient(
-      state.constraintSets.get(state.optStages[state.currentStageIndex])!,
-      inputs,
-      constraintWeight,
-      gradient,
-    );
-
-    const l2norm = Math.sqrt(
-      gradient.reduce((acc, val) => acc + Math.abs(val) * Math.abs(val), 0),
-    );
-    if (l2norm < this.params.minGradient) {
-      // Stop optimization if the gradient is small enough
-      return { tag: "Converged", outputs };
-    }
-
-    for (let i = 0; i < state.varyingValues.length; i++) {
-      state.varyingValues[i] -= this.params.stepSize * gradient[i];
-    }
-
-    // test for inf or nan in varyingValues
-    for (const value of state.varyingValues) {
-      if (!isFinite(value)) {
-        console.error("Gradient descent failed: NaN or Inf in varyingValues");
-        return { tag: "Failed", reason: FailedReason.NaN }; // Optimization failed
-      }
-    }
-
-    this.currentIteration++;
-
-    return { tag: "Unconverged", outputs }; // Continue optimization
-  };
-}
-
 export type ExteriorPointParams = {
   weightGrowthFactor: number;
   stateChangeStop: number;
@@ -214,154 +145,6 @@ export class ExteriorPointOptimizer implements Optimizer {
       case "Failed": {
         return unconstrainedResult;
       }
-    }
-  };
-}
-
-export interface LineSearchGDParams {
-  stateChangeStop: number;
-  energyChangeStop: number;
-  armijoParam: number;
-  curvatureParam: number;
-  maxLineSearchIterations: number;
-}
-
-export const DefaultLineSearchGDParams: LineSearchGDParams = {
-  stateChangeStop: 1e-4,
-  energyChangeStop: 1e-4,
-  armijoParam: 0.001,
-  curvatureParam: 0.9,
-  maxLineSearchIterations: 20,
-};
-
-export class LineSearchGDOptimizer implements UnconstrainedOptimizer {
-  private params: LineSearchGDParams;
-  private currentIteration: number = 0;
-  private gradient: Float64Array | null = null;
-  private lastOutputs: OptOutputs | null = null;
-
-  constructor(params: LineSearchGDParams = DefaultLineSearchGDParams) {
-    this.params = params;
-  }
-
-  init = (state: PenroseState) => {
-    this.currentIteration = 0;
-    this.lastOutputs = null;
-    this.gradient = new Float64Array(state.inputs.length);
-  };
-
-  step = (state: PenroseState, constraintWeight: number): OptimizerResult => {
-    // Perform a single step of gd
-
-    const inputs = new Float64Array(state.inputs.length);
-    for (let i = 0; i < state.inputs.length; i++) {
-      inputs[i] = state.varyingValues[i];
-    }
-
-    if (!this.lastOutputs) {
-      this.lastOutputs = state.gradient(
-        state.constraintSets.get(state.optStages[state.currentStageIndex])!,
-        inputs,
-        constraintWeight,
-        this.gradient!,
-      );
-    }
-
-    const searchDir = this.gradient!.map((x) => -x);
-    const oldGradDotSearchDir = this.gradient!.reduce(
-      (acc, val, i) => acc + val * searchDir[i],
-      0,
-    );
-    const phi = this.lastOutputs.phi;
-
-    const nextInputs = new Float64Array(state.inputs.length);
-    const nextGradient = new Float64Array(state.inputs.length);
-    let nextOutputs;
-    const testConditions = (
-      stepSize: number,
-    ): { armijo: boolean; curvature: boolean } => {
-      for (let i = 0; i < state.varyingValues.length; i++) {
-        nextInputs[i] = inputs[i] + stepSize * searchDir[i];
-      }
-
-      if (!allFinite(nextInputs)) {
-        throw new Error("Line search failed: NaN or Inf in nextInputs");
-      }
-
-      nextOutputs = state.gradient(
-        state.constraintSets.get(state.optStages[state.currentStageIndex])!,
-        nextInputs,
-        constraintWeight,
-        nextGradient,
-      );
-
-      const newGradDotSearchDir = nextGradient!.reduce(
-        (acc, val, i) => acc + val * searchDir[i],
-        0,
-      );
-
-      const armijo =
-        nextOutputs.phi <=
-        phi + this.params.armijoParam * stepSize * oldGradDotSearchDir;
-
-      const curvature =
-        newGradDotSearchDir >= this.params.curvatureParam * oldGradDotSearchDir;
-
-      return { armijo, curvature };
-    };
-
-    // Perform line search
-    let lo = 0;
-    let high = Infinity;
-    let stepSize = 1;
-    let steps = 0;
-    while (true) {
-      const { armijo, curvature } = testConditions(stepSize);
-
-      if (!armijo) high = stepSize;
-      else if (!curvature) lo = stepSize;
-      else break; // both conditions satisfied
-
-      if (high < Infinity) {
-        stepSize = (lo + high) / 2; // already found upper bound
-      } else {
-        stepSize = 2 * lo; // did not find upper bound
-      }
-
-      steps++;
-
-      if (steps >= this.params.maxLineSearchIterations) {
-        // console.warn("Line search exhausted. Continuing at current step size.");
-        break;
-      }
-    }
-
-    // console.log(`Line search step size: ${stepSize}`);
-
-    this.lastOutputs = nextOutputs!;
-    this.gradient = nextGradient;
-
-    for (let i = 0; i < state.varyingValues.length; i++) {
-      state.varyingValues[i] = nextInputs[i];
-    }
-
-    this.currentIteration++;
-
-    // Check for convergence
-    const deltaXsNorm = Math.sqrt(
-      nextInputs.reduce((acc, x, i) => acc + (x - inputs[i]) ** 2, 0),
-    );
-
-    const deltaEnergy = Math.abs(nextOutputs!.phi - phi);
-    if (
-      deltaXsNorm < this.params.stateChangeStop ||
-      deltaEnergy < this.params.energyChangeStop
-    ) {
-      // Optimization converged
-      return { tag: "Converged", outputs: this.lastOutputs! };
-    } else {
-      // Continue optimization
-      return { tag: "Unconverged", outputs: this.lastOutputs! };
     }
   };
 }
@@ -716,5 +499,117 @@ export class SimulatedAnnealing implements Optimizer {
     this.temperature *= 1 - this.params.coolingRate;
 
     return { tag: "Unconverged", outputs: this.lastOutputs! };
+  }
+}
+
+export interface ParallelTemperingParams {
+  maxTemperature: number;
+  minTemperature: number;
+  temperatureRatio: number;
+}
+
+export interface ParallelTemperingSampler {
+  sampler: BoltzmannSampler;
+  temperature: number;
+  sampleBuffer: Float64Array | null;
+  lastOutputs: OptOutputs | null;
+}
+
+export class ParallelTempering implements Optimizer {
+  tag = "Optimizer" as const;
+
+  private params: ParallelTemperingParams;
+  private samplers: ParallelTemperingSampler[] = [];
+  private dependentInputs: Set<number> | null = null;
+  private rng: seedrandom.prng | null = null;
+  private localOptimizer: Optimizer;
+
+  constructor(
+    localOptimizer: Optimizer,
+    samplerFactory: () => BoltzmannSampler,
+    params: ParallelTemperingParams,
+  ) {
+    this.params = params;
+
+    let temp = params.minTemperature;
+    while (temp < params.maxTemperature) {
+      const sampler = samplerFactory();
+      this.samplers.push({ sampler, temperature: temp, sampleBuffer: null, lastOutputs: null });
+      temp *= params.temperatureRatio;
+    }
+
+    const sampler = samplerFactory();
+    this.samplers.push({ sampler, temperature: temp, sampleBuffer: null, lastOutputs: null });
+
+    this.localOptimizer = localOptimizer;
+  }
+
+  init = (state: PenroseState) => {
+    this.localOptimizer.init(state);
+    this.rng = seedrandom(state.variation);
+
+    this.dependentInputs = calculateDependentInputs(state).get(
+      state.optStages[state.currentStageIndex],
+    )!;
+
+    for (const ptSampler of this.samplers) {
+      ptSampler.lastOutputs = ptSampler.sampler.init(state, ptSampler.temperature);
+      ptSampler.sampleBuffer = new Float64Array(state.varyingValues.length);
+    }
+  }
+
+  step = (state: PenroseState): OptimizerResult => {
+    for (const ptSampler of this.samplers) {
+      ptSampler.lastOutputs = ptSampler.sampler.sample(
+        state,
+        ptSampler.temperature,
+        ptSampler.sampleBuffer!,
+        Infinity);
+    }
+
+    for (let i = this.samplers.length - 1; i > 0; i--) {
+      const samplerA = this.samplers[i];
+      const samplerB = this.samplers[i - 1];
+
+      const delta = (1 / samplerB.temperature - 1 / samplerA.temperature) *
+        (samplerA.lastOutputs!.phi - samplerB.lastOutputs!.phi);
+      const swapProb = Math.exp(-delta);
+      console.log(swapProb);
+      if (swapProb >= 1 || this.rng!.quick() < swapProb) {
+        this.swap(i, i - 1);
+      }
+    }
+
+    const localResult = this.localOptimizer.step(state);
+    if (localResult.tag === "Failed") {
+      return localResult;
+    }
+
+    const localOutputs = localResult.outputs;
+
+    const currEnergy = getEnergy(state, 1000);
+    if (this.samplers[0].lastOutputs!.phi < currEnergy) {
+      for (const i of this.dependentInputs!) {
+        const tmp = this.samplers[0].sampleBuffer![i];
+        this.samplers[0].sampleBuffer![i] = state.varyingValues[i];
+        state.varyingValues[i] = tmp;
+
+        this.samplers[0].lastOutputs = localOutputs;
+      }
+      this.localOptimizer.init(state);
+    }
+
+    return { tag: "Unconverged", outputs: localResult.outputs };
+  }
+
+  private swap(i: number, j: number) {
+    const temp = this.samplers[i];
+    this.samplers[i] = this.samplers[j];
+    this.samplers[j] = temp;
+
+    // swap temperatures
+    const t = this.samplers[i].temperature;
+    this.samplers[i].temperature = this.samplers[j].temperature;
+    this.samplers[j].temperature = t;
   }
 }

@@ -1,12 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  AutoMALAOptimizer,
   BasicStagedOptimizer,
   ExteriorPointOptimizer,
   LBGFSOptimizer,
-  LineSearchGDOptimizer,
-  MALAOptimizer,
-  MultiStartStagedOptimizer, SimulatedAnnealing,
+  MultiStartStagedOptimizer, ParallelTempering, SimulatedAnnealing,
   StagedOptimizer
 } from "../Optimizers.js";
 import { DiagramPanel } from "./DiagramPanel.js";
@@ -29,15 +26,6 @@ function App() {
   }, []);
 
   const autoMalaSA = useMemo(() => {
-    // const mala = new AutoMALAOptimizer({
-    //   initTemperature: 1000,
-    //   coolingRate: 0.05,
-    //   initStepSize: 1.0,
-    //   constraintWeight: 1000,
-    //   minTemperature: 0.1,
-    //   maxStepSearches: 30,
-    //   roundLength: 100,
-    // });
     const autoMala = new AutoMALA({
       initStepSize: 1.0,
       roundLength: 100,
@@ -54,6 +42,24 @@ function App() {
     return new BasicStagedOptimizer(sa);
   }, []);
 
+  const autoMalaPT = useMemo(() => {
+    const pt = new ParallelTempering(
+      new ExteriorPointOptimizer(new LBGFSOptimizer()),
+      () => new AutoMALA({
+        initStepSize: 1.0,
+        roundLength: 100,
+        constraintWeight: 1000,
+        maxStepSearches: 30,
+      }),
+      {
+        maxTemperature: 1000,
+        minTemperature: 1,
+        temperatureRatio: 10,
+      }
+    );
+    return new BasicStagedOptimizer(pt);
+  }, []);
+
   const strToOptimizer = (str: string): StagedOptimizer => {
     switch (str) {
       case "lbfgs":
@@ -62,6 +68,8 @@ function App() {
         return multiStartLbfgs;
       case "sa-auto-mala":
         return autoMalaSA;
+      case "pt-auto-mala":
+        return autoMalaPT;
       default:
         throw new Error(`Unknown optimizer: ${str}`);
     }
@@ -82,6 +90,7 @@ function App() {
         <option value="lbfgs">L-BFGS</option>
         <option value="multi-lbfgs">Multi-start L-BFGS</option>
         <option value="sa-auto-mala">Simulated Annealing (AutoMALA)</option>
+        <option value="pt-auto-mala">Parallel Tempering (AutoMALA)</option>
         {/* Add more optimizers here as needed */}
       </select>
 

@@ -187,11 +187,11 @@ export class AutoMALA implements BoltzmannSampler {
     this.stepInRound = 0;
     this.firstStep = true;
     this.round++;
-    console.log(
-      `AutoMALA: Starting new round ${
-        this.round
-      } with initial step size ${this.initStepSize.toFixed(6)}`,
-    );
+    // console.log(
+    //   `AutoMALA: Starting new round ${
+    //     this.round
+    //   } with initial step size ${this.initStepSize.toFixed(6)}`,
+    // );
   };
 
   private updateAggregates = (stepSize: number, inputs: Float64Array) => {
