@@ -55,6 +55,7 @@ function App() {
         maxTemperature: 1000,
         minTemperature: 1,
         temperatureRatio: 10,
+        maxStepsSinceLastChange: 100,
       }
     );
     return new BasicStagedOptimizer(pt);

@@ -1,7 +1,7 @@
 import { resample } from "@penrose/core";
 import { Trio } from "@penrose/examples";
 import cliProgress from "cli-progress";
-import { StagedOptimizer } from "../Optimizers.js";
+import { StagedOptimizer, FailedReason } from "../Optimizers.js";
 import { compileTrio } from "../utils.js";
 
 const maxConstraintEnergy = 1e-1;
@@ -11,6 +11,8 @@ export interface SuccessRateResult {
   successes: number;
   badMinima: number;
   failures: number;
+  objectivesMean: number;
+  objectivesStdDev: number;
 }
 
 export const estimateSuccessRates = async (
@@ -50,6 +52,8 @@ export const estimateSuccessRates = async (
         successes: 0,
         badMinima: 0,
         failures: 0,
+        objectivesMean: 0,
+        objectivesStdDev: 0,
       });
       continue;
     }
@@ -64,6 +68,8 @@ export const estimateSuccessRates = async (
         successes: 0,
         badMinima: 0,
         failures: 0,
+        objectivesMean: 0,
+        objectivesStdDev: 0,
       });
       continue;
     }
@@ -72,6 +78,7 @@ export const estimateSuccessRates = async (
     let numSuccesses = 0;
     let numBadMinima = 0;
     let numFailures = 0;
+    let objectiveSums = [];
 
     for (let i = 0; i < numSamples; i++) {
 			trioBar.update(trioCount, { name, sampleCount: i + 1, totalSamples: numSamples });
@@ -83,7 +90,11 @@ export const estimateSuccessRates = async (
 
       let timedout = false;
 
-      optimizer.init(state, sampleTimeout * 1000);
+      optimizer.init(
+        state,
+        Math.min(
+          sampleTimeout * 1000,
+          timeout * 1000 - (performance.now() - startTime)));
       state.variation = sampler();
       state.currentStageIndex = 0;
       state = resample(state);
@@ -109,6 +120,11 @@ export const estimateSuccessRates = async (
                 } else {
                   numBadMinima++;
                 }
+
+                const objectiveSum = result.outputs.objectives
+                  .reduce((acc, o) => acc + o, 0);
+                objectiveSums.push(objectiveSum);
+
                 shouldStop = true;
               } else {
                 // go to next stage
@@ -123,7 +139,11 @@ export const estimateSuccessRates = async (
 
             case "Failed":
 							// console.error(`Error during optimization step: ${result.reason}`);
-              numFailures++;
+              if (result.reason === FailedReason.Timeout) {
+                timedout = true;
+              } else {
+                numFailures++;
+              }
               shouldStop = true;
               break;
           }
@@ -139,11 +159,23 @@ export const estimateSuccessRates = async (
       takenSamples++;
     }
 
+    const objectivesMean = objectiveSums.length > 0
+      ? objectiveSums.reduce((acc, o) => acc + o, 0) / objectiveSums.length
+      : 0;
+    const objectivesStdDev = objectiveSums.length > 1
+      ? Math.sqrt(
+          objectiveSums.reduce((acc, o) => acc + (o - objectivesMean) ** 2, 0) /
+          (objectiveSums.length - 1),
+        )
+      : 0;
+
     const result = {
       samples: takenSamples,
       successes: numSuccesses,
       badMinima: numBadMinima,
       failures: numFailures,
+      objectivesMean,
+      objectivesStdDev,
     };
 
     console.log(`\nResults for ${name}:`);
@@ -151,6 +183,8 @@ export const estimateSuccessRates = async (
     console.log(`  Successes: ${result.successes}`);
     console.log(`  Bad minima: ${result.badMinima}`);
     console.log(`  Failures: ${result.failures}`);
+    console.log(`  Objectives mean: ${result.objectivesMean}`);
+    console.log(`  Objectives stddev: ${result.objectivesStdDev}`);
 
     results.set(name, result);
     trioCount++;

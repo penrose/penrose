@@ -10,7 +10,7 @@ import { allFinite, calculateDependentInputs, normal, normalInPlace } from "./ut
 import { BoltzmannSampler } from "./samplers.js";
 
 export interface UnconstrainedOptimizer {
-  init: (state: PenroseState) => void;
+  init: (state: PenroseState, timeout?: number) => void;
   step: (state: PenroseState, constraintWeight: number) => OptimizerResult;
 }
 
@@ -88,6 +88,7 @@ export class ExteriorPointOptimizer implements Optimizer {
   private lastXs: number[] | null = null;
   private lastEnergy: number | null = null;
   private weight = 1;
+  private endTime = Infinity;
 
   constructor(
     unconstrainedOptimizer: UnconstrainedOptimizer,
@@ -97,14 +98,20 @@ export class ExteriorPointOptimizer implements Optimizer {
     this.params = params;
   }
 
-  init = (state: PenroseState) => {
-    this.unconstrainedOptimizer.init(state);
+  init = (state: PenroseState, timeout?: number) => {
+    this.unconstrainedOptimizer.init(state, timeout);
     this.lastXs = [...state.varyingValues];
     this.lastEnergy = getEnergy(state, this.weight);
     this.weight = 1;
+    this.endTime = performance.now() + (timeout ?? Infinity);
   };
 
   step = (state: PenroseState): OptimizerResult => {
+    if (performance.now() > this.endTime) {
+      // Timeout reached
+      return { tag: "Failed", reason: FailedReason.Timeout };
+    }
+
     const unconstrainedResult = this.unconstrainedOptimizer.step(
       state,
       this.weight,
@@ -137,7 +144,7 @@ export class ExteriorPointOptimizer implements Optimizer {
           this.weight *= this.params.weightGrowthFactor;
           this.lastXs = [...nowXs];
           this.lastEnergy = nowEnergy;
-          this.unconstrainedOptimizer.init(state);
+          this.unconstrainedOptimizer.init(state, this.endTime - performance.now());
           return { tag: "Unconverged", outputs: unconstrainedResult.outputs };
         }
       }
@@ -154,13 +161,20 @@ export class LBGFSOptimizer implements Optimizer {
 
   private params: PenroseParams | null = null;
   private lastOutputs: OptOutputs | null = null;
+  private endTime = Infinity;
 
-  init = (state: PenroseState) => {
+  init = (state: PenroseState, timeout?: number) => {
     this.params = null;
     this.lastOutputs = null;
+    this.endTime = performance.now() + (timeout ?? Infinity);
   };
 
   step = (state: PenroseState): OptimizerResult => {
+    if (performance.now() > this.endTime) {
+      // Timeout reached
+      return { tag: "Failed", reason: FailedReason.Timeout };
+    }
+
     if (!this.params) {
       this.params = initParams(state.varyingValues.length);
     }
@@ -239,7 +253,7 @@ export class LBGFSOptimizer implements Optimizer {
           tag: "Failed",
           reason: !isFinite(this.params!.lastUOenergy ?? 0)
             ? FailedReason.NaN
-            : FailedReason.MaxIterations,
+            : FailedReason.Unknown,
         };
     }
   };
@@ -261,6 +275,7 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
   private constraintEnergyThreshold: number;
   private justStarted = true;
   private dependentInputs: Set<number> = new Set<number>;
+  private endTime: number = Infinity;
 
   constructor(
     createOptimizer: () => Optimizer,
@@ -274,9 +289,10 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
     this.createOptimizer = createOptimizer;
   }
 
-  init = (state: PenroseState) => {
+  init = (state: PenroseState, timeout?: number) => {
     this.problems = [];
     this.justStarted = true;
+    this.endTime = performance.now() + (timeout ?? Infinity);
 
     const depInputsByStage = calculateDependentInputs(state);
 
@@ -290,6 +306,11 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
   };
 
   step = (state: PenroseState): OptimizerResult => {
+    if (performance.now() > this.endTime) {
+      // Timeout reached
+      return { tag: "Failed", reason: FailedReason.Timeout };
+    }
+
     if (this.justStarted) {
       // Initialize states only once at the beginning
 
@@ -313,7 +334,7 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
           }
         }
 
-        optimizer.init(newState);
+        optimizer.init(newState, this.endTime - performance.now());
 
         this.problems.push({
           state: newState,
@@ -395,7 +416,7 @@ export class MultiStartStagedOptimizer implements StagedOptimizer {
         // move on to next stage
         for (const p of this.problems) {
           p.state.currentStageIndex++;
-          p.optimizer.init(p.state);
+          p.optimizer.init(p.state, this.endTime - performance.now());
           p.lastResult = null;
         }
         return { tag: "Unconverged", outputs: bestResult.outputs };
@@ -414,22 +435,29 @@ export class BasicStagedOptimizer implements StagedOptimizer {
   tag = "StagedOptimizer" as const;
 
   private optimizer: Optimizer;
+  private endTime: number = Infinity;
 
   constructor(optimizer: Optimizer) {
     this.optimizer = optimizer;
   }
 
-  init = (state: PenroseState) => {
-    this.optimizer.init(state);
+  init = (state: PenroseState, timeout?: number) => {
+    this.endTime = performance.now() + (timeout ?? Infinity);
+    this.optimizer.init(state, timeout);
   };
 
   step = (state: PenroseState): OptimizerResult => {
+    if (performance.now() > this.endTime) {
+      // Timeout reached
+      return { tag: "Failed", reason: FailedReason.Timeout };
+    }
+
     const result = this.optimizer.step(state);
 
     if (result.tag === "Converged") {
       if (state.currentStageIndex < state.optStages.length - 1) {
         state.currentStageIndex++;
-        this.optimizer.init(state);
+        this.optimizer.init(state, this.endTime - performance.now());
         return { tag: "Unconverged", outputs: result.outputs };
       } else {
         return result; // optimization converged
@@ -455,8 +483,7 @@ export class SimulatedAnnealing implements Optimizer {
   private lastOutputs: OptOutputs | null = null;
   private dependentInputs: Set<number> = new Set();
 
-  private timeout: number = Infinity;
-  private startTime: number = 0;
+  private endTime = Infinity;
 
   private sampleBuffer: Float64Array = new Float64Array(0);
 
@@ -466,9 +493,8 @@ export class SimulatedAnnealing implements Optimizer {
   }
 
   init = (state: PenroseState, timeout: number = Infinity) => {
-    this.startTime = performance.now();
+    this.endTime = performance.now() + (timeout ?? Infinity);
     this.temperature = this.params.initTemperature;
-    this.timeout = timeout;
     this.sampleBuffer = new Float64Array(state.varyingValues.length)
     this.lastOutputs = this.sampler.init(state, this.temperature);
     this.dependentInputs = calculateDependentInputs(state).get(
@@ -482,15 +508,22 @@ export class SimulatedAnnealing implements Optimizer {
       return { tag: "Converged", outputs: this.lastOutputs! };
     }
 
-    this.lastOutputs = this.sampler.sample(
+    if (performance.now() > this.endTime) {
+      // Timeout reached
+      return { tag: "Failed", reason: FailedReason.Timeout };
+    }
+
+    const sampleResult = this.sampler.sample(
       state,
       this.temperature,
       this.sampleBuffer,
-      this.timeout - (performance.now() - this.startTime));
+      this.endTime - performance.now());
 
-    if (!this.lastOutputs) {
-      return { tag: "Failed", reason: FailedReason.Unknown };
+    if (sampleResult.tag === "TimedOut") {
+      return { tag: "Failed", reason: FailedReason.Timeout };
     }
+
+    this.lastOutputs = sampleResult.outputs;
 
     for (const i of this.dependentInputs) {
       state.varyingValues[i] = this.sampleBuffer[i];
@@ -506,6 +539,7 @@ export interface ParallelTemperingParams {
   maxTemperature: number;
   minTemperature: number;
   temperatureRatio: number;
+  maxStepsSinceLastChange: number;
 }
 
 export interface ParallelTemperingSampler {
@@ -523,6 +557,8 @@ export class ParallelTempering implements Optimizer {
   private dependentInputs: Set<number> | null = null;
   private rng: seedrandom.prng | null = null;
   private localOptimizer: Optimizer;
+  private endTime: number = Infinity;
+  private stepsSinceLastChange: number = 0;
 
   constructor(
     localOptimizer: Optimizer,
@@ -544,9 +580,11 @@ export class ParallelTempering implements Optimizer {
     this.localOptimizer = localOptimizer;
   }
 
-  init = (state: PenroseState) => {
-    this.localOptimizer.init(state);
+  init = (state: PenroseState, timeout?: number) => {
+    this.endTime = performance.now() + (timeout ?? Infinity);
+    this.localOptimizer.init(state, timeout);
     this.rng = seedrandom(state.variation);
+    this.stepsSinceLastChange = 0;
 
     this.dependentInputs = calculateDependentInputs(state).get(
       state.optStages[state.currentStageIndex],
@@ -559,12 +597,23 @@ export class ParallelTempering implements Optimizer {
   }
 
   step = (state: PenroseState): OptimizerResult => {
+    if (performance.now() > this.endTime) {
+      // Timeout reached
+      return { tag: "Failed", reason: FailedReason.Timeout };
+    }
+
     for (const ptSampler of this.samplers) {
-      ptSampler.lastOutputs = ptSampler.sampler.sample(
+      const sampleResult = ptSampler.sampler.sample(
         state,
         ptSampler.temperature,
         ptSampler.sampleBuffer!,
         Infinity);
+
+      if (sampleResult.tag === "TimedOut") {
+        return { tag: "Failed", reason: FailedReason.Timeout };
+      }
+
+      ptSampler.lastOutputs = sampleResult.outputs;
     }
 
     for (let i = this.samplers.length - 1; i > 0; i--) {
@@ -596,7 +645,14 @@ export class ParallelTempering implements Optimizer {
 
         this.samplers[0].lastOutputs = localOutputs;
       }
-      this.localOptimizer.init(state);
+      this.localOptimizer.init(state, this.endTime - performance.now());
+      this.stepsSinceLastChange = 0;
+    } else {
+      this.stepsSinceLastChange++;
+      if (localResult.tag === "Converged" &&
+        this.stepsSinceLastChange >= this.params.maxStepsSinceLastChange) {
+        return { tag: "Converged", outputs: localResult.outputs };
+      }
     }
 
     return { tag: "Unconverged", outputs: localResult.outputs };

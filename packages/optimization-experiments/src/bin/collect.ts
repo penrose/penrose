@@ -4,39 +4,31 @@ import { entries, Trio } from "@penrose/examples";
 import fs from "fs";
 import yargs from "yargs";
 import {
-  AutoMALAOptimizer,
   BasicStagedOptimizer,
   ExteriorPointOptimizer,
   LBGFSOptimizer,
-  LineSearchGDOptimizer,
-  MALAOptimizer,
-  MultiStartStagedOptimizer,
-  StagedOptimizer,
+  MultiStartStagedOptimizer, ParallelTempering, SimulatedAnnealing,
+  StagedOptimizer
 } from "../Optimizers.js";
 import { compileTrio, removeStaging } from "../utils.js";
 import { computeDiagramExploration } from "./statistics.js";
 import { estimateSuccessRates } from "./success-rate.js";
+import { AutoMALA } from "../samplers.js";
 
 const defaultOutputDir = "collect-output";
 const defaultNumSamples = 10;
 const defaultTimeout = 30; // in seconds, per trio
-const defaultSampleTimeout = 3; // in seconds, per sample
+const defaultSampleTimeout = Infinity; // in seconds, per sample
 
 // make sure to update CLI options if you add/remove optimizers
 type OptimizerName =
-  | "line-search-gd"
   | "lbfgs"
   | "multi-start-lbfgs"
-  | "mala"
-  | "automala";
+  | "sa-automala"
+  | "pt-automala"
 
 const getOptimizer = (name: OptimizerName): StagedOptimizer => {
   switch (name) {
-    case "line-search-gd":
-      return new BasicStagedOptimizer(
-        new ExteriorPointOptimizer(new LineSearchGDOptimizer()),
-      );
-
     case "lbfgs":
       return new BasicStagedOptimizer(
         new ExteriorPointOptimizer(new LBGFSOptimizer()),
@@ -45,23 +37,39 @@ const getOptimizer = (name: OptimizerName): StagedOptimizer => {
     case "multi-start-lbfgs":
       return new MultiStartStagedOptimizer(() => new LBGFSOptimizer(), 16);
 
-    case "mala":
-      return new MALAOptimizer({
-        initialTemperature: 100,
-        coolingRate: 0.001,
-        constraintWeight: 100,
-        stepSize: 0.0001,
-        minAcceptanceRate: 1e-5,
-      });
-
-    case "automala":
-      return new AutoMALAOptimizer({
-        initTemperature: 1000,
-        coolingRate: 0.05,
-        constraintWeight: 1000,
+    case "sa-automala": {
+      const automala = new AutoMALA({
         initStepSize: 1.0,
-        minTemperature: 0.1,
+        roundLength: 100,
+        constraintWeight: 1000,
+        maxStepSearches: 30,
       });
+      return new BasicStagedOptimizer(
+        new SimulatedAnnealing(automala, {
+          initTemperature: 1000,
+          coolingRate: 0.01,
+          minTemperature: 0.1,
+        }),
+      );
+    }
+
+    case "pt-automala":
+      return new BasicStagedOptimizer(
+        new ParallelTempering(
+          new ExteriorPointOptimizer(new LBGFSOptimizer()),
+          () => new AutoMALA({
+            initStepSize: 1.0,
+            roundLength: 100,
+            constraintWeight: 1000,
+            maxStepSearches: 30,
+          }),
+          {
+            maxTemperature: 1000,
+            minTemperature: 1,
+            temperatureRatio: 10,
+          },
+        )
+      );
   }
 };
 
@@ -171,11 +179,10 @@ yargs(process.argv.slice(2))
         describe: "Name of the optimizer to use",
         type: "string",
         choices: [
-          "line-search-gd",
           "lbfgs",
           "multi-start-lbfgs",
-          "mala",
-          "automala",
+          "sa-automala",
+          "pt-automala",
         ],
       });
     },

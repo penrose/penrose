@@ -2,9 +2,18 @@ import { OptOutputs, PenroseState } from "@penrose/core";
 import seedrandom from "seedrandom";
 import { allFinite, calculateDependentInputs, normalInPlace } from "./utils.js";
 
+export type SamplerResult =
+  | {
+      tag: "Sample",
+      outputs: OptOutputs;
+    }
+  | {
+      tag: "TimedOut"
+    };
+
 export interface BoltzmannSampler {
   init: (state: PenroseState, temperature: number) => OptOutputs;
-  sample: (state: PenroseState, temperature: number, sample: Float64Array, timeout: number) => OptOutputs;
+  sample: (state: PenroseState, temperature: number, sample: Float64Array, timeout: number) => SamplerResult;
 }
 
 export interface AutoMALAParams {
@@ -84,7 +93,7 @@ export class AutoMALA implements BoltzmannSampler {
     // );
   };
 
-  sample = (state: PenroseState, temperature: number, sample: Float64Array, timeout: number = Infinity) => {
+  sample = (state: PenroseState, temperature: number, sample: Float64Array, timeout: number = Infinity): SamplerResult => {
     if (this.stepInRound === this.params.roundLength) {
       // start new round
       this.startNewRound();
@@ -109,20 +118,28 @@ export class AutoMALA implements BoltzmannSampler {
       [a, b],
       this.initStepSize,
       temperature,
-      timeout ?? 0,
+      timeout ?? Infinity,
       inputsT,
       momentumT,
       gradientT,
     );
 
-    if (result === null) {
+    if (result === "Failed") {
       // no valid step found
       // don't want to increase step in round, since we could end up with
       // no steps at the end of the round and not be able to calculate an average
       for (const i of this.dependentInputs) {
         sample[i] = this.lastInputs[i];
       }
-      return this.lastOutputs;
+      return {
+        tag: "Sample",
+        outputs: this.lastOutputs,
+      }
+    }
+
+    if (result === "Timed Out") {
+      // console.warn(`AutoMALA: Timed out while searching for step size.`);
+      return { tag: "TimedOut" };
     }
 
     if (!this.firstStep && this.rng.quick() > result.acceptanceProb) {
@@ -152,7 +169,10 @@ export class AutoMALA implements BoltzmannSampler {
     this.updateAggregates(result.stepSize, this.lastInputs);
     this.stepInRound++;
 
-    return this.lastOutputs;
+    return {
+      tag: "Sample",
+      outputs: this.lastOutputs,
+    }
   };
 
   private checkStepLegal = (
@@ -318,7 +338,7 @@ export class AutoMALA implements BoltzmannSampler {
     j: number;
     acceptanceProb: number;
     endOutputs: OptOutputs;
-  } | null => {
+  } | "Timed Out" | "Failed" => {
     const startTime = performance.now();
 
     let stepSize = initStepSize;
@@ -366,21 +386,17 @@ export class AutoMALA implements BoltzmannSampler {
     }
 
     let j = 0;
-    let stepIndex = 0;
     let shouldReturn = false;
     while (true) {
-      if (performance.now() - startTime > timeout) return null;
+      if (performance.now() - startTime > timeout) return "Timed Out";
 
-      stepIndex += 1;
-
-      if (stepSize < 1e-10 || stepSize > 1e10) {
-        // console.warn(
-        //   `AutoMALA: Step size overflowing (${stepSize}), giving up.`,
-        // );
-        return null;
-      }
       stepSize *= 2 ** changeDir;
       j += changeDir;
+
+      if (stepSize < 1e-20 || stepSize > 1e20) {
+        console.log(`AutoMALA: Step size out of bounds: ${stepSize}`);
+        return "Failed";
+      }
 
       const outputsT = this.leapfrog(
         state,
@@ -433,21 +449,6 @@ export class AutoMALA implements BoltzmannSampler {
           acceptanceProb: Math.exp(logAcceptanceProb),
           endOutputs: outputsT,
         };
-      }
-
-      if (Math.abs(j) > this.params.maxStepSearches) {
-        // we've gone too far in either direction, give up
-        console.warn(
-          `AutoMALA: Step size search exhausted after ${Math.abs(
-            j,
-          )} iterations. Continuing with current step size.`,
-        );
-        if (changeDir === 1) {
-          this.initStepSize *= 2;
-        } else {
-          this.initStepSize /= 2;
-        }
-        return null;
       }
     }
   };
