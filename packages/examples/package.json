@@ -3,6 +3,8 @@
   "version": "4.0.0-alpha.5",
   "private": true,
   "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "@penrose/core": "^4.0.0-alpha.5",
     "@penrose/solids": "^4.0.0-alpha.5",
