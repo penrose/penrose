@@ -67,6 +67,7 @@ const getOptimizer = (name: OptimizerName): StagedOptimizer => {
             maxTemperature: 1000,
             minTemperature: 1,
             temperatureRatio: 10,
+            maxStepsSinceLastChange: 100,
           },
         )
       );

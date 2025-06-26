@@ -7,12 +7,22 @@ import { compileTrio } from "../utils.js";
 const maxConstraintEnergy = 1e-1;
 
 export interface SuccessRateResult {
+  variation: string;
   samples: number;
   successes: number;
   badMinima: number;
   failures: number;
-  objectivesMean: number;
-  objectivesStdDev: number;
+  sampleData: SampleData[];
+}
+
+export interface SampleData {
+  time: number; // includes initialization, so time / steps =/= step time
+  steps: number;
+  stepTimeMean: number;
+  stepTimeStdDev: number;
+  objectiveSum: number | null;
+  constraintSum: number | null;
+  finalInputs: number[] | null;
 }
 
 export const estimateSuccessRates = async (
@@ -21,7 +31,7 @@ export const estimateSuccessRates = async (
   numSamples: number,
   timeout: number,
 	sampleTimeout: number,
-): Promise<Map<string, SuccessRateResult>> => {
+): Promise<Map<string, SuccessRateResult | null>> => {
   const multibar = new cliProgress.MultiBar(
     {
       clearOnComplete: true,
@@ -31,7 +41,7 @@ export const estimateSuccessRates = async (
     cliProgress.Presets.shades_grey,
   );
 
-  const results: Map<string, SuccessRateResult> = new Map();
+  const results: Map<string, SuccessRateResult | null> = new Map();
 
   const trioBar = multibar.create(namesAndTrios.length, 0);
 
@@ -47,14 +57,7 @@ export const estimateSuccessRates = async (
 
     if (!state) {
       // console.error(`Failed to compile trio for ${name}`);
-      results.set(name, {
-        samples: 0,
-        successes: 0,
-        badMinima: 0,
-        failures: 0,
-        objectivesMean: 0,
-        objectivesStdDev: 0,
-      });
+      results.set(name, null);
       continue;
     }
 
@@ -63,14 +66,7 @@ export const estimateSuccessRates = async (
 
     if (performance.now() - startTime > timeout * 1000) {
       // console.warn(`$Timed out after 0 samples.`);
-      results.set(name, {
-        samples: 0,
-        successes: 0,
-        badMinima: 0,
-        failures: 0,
-        objectivesMean: 0,
-        objectivesStdDev: 0,
-      });
+      results.set(name, null);
       continue;
     }
 
@@ -78,17 +74,21 @@ export const estimateSuccessRates = async (
     let numSuccesses = 0;
     let numBadMinima = 0;
     let numFailures = 0;
-    let objectiveSums = [];
+
+    const sampleDataArr = [];
 
     for (let i = 0; i < numSamples; i++) {
 			trioBar.update(trioCount, { name, sampleCount: i + 1, totalSamples: numSamples });
 			trioBar.render();
+
       if (performance.now() - startTime > timeout * 1000) {
         // console.warn(`Timed out after ${i} samples.`);
         break;
       }
 
       let timedout = false;
+
+      const sampleStartTime = performance.now();
 
       optimizer.init(
         state,
@@ -99,9 +99,18 @@ export const estimateSuccessRates = async (
       state.currentStageIndex = 0;
       state = resample(state);
 
+      let stepTimeMean = 0;
+      let stepTimeM2 = 0;
+
+      let constraintSum: number | null = null;
+      let objectiveSum: number | null = null;
+      let finalInputs: number[] | null = null;
+
       let shouldStop = false;
+      let numSteps = 0;
       while (!shouldStop) {
-        if (performance.now() - startTime > timeout * 1000) {
+        const stepStartTime = performance.now();
+        if (stepStartTime - startTime > timeout * 1000) {
           // console.warn(`Timed out after ${i} samples.`);
           timedout = true;
           break;
@@ -109,11 +118,22 @@ export const estimateSuccessRates = async (
 
         try {
           const result = optimizer.step(state);
+
+          numSteps++;
+          const stepEndTime = performance.now();
+          const stepTime = stepEndTime - stepStartTime;
+
+          // update step time statistics
+          const timeDelta1 = stepTime - stepTimeMean;
+          stepTimeMean += timeDelta1 / numSteps;
+          const timeDelta2 = stepTime - stepTimeMean;
+          stepTimeM2 += timeDelta1 * timeDelta2;
+
           switch (result.tag) {
             case "Converged":
               if (state.currentStageIndex === state.optStages.length - 1) {
-                const constraintSum = result.outputs.constraints
-                  .map((c) => Math.max(0, c) * Math.max(0, c))
+                constraintSum = result.outputs.constraints
+                  .map((c) => Math.max(0, c) ** 2)
                   .reduce((acc, p) => acc + p, 0);
                 if (constraintSum < maxConstraintEnergy) {
                   numSuccesses++;
@@ -121,9 +141,10 @@ export const estimateSuccessRates = async (
                   numBadMinima++;
                 }
 
-                const objectiveSum = result.outputs.objectives
+                objectiveSum = result.outputs.objectives
                   .reduce((acc, o) => acc + o, 0);
-                objectiveSums.push(objectiveSum);
+
+                finalInputs = [...state.varyingValues];
 
                 shouldStop = true;
               } else {
@@ -157,34 +178,32 @@ export const estimateSuccessRates = async (
       if (timedout) break;
 
       takenSamples++;
+      sampleDataArr.push({
+        time: performance.now() - sampleStartTime,
+        steps: numSteps,
+        stepTimeMean,
+        stepTimeStdDev:
+          numSteps > 1 ? Math.sqrt(stepTimeM2 / (numSteps - 1)) : 0,
+        objectiveSum,
+        constraintSum,
+        finalInputs,
+      });
     }
 
-    const objectivesMean = objectiveSums.length > 0
-      ? objectiveSums.reduce((acc, o) => acc + o, 0) / objectiveSums.length
-      : 0;
-    const objectivesStdDev = objectiveSums.length > 1
-      ? Math.sqrt(
-          objectiveSums.reduce((acc, o) => acc + (o - objectivesMean) ** 2, 0) /
-          (objectiveSums.length - 1),
-        )
-      : 0;
-
-    const result = {
+    const result: SuccessRateResult = {
+      variation: state.variation,
       samples: takenSamples,
       successes: numSuccesses,
       badMinima: numBadMinima,
       failures: numFailures,
-      objectivesMean,
-      objectivesStdDev,
+      sampleData: sampleDataArr
     };
 
-    console.log(`\nResults for ${name}:`);
+    console.log(`\nResults for ${name} (abridged):`);
     console.log(`  Samples: ${result.samples}`);
     console.log(`  Successes: ${result.successes}`);
     console.log(`  Bad minima: ${result.badMinima}`);
     console.log(`  Failures: ${result.failures}`);
-    console.log(`  Objectives mean: ${result.objectivesMean}`);
-    console.log(`  Objectives stddev: ${result.objectivesStdDev}`);
 
     results.set(name, result);
     trioCount++;
