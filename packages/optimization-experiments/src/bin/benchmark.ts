@@ -1,12 +1,57 @@
-import { resample } from "@penrose/core";
-import { Trio } from "@penrose/examples";
-import cliProgress from "cli-progress";
-import { StagedOptimizer, FailedReason } from "../Optimizers.js";
+import "global-jsdom/register";
+
+import { entries, Trio } from "@penrose/examples";
+import fs from "fs";
+import yargs from "yargs";
+import {
+  BasicStagedOptimizer,
+  ExteriorPointOptimizer, FailedReason,
+  LBGFSOptimizer,
+  MultiStartStagedOptimizer, ParallelTempering, SimulatedAnnealing,
+  StagedOptimizer
+} from "../Optimizers.js";
 import { compileTrio } from "../utils.js";
+import { AutoMALA } from "../samplers.js";
+import cliProgress from "cli-progress";
+import { resample } from "@penrose/core";
+
+type OptimizerParams = {
+  name: "lbfgs",
+} | {
+  name: "multi-start-lbfgs",
+  numStarts: number,
+} | {
+  name: "sa-automala",
+  initStepSize: number,
+  roundLength: number,
+  constraintWeight: number,
+  maxStepSearches: number,
+  initTemperature: number,
+  coolingRate: number,
+  minTemperature: number,
+} | {
+  name: "pt-automala",
+  initStepSize: number,
+  roundLength: number,
+  constraintWeight: number,
+  maxStepSearches: number,
+  maxTemperature: number,
+  minTemperature: number,
+  temperatureRatio: number,
+  maxStepsSinceLastChange: number,
+}
+
+type Options = {
+  outputDir: string;
+  numSamples: number;
+  timeout: number; // in seconds, per trio
+  sampleTimeout: number; // in seconds, per sample
+  optimizer: OptimizerParams
+}
 
 const maxConstraintEnergy = 1e-1;
 
-export interface SuccessRateResult {
+export interface BenchmarkResult {
   variation: string;
   samples: number;
   successes: number;
@@ -25,13 +70,51 @@ export interface SampleData {
   finalInputs: number[] | null;
 }
 
-export const estimateSuccessRates = async (
-  namesAndTrios: [string, Trio][],
-  optimizer: StagedOptimizer,
-  numSamples: number,
-  timeout: number,
-	sampleTimeout: number,
-): Promise<Map<string, SuccessRateResult | null>> => {
+const getOptimizer = (params: OptimizerParams): StagedOptimizer => {
+  switch (params.name) {
+    case "lbfgs":
+      return new BasicStagedOptimizer(
+        new ExteriorPointOptimizer(new LBGFSOptimizer()),
+      );
+
+    case "multi-start-lbfgs":
+      return new MultiStartStagedOptimizer(() => new LBGFSOptimizer(), params.numStarts);
+
+    case "sa-automala": {
+      const automala = new AutoMALA(params);
+      return new BasicStagedOptimizer(
+        new SimulatedAnnealing(automala, params),
+      );
+    }
+
+    case "pt-automala":
+      return new BasicStagedOptimizer(
+        new ParallelTempering(
+          new ExteriorPointOptimizer(new LBGFSOptimizer()),
+          () => new AutoMALA(params),
+          params
+        )
+      );
+
+    default:
+      throw new Error(`Unknown optimizer: ${(params as OptimizerParams).name}`);
+  }
+};
+
+
+const benchmark = async (options: Options) => {
+  const namesAndTrios = (
+    await Promise.all(
+      entries.map(async ([name, meta]) => {
+        if (!meta.trio) return null;
+        const trio = await meta.get();
+        return [name, trio] as [string, Trio];
+      }),
+    )
+  ).filter((x) => x !== null) as [string, Trio][];
+
+  const optimizer = getOptimizer(options.optimizer);
+
   const multibar = new cliProgress.MultiBar(
     {
       clearOnComplete: true,
@@ -41,7 +124,7 @@ export const estimateSuccessRates = async (
     cliProgress.Presets.shades_grey,
   );
 
-  const results: Map<string, SuccessRateResult | null> = new Map();
+  const results: Map<string, BenchmarkResult | null> = new Map();
 
   const trioBar = multibar.create(namesAndTrios.length, 0);
 
@@ -50,7 +133,7 @@ export const estimateSuccessRates = async (
   for (const [name, trio] of namesAndTrios) {
     // console.log("---------------");
     // console.log(`Estimating success rates for ${name}`);
-    trioBar.update(trioCount, { name, sampleCount: 0, totalSamples: numSamples });
+    trioBar.update(trioCount, { name, sampleCount: 0, totalSamples: options.numSamples });
 
     const startTime = performance.now();
     let state = await compileTrio(trio);
@@ -64,7 +147,7 @@ export const estimateSuccessRates = async (
     let nextSampleNum = 0;
     const sampler = () => `${nextSampleNum++}`;
 
-    if (performance.now() - startTime > timeout * 1000) {
+    if (performance.now() - startTime > options.timeout * 1000) {
       // console.warn(`$Timed out after 0 samples.`);
       results.set(name, null);
       continue;
@@ -77,11 +160,11 @@ export const estimateSuccessRates = async (
 
     const sampleDataArr = [];
 
-    for (let i = 0; i < numSamples; i++) {
-			trioBar.update(trioCount, { name, sampleCount: i + 1, totalSamples: numSamples });
-			trioBar.render();
+    for (let i = 0; i < options.numSamples; i++) {
+      trioBar.update(trioCount, { name, sampleCount: i + 1, totalSamples: options.numSamples });
+      trioBar.render();
 
-      if (performance.now() - startTime > timeout * 1000) {
+      if (performance.now() - startTime > options.timeout * 1000) {
         // console.warn(`Timed out after ${i} samples.`);
         break;
       }
@@ -93,8 +176,8 @@ export const estimateSuccessRates = async (
       optimizer.init(
         state,
         Math.min(
-          sampleTimeout * 1000,
-          timeout * 1000 - (performance.now() - startTime)));
+          options.sampleTimeout * 1000,
+          options.timeout * 1000 - (performance.now() - startTime)));
       state.variation = sampler();
       state.currentStageIndex = 0;
       state = resample(state);
@@ -110,7 +193,7 @@ export const estimateSuccessRates = async (
       let numSteps = 0;
       while (!shouldStop) {
         const stepStartTime = performance.now();
-        if (stepStartTime - startTime > timeout * 1000) {
+        if (stepStartTime - startTime > options.timeout * 1000) {
           // console.warn(`Timed out after ${i} samples.`);
           timedout = true;
           break;
@@ -159,7 +242,7 @@ export const estimateSuccessRates = async (
               break;
 
             case "Failed":
-							// console.error(`Error during optimization step: ${result.reason}`);
+              // console.error(`Error during optimization step: ${result.reason}`);
               if (result.reason === FailedReason.Timeout) {
                 timedout = true;
               } else {
@@ -190,7 +273,7 @@ export const estimateSuccessRates = async (
       });
     }
 
-    const result: SuccessRateResult = {
+    const result: BenchmarkResult = {
       variation: state.variation,
       samples: takenSamples,
       successes: numSuccesses,
@@ -211,4 +294,31 @@ export const estimateSuccessRates = async (
   multibar.stop();
 
   return results;
-};
+}
+
+yargs(process.argv.slice(2))
+  .command("$0 <options>",
+    "Run the benchmark with the given options",
+    (yargs) => {
+      return yargs
+        .positional("options", {
+          describe: "Path to options json file",
+          type: "string",
+        }
+      );
+    },
+    async (argv) => {
+      const optionsPath = argv.options;
+      if (optionsPath === undefined) {
+        throw new Error("Please provide an options file with");
+      }
+      const optionsFile = fs.readFileSync(optionsPath, "utf-8");
+      const options = JSON.parse(optionsFile);
+
+      await benchmark(options);
+    }
+  )
+  .help()
+  .parse();
+
+

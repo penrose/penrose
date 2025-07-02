@@ -7,7 +7,7 @@
     "dev": "vite",
     "build-bin": "tsc",
     "build-site": "vite build",
-    "collect": "node dist/bin/collect.js",
+    "benchmark": "node dist/bin/benchmark.js",
     "preview": "vite preview"
   },
   "dependencies": {
