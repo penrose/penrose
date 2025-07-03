@@ -1,3 +1,4 @@
+-- /Users/griffinteller/penrose/packages/examples/src/alloy-models/file-system/icicle-plot-file-system.style
 canvas {
   width = 800
   height = 800
@@ -27,7 +28,7 @@ forall Object x {
   x.width = ?[20] in shapes
   x.height = config.shapeHeight
 
-  x.center_x = ? in shapes 
+  x.center_x = ? in shapes
   x.center_y = ? in shapes
 
   x.center = [x.center_x, x.center_y]
@@ -53,12 +54,12 @@ forall Object x {
 
 
 
-  
+
   x.text = Text {
     string : x.label
     center: x.center
     fontSize: config.font
-    
+
 
   }
 
@@ -68,13 +69,13 @@ forall Object x {
   layer x.icon below x.text
 
 
-  ensure contains(x.icon, x.text, 10) in texts
+  ensure contains(x.icon, x.text, 0) in texts
 
 }
 
 forall Dir d {
   override d.icon.fillColor = Color.lightPurple
-  
+
 }
 
 forall File f {
@@ -94,7 +95,7 @@ forall Entry e {
   e.height = config.shapeHeight
 
 
-  e.center_x = ? in shapes 
+  e.center_x = ? in shapes
   e.center_y = ? in shapes
 
   e.center = [e.center_x, e.center_y]
@@ -107,12 +108,12 @@ forall Entry e {
   ensure e.width > config.minShapeWidth in shapes
 
 
-  
+
   e.icon = Rectangle {
     fillColor : Color.mediumPurple
     strokeColor : #000000
     strokeWidth : 0.5
-    center: e.center 
+    center: e.center
     width: e.width
     height: e.height
   }
@@ -136,7 +137,7 @@ forall Entry e {
 
 
 
-forall Object o; Entry e 
+forall Object o; Entry e
 where object(e, o) {
 
   override o.center_y = e.center_y - config.shapeHeight
@@ -164,7 +165,7 @@ collect Entry e into es
 where entries(d, e)
 foreach Dir d {
   override d.width = sum(listof width from es)
-  ensure distributeHorizontally(listof icon from es)
+  ensure distributeHorizontally(listof icon from es, -1)
 }
 
 

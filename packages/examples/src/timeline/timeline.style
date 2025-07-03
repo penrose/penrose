@@ -35,7 +35,7 @@ global {
     gridLineWeight = 2
     taskStrokeWeight = 1
     taskCornerRadius = 8
-    taskPadding = 10
+    taskPadding = 0
 
     --- parameters that are calculated
     topGridY = (canvas.height / 2) - marginTop

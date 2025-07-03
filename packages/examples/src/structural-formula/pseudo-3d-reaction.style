@@ -34,8 +34,8 @@ Global {
 
    -- box around the whole canvas
    shape bbox = Rectangle {
-      width : canvas.width
-      height : canvas.height
+      width : canvas.width - 8
+      height : canvas.height - 8
       center : (0.,0.)
       fillColor : Colors.clear
       strokeColor : Colors.gray
