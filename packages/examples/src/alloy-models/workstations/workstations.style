@@ -1,3 +1,4 @@
+-- /Users/griffinteller/penrose/packages/examples/src/alloy-models/workstations/workstations.style
 canvas {
   width = 800
   height = 700
@@ -31,7 +32,7 @@ forall Workstation w
   }
   w.boundingCircle = Circle {
     center: w.center
-    r: 110
+    r: 60
     fillColor: none()
   }
   w.text = Text {
@@ -122,7 +123,7 @@ where produce(w, p) as s{
   -- ensure norm(w.icon.center+(0,25)-s.edge.start) < 5 in later
   ensure signedDistance(p.icon, s.edge.end) < 2 in later
   -- encourage norm(w.icon.center+(0,25) - p.icon.center) == 0 in first
-  encourage norm(s.edge.start - s.edge.end) == 0 
+  encourage norm(s.edge.start - s.edge.end) == 0
 }
 
 forall Workstation w; Worker p

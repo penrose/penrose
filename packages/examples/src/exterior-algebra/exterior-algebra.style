@@ -17,8 +17,8 @@ Global {
    -- also be used to constrain shapes to the canvas)
    shape box = Rectangle {
       center: (0,0)
-      width: canvas.width
-      height: canvas.height
+      width: canvas.width - 1
+      height: canvas.height - 1
       fillColor: none()
       strokeColor: Colors.clearGray
       strokeWidth: 1

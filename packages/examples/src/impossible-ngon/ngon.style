@@ -8,6 +8,7 @@ canvas {
       width: canvas.width
       height: canvas.width
       preserveAspectRatio: "none"
+			ensureOnCanvas: false
    }
 }
 

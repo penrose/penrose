@@ -1,3 +1,4 @@
+-- /Users/griffinteller/penrose/packages/examples/src/alloy-models/file-system/icicle-plot-file-system.style
 canvas {
   width = 800
   height = 800
@@ -27,7 +28,7 @@ forall Object x {
   x.width = ?[20] in shapes
   x.height = config.shapeHeight
 
-  x.center_x = ? in shapes 
+  x.center_x = ? in shapes
   x.center_y = ? in shapes
 
   x.center = [x.center_x, x.center_y]
@@ -49,32 +50,26 @@ forall Object x {
     center: x.center
     width: x.width
     height: x.height
+		ensureOnCanvas: false
   }
 
-
-
-  
   x.text = Text {
     string : x.label
     center: x.center
     fontSize: config.font
-    
-
   }
 
   x.g = Group {
     shapes: [x.icon, x.text]
   }
   layer x.icon below x.text
-
-
-  ensure contains(x.icon, x.text, 10) in texts
+  ensure contains(x.icon, x.text, 0) in texts
 
 }
 
 forall Dir d {
   override d.icon.fillColor = Color.lightPurple
-  
+
 }
 
 forall File f {
@@ -94,7 +89,7 @@ forall Entry e {
   e.height = config.shapeHeight
 
 
-  e.center_x = ? in shapes 
+  e.center_x = ? in shapes
   e.center_y = ? in shapes
 
   e.center = [e.center_x, e.center_y]
@@ -107,14 +102,15 @@ forall Entry e {
   ensure e.width > config.minShapeWidth in shapes
 
 
-  
+
   e.icon = Rectangle {
     fillColor : Color.mediumPurple
     strokeColor : #000000
-    strokeWidth : 0.5
-    center: e.center 
+    strokeWidth : 1 
+    center: e.center
     width: e.width
     height: e.height
+		ensureOnCanvas: false
   }
 
   e.text = Text {
@@ -136,13 +132,13 @@ forall Entry e {
 
 
 
-forall Object o; Entry e 
+forall Object o; Entry e
 where object(e, o) {
 
   override o.center_y = e.center_y - config.shapeHeight
 
-  ensure o.left > e.left
-  ensure  o.right < e.right
+  encourage o.left > e.left 
+  encourage o.right < e.right
 
 
 }
@@ -154,8 +150,8 @@ where entries (d, e) {
 
   override e.center_y = d.center_y - config.shapeHeight
 
-  ensure e.left > d.left
-  ensure  e.right < d.right
+  encourage e.left > d.left
+  encourage e.right < d.right
 
 }
 

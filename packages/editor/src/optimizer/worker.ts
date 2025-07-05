@@ -285,6 +285,23 @@ const startOptimize = (
         // if we successfully took an optimization step
 
         const stepped = steppedState.value;
+
+        // calculate total constraint energy
+        const xs = new Float64Array(stepped.varyingValues.length);
+        const grad = new Float64Array(stepped.varyingValues.length);
+        xs.set(stepped.varyingValues);
+        const optOutputs = stepped.gradient(
+          stepped.constraintSets.get(stepped.optStages[stepped.currentStageIndex])!,
+          xs,
+          1,
+          grad
+        );
+        const constraintEnergy = optOutputs.constraints.reduce(
+          (acc, c) => acc + Math.max(0, c) ** 2,
+          0
+        );
+        console.log(`TOTAL CONSTRAINT ENERGY: ${constraintEnergy}`);
+
         if (isOptimized(stepped) && !finalStage(stepped)) {
           // if we should go to the next layout stage
 
