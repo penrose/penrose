@@ -65,7 +65,7 @@ export const TrioSelector = ({
     <div>
       <select value={selected ?? ""} onChange={handleChange}>
         <option value="">Select a Trio</option>
-        {options.map((o) => (
+        {options.sort((a, b) => a.name.localeCompare(b.name)).map((o) => (
           <option key={o.name} value={o.name}>
             {o.name}
           </option>

@@ -193,7 +193,7 @@ export const DiagramPanel = ({
             <hr />
             {optOutputs?.objectives.map((o, i) => (
               <div key={i}>
-                <code>{prettyPrintFn(penroseState?.objFns[i])}</code>: {o}
+                <code>{penroseState?.objFns[i] ? prettyPrintFn(penroseState?.objFns[i]) : ""}</code>: {o}
               </div>
             ))}
           </div>
