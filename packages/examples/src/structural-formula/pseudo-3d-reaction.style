@@ -36,6 +36,7 @@ Global {
    shape bbox = Rectangle {
       width : canvas.width - 8
       height : canvas.height - 8
+			ensureOnCanvas: false
       center : (0.,0.)
       fillColor : Colors.clear
       strokeColor : Colors.gray

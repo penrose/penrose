@@ -29,6 +29,7 @@ Global {
       center: (0.,0.)
       fillColor: none()
       width: canvas.width
+			ensureOnCanvas: false
       height: canvas.height
    }
 

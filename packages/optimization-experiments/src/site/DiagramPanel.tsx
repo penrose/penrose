@@ -3,6 +3,7 @@ import {
   PathResolver,
   State as PenroseState,
   compile,
+  prettyPrintFn,
   resample,
 } from "@penrose/core";
 import { OptOutputs } from "@penrose/core/dist/types/ad";
@@ -190,7 +191,11 @@ export const DiagramPanel = ({
             <hr />
             Total: {optOutputs?.objectives.reduce((a, b) => a + b, 0)}
             <hr />
-            {optOutputs?.objectives.map((o, i) => <div key={i}>{o}</div>)}
+            {optOutputs?.objectives.map((o, i) => (
+              <div key={i}>
+                <code>{prettyPrintFn(penroseState?.objFns[i])}</code>: {o}
+              </div>
+            ))}
           </div>
           <div>
             <h3>Constraints</h3>
@@ -204,7 +209,16 @@ export const DiagramPanel = ({
             {/* horizontal separator */}
             <hr />
             {/* List of penalties */}
-            {optOutputs?.constraints.map((p, i) => <div key={i}>{p}</div>)}
+            {optOutputs?.constraints.map((p, i) => (
+              <div key={i} style={{ color: p > 0 ? "red" : "inherit" }}>
+                <code>
+                  {penroseState?.constrFns[i]
+                    ? prettyPrintFn(penroseState?.constrFns[i])
+                    : ""}
+                </code>
+                : {p}
+              </div>
+            ))}
           </div>
           <div>
             <h3>Phi</h3>

@@ -50,25 +50,19 @@ forall Object x {
     center: x.center
     width: x.width
     height: x.height
+		ensureOnCanvas: false
   }
-
-
-
 
   x.text = Text {
     string : x.label
     center: x.center
     fontSize: config.font
-
-
   }
 
   x.g = Group {
     shapes: [x.icon, x.text]
   }
   layer x.icon below x.text
-
-
   ensure contains(x.icon, x.text, 0) in texts
 
 }
@@ -112,10 +106,11 @@ forall Entry e {
   e.icon = Rectangle {
     fillColor : Color.mediumPurple
     strokeColor : #000000
-    strokeWidth : 0.5
+    strokeWidth : 1 
     center: e.center
     width: e.width
     height: e.height
+		ensureOnCanvas: false
   }
 
   e.text = Text {
@@ -142,8 +137,8 @@ where object(e, o) {
 
   override o.center_y = e.center_y - config.shapeHeight
 
-  ensure o.left > e.left
-  ensure  o.right < e.right
+  encourage o.left > e.left 
+  encourage o.right < e.right
 
 
 }
@@ -155,8 +150,8 @@ where entries (d, e) {
 
   override e.center_y = d.center_y - config.shapeHeight
 
-  ensure e.left > d.left
-  ensure  e.right < d.right
+  encourage e.left > d.left
+  encourage e.right < d.right
 
 }
 
@@ -165,7 +160,7 @@ collect Entry e into es
 where entries(d, e)
 foreach Dir d {
   override d.width = sum(listof width from es)
-  ensure distributeHorizontally(listof icon from es, -1)
+  ensure distributeHorizontally(listof icon from es)
 }
 
 
