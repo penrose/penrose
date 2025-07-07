@@ -57,6 +57,7 @@ export interface BenchmarkResult {
   successes: number;
   badMinima: number;
   failures: number;
+  time: number;
   sampleData: SampleData[];
 }
 
@@ -279,7 +280,8 @@ const benchmark = async (options: Options) => {
       successes: numSuccesses,
       badMinima: numBadMinima,
       failures: numFailures,
-      sampleData: sampleDataArr
+      sampleData: sampleDataArr,
+      time: performance.now() - startTime,
     };
 
     console.log(`\nResults for ${name} (abridged):`);
