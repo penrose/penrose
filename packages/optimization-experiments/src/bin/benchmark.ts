@@ -315,7 +315,15 @@ yargs(process.argv.slice(2))
       const optionsFile = fs.readFileSync(optionsPath, "utf-8");
       const options = JSON.parse(optionsFile);
 
-      await benchmark(options);
+      const results = await benchmark(options);
+
+      const date = new Date();
+      const outputFile = `${options.outputDir}/benchmark-${date.toISOString()}.json`;
+      fs.mkdirSync(options.outputDir, { recursive: true });
+      fs.writeFileSync(
+        outputFile,
+        JSON.stringify(Object.fromEntries(results), null, 2),
+      );
     }
   )
   .help()
