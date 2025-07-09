@@ -1,6 +1,5 @@
 import "global-jsdom/register";
 
-import { entries, Trio } from "@penrose/examples";
 import fs from "fs";
 import yargs from "yargs";
 import {
@@ -10,7 +9,7 @@ import {
   MultiStartStagedOptimizer, ParallelTempering, SimulatedAnnealing,
   StagedOptimizer
 } from "../Optimizers.js";
-import { compileTrio } from "../utils.js";
+import { compileTrio, getExampleNamesAndTrios } from "../utils.js";
 import { AutoMALA } from "../samplers.js";
 import cliProgress from "cli-progress";
 import { resample } from "@penrose/core";
@@ -104,16 +103,7 @@ const getOptimizer = (params: OptimizerParams): StagedOptimizer => {
 
 
 const benchmark = async (options: Options) => {
-  const namesAndTrios = (
-    await Promise.all(
-      entries.map(async ([name, meta]) => {
-        if (!meta.trio) return null;
-        const trio = await meta.get();
-        return [name, trio] as [string, Trio];
-      }),
-    )
-  ).filter((x) => x !== null) as [string, Trio][];
-
+  const namesAndTrios = await getExampleNamesAndTrios();
   const optimizer = getOptimizer(options.optimizer);
 
   const multibar = new cliProgress.MultiBar(
@@ -136,8 +126,8 @@ const benchmark = async (options: Options) => {
     // console.log(`Estimating success rates for ${name}`);
     trioBar.update(trioCount, { name, sampleCount: 0, totalSamples: options.numSamples });
 
-    const startTime = performance.now();
     let state = await compileTrio(trio);
+    const startTime = performance.now();
 
     if (!state) {
       // console.error(`Failed to compile trio for ${name}`);
