@@ -12,7 +12,6 @@ colors {
 global {
    scalar tableWidth = 180
    scalar tableHeight = 180
-
    scalar boxPadding = 2.0
 }
 
@@ -94,6 +93,7 @@ where IsProduct( a, b, c )
       height: a.height - global.boxPadding
       cornerRadius: 2.0
       fillColor: a.boxColor
+			ensureOnCanvas: false
    }
 
    shape productText = Equation {

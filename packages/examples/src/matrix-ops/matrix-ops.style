@@ -1,6 +1,6 @@
 canvas {
-    width = 240
-    height = 200
+    width = 260
+    height = 240
 }
 
 global {

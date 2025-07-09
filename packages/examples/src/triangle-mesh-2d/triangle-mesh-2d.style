@@ -28,8 +28,8 @@ Global {
    shape box = Rectangle {
       center: (0.,0.)
       fillColor: none()
-      strokeWidth: 2.
       width: canvas.width
+			ensureOnCanvas: false
       height: canvas.height
    }
 
@@ -70,7 +70,7 @@ where v has label {
    }
 
    -- make sure label doesn't get too far from the dot
-   ensure inRange( v.labelRadius, 1.02*Global.labelBoundRadius, 1.1*Global.labelBoundRadius ) in labels
+   ensure inRange( v.labelRadius, 1.02*Global.labelBoundRadius, 1.5*Global.labelBoundRadius ) in labels
 
    -- invisible circle around label
    -- (used to prevent overlap)

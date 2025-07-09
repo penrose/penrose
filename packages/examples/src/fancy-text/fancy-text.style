@@ -7,8 +7,8 @@ Global {
 
    shape bbox = Rectangle {
       center: (0.,0.)
-      width: canvas.width
-      height: canvas.height
+      width: canvas.width - 4
+      height: canvas.height - 4
       fillColor: rgba( .8,.95,.9, 1. )
       strokeColor: rgba( .6,.85,.6, 1. )
       strokeWidth: 4.
@@ -92,7 +92,7 @@ forall Point p {
    layer p.text above Global.bbox
 
    -- keep all disks on the canvas
-   ensure contains( Global.bbox, p.icon )
+   ensure contains( Global.bbox, p.icon, 4 )
 }
 
 -- repel all pairs of points

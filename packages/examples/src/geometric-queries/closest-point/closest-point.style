@@ -149,8 +149,6 @@ forall Group G {
    ensure contains( bbox, s1 )
    ensure contains( bbox, s2 )
    ensure contains( bbox, s3 )
-   ensure contains( G.icon, bbox )
-
 }
 
 -- Rules for drawing closest points
