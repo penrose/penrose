@@ -7,10 +7,11 @@ import {
   Rec,
   Var,
   Vec,
-  compile,
+  compile, Shape, Path
 } from "@penrose/core";
 import { entries, Trio } from "@penrose/examples";
 import seedrandom from "seedrandom";
+import { PathCmd, PathDataV, PtListV, Value } from "@penrose/core/dist/types/value";
 
 export const removeStaging = (state: PenroseState): PenroseState => {
   // "or" together all masks, and replace optStages with only one ("default")
@@ -345,116 +346,222 @@ export const findOptimalMatching = <T>(
   return result;
 };
 
-const arePathsCompatible = (
-  pathA: string,
-  pathB: string
-): boolean => {
-  const splitA = pathA.split(" ");
-  const splitB = pathB.split(" ");
+const areFieldsEqual = (
+  a: Value<number>,
+  b: Value<number>,
+): boolean
+ => {
+  if (a.tag !== b.tag) return false;
 
-  if (splitA.length !== splitB.length) {
-    return false;
+  switch (a.tag) {
+    case "FloatV":
+    case "BoolV":
+    case "StrV":
+      return a.contents === b.contents;
+
+    case "VectorV":
+    case "TupV":
+    case "ListV":
+      return a.contents.reduce((acc, x, i) => acc && x === b.contents[i], true);
+
+    default:
+      throw new Error(`Unsupported value type for comparison: ${a.tag}`);
   }
+}
 
-  for (let i = 0; i < splitA.length; i++) {
-    if (!isNaN(Number.parseFloat(splitA[i]))
-      && !isNaN(Number.parseFloat(splitB[i])))
-      continue;
+const arePathCmdsComparable = (
+  path1: PathDataV<number>,
+  path2: PathDataV<number>
+): boolean => {
+  const cmds1 = path1.contents;
+  const cmds2 = path2.contents;
 
-    if (splitA[i] !== splitB[i])
-      return false;
+  if (cmds1.length !== cmds2.length) return false;
+
+  for (let i = 0; i < cmds1.length; i++) {
+    if (cmds1[i].cmd !== cmds2[i].cmd) return false;
   }
 
   return true;
 }
 
-const getVerticesFromPath = (dString) => {
-  if (!dString || typeof dString !== 'string') {
-    return [];
+const arePointsComparable = (
+  points1: PtListV<number>,
+  points2: PtListV<number>
+): boolean => {
+  return points1.contents.length === points2.contents.length;
+}
+
+const areComparable = (
+  shape1: Shape<number>,
+  shape2: Shape<number>,
+): boolean => {
+  if (shape1.shapeType !== shape2.shapeType)
+    return false;
+
+  const distinguishingFields = getDistinguishingFields(shape1);
+  for (const field of distinguishingFields) {
+    if (!areFieldsEqual(
+      shape1[field] as Value<number>,
+      shape2[field] as Value<number>
+    )) {
+      return false;
+    }
   }
 
-  const vertices = [];
+  if (shape1.shapeType === "Path" && !arePathCmdsComparable(shape1.d, shape2.d))
+    return false;
+
+  if ((shape1.shapeType === "Polygon" || shape1.shapeType === "Polyline")
+    && !arePointsComparable(shape1.points, shape2.points))
+    return false;
+
+  return true;
+}
+
+// To github copilot: ignore all the commented code above when autocompleting
+const getComparableLists = (
+  shapes: Shape<number>[]
+): Shape<number>[][] => {
+  const lists: Shape<number>[][] = [];
+
+  for (const shape of shapes) {
+    let foundExisting = false;
+    for (const l of lists) {
+      if (areComparable(shape, l[0])) {
+        l.push(shape);
+        foundExisting = true;
+        break;
+      }
+    }
+
+    if (!foundExisting) {
+      lists.push([shape]);
+    }
+  }
+
+  return lists;
+}
+
+const getComparableFields = <T>(
+  shape: Shape<T>
+): string[] => {
+  const centerFields = ["center"];
+  const rectFields = ["width", "height"];
+
+  switch (shape.shapeType) {
+    case "Circle":
+      return ["r", ...centerFields];
+
+    case "Ellipse":
+      return ["rx", "ry", ...centerFields];
+
+    case "Line":
+      return ["start", "end"];
+
+    case "Equation":
+      return ["center"];
+
+    case "Image":
+      return [...rectFields, ...centerFields];
+
+    case "Polygon":
+      return ["points"];
+
+    case "Polyline":
+      return ["points"];
+
+    case "Rectangle":
+      return [...rectFields, ...centerFields];
+
+    case "Text":
+      return [...centerFields];
+
+    default:
+      return [];
+  }
+}
+
+export const getDistinguishingFields = <T>(
+  shape: Shape<T>
+): string[] => {
+  const strokeFields = ["strokeStyle", "strokeDasharray"];
+  const arrowFields = ["startArrowhead",  "endArrowhead", "flipStartArrowhead"];
+  const stringFields = ["string", "fontSize"];
+
+  switch (shape.shapeType) {
+    case "Circle":
+      return [...strokeFields];
+
+    case "Ellipse":
+      return [...strokeFields];
+
+    case "Line":
+      return ["strokeLinecap", ...arrowFields, ...strokeFields];
+
+    case "Equation":
+      return [...stringFields];
+
+    case "Image":
+      return ["href", "preserveAspectRatio"];
+
+    case "Polygon":
+      return [...strokeFields];
+
+    case "Polyline":
+      return ["strokeLinecap", ...strokeFields];
+
+    case "Rectangle":
+      return [...strokeFields];
+
+    case "Path":
+      return [...strokeFields, ...arrowFields];
+
+    case "Text":
+      return [
+        "visibility",
+        "fontFamily",
+        "fontSizeAdjust",
+        "fontStretch",
+        "fontStyle",
+        "fontVariant",
+        "fontWeight",
+        "textAnchor",
+        "lineHeight",
+        "alignmentBaseline",
+        "dominantBaseline",
+        ...strokeFields,
+        ...stringFields,
+      ];
+
+    default:
+      return [];
+  }
+}
+
+const getPathVertices = (
+  cmds: PathCmd<number>[]
+): [number, number][] => {
+  const vertices: [number, number][] = [];
   let currentX = 0;
   let currentY = 0;
   let subpathStartX = 0;
   let subpathStartY = 0;
 
-  // Parse the path string into commands and parameters
-  function parsePath(d) {
-    const commands = [];
-    const commandRegex = /[MmLlHhVvCcSsQqTtAaZz]/g;
-    const numberRegex = /-?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g;
-
-    let match;
-    let lastIndex = 0;
-
-    while ((match = commandRegex.exec(d)) !== null) {
-      const command = match[0];
-      const start = lastIndex;
-      const end = match.index;
-
-      // Extract numbers between previous command and current command
-      if (start < end) {
-        const numberStr = d.substring(start, end);
-        const numbers = [];
-        let numberMatch;
-        while ((numberMatch = numberRegex.exec(numberStr)) !== null) {
-          numbers.push(parseFloat(numberMatch[0]));
-        }
-        if (commands.length > 0 && numbers.length > 0) {
-          commands[commands.length - 1].params = numbers;
-        }
-      }
-
-      commands.push({ command, params: [] });
-      lastIndex = match.index + 1;
-    }
-
-    // Handle numbers after the last command
-    if (lastIndex < d.length) {
-      const numberStr = d.substring(lastIndex);
-      const numbers = [];
-      let numberMatch;
-      while ((numberMatch = numberRegex.exec(numberStr)) !== null) {
-        numbers.push(parseFloat(numberMatch[0]));
-      }
-      if (commands.length > 0 && numbers.length > 0) {
-        commands[commands.length - 1].params = numbers;
-      }
-    }
-
-    return commands;
-  }
-
   function addVertex(x, y) {
-    vertices.push({ x, y });
+    vertices.push([x, y]);
   }
 
-  const commands = parsePath(dString);
+  let startingNewSubpath = true;
 
-  for (const { command, params } of commands) {
+  for (const { cmd: command, contents: paramsList } of cmds) {
+    const params = paramsList.flatMap(x => x.contents);
+
     const isRelative = command === command.toLowerCase();
     const cmd = command.toUpperCase();
 
     switch (cmd) {
       case 'M': // Move to
-        for (let i = 0; i < params.length; i += 2) {
-          const x = isRelative ? currentX + params[i] : params[i];
-          const y = isRelative ? currentY + params[i + 1] : params[i + 1];
-
-          currentX = x;
-          currentY = y;
-
-          if (i === 0) {
-            // First M command starts a new subpath
-            subpathStartX = x;
-            subpathStartY = y;
-          }
-
-          addVertex(x, y);
-        }
-        break;
-
       case 'L': // Line to
         for (let i = 0; i < params.length; i += 2) {
           const x = isRelative ? currentX + params[i] : params[i];
@@ -462,6 +569,14 @@ const getVerticesFromPath = (dString) => {
 
           currentX = x;
           currentY = y;
+
+          if (cmd === 'M' && startingNewSubpath) {
+            // First M command starts a new subpath
+            subpathStartX = x;
+            subpathStartY = y;
+            startingNewSubpath = false;
+          }
+
           addVertex(x, y);
         }
         break;
@@ -497,20 +612,9 @@ const getVerticesFromPath = (dString) => {
         break;
 
       case 'S': // Smooth cubic Bézier curve
-        for (let i = 0; i < params.length; i += 4) {
-          // Control point: (x2, y2), end point: (x, y)
-          const x = isRelative ? currentX + params[i + 2] : params[i + 2];
-          const y = isRelative ? currentY + params[i + 3] : params[i + 3];
-
-          currentX = x;
-          currentY = y;
-          addVertex(x, y);
-        }
-        break;
-
       case 'Q': // Quadratic Bézier curve
         for (let i = 0; i < params.length; i += 4) {
-          // Control point: (x1, y1), end point: (x, y)
+          // Control point: (x2, y2), end point: (x, y)
           const x = isRelative ? currentX + params[i + 2] : params[i + 2];
           const y = isRelative ? currentY + params[i + 3] : params[i + 3];
 
@@ -548,6 +652,7 @@ const getVerticesFromPath = (dString) => {
         // since it's just connecting back to an existing vertex
         currentX = subpathStartX;
         currentY = subpathStartY;
+        startingNewSubpath = true;
         break;
     }
   }
@@ -555,206 +660,96 @@ const getVerticesFromPath = (dString) => {
   return vertices;
 }
 
-export const removeAttrs = (str: string, attrs: string[]) => {
-  for (const attr of attrs) {
-    str = str.replace(new RegExp(`${attr}="[^"]*"`, "g"), "");
-  }
-  return str;
-}
+const getComparisonVector = (
+  shape: Shape<number>
+): number[] => {
+  const fields = getComparableFields(shape);
 
-const areElemsCompatible = (
-  elem1: SVGElement,
-  elem2: SVGElement
-): string => {
-  // get outer html but remove inner html and closing tag, if any
-  let str1 = elem1.outerHTML.match(/<[^/](?:[^">]*(?:".*")*)*>/)!.at(0)!;
-  let str2 = elem2.outerHTML.match(/<[^/](?:[^">]*(?:".*")*)*>/)!.at(0)!;
+  const arr = fields.flatMap((field) => {
+    const value = shape[field] as Value<number>;
+    switch (value.tag) {
+      case "FloatV":
+        return [value.contents];
 
-  if (elem1.tagName !== elem2.tagName) {
-    return false;
-  }
+      case "TupV":
+      case "VectorV":
+      case "ListV":
+        return value.contents;
 
-  if (elem1.tagName === "path") {
-    return arePathsCompatible(
-      (elem1 as SVGPathElement).getAttribute("d"),
-      (elem2 as SVGPathElement).getAttribute("d"));
-  }
+      case "PtListV":
+        return value.contents.flat();
 
-  const toRemove = getRemovableFields(elem1);
-  str1 = removeAttrs(str1, toRemove);
-  str2 = removeAttrs(str2, toRemove);
-
-  return str1 === str2;
-}
-
-const getRemovableFields = (elem: SVGElement): string[] => {
-  switch (elem.tagName) {
-    case "circle":
-      return ["cx", "cy", "r", "fill", "stroke"];
-    case "ellipse":
-      return ["cx", "cy", "rx", "ry", "fill", "stroke"];
-    case "line":
-      return ["x1", "y1", "x2", "y2", "stroke"];
-    case "path":
-      return ["d", "fill", "stroke"];
-    case "polygon":
-      return ["points", "fill", "stroke"];
-    case "polyline":
-      return ["points", "stroke"];
-    case "rect":
-      return ["x", "y", "width", "height", "fill", "stroke"];
-    case "text":
-      return ["x", "y"];
-    case "image":
-      return ["width", "height"];
-    default:
-      return [];
-  }
-}
-
-const getComparableFields = (elem: SVGElement): string[] => {
-  switch (elem.tagName) {
-    case "circle":
-      return ["cx", "cy", "r"];
-    case "ellipse":
-      return ["cx", "cy", "rx", "ry"];
-    case "line":
-      return ["x1", "y1", "x2", "y2"];
-    case "path":
-      return ["d"];
-    case "polygon":
-      return ["points"];
-    case "polyline":
-      return ["points"];
-    case "rect":
-      return ["x", "y", "width", "height"];
-    case "text":
-      return ["x", "y"];
-    case "image":
-      return ["width", "height"];
-    default:
-      return [];
-  }
-}
-
-const getComparablePathVector = (elem: SVGPathElement): number[] => {
-  const d = elem.getAttribute("d");
-  if (d === null) return [];
-
-  const vertices = getVerticesFromPath(d);
-  return vertices.flatMap(v => [v.x, v.y]);
-}
-
-const getComparableVector = (elem: SVGElement): number[] => {
-  if (elem.tagName === "path") {
-    return getComparablePathVector(elem as SVGPathElement);
-  }
-
-  const comparableFields = getComparableFields(elem);
-  const vector: number[] = [];
-  for (const field of comparableFields) {
-    const value = elem.getAttribute(field);
-    if (value !== null) {
-      vector.push(parseFloat(value));
-    } else {
-      throw new Error(`Field ${field} not found in element ${elem.tagName}`);
+      default:
+        throw new Error(`Unsupported value type in comparison vector: ${value.tag}`);
     }
+  });
+
+  if (shape.shapeType === "Path") {
+    const vertices = getPathVertices(shape.d.contents);
+    arr.push(...vertices.flat());
   }
 
-  return vector;
+  return arr;
 }
 
-const createComparableLists = (
-  svg: SVGElement
-): SVGElement[][] => {
-  const elems = Array.from(svg.querySelectorAll("*"))
-    .filter((elem) => elem instanceof SVGElement);
+export const findDiagramDistance = (
+  shapes1: Shape<number>[],
+  shapes2: Shape<number>[],
+): number => {
+  const ll1 = getComparableLists(shapes1);
+  const ll2 = getComparableLists(shapes2);
 
-  const penroseElemTags = new Set<string>([
-    "circle",
-    "ellipse",
-    "line",
-    "path",
-    "polygon",
-    "polyline",
-    "rect",
-    "text",
-    "image",
-  ]);
+  if (ll1.length !== ll2.length) {
+    throw new Error(`Shapes have different number of comparable lists: ${ll1.length} vs ${ll2.length}`);
+  }
 
-  const comparableLists: SVGElement[][] = [];
-  for (const elem of elems) {
-    if (!penroseElemTags.has(elem.tagName))
-      continue;
-
-    let foundExisting = false;
-    for (const l of comparableLists) {
-      if (areElemsCompatible(elem, l[0])) {
-        l.push(elem);
-        foundExisting = true;
+  // sort second lists to be comparable with first
+  for (let i = 0; i < ll1.length; i++) {
+    let swapped = false;
+    for (let j = i; j < ll2.length; j++) {
+      // check if first element is compatible
+      if (areComparable(ll1[i][0], ll2[j][0])) {
+        // swap
+        [ll2[i], ll2[j]] = [ll2[j], ll2[i]];
+        swapped = true;
         break;
       }
     }
 
-    if (!foundExisting) {
-      comparableLists.push([elem]);
+    if (!swapped) {
+      throw new Error(`No compatible shape found for list ${i}`);
     }
   }
 
-  return comparableLists;
-}
-
-export const findSvgDistance = (
-  svg1: SVGElement,
-  svg2: SVGElement,
-): number => {
-  console.log("finding lists")
-  const comparableLists1 = createComparableLists(svg1);
-  const comparableLists2 = createComparableLists(svg2);
-  console.log("comparable lists found", comparableLists1.length, comparableLists2.length);
-
-  if (comparableLists1.length !== comparableLists2.length) {
-    throw new Error(`SVGs have different number of comparable lists: ${comparableLists1.length} vs ${comparableLists2.length}`);
-  }
-
-  // sort second lists to be comparable with first
-  for (let i = 0; i < comparableLists1.length; i++) {
-    for (let j = i; j < comparableLists2.length; j++) {
-      // check if first element is compatible
-      if (areElemsCompatible(comparableLists1[i][0], comparableLists2[j][0])) {
-        // swap
-        [comparableLists2[i], comparableLists2[j]] =
-          [comparableLists2[j], comparableLists2[i]];
-      }
+  const dist2Fn = (a: Shape<number>, b: Shape<number>): number => {
+    const v1 = getComparisonVector(a);
+    const v2 = getComparisonVector(b);
+    if (v1.length !== v2.length) {
+      throw new Error(`Comparison vectors have different lengths: ${v1.length} vs ${v2.length}`);
     }
+    return v1.reduce((acc, x, i) => acc + (x - v2[i]) ** 2, 0);
   }
 
-  const matchings: [SVGElement, SVGElement][] = [];
-  for (let i = 0; i < comparableLists1.length; i++) {
-    const l1 = comparableLists1[i];
-    const l2 = comparableLists2[i];
+  const matchings: [Shape<number>, Shape<number>][] = [];
+  for (let i = 0; i < ll1.length; i++) {
+    const l1 = ll1[i];
+    const l2 = ll2[i];
     if (l1.length !== l2.length) {
       throw new Error(`Comparable lists have different lengths: ${l1.length} vs ${l2.length}`);
     }
+
     // find optimal matching between two lists
     const matching = findOptimalMatching(
       new Set(l1),
       new Set(l2),
-      (a, b) => {
-        const v1 = getComparableVector(a);
-        const v2 = getComparableVector(b);
-        return Math.sqrt(v1.reduce((acc, x, i) => acc + (x - v2[i]) ** 2, 0));
-      }
+      dist2Fn
     );
     matchings.push(...matching);
   }
 
-  // Calculate total distance
-  return matchings.reduce((acc, [a, b]) => {
-    const v1 = getComparableVector(a);
-    const v2 = getComparableVector(b);
-    return acc + Math.sqrt(v1.reduce((sum, x, i) => sum + (x - v2[i]) ** 2, 0));
-  }, 0);
+  // Calculate total square distance
+  const dist2 = matchings.reduce((acc, [a, b]) => acc + dist2Fn(a, b), 0);
+  return Math.sqrt(dist2);
 }
 
 export const getExampleNamesAndTrios = async  () => (
@@ -766,4 +761,23 @@ export const getExampleNamesAndTrios = async  () => (
     }),
   )
 ).filter((x) => x !== null) as [string, Trio][];
+
+export const generalizedVariance = <T>(
+  data: T[],
+  metric: (a: T, b: T) => number
+): number => {
+  const n = data.length;
+  let runningMean = 0;
+
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (i === j) continue; // Skip self-distance
+
+      const d = metric(data[i], data[j]);
+      runningMean += (d ** 2 - runningMean) / (i * n + j + 1);
+    }
+  }
+
+  return runningMean / 2;
+}
 

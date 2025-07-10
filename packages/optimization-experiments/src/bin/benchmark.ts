@@ -9,10 +9,12 @@ import {
   MultiStartStagedOptimizer, ParallelTempering, SimulatedAnnealing,
   StagedOptimizer
 } from "../Optimizers.js";
-import { compileTrio, getExampleNamesAndTrios } from "../utils.js";
+import { compileTrio, findDiagramDistance, generalizedVariance, getExampleNamesAndTrios } from "../utils.js";
 import { AutoMALA } from "../samplers.js";
 import cliProgress from "cli-progress";
-import { resample } from "@penrose/core";
+import { resample, Shape } from "@penrose/core";
+import { stateToSVG } from "@penrose/bloom/dist/core/utils.js";
+import { makeResolver } from "@penrose/examples";
 
 type OptimizerParams = {
   name: "lbfgs",
@@ -57,6 +59,7 @@ export interface BenchmarkResult {
   badMinima: number;
   failures: number;
   time: number;
+  diagramStdDev: number;
   sampleData: SampleData[];
 }
 
@@ -127,6 +130,7 @@ const benchmark = async (options: Options) => {
     trioBar.update(trioCount, { name, sampleCount: 0, totalSamples: options.numSamples });
 
     let state = await compileTrio(trio);
+    const resolver = makeResolver(name.split("/")[0]);
     const startTime = performance.now();
 
     if (!state) {
@@ -150,6 +154,7 @@ const benchmark = async (options: Options) => {
     let numFailures = 0;
 
     const sampleDataArr = [];
+    const shapeLists: Shape<number>[][] = [];
 
     for (let i = 0; i < options.numSamples; i++) {
       trioBar.update(trioCount, { name, sampleCount: i + 1, totalSamples: options.numSamples });
@@ -251,6 +256,9 @@ const benchmark = async (options: Options) => {
 
       if (timedout) break;
 
+      const shapes = state.computeShapes(state.varyingValues)
+      shapeLists.push(shapes);
+
       takenSamples++;
       sampleDataArr.push({
         time: performance.now() - sampleStartTime,
@@ -264,14 +272,18 @@ const benchmark = async (options: Options) => {
       });
     }
 
+    const time = performance.now() - startTime;
+    const diagramVariance = generalizedVariance(shapeLists, findDiagramDistance);
+
     const result: BenchmarkResult = {
       variation: state.variation,
       samples: takenSamples,
       successes: numSuccesses,
       badMinima: numBadMinima,
       failures: numFailures,
+      time,
+      diagramStdDev: Math.sqrt(diagramVariance),
       sampleData: sampleDataArr,
-      time: performance.now() - startTime,
     };
 
     console.log(`\nResults for ${name} (abridged):`);
@@ -279,6 +291,7 @@ const benchmark = async (options: Options) => {
     console.log(`  Successes: ${result.successes}`);
     console.log(`  Bad minima: ${result.badMinima}`);
     console.log(`  Failures: ${result.failures}`);
+    console.log('  Diagram Std Dev:', result.diagramStdDev.toFixed(4));
 
     results.set(name, result);
     trioCount++;
