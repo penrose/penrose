@@ -252,100 +252,6 @@ export const allFinite = (arr: Float64Array): boolean => {
   return true;
 };
 
-/**
- * Finds the optimal perfect matching between two sets using the Hungarian algorithm.
- * Computes minimum weight perfect matching in O(n³) time.
- * 
- * @param setA First set of elements
- * @param setB Second set of elements  
- * @param metric Distance/cost function between elements
- * @returns Array of pairs [a, b] representing the optimal matching
- */
-export const findOptimalMatching = <T>(
-  setA: Set<T>,
-  setB: Set<T>,
-  metric: (a: T, b: T) => number
-): [T, T][] => {
-  const arrayA = Array.from(setA);
-  const arrayB = Array.from(setB);
-  const n = Math.max(arrayA.length, arrayB.length);
-  
-  if (n === 0) return [];
-  
-  // Create cost matrix, padding with high costs for unequal set sizes
-  const INF = 1e9;
-  const cost = Array(n).fill(null).map(() => Array(n).fill(INF));
-  
-  for (let i = 0; i < arrayA.length; i++) {
-    for (let j = 0; j < arrayB.length; j++) {
-      cost[i][j] = metric(arrayA[i], arrayB[j]);
-    }
-  }
-  
-  // Hungarian algorithm implementation
-  const u = Array(n + 1).fill(0); // potential for workers
-  const v = Array(n + 1).fill(0); // potential for jobs
-  const p = Array(n + 1).fill(0); // assignment
-  const way = Array(n + 1).fill(0); // path reconstruction
-  
-  for (let i = 1; i <= n; i++) {
-    p[0] = i;
-    let j0 = 0;
-    const minv = Array(n + 1).fill(INF);
-    const used = Array(n + 1).fill(false);
-    
-    do {
-      used[j0] = true;
-      const i0 = p[j0];
-      let delta = INF;
-      let j1 = 0;
-      
-      for (let j = 1; j <= n; j++) {
-        if (!used[j]) {
-          const cur = cost[i0 - 1][j - 1] - u[i0] - v[j];
-          if (cur < minv[j]) {
-            minv[j] = cur;
-            way[j] = j0;
-          }
-          if (minv[j] < delta) {
-            delta = minv[j];
-            j1 = j;
-          }
-        }
-      }
-      
-      for (let j = 0; j <= n; j++) {
-        if (used[j]) {
-          u[p[j]] += delta;
-          v[j] -= delta;
-        } else {
-          minv[j] -= delta;
-        }
-      }
-      
-      j0 = j1;
-    } while (p[j0] !== 0);
-    
-    do {
-      const j1 = way[j0];
-      p[j0] = p[j1];
-      j0 = j1;
-    } while (j0);
-  }
-  
-  // Extract matching pairs, filtering out padding
-  const result: [T, T][] = [];
-  for (let j = 1; j <= n; j++) {
-    const i = p[j] - 1;
-    const jIdx = j - 1;
-    if (i < arrayA.length && jIdx < arrayB.length) {
-      result.push([arrayA[i], arrayB[jIdx]]);
-    }
-  }
-  
-  return result;
-};
-
 const areFieldsEqual = (
   a: Value<number>,
   b: Value<number>,
@@ -367,80 +273,6 @@ const areFieldsEqual = (
     default:
       throw new Error(`Unsupported value type for comparison: ${a.tag}`);
   }
-}
-
-const arePathCmdsComparable = (
-  path1: PathDataV<number>,
-  path2: PathDataV<number>
-): boolean => {
-  const cmds1 = path1.contents;
-  const cmds2 = path2.contents;
-
-  if (cmds1.length !== cmds2.length) return false;
-
-  for (let i = 0; i < cmds1.length; i++) {
-    if (cmds1[i].cmd !== cmds2[i].cmd) return false;
-  }
-
-  return true;
-}
-
-const arePointsComparable = (
-  points1: PtListV<number>,
-  points2: PtListV<number>
-): boolean => {
-  return points1.contents.length === points2.contents.length;
-}
-
-const areComparable = (
-  shape1: Shape<number>,
-  shape2: Shape<number>,
-): boolean => {
-  if (shape1.shapeType !== shape2.shapeType)
-    return false;
-
-  const distinguishingFields = getDistinguishingFields(shape1);
-  for (const field of distinguishingFields) {
-    if (!areFieldsEqual(
-      shape1[field] as Value<number>,
-      shape2[field] as Value<number>
-    )) {
-      return false;
-    }
-  }
-
-  if (shape1.shapeType === "Path" && !arePathCmdsComparable(shape1.d, shape2.d))
-    return false;
-
-  if ((shape1.shapeType === "Polygon" || shape1.shapeType === "Polyline")
-    && !arePointsComparable(shape1.points, shape2.points))
-    return false;
-
-  return true;
-}
-
-// To github copilot: ignore all the commented code above when autocompleting
-const getComparableLists = (
-  shapes: Shape<number>[]
-): Shape<number>[][] => {
-  const lists: Shape<number>[][] = [];
-
-  for (const shape of shapes) {
-    let foundExisting = false;
-    for (const l of lists) {
-      if (areComparable(shape, l[0])) {
-        l.push(shape);
-        foundExisting = true;
-        break;
-      }
-    }
-
-    if (!foundExisting) {
-      lists.push([shape]);
-    }
-  }
-
-  return lists;
 }
 
 const getComparableFields = <T>(
@@ -476,63 +308,6 @@ const getComparableFields = <T>(
 
     case "Text":
       return [...centerFields];
-
-    default:
-      return [];
-  }
-}
-
-export const getDistinguishingFields = <T>(
-  shape: Shape<T>
-): string[] => {
-  const strokeFields = ["strokeStyle", "strokeDasharray"];
-  const arrowFields = ["startArrowhead",  "endArrowhead", "flipStartArrowhead"];
-  const stringFields = ["string", "fontSize"];
-
-  switch (shape.shapeType) {
-    case "Circle":
-      return [...strokeFields];
-
-    case "Ellipse":
-      return [...strokeFields];
-
-    case "Line":
-      return ["strokeLinecap", ...arrowFields, ...strokeFields];
-
-    case "Equation":
-      return [...stringFields];
-
-    case "Image":
-      return ["href", "preserveAspectRatio"];
-
-    case "Polygon":
-      return [...strokeFields];
-
-    case "Polyline":
-      return ["strokeLinecap", ...strokeFields];
-
-    case "Rectangle":
-      return [...strokeFields];
-
-    case "Path":
-      return [...strokeFields, ...arrowFields];
-
-    case "Text":
-      return [
-        "visibility",
-        "fontFamily",
-        "fontSizeAdjust",
-        "fontStretch",
-        "fontStyle",
-        "fontVariant",
-        "fontWeight",
-        "textAnchor",
-        "lineHeight",
-        "alignmentBaseline",
-        "dominantBaseline",
-        ...strokeFields,
-        ...stringFields,
-      ];
 
     default:
       return [];
@@ -660,96 +435,111 @@ const getPathVertices = (
   return vertices;
 }
 
-const getComparisonVector = (
-  shape: Shape<number>
-): number[] => {
-  const fields = getComparableFields(shape);
 
-  const arr = fields.flatMap((field) => {
-    const value = shape[field] as Value<number>;
-    switch (value.tag) {
-      case "FloatV":
-        return [value.contents];
 
-      case "TupV":
-      case "VectorV":
-      case "ListV":
-        return value.contents;
-
-      case "PtListV":
-        return value.contents.flat();
-
-      default:
-        throw new Error(`Unsupported value type in comparison vector: ${value.tag}`);
-    }
-  });
-
-  if (shape.shapeType === "Path") {
-    const vertices = getPathVertices(shape.d.contents);
-    arr.push(...vertices.flat());
-  }
-
-  return arr;
-}
-
-export const findDiagramDistance = (
+export const findDiagramDistance2 = (
   shapes1: Shape<number>[],
   shapes2: Shape<number>[],
-): number => {
-  const ll1 = getComparableLists(shapes1);
-  const ll2 = getComparableLists(shapes2);
-
-  if (ll1.length !== ll2.length) {
-    throw new Error(`Shapes have different number of comparable lists: ${ll1.length} vs ${ll2.length}`);
+): Record<string, number> => {
+  // ensure that shapes1 and shapes2 have same length and same types
+  if (shapes1.length !== shapes2.length) {
+    throw new Error("Shapes arrays must have the same length");
   }
 
-  // sort second lists to be comparable with first
-  for (let i = 0; i < ll1.length; i++) {
-    let swapped = false;
-    for (let j = i; j < ll2.length; j++) {
-      // check if first element is compatible
-      if (areComparable(ll1[i][0], ll2[j][0])) {
-        // swap
-        [ll2[i], ll2[j]] = [ll2[j], ll2[i]];
-        swapped = true;
-        break;
+  const n = shapes1.length;
+
+  const totalDists: Record<string, number> = {};
+
+  for (let i = 0; i < n; i++) {
+    const shape1 = shapes1[i];
+    const shape2 = shapes2[i];
+
+    if (shape1.shapeType !== shape2.shapeType) {
+      throw new Error("Shapes arrays must have the same types");
+    }
+
+    const fields = getComparableFields(shape1);
+
+    const dists: Record<string, number> = {};
+
+    for (const field of fields) {
+      const value1: Value<number> = shape1[field];
+      const value2: Value<number> = shape2[field];
+
+      console.log(`Comparing field ${field} of shapes ${i}: ${value1.tag} vs ${value2.tag}`);
+
+      if (value1.tag !== value2.tag) {
+        throw new Error(`Values for field ${field} must have the same type`);
+      }
+
+      // values should be FloatV<number> or as list type
+      switch (value1.tag) {
+        case "FloatV":
+          dists[field] =
+            (value1.contents - value2.contents) ** 2;
+          break;
+
+        case "VectorV":
+        case "TupV":
+        case "ListV":
+          // assume same length
+          dists[field] = value1
+            .contents
+            .reduce((acc, x, i) => acc + (x - value2.contents[i]) ** 2, 0);
+          break;
+
+        case "PtListV":
+          dists[field] = value1
+            .contents
+            .reduce(
+              (acc, [x1, y1], i) => {
+                const [x2, y2] = (value2 as PtListV<number>).contents[i];
+                return acc + (x1 - x2) ** 2 + (y1 - y2) ** 2;
+              },
+              0);
+          break;
+
+        default:
+          throw new Error(`Unsupported value type for comparison field ${field}: ${value1.tag}`);
       }
     }
 
-    if (!swapped) {
-      throw new Error(`No compatible shape found for list ${i}`);
+    // if value is path, compare vertices of path like ptlistv, but store
+    // info as a field called "pathVertices"
+
+    if (shape1.shapeType === "Path" && shape2.shapeType === "Path") {
+      const path1 = shape1 as Path<number>;
+      const path2 = shape2 as Path<number>;
+
+      const vertices1 = getPathVertices(path1.d.contents);
+      const vertices2 = getPathVertices(path2.d.contents);
+
+      if (vertices1.length !== vertices2.length) {
+        throw new Error("Paths must have the same number of vertices");
+      }
+
+      dists["pathVertices"] = vertices1.reduce(
+        (acc, [x1, y1], i) => {
+          const [x2, y2] = vertices2[i];
+          return acc + (x1 - x2) ** 2 + (y1 - y2) ** 2;
+        },
+        0
+      );
+    }
+
+    console.log(dists)
+    // accumulate distances for each field
+    for (const [field, dist] of Object.entries(dists)) {
+      if (!totalDists[field]) {
+        totalDists[field] = 0;
+      }
+      totalDists[field] += dist;
     }
   }
 
-  const dist2Fn = (a: Shape<number>, b: Shape<number>): number => {
-    const v1 = getComparisonVector(a);
-    const v2 = getComparisonVector(b);
-    if (v1.length !== v2.length) {
-      throw new Error(`Comparison vectors have different lengths: ${v1.length} vs ${v2.length}`);
-    }
-    return v1.reduce((acc, x, i) => acc + (x - v2[i]) ** 2, 0);
-  }
-
-  const matchings: [Shape<number>, Shape<number>][] = [];
-  for (let i = 0; i < ll1.length; i++) {
-    const l1 = ll1[i];
-    const l2 = ll2[i];
-    if (l1.length !== l2.length) {
-      throw new Error(`Comparable lists have different lengths: ${l1.length} vs ${l2.length}`);
-    }
-
-    // find optimal matching between two lists
-    const matching = findOptimalMatching(
-      new Set(l1),
-      new Set(l2),
-      dist2Fn
-    );
-    matchings.push(...matching);
-  }
-
-  // Calculate total square distance
-  const dist2 = matchings.reduce((acc, [a, b]) => acc + dist2Fn(a, b), 0);
-  return Math.sqrt(dist2);
+  console.log("total")
+  console.log(totalDists)
+  return totalDists;
 }
 
 export const getExampleNamesAndTrios = async  () => (
@@ -762,22 +552,45 @@ export const getExampleNamesAndTrios = async  () => (
   )
 ).filter((x) => x !== null) as [string, Trio][];
 
-export const generalizedVariance = <T>(
-  data: T[],
-  metric: (a: T, b: T) => number
-): number => {
-  const n = data.length;
-  let runningMean = 0;
+export const diagramStdDev = (
+  diagrams: Shape<number>[][],
+): Record<string, number> => {
+  const n = diagrams.length;
 
+  if (n === 0) {
+    return {};
+  }
+
+  if (n === 1) {
+    // return 0 on all relevant fields
+    return findDiagramDistance2(diagrams[0], diagrams[0]);
+  }
+
+  // i = idx / n, j = idx % n
+  // i <= j
+  let pairwiseDistMeans: Record<string, number> = {};
+  let k = 0;
   for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) {
-      if (i === j) continue; // Skip self-distance
+    for (let j = i; j < n; j++) {
+      const dists = findDiagramDistance2(diagrams[i], diagrams[j]);
 
-      const d = metric(data[i], data[j]);
-      runningMean += (d ** 2 - runningMean) / (i * n + j + 1);
+      for (const [field, dist] of Object.entries(dists)) {
+        if (!(field in pairwiseDistMeans)) {
+          pairwiseDistMeans[field] = 0;
+        } else {
+          pairwiseDistMeans[field] += (dist - pairwiseDistMeans[field]) / (k + 1);
+        }
+      }
+
+      k++;
     }
   }
 
-  return runningMean / 2;
+  const stdDevs: Record<string, number> = {};
+  for (const [field, mean] of Object.entries(pairwiseDistMeans)) {
+    stdDevs[field] = Math.sqrt(mean / 2);
+  }
+
+  return stdDevs;
 }
 

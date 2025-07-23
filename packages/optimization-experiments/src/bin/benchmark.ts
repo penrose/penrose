@@ -9,7 +9,13 @@ import {
   MultiStartStagedOptimizer, ParallelTempering, SimulatedAnnealing,
   StagedOptimizer
 } from "../Optimizers.js";
-import { compileTrio, findDiagramDistance, generalizedVariance, getExampleNamesAndTrios } from "../utils.js";
+import {
+  compileTrio,
+  diagramStdDev,
+  findDiagramDistance,
+  generalizedVariance,
+  getExampleNamesAndTrios
+} from "../utils.js";
 import { AutoMALA } from "../samplers.js";
 import cliProgress from "cli-progress";
 import { resample, Shape } from "@penrose/core";
@@ -59,7 +65,7 @@ export interface BenchmarkResult {
   badMinima: number;
   failures: number;
   time: number;
-  diagramStdDev: number;
+  diagramStdDev: Record<string, number>;
   sampleData: SampleData[];
 }
 
@@ -273,7 +279,7 @@ const benchmark = async (options: Options) => {
     }
 
     const time = performance.now() - startTime;
-    const diagramVariance = generalizedVariance(shapeLists, findDiagramDistance);
+    const stdDev = diagramStdDev(shapeLists);
 
     const result: BenchmarkResult = {
       variation: state.variation,
@@ -282,7 +288,7 @@ const benchmark = async (options: Options) => {
       badMinima: numBadMinima,
       failures: numFailures,
       time,
-      diagramStdDev: Math.sqrt(diagramVariance),
+      diagramStdDev: stdDev,
       sampleData: sampleDataArr,
     };
 
@@ -291,7 +297,6 @@ const benchmark = async (options: Options) => {
     console.log(`  Successes: ${result.successes}`);
     console.log(`  Bad minima: ${result.badMinima}`);
     console.log(`  Failures: ${result.failures}`);
-    console.log('  Diagram Std Dev:', result.diagramStdDev.toFixed(4));
 
     results.set(name, result);
     trioCount++;
