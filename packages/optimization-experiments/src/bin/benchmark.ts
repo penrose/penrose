@@ -6,7 +6,7 @@ import {
   BasicStagedOptimizer,
   ExteriorPointOptimizer, FailedReason,
   LBGFSOptimizer,
-  MultiStartStagedOptimizer, ParallelTempering, SimulatedAnnealing,
+  MultiStartStagedOptimizer, Optimizer, OptimizerResult, ParallelTempering, SimulatedAnnealing,
   StagedOptimizer
 } from "../Optimizers.js";
 import {
@@ -18,7 +18,7 @@ import {
 } from "../utils.js";
 import { AutoMALA } from "../samplers.js";
 import cliProgress from "cli-progress";
-import { resample, Shape } from "@penrose/core";
+import { OptOutputs, resample, Shape } from "@penrose/core";
 import { stateToSVG } from "@penrose/bloom/dist/core/utils.js";
 import { makeResolver } from "@penrose/examples";
 
@@ -53,7 +53,8 @@ type Options = {
   numSamples: number;
   timeout: number; // in seconds, per trio
   sampleTimeout: number; // in seconds, per sample
-  optimizer: OptimizerParams
+  optimizer: OptimizerParams,
+  test: boolean
 }
 
 const maxConstraintEnergy = 1e-1;
@@ -63,6 +64,7 @@ export interface BenchmarkResult {
   samples: number;
   successes: number;
   badMinima: number;
+  timeouts: number;
   failures: number;
   time: number;
   diagramStdDev: Record<string, number>;
@@ -71,6 +73,8 @@ export interface BenchmarkResult {
 
 export interface SampleData {
   time: number; // includes initialization, so time / steps =/= step time
+  trio_timedout: boolean;
+  sample_timedout: boolean;
   steps: number;
   stepTimeMean: number;
   stepTimeStdDev: number;
@@ -111,8 +115,12 @@ const getOptimizer = (params: OptimizerParams): StagedOptimizer => {
 };
 
 
-const benchmark = async (options: Options) => {
-  const namesAndTrios = await getExampleNamesAndTrios();
+const benchmark = async (options: Options, test = false) => {
+  let namesAndTrios = await getExampleNamesAndTrios();
+  if (test)  {
+    namesAndTrios = namesAndTrios.slice(0, 10);
+  }
+
   const optimizer = getOptimizer(options.optimizer);
 
   const multibar = new cliProgress.MultiBar(
@@ -124,7 +132,7 @@ const benchmark = async (options: Options) => {
     cliProgress.Presets.shades_grey,
   );
 
-  const results: Map<string, BenchmarkResult | null> = new Map();
+  const results: Map<string, BenchmarkResult> = new Map();
 
   const trioBar = multibar.create(namesAndTrios.length, 0);
 
@@ -136,7 +144,6 @@ const benchmark = async (options: Options) => {
     trioBar.update(trioCount, { name, sampleCount: 0, totalSamples: options.numSamples });
 
     let state = await compileTrio(trio);
-    const resolver = makeResolver(name.split("/")[0]);
     const startTime = performance.now();
 
     if (!state) {
@@ -148,30 +155,21 @@ const benchmark = async (options: Options) => {
     let nextSampleNum = 0;
     const sampler = () => `${nextSampleNum++}`;
 
-    if (performance.now() - startTime > options.timeout * 1000) {
-      // console.warn(`$Timed out after 0 samples.`);
-      results.set(name, null);
-      continue;
-    }
-
     let takenSamples = 0;
     let numSuccesses = 0;
     let numBadMinima = 0;
     let numFailures = 0;
+    let numTimeouts = 0;
 
-    const sampleDataArr = [];
+    const sampleDataArr: SampleData[] = [];
     const shapeLists: Shape<number>[][] = [];
 
     for (let i = 0; i < options.numSamples; i++) {
       trioBar.update(trioCount, { name, sampleCount: i + 1, totalSamples: options.numSamples });
       trioBar.render();
 
-      if (performance.now() - startTime > options.timeout * 1000) {
-        // console.warn(`Timed out after ${i} samples.`);
-        break;
-      }
-
-      let timedout = false;
+      let trio_timedout = false;
+      let sample_timedout = false;
 
       const sampleStartTime = performance.now();
 
@@ -187,66 +185,56 @@ const benchmark = async (options: Options) => {
       let stepTimeMean = 0;
       let stepTimeM2 = 0;
 
-      let constraintSum: number | null = null;
-      let objectiveSum: number | null = null;
-      let finalInputs: number[] | null = null;
-
       let shouldStop = false;
       let numSteps = 0;
+      let lastOptOutputs: OptOutputs | null = null;
       while (!shouldStop) {
         const stepStartTime = performance.now();
         if (stepStartTime - startTime > options.timeout * 1000) {
           // console.warn(`Timed out after ${i} samples.`);
-          timedout = true;
+          trio_timedout = true;
           break;
         }
 
         try {
           const result = optimizer.step(state);
 
-          numSteps++;
           const stepEndTime = performance.now();
           const stepTime = stepEndTime - stepStartTime;
 
           // update step time statistics
           const timeDelta1 = stepTime - stepTimeMean;
-          stepTimeMean += timeDelta1 / numSteps;
+          stepTimeMean += timeDelta1 / (numSteps + 1);
           const timeDelta2 = stepTime - stepTimeMean;
           stepTimeM2 += timeDelta1 * timeDelta2;
 
           switch (result.tag) {
             case "Converged":
               if (state.currentStageIndex === state.optStages.length - 1) {
-                constraintSum = result.outputs.constraints
-                  .map((c) => Math.max(0, c) ** 2)
-                  .reduce((acc, p) => acc + p, 0);
-                if (constraintSum < maxConstraintEnergy) {
-                  numSuccesses++;
-                } else {
-                  numBadMinima++;
-                }
-
-                objectiveSum = result.outputs.objectives
-                  .reduce((acc, o) => acc + o, 0);
-
-                finalInputs = [...state.varyingValues];
-
                 shouldStop = true;
               } else {
                 // go to next stage
                 state.currentStageIndex++;
                 optimizer.init(state);
               }
+              lastOptOutputs = result.outputs;
+              numSteps++;
               break;
 
             case "Unconverged":
               // continue optimizing
+              numSteps++;
+              lastOptOutputs = result.outputs;
               break;
 
             case "Failed":
               // console.error(`Error during optimization step: ${result.reason}`);
               if (result.reason === FailedReason.Timeout) {
-                timedout = true;
+                if (performance.now() - startTime > options.timeout * 1000) {
+                  trio_timedout = true;
+                } else {
+                  sample_timedout = true;
+                }
               } else {
                 numFailures++;
               }
@@ -260,22 +248,49 @@ const benchmark = async (options: Options) => {
         }
       }
 
-      if (timedout) break;
+      takenSamples++;
+
+      let constraintSum = lastOptOutputs?.constraints
+        .map((c) => Math.max(0, c) ** 2)
+        .reduce((acc, p) => acc + p, 0)
+        ?? null;
+
+      let objectiveSum = lastOptOutputs?.objectives
+        .reduce((acc, o) => acc + o, 0)
+        ?? null;
+
+      let finalInputs = [...state.varyingValues];
 
       const shapes = state.computeShapes(state.varyingValues)
       shapeLists.push(shapes);
 
-      takenSamples++;
       sampleDataArr.push({
         time: performance.now() - sampleStartTime,
+        trio_timedout,
+        sample_timedout,
         steps: numSteps,
-        stepTimeMean,
+        stepTimeMean:
+          numSteps > 0 ?
+            stepTimeMean : null,
         stepTimeStdDev:
-          numSteps > 1 ? Math.sqrt(stepTimeM2 / (numSteps - 1)) : 0,
+          numSteps > 1 ?
+            Math.sqrt(stepTimeM2 / (numSteps - 1))
+            : numSteps === 1 ? 0 : null,
         objectiveSum,
         constraintSum,
         finalInputs,
       });
+
+      if (trio_timedout) {
+        numTimeouts++;
+        break;
+      } else if (sample_timedout) {
+        numTimeouts++;
+      } else if (constraintSum! < maxConstraintEnergy) {
+        numSuccesses++;
+      } else {
+        numBadMinima++;
+      }
     }
 
     const time = performance.now() - startTime;
@@ -287,6 +302,7 @@ const benchmark = async (options: Options) => {
       successes: numSuccesses,
       badMinima: numBadMinima,
       failures: numFailures,
+      timeouts: numTimeouts,
       time,
       diagramStdDev: stdDev,
       sampleData: sampleDataArr,
@@ -314,10 +330,16 @@ yargs(process.argv.slice(2))
         .positional("options", {
           describe: "Path to options json file",
           type: "string",
-        }
-      );
+        })
+        .option("test", {
+          describe: "Run a test on 10 diagrams",
+          type: "boolean",
+          default: false,
+        })
     },
     async (argv) => {
+      console.log(argv.test)
+
       const optionsPath = argv.options;
       if (optionsPath === undefined) {
         throw new Error("Please provide an options file with");
@@ -325,7 +347,7 @@ yargs(process.argv.slice(2))
       const optionsFile = fs.readFileSync(optionsPath, "utf-8");
       const options = JSON.parse(optionsFile);
 
-      const results = await benchmark(options);
+      const results = await benchmark(options, argv.test);
 
       const date = new Date();
       const outputFile = `${options.outputDir}/benchmark-${date.toISOString()}.json`;
