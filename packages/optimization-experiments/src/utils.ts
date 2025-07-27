@@ -466,8 +466,6 @@ export const findDiagramDistance2 = (
       const value1: Value<number> = shape1[field];
       const value2: Value<number> = shape2[field];
 
-      console.log(`Comparing field ${field} of shapes ${i}: ${value1.tag} vs ${value2.tag}`);
-
       if (value1.tag !== value2.tag) {
         throw new Error(`Values for field ${field} must have the same type`);
       }
@@ -527,7 +525,6 @@ export const findDiagramDistance2 = (
       );
     }
 
-    console.log(dists)
     // accumulate distances for each field
     for (const [field, dist] of Object.entries(dists)) {
       if (!totalDists[field]) {
@@ -537,8 +534,6 @@ export const findDiagramDistance2 = (
     }
   }
 
-  console.log("total")
-  console.log(totalDists)
   return totalDists;
 }
 
@@ -592,5 +587,107 @@ export const diagramStdDev = (
   }
 
   return stdDevs;
+}
+
+export const getCompGraphEdges = (output: Expr): number => {
+  let edgeCount = 0;
+  const visited = new Set<Expr>();
+  const stack = [output];
+
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (!node || visited.has(node)) continue;
+
+    visited.add(node);
+
+    if (typeof node === "number") continue; // Skip numeric literals
+
+    switch (node.tag) {
+      case "Var":
+        // Variable nodes have no outgoing edges
+        break;
+
+      case "Unary":
+        edgeCount++; // Edge to param
+        stack.push(node.param);
+        break;
+
+      case "Binary":
+        edgeCount += 2; // Edges to left and right
+        stack.push(node.left, node.right);
+        break;
+
+      case "Ternary":
+        edgeCount += 3; // Edges to cond, then, and els
+        stack.push(node.cond, node.then, node.els);
+        break;
+
+      case "Nary":
+        edgeCount += node.params.length; // Edge to each param
+        stack.push(...node.params);
+        break;
+
+      case "LitVec":
+        edgeCount += node.elems.length; // Edge to each element
+        stack.push(...node.elems);
+        break;
+
+      case "LitRec":
+        const memberValues = Object.values(node.mems);
+        edgeCount += memberValues.length; // Edge to each member
+        memberValues.forEach((mem) => stack.push(mem));
+        break;
+
+      case "Index":
+      case "Member": {
+        const unfolded = unfold(node);
+        if (typeof unfolded === "object" && unfolded.tag === node.tag) {
+          // If unfolding didn't change the type, count edge to inner node
+          edgeCount++;
+          stack.push(
+            (unfolded as any)[unfolded.tag === "Index" ? "vec" : "rec"],
+          );
+        } else {
+          // If unfolding changed the type, count edge and continue with unfolded
+          edgeCount++;
+          stack.push(unfolded);
+        }
+        break;
+      }
+
+      case "Call":
+        edgeCount += node.args.length; // Edge to each argument
+        stack.push(...node.args);
+        break;
+
+      case "PolyRoots":
+        edgeCount += node.coeffs.length; // Edge to each coefficient
+        stack.push(...node.coeffs);
+        break;
+
+      case "Logic":
+      case "Comp":
+        edgeCount += 2; // Edges to left and right
+        stack.push(node.left, node.right);
+        break;
+
+      case "Not":
+        edgeCount++; // Edge to param
+        stack.push(node.param);
+        break;
+    }
+  }
+
+  return edgeCount;
+};
+
+export const diagramCompGraphEdges = (diagram: PenroseState): number => {
+  // find all outputs in objFns and constrFns, and sum their edges
+  const outputs = [
+    ...diagram.objFns.map((fn) => fn.output),
+    ...diagram.constrFns.map((fn) => fn.output),
+  ];
+
+  return outputs.reduce((acc, output) => acc + getCompGraphEdges(output), 0);
 }
 

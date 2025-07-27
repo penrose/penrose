@@ -10,10 +10,10 @@ import {
   StagedOptimizer
 } from "../Optimizers.js";
 import {
-  compileTrio,
+  compileTrio, diagramCompGraphEdges,
   diagramStdDev,
   findDiagramDistance,
-  generalizedVariance,
+  generalizedVariance, getCompGraphEdges,
   getExampleNamesAndTrios
 } from "../utils.js";
 import { AutoMALA } from "../samplers.js";
@@ -53,8 +53,7 @@ type Options = {
   numSamples: number;
   timeout: number; // in seconds, per trio
   sampleTimeout: number; // in seconds, per sample
-  optimizer: OptimizerParams,
-  test: boolean
+  optimizer: OptimizerParams
 }
 
 const maxConstraintEnergy = 1e-1;
@@ -68,6 +67,7 @@ export interface BenchmarkResult {
   failures: number;
   time: number;
   diagramStdDev: Record<string, number>;
+  compGraphEdges: number;
   sampleData: SampleData[];
 }
 
@@ -305,6 +305,7 @@ const benchmark = async (options: Options, test = false) => {
       timeouts: numTimeouts,
       time,
       diagramStdDev: stdDev,
+      compGraphEdges: diagramCompGraphEdges(state),
       sampleData: sampleDataArr,
     };
 
@@ -338,14 +339,16 @@ yargs(process.argv.slice(2))
         })
     },
     async (argv) => {
-      console.log(argv.test)
-
       const optionsPath = argv.options;
       if (optionsPath === undefined) {
         throw new Error("Please provide an options file with");
       }
       const optionsFile = fs.readFileSync(optionsPath, "utf-8");
       const options = JSON.parse(optionsFile);
+
+      if (argv.test) {
+        console.log("Running test benchmark with 10 diagrams");
+      }
 
       const results = await benchmark(options, argv.test);
 
