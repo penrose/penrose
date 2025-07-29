@@ -255,8 +255,7 @@ export const allFinite = (arr: Float64Array): boolean => {
 const areFieldsEqual = (
   a: Value<number>,
   b: Value<number>,
-): boolean
- => {
+): boolean => {
   if (a.tag !== b.tag) return false;
 
   switch (a.tag) {

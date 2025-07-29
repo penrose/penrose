@@ -50,6 +50,7 @@ type OptimizerParams = {
 
 type Options = {
   outputDir: string;
+  outputName?: string;
   numSamples: number;
   timeout: number; // in seconds, per trio
   sampleTimeout: number; // in seconds, per sample
@@ -353,7 +354,8 @@ yargs(process.argv.slice(2))
       const results = await benchmark(options, argv.test);
 
       const date = new Date();
-      const outputFile = `${options.outputDir}/benchmark-${date.toISOString()}.json`;
+      const outputName = options.outputName || "benchmark";
+      const outputFile = `${options.outputDir}/${outputName}-${date.toISOString()}.json`;
       fs.mkdirSync(options.outputDir, { recursive: true });
       fs.writeFileSync(
         outputFile,

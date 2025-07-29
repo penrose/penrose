@@ -623,7 +623,6 @@ export class ParallelTempering implements Optimizer {
       const delta = (1 / samplerB.temperature - 1 / samplerA.temperature) *
         (samplerA.lastOutputs!.phi - samplerB.lastOutputs!.phi);
       const swapProb = Math.exp(-delta);
-      console.log(swapProb);
       if (swapProb >= 1 || this.rng!.quick() < swapProb) {
         this.swap(i, i - 1);
       }
