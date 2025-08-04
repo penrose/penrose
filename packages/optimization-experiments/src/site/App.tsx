@@ -29,7 +29,7 @@ function App() {
     const autoMala = new AutoMALA({
       initStepSize: 1.0,
       roundLength: 100,
-      constraintWeight: 1000,
+      constraintWeight: 10000,
       maxStepSearches: 30,
     });
     const sa = new SimulatedAnnealing(
@@ -44,18 +44,22 @@ function App() {
 
   const autoMalaPT = useMemo(() => {
     const pt = new ParallelTempering(
-      new ExteriorPointOptimizer(new LBGFSOptimizer()),
-      () => new AutoMALA({
+      (constraintWeight: number) => new AutoMALA({
         initStepSize: 1.0,
         roundLength: 100,
-        constraintWeight: 1000,
+        constraintWeight,
         maxStepSearches: 30,
       }),
       {
-        maxTemperature: 1000,
         minTemperature: 1,
-        temperatureRatio: 10,
-        maxStepsSinceLastChange: 100,
+        maxTemperature: 100,
+        temperatureRatio: 5,
+        epStop: 1e-2,
+        uoStop: 1e-2,
+        uoStopSteps: 50,
+        initConstraintWeight: 1e4,
+        constraintWeightGrowthFactor: 10,
+        minImprovementProportion: 0.75
       }
     );
     return new BasicStagedOptimizer(pt);

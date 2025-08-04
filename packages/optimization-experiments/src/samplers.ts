@@ -146,15 +146,15 @@ export class AutoMALA implements BoltzmannSampler {
       // reject
       // console.log(
       //   `AutoMALA: REJECTED - j: ${
-      //     result1.j
-      //   }, acceptance prob: ${result1.acceptanceProb.toFixed(6)}`,
+      //     result.j
+      //   }, acceptance prob: ${result.acceptanceProb.toFixed(6)}`,
       // );
     } else {
       // accept
       // console.log(
       //   `AutoMALA: ACCEPTED - j: ${
-      //     result1.j
-      //   }, acceptance prob: ${result1.acceptanceProb.toFixed(6)}`,
+      //     result.j
+      //   }, acceptance prob: ${result.acceptanceProb.toFixed(6)}`,
       // );
 
       this.firstStep = false;
@@ -369,7 +369,7 @@ export class AutoMALA implements BoltzmannSampler {
 
     let changeDir;
     if (!this.checkStepLegal(outInputs, outGradient, outputsT)) {
-      // if the step is illegal, we have to change direction
+      // if the step is illegal, we have to shrink step
       changeDir = -1;
     } else if (logAcceptanceProb < loga) {
       changeDir = -1;

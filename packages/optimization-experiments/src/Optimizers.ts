@@ -156,12 +156,17 @@ export class ExteriorPointOptimizer implements Optimizer {
   };
 }
 
-export class LBGFSOptimizer implements Optimizer {
+export class LBGFSOptimizer implements Optimizer, UnconstrainedOptimizer {
   tag = "Optimizer" as const;
 
   private params: PenroseParams | null = null;
   private lastOutputs: OptOutputs | null = null;
   private endTime = Infinity;
+  private unconstrained = false;
+
+  constructor(unconstrained = false) {
+    this.unconstrained = unconstrained;
+  }
 
   init = (state: PenroseState, timeout?: number) => {
     this.params = null;
@@ -169,7 +174,7 @@ export class LBGFSOptimizer implements Optimizer {
     this.endTime = performance.now() + (timeout ?? Infinity);
   };
 
-  step = (state: PenroseState): OptimizerResult => {
+  step = (state: PenroseState, constraintWeight?: number): OptimizerResult => {
     if (performance.now() > this.endTime) {
       // Timeout reached
       return { tag: "Failed", reason: FailedReason.Timeout };
@@ -191,10 +196,15 @@ export class LBGFSOptimizer implements Optimizer {
 
     try {
       this.params = stepUntil(
-        (x: Float64Array, weight: number, grad: Float64Array): number => {
-          this.lastOutputs = state.gradient(masks, x, weight, grad);
-          return this.lastOutputs.phi;
-        },
+        this.unconstrained ?
+          (x: Float64Array, _: number, grad: Float64Array): number => {
+            this.lastOutputs = state.gradient(masks, x, constraintWeight, grad);
+            return this.lastOutputs.phi;
+          }
+          : (x: Float64Array, weight: number, grad: Float64Array): number => {
+            this.lastOutputs = state.gradient(masks, x, weight, grad);
+            return this.lastOutputs.phi;
+          },
         inputs,
         this.params,
         () => i++ >= 1,
@@ -230,28 +240,21 @@ export class LBGFSOptimizer implements Optimizer {
       case "UnconstrainedRunning":
       case "UnconstrainedConverged":
         return {
-          tag: "Unconverged",
-          outputs: {
-            phi: this.params!.lastUOenergy ?? 0,
-            objectives: this.lastOutputs?.objectives ?? [],
-            constraints: this.lastOutputs?.constraints ?? [],
-          },
+          tag: this.params.optStatus === "UnconstrainedConverged" && this.unconstrained ?
+            "Converged" : "Unconverged",
+          outputs: this.lastOutputs,
         };
 
       case "EPConverged":
         return {
           tag: "Converged",
-          outputs: {
-            phi: this.params!.lastUOenergy ?? 0,
-            objectives: this.lastOutputs?.objectives ?? [],
-            constraints: this.lastOutputs?.constraints ?? [],
-          },
+          outputs: this.lastOutputs,
         };
 
       default:
         return {
           tag: "Failed",
-          reason: !isFinite(this.params!.lastUOenergy ?? 0)
+          reason: !isFinite(this.params.lastUOenergy ?? 0)
             ? FailedReason.NaN
             : FailedReason.Unknown,
         };
@@ -503,8 +506,12 @@ export class SimulatedAnnealing implements Optimizer {
   }
 
   step = (state: PenroseState): OptimizerResult => {
+    if (this.dependentInputs.size === 0) {
+      return { tag: "Converged", outputs: this.lastOutputs! }
+    }
+
     if (this.temperature < this.params.minTemperature) {
-      console.log("Simulated annealing: minimum temperature reached. Converged.");
+      // console.log("Simulated annealing: minimum temperature reached. Converged.");
       return { tag: "Converged", outputs: this.lastOutputs! };
     }
 
@@ -531,7 +538,7 @@ export class SimulatedAnnealing implements Optimizer {
 
     this.temperature *= 1 - this.params.coolingRate;
 
-    return { tag: "Unconverged", outputs: this.lastOutputs! };
+    return { tag: "Unconverged", outputs: this.lastOutputs };
   }
 }
 
@@ -539,7 +546,11 @@ export interface ParallelTemperingParams {
   maxTemperature: number;
   minTemperature: number;
   temperatureRatio: number;
-  maxStepsSinceLastChange: number;
+  uoStop: number;
+  uoStopSteps: number;
+  epStop: number;
+  initConstraintWeight: number;
+  constraintWeightGrowthFactor: number;
 }
 
 export interface ParallelTemperingSampler {
@@ -553,50 +564,67 @@ export class ParallelTempering implements Optimizer {
   tag = "Optimizer" as const;
 
   private params: ParallelTemperingParams;
+  private samplerFactory: (constraintWeight: number) => BoltzmannSampler;
   private samplers: ParallelTemperingSampler[] = [];
   private dependentInputs: Set<number> | null = null;
   private rng: seedrandom.prng | null = null;
-  private localOptimizer: Optimizer;
   private endTime: number = Infinity;
-  private stepsSinceLastChange: number = 0;
+  private stepsSinceLastImprovement: number = 0;
+  private bestOutputs: OptOutputs | null = null;
+  private bestInputs: Float64Array | null = null;
+  private constraintWeight: number;
+  private convergenceCount: number = 0;
+  private lastConstraintEnergy: number | null = null;
+  private lastObjectiveEnergy: number | null = null;
 
   constructor(
-    localOptimizer: Optimizer,
-    samplerFactory: () => BoltzmannSampler,
+    samplerFactory: (constraintWeight: number) => BoltzmannSampler,
     params: ParallelTemperingParams,
   ) {
     this.params = params;
+    this.samplerFactory = samplerFactory;
+    this.constraintWeight = params.initConstraintWeight;
+  }
 
-    let temp = params.minTemperature;
-    while (temp < params.maxTemperature) {
-      const sampler = samplerFactory();
-      this.samplers.push({ sampler, temperature: temp, sampleBuffer: null, lastOutputs: null });
-      temp *= params.temperatureRatio;
+  private createSamplers(state: PenroseState) {
+    this.samplers = [];
+    let temp = this.params.minTemperature;
+    while (temp < this.params.maxTemperature) {
+      const sampler = this.samplerFactory(this.constraintWeight);
+      sampler.init(state, temp);
+      this.samplers.push({ sampler, temperature: temp, sampleBuffer: Float64Array.from(state.varyingValues), lastOutputs: null });
+      temp *= this.params.temperatureRatio;
     }
 
-    const sampler = samplerFactory();
-    this.samplers.push({ sampler, temperature: temp, sampleBuffer: null, lastOutputs: null });
-
-    this.localOptimizer = localOptimizer;
+    const sampler = this.samplerFactory(this.constraintWeight);
+    sampler.init(state, temp);
+    this.samplers.push({ sampler, temperature: temp, sampleBuffer: Float64Array.from(state.varyingValues), lastOutputs: null });
   }
 
   init = (state: PenroseState, timeout?: number) => {
     this.endTime = performance.now() + (timeout ?? Infinity);
-    this.localOptimizer.init(state, timeout);
     this.rng = seedrandom(state.variation);
-    this.stepsSinceLastChange = 0;
+    this.stepsSinceLastImprovement = 0;
+    this.constraintWeight = this.params.initConstraintWeight;
+    this.convergenceCount = 0;
+    this.lastConstraintEnergy = null;
+    this.lastObjectiveEnergy = null;
 
     this.dependentInputs = calculateDependentInputs(state).get(
       state.optStages[state.currentStageIndex],
     )!;
 
-    for (const ptSampler of this.samplers) {
-      ptSampler.lastOutputs = ptSampler.sampler.init(state, ptSampler.temperature);
-      ptSampler.sampleBuffer = new Float64Array(state.varyingValues.length);
-    }
+    this.createSamplers(state);
+
+    this.bestInputs = null;
+    this.bestOutputs = null;
   }
 
   step = (state: PenroseState): OptimizerResult => {
+    if (this.dependentInputs!.size === 0) {
+      return { tag: "Converged", outputs: this.samplers[0].lastOutputs! };
+    }
+
     if (performance.now() > this.endTime) {
       // Timeout reached
       return { tag: "Failed", reason: FailedReason.Timeout };
@@ -607,7 +635,7 @@ export class ParallelTempering implements Optimizer {
         state,
         ptSampler.temperature,
         ptSampler.sampleBuffer!,
-        Infinity);
+        this.endTime - performance.now());
 
       if (sampleResult.tag === "TimedOut") {
         return { tag: "Failed", reason: FailedReason.Timeout };
@@ -628,33 +656,129 @@ export class ParallelTempering implements Optimizer {
       }
     }
 
-    const localResult = this.localOptimizer.step(state);
-    if (localResult.tag === "Failed") {
-      return localResult;
+    // calc norm diff between curr inputs and best inputs
+    let energyChange = 0;
+    if (this.bestOutputs) {
+      energyChange =  this.samplers[0].lastOutputs!.phi - this.bestOutputs.phi;
     }
 
-    const localOutputs = localResult.outputs;
+    // l1 norm of objective and weighted constraints
+    let energyScale = 0;
+    if (this.bestOutputs) {
+      energyScale = this.bestOutputs.objectives.reduce((acc, obj) => acc + Math.abs(obj), 0);
+      energyScale += this.constraintWeight * this.bestOutputs.constraints.reduce(
+        (acc, c) => acc + Math.max(0, c) ** 2,
+        0,
+      );
+    }
 
-    const currEnergy = getEnergy(state, 1000);
-    if (this.samplers[0].lastOutputs!.phi < currEnergy) {
+    if (!this.bestOutputs || (energyScale > 0.1 && energyChange < -energyScale * this.params.uoStop)) {
+      this.bestOutputs = this.samplers[0].lastOutputs;
+      this.bestInputs = this.samplers[0].sampleBuffer!.slice();
+      this.stepsSinceLastImprovement = 0;
+
       for (const i of this.dependentInputs!) {
-        const tmp = this.samplers[0].sampleBuffer![i];
-        this.samplers[0].sampleBuffer![i] = state.varyingValues[i];
-        state.varyingValues[i] = tmp;
-
-        this.samplers[0].lastOutputs = localOutputs;
+        state.varyingValues[i] = this.samplers[0].sampleBuffer![i];
       }
-      this.localOptimizer.init(state, this.endTime - performance.now());
-      this.stepsSinceLastChange = 0;
     } else {
-      this.stepsSinceLastChange++;
-      if (localResult.tag === "Converged" &&
-        this.stepsSinceLastChange >= this.params.maxStepsSinceLastChange) {
-        return { tag: "Converged", outputs: localResult.outputs };
-      }
+      this.stepsSinceLastImprovement++;
     }
 
-    return { tag: "Unconverged", outputs: localResult.outputs };
+    if (this.stepsSinceLastImprovement >= this.params.uoStopSteps) {
+      // PT has converged, check if we should stop or increase constraint weight
+      return this.handleConvergence(state);
+    }
+
+    return { tag: "Unconverged", outputs: this.samplers[0].lastOutputs! };
+  }
+
+  private handleConvergence(state: PenroseState): OptimizerResult {
+    this.convergenceCount++;
+
+    if (this.convergenceCount === 1) {
+      // First convergence - just record energies and continue
+      this.lastConstraintEnergy = this.bestOutputs!.constraints.reduce(
+        (acc, c) => acc + Math.max(0, c) ** 2,
+        0,
+      );
+      this.lastObjectiveEnergy = this.bestOutputs!.objectives.reduce(
+        (acc, obj) => acc + obj,
+        0,
+      );
+
+      // Increase constraint weight and recreate samplers
+      this.constraintWeight *= this.params.constraintWeightGrowthFactor;
+      console.log(`Increasing constraint weight to ${this.constraintWeight}`);
+      this.createSamplers(state);
+      
+      // Re-initialize samplers
+      for (const ptSampler of this.samplers) {
+        ptSampler.lastOutputs = ptSampler.sampler.init(state, ptSampler.temperature);
+        ptSampler.sampleBuffer = new Float64Array(state.varyingValues.length);
+      }
+
+      // Adjust bestOutputs.phi to reflect new constraint weight
+      this.adjustBestOutputsForNewWeight();
+
+      this.stepsSinceLastImprovement = 0;
+      return { tag: "Unconverged", outputs: this.bestOutputs! };
+    }
+
+    // Check stopping criteria after second convergence onwards
+    const energyChange = this.bestOutputs!.phi
+      - this.lastObjectiveEnergy!
+      - this.constraintWeight * this.lastConstraintEnergy!;
+
+    const currObjectiveEnergy = this.bestOutputs!.objectives.reduce(
+      (acc, obj) => acc + obj,
+      0,
+    );
+    const currConstraintEnergy = this.bestOutputs!.constraints.reduce(
+      (acc, c) => acc + Math.max(0, c) ** 2,
+      0,
+    );
+
+    const energyScale = currObjectiveEnergy + this.constraintWeight * currConstraintEnergy;
+
+    console.log(`Convergence #${this.convergenceCount}: energy change = ${energyChange.toFixed(6)}, scale = ${energyScale.toFixed(6)}`);
+
+    if (energyScale < 0.1 || currConstraintEnergy < 0.1 || energyChange > -energyScale * this.params.epStop) {
+      // Both energies haven't decreased enough - stop optimization
+      console.log(`Parallel tempering converged after ${this.convergenceCount} iterations.`);
+      return { tag: "Converged", outputs: this.bestOutputs! };
+    }
+
+    // Continue optimization with higher constraint weight
+    this.lastConstraintEnergy = currConstraintEnergy;
+    this.lastObjectiveEnergy = currObjectiveEnergy;
+
+    this.constraintWeight *= this.params.constraintWeightGrowthFactor;
+    console.log(`Increasing constraint weight to ${this.constraintWeight}`);
+    this.createSamplers(state);
+    
+    // Re-initialize samplers
+    for (const ptSampler of this.samplers) {
+      ptSampler.lastOutputs = ptSampler.sampler.init(state, ptSampler.temperature);
+      ptSampler.sampleBuffer = new Float64Array(state.varyingValues.length);
+    }
+
+    // Adjust bestOutputs.phi to reflect new constraint weight
+    this.adjustBestOutputsForNewWeight();
+
+    this.stepsSinceLastImprovement = 0;
+    return { tag: "Unconverged", outputs: this.bestOutputs! };
+  }
+
+  private adjustBestOutputsForNewWeight() {
+    if (this.bestOutputs) {
+      // Recalculate phi with the new constraint weight
+      const objectiveSum = this.bestOutputs.objectives.reduce((acc, obj) => acc + obj, 0);
+      const constraintSum = this.bestOutputs.constraints.reduce(
+        (acc, c) => acc + Math.max(0, c) ** 2,
+        0,
+      );
+      this.bestOutputs.phi = objectiveSum + this.constraintWeight * constraintSum;
+    }
   }
 
   private swap(i: number, j: number) {
