@@ -6,23 +6,20 @@ import {
   BasicStagedOptimizer,
   ExteriorPointOptimizer, FailedReason,
   LBGFSOptimizer,
-  MultiStartStagedOptimizer, Optimizer, OptimizerResult, ParallelTempering, SimulatedAnnealing,
+  MultiStartStagedOptimizer, ParallelTempering, SimulatedAnnealing,
   StagedOptimizer
 } from "../Optimizers.js";
 import {
   compileTrio, diagramCompGraphEdges,
   diagramStdDev,
-  findDiagramDistance,
-  generalizedVariance, getCompGraphEdges,
   getExampleNamesAndTrios
 } from "../utils.js";
 import { AutoMALA } from "../samplers.js";
 import cliProgress from "cli-progress";
 import { OptOutputs, resample, Shape } from "@penrose/core";
-import { stateToSVG } from "@penrose/bloom/dist/core/utils.js";
-import { makeResolver } from "@penrose/examples";
+import { fileURLToPath } from "url";
 
-type OptimizerParams = {
+export type OptimizerParams = {
   name: "lbfgs",
 } | {
   name: "multi-start-lbfgs",
@@ -42,10 +39,17 @@ type OptimizerParams = {
   roundLength: number,
   constraintWeight: number,
   maxStepSearches: number,
-  maxTemperature: number,
   minTemperature: number,
+  maxTemperature: number,
   temperatureRatio: number,
-  maxStepsSinceLastChange: number,
+  epStop: number,
+  uoStop: number,
+  uoStopSteps: number,
+  initConstraintWeight: number,
+  constraintWeightGrowthFactor: number,
+  acceptableConstraintEnergy: number,
+  finalUoStop: number,
+  finalUoStopSteps: number
 }
 
 type Options = {
@@ -57,7 +61,7 @@ type Options = {
   optimizer: OptimizerParams
 }
 
-const maxConstraintEnergy = 1e-1;
+export const maxConstraintEnergy = 1e-1;
 
 export interface BenchmarkResult {
   variation: string;
@@ -84,7 +88,7 @@ export interface SampleData {
   finalInputs: number[] | null;
 }
 
-const getOptimizer = (params: OptimizerParams): StagedOptimizer => {
+export const getOptimizer = (params: OptimizerParams): StagedOptimizer => {
   switch (params.name) {
     case "lbfgs":
       return new BasicStagedOptimizer(
@@ -104,8 +108,10 @@ const getOptimizer = (params: OptimizerParams): StagedOptimizer => {
     case "pt-automala":
       return new BasicStagedOptimizer(
         new ParallelTempering(
-          new ExteriorPointOptimizer(new LBGFSOptimizer()),
-          () => new AutoMALA(params),
+          (constraintWeight) => new AutoMALA({
+            ...params,
+            constraintWeight
+          }),
           params
         )
       );
@@ -324,46 +330,46 @@ const benchmark = async (options: Options, test = false) => {
   return results;
 }
 
-yargs(process.argv.slice(2))
-  .command("$0 <options>",
-    "Run the benchmark with the given options",
-    (yargs) => {
-      return yargs
-        .positional("options", {
-          describe: "Path to options json file",
-          type: "string",
-        })
-        .option("test", {
-          describe: "Run a test on 10 diagrams",
-          type: "boolean",
-          default: false,
-        })
-    },
-    async (argv) => {
-      const optionsPath = argv.options;
-      if (optionsPath === undefined) {
-        throw new Error("Please provide an options file with");
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  yargs(process.argv.slice(2))
+    .command("$0 <options>",
+      "Run the benchmark with the given options",
+      (yargs) => {
+        return yargs
+          .positional("options", {
+            describe: "Path to options json file",
+            type: "string",
+          })
+          .option("test", {
+            describe: "Run a test on 10 diagrams",
+            type: "boolean",
+            default: false,
+          })
+      },
+      async (argv) => {
+        const optionsPath = argv.options;
+        if (optionsPath === undefined) {
+          throw new Error("Please provide an options file with");
+        }
+        const optionsFile = fs.readFileSync(optionsPath, "utf-8");
+        const options = JSON.parse(optionsFile);
+
+        if (argv.test) {
+          console.log("Running test benchmark with 10 diagrams");
+        }
+
+        const results = await benchmark(options, argv.test);
+
+        const date = new Date();
+        const outputName = options.outputName || "benchmark";
+        const outputFile = `${options.outputDir}/${outputName}-${date.toISOString()}.json`;
+        fs.mkdirSync(options.outputDir, { recursive: true });
+        fs.writeFileSync(
+          outputFile,
+          JSON.stringify(Object.fromEntries(results), null, 2),
+        );
       }
-      const optionsFile = fs.readFileSync(optionsPath, "utf-8");
-      const options = JSON.parse(optionsFile);
-
-      if (argv.test) {
-        console.log("Running test benchmark with 10 diagrams");
-      }
-
-      const results = await benchmark(options, argv.test);
-
-      const date = new Date();
-      const outputName = options.outputName || "benchmark";
-      const outputFile = `${options.outputDir}/${outputName}-${date.toISOString()}.json`;
-      fs.mkdirSync(options.outputDir, { recursive: true });
-      fs.writeFileSync(
-        outputFile,
-        JSON.stringify(Object.fromEntries(results), null, 2),
-      );
-    }
-  )
-  .help()
-  .parse();
-
-
+    )
+    .help()
+    .parse();
+}

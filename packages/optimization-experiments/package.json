@@ -8,6 +8,7 @@
     "build-bin": "tsc",
     "build-site": "vite build",
     "benchmark": "node dist/bin/benchmark.js",
+    "compare": "node dist/bin/compare.js",
     "preview": "vite preview"
   },
   "dependencies": {

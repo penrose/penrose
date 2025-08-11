@@ -109,6 +109,7 @@ export class AutoMALA implements BoltzmannSampler {
 
     const [a, b] = this.sampleAB();
 
+    // console.log(`AutoMALA: Round ${this.round}, Step ${this.stepInRound}, Init step size ${this.initStepSize.toFixed(6)}`);
     const result = this.selectStepSize(
       state,
       this.lastInputs,
@@ -125,6 +126,7 @@ export class AutoMALA implements BoltzmannSampler {
     );
 
     if (result === "Failed") {
+      // console.log(`AutoMALA: Failed to find a valid step size.`);
       // no valid step found
       // don't want to increase step in round, since we could end up with
       // no steps at the end of the round and not be able to calculate an average
@@ -139,6 +141,7 @@ export class AutoMALA implements BoltzmannSampler {
 
     if (result === "Timed Out") {
       // console.warn(`AutoMALA: Timed out while searching for step size.`);
+      // console.log(`AutoMALA: Timed out while searching for step size.`);
       return { tag: "TimedOut" };
     }
 

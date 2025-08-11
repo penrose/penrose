@@ -551,6 +551,9 @@ export interface ParallelTemperingParams {
   epStop: number;
   initConstraintWeight: number;
   constraintWeightGrowthFactor: number;
+  acceptableConstraintEnergy: number;
+  finalUoStop: number;
+  finalUoStopSteps: number;
 }
 
 export interface ParallelTemperingSampler {
@@ -637,6 +640,7 @@ export class ParallelTempering implements Optimizer {
         ptSampler.sampleBuffer!,
         this.endTime - performance.now());
 
+
       if (sampleResult.tag === "TimedOut") {
         return { tag: "Failed", reason: FailedReason.Timeout };
       }
@@ -664,27 +668,33 @@ export class ParallelTempering implements Optimizer {
 
     // l1 norm of objective and weighted constraints
     let energyScale = 0;
+    let constraintEnergy = 0;
     if (this.bestOutputs) {
       energyScale = this.bestOutputs.objectives.reduce((acc, obj) => acc + Math.abs(obj), 0);
-      energyScale += this.constraintWeight * this.bestOutputs.constraints.reduce(
+      constraintEnergy = this.bestOutputs.constraints.reduce(
         (acc, c) => acc + Math.max(0, c) ** 2,
         0,
       );
+      energyScale += this.constraintWeight * constraintEnergy
     }
 
-    if (!this.bestOutputs || (energyScale > 0.1 && energyChange < -energyScale * this.params.uoStop)) {
+    const uoStop = constraintEnergy < this.params.acceptableConstraintEnergy ?
+      this.params.finalUoStop : this.params.uoStop;
+    if (!this.bestOutputs || (energyScale > 0.1 && energyChange < -energyScale * uoStop)) {
       this.bestOutputs = this.samplers[0].lastOutputs;
       this.bestInputs = this.samplers[0].sampleBuffer!.slice();
       this.stepsSinceLastImprovement = 0;
-
-      for (const i of this.dependentInputs!) {
-        state.varyingValues[i] = this.samplers[0].sampleBuffer![i];
-      }
     } else {
       this.stepsSinceLastImprovement++;
     }
 
-    if (this.stepsSinceLastImprovement >= this.params.uoStopSteps) {
+    for (const i of this.dependentInputs!) {
+      state.varyingValues[i] = this.samplers[0].sampleBuffer![i];
+    }
+
+    const uoStopSteps = constraintEnergy < this.params.acceptableConstraintEnergy ?
+      this.params.finalUoStopSteps : this.params.uoStopSteps;
+    if (this.stepsSinceLastImprovement >= uoStopSteps) {
       // PT has converged, check if we should stop or increase constraint weight
       return this.handleConvergence(state);
     }
@@ -742,7 +752,9 @@ export class ParallelTempering implements Optimizer {
 
     console.log(`Convergence #${this.convergenceCount}: energy change = ${energyChange.toFixed(6)}, scale = ${energyScale.toFixed(6)}`);
 
-    if (energyScale < 0.1 || currConstraintEnergy < 0.1 || energyChange > -energyScale * this.params.epStop) {
+    if (energyScale < 0.1
+      || currConstraintEnergy < this.params.acceptableConstraintEnergy
+      || energyChange > -energyScale * this.params.epStop) {
       // Both energies haven't decreased enough - stop optimization
       console.log(`Parallel tempering converged after ${this.convergenceCount} iterations.`);
       return { tag: "Converged", outputs: this.bestOutputs! };
