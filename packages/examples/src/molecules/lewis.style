@@ -1,3 +1,5 @@
+-- /Users/griffinteller/penrose/packages/examples/src/molecules/lewis.style
+-- /Users/griffinteller/penrose/packages/examples/src/molecules/lewis.style
 canvas {
     width = 300
     height = 300
@@ -590,8 +592,8 @@ forall Atom x {
     }
     -- shape x.icon = Rectangle {
     --     strokeWidth : 0.0
-    --     width : const.atomSize 
-    --     height : const.atomSize 
+    --     width : const.atomSize
+    --     height : const.atomSize
     --     fillColor : #fff
     --     -- fillColor : #ff000060
     --     center: (? except electron, ? except electron)
@@ -686,16 +688,16 @@ with Atom x; Atom y {
 
 forall Atom x; Atom y {
     encourage notTooClose(x.icon, y.icon)
-    ensure disjoint(x.icon, y.icon) 
+    ensure disjoint(x.icon, y.icon)
 }
 
 forall Bond x; Bond y {
-    ensure disjoint(x.icon, y.icon) 
+    ensure disjoint(x.icon, y.icon)
 }
 
 -- valance
 
-forall Atom a 
+forall Atom a
 where TwoDots(a) as e {
   e.icon1 = Group {
     shapes: [e.circle11, e.circle12]
@@ -719,13 +721,13 @@ where TwoDots(a) as e {
   --   fillColor: #f00
   --   r: const.dotSize / 2
   -- }
-  ensure contains(a.icon, e.circle11) in electron
-  ensure contains(a.icon, e.circle12) in electron
+  -- ensure contains(a.icon, e.circle11) in electron
+  -- ensure contains(a.icon, e.circle12) in electron
   ensure norm(e.center1 - a.text.center) == const.atomSize/2 in electron
   a.icon below e.icon1
 }
 
-forall Atom a 
+forall Atom a
 where FourDots(a) as e {
   e.icon1 = Group {
     shapes: [e.circle11, e.circle12]
@@ -749,8 +751,8 @@ where FourDots(a) as e {
   --   fillColor: #f00
   --   r: const.dotSize / 2
   -- }
-  ensure contains(a.icon, e.circle11) in electron
-  ensure contains(a.icon, e.circle12) in electron
+  -- ensure contains(a.icon, e.circle11) in electron
+  -- ensure contains(a.icon, e.circle12) in electron
   ensure norm(e.center1 - a.text.center) == const.atomSize/2 in electron
   a.icon below e.icon1
 
@@ -776,15 +778,15 @@ where FourDots(a) as e {
   --   fillColor: #f00
   --   r: const.dotSize / 2
   -- }
-  ensure contains(a.icon, e.circle21) in electron
-  ensure contains(a.icon, e.circle22) in electron
+  -- ensure contains(a.icon, e.circle21) in electron
+  -- ensure contains(a.icon, e.circle22) in electron
   ensure norm(e.center2 - a.text.center) == const.atomSize/2 in electron
   a.icon below e.icon2
 
   encourage notTooClose(e.icon1, e.icon2) in electron
 }
 
-forall Atom a 
+forall Atom a
 where SixDots(a) as e {
   e.icon1 = Group {
     shapes: [e.circle11, e.circle12]
@@ -808,8 +810,8 @@ where SixDots(a) as e {
   --   fillColor: #f00
   --   r: const.dotSize / 2
   -- }
-  ensure contains(a.icon, e.circle11) in electron
-  ensure contains(a.icon, e.circle12) in electron
+  -- ensure contains(a.icon, e.circle11) in electron
+  -- ensure contains(a.icon, e.circle12) in electron
   ensure norm(e.center1 - a.text.center) == const.atomSize/2 in electron
   a.icon below e.icon1
 
@@ -835,8 +837,8 @@ where SixDots(a) as e {
   --   fillColor: #f00
   --   r: const.dotSize / 2
   -- }
-  ensure contains(a.icon, e.circle21) in electron
-  ensure contains(a.icon, e.circle22) in electron
+  -- ensure contains(a.icon, e.circle21) in electron
+  -- ensure contains(a.icon, e.circle22) in electron
   ensure norm(e.center2 - a.text.center) == const.atomSize/2 in electron
   a.icon below e.icon2
 
@@ -862,8 +864,8 @@ where SixDots(a) as e {
   --   fillColor: #f00
   --   r: const.dotSize / 2
   -- }
-  ensure contains(a.icon, e.circle31) in electron
-  ensure contains(a.icon, e.circle32) in electron
+  -- ensure contains(a.icon, e.circle31) in electron
+  -- ensure contains(a.icon, e.circle32) in electron
   ensure norm(e.center3 - a.text.center) == const.atomSize/2 in electron
   a.icon below e.icon3
 
@@ -1208,7 +1210,7 @@ layout = [general, symmetry, electron]
 
 -- layout directives
 forall Bond b
-where b := SingleBond(x, y) 
+where b := SingleBond(x, y)
 with Atom x, y {
   scalar weight = const.symmetryWeight
   scalar k = const.symmetryDegree
@@ -1218,7 +1220,7 @@ with Atom x, y {
 }
 
 forall Bond b
-where b := DoubleBond(x, y) 
+where b := DoubleBond(x, y)
 with Atom x, y {
   scalar weight = const.symmetryWeight
   scalar k = const.symmetryDegree
@@ -1228,7 +1230,7 @@ with Atom x, y {
 }
 
 forall Bond b
-where b := TripleBond(x, y) 
+where b := TripleBond(x, y)
 with Atom x, y {
   scalar weight = const.symmetryWeight
   scalar k = const.symmetryDegree
@@ -1249,3 +1251,5 @@ with Atom x, y {
 -- where HorizontalAlign(a, b) {
 --   ensure a.icon.center[1] == b.icon.center[1]
 -- }
+
+

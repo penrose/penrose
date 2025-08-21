@@ -51,6 +51,7 @@ light {
      fillColor: #ffcc00
      strokeColor: #ff6600
      strokeWidth: 2
+     ensureOnCanvas: false
   }
 }
 
@@ -62,6 +63,7 @@ global {
       fontSize: "60pt"
       fontFamily: "Arial Narrow,Arial,sans-serif;"
       fontStyle: "italic"
+      ensureOnCanvas: false
    }
 
    -- draw one floor for the whole scene

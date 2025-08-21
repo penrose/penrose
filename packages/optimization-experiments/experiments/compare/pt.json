@@ -1,0 +1,40 @@
+{
+  "outputDir": "benchmark-output",
+  "outputName": "pt-automala",
+  "numComparisons": 10,
+  "timeout": 20,
+  "optimizer1": {
+    "name": "pt-automala",
+    "initStepSize": 1.0,
+    "roundLength": 100,
+    "maxStepSearches": 30,
+    "minTemperature": 0.1,
+    "maxTemperature": 1000,
+    "temperatureRatio": 50,
+    "epStop": 1e-2,
+    "uoStop": 1e-1,
+    "uoStopSteps": 20,
+    "initConstraintWeight": 1e3,
+    "constraintWeightGrowthFactor": 10,
+    "acceptableConstraintEnergy": 0.1,
+    "finalUoStop": 1e-4,
+    "finalUoStopSteps": 50
+  },
+  "optimizer2": {
+    "name": "pt-automala",
+    "initStepSize": 1.0,
+    "roundLength": 100,
+    "maxStepSearches": 30,
+    "minTemperature": 0.1,
+    "maxTemperature": 1000,
+    "temperatureRatio": 50,
+    "epStop": 1e-2,
+    "uoStop": 1e-1,
+    "uoStopSteps": 20,
+    "initConstraintWeight": 1e3,
+    "constraintWeightGrowthFactor": 10,
+    "acceptableConstraintEnergy": 0.1,
+    "finalUoStop": 1e-4,
+    "finalUoStopSteps": 50
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "outputDir": "benchmark-output",
+  "outputName": "multi-start-lbfgs",
+  "numSamples": 100,
+  "timeout": 600,
+  "sampleTimeout": 60,
+  "optimizer": {
+    "name": "multi-start-lbfgs",
+    "numStarts": 4
+  }
+}

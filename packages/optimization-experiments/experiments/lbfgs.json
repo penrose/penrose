@@ -1,0 +1,10 @@
+{
+  "outputDir": "benchmark-output",
+  "outputName": "lbfgs",
+  "numSamples": 100,
+  "timeout": 600,
+  "sampleTimeout": 60,
+  "optimizer": {
+    "name": "lbfgs"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "outputDir": "benchmark-output",
+  "outputName": "pt-automala",
+  "numSamples": 100,
+  "timeout": 600,
+  "sampleTimeout": 60,
+  "optimizer": {
+    "name": "pt-automala",
+    "initStepSize": 1.0,
+    "roundLength": 100,
+    "constraintWeight": 1000,
+    "maxStepSearches": 30,
+    "maxTemperature": 1000,
+    "minTemperature": 1,
+    "temperatureRatio": 10,
+    "maxStepsSinceLastChange": 100
+  }
+}

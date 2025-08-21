@@ -16,6 +16,7 @@ Global {
    shape box = Rectangle {
       center: (0,0)
       width: canvas.width
+			ensureOnCanvas: false
       height: canvas.height
       strokeColor: rgba(0.,0.,0.,0.)
       fillColor: none()

@@ -1,0 +1,17 @@
+{
+  "outputDir": "benchmark-output",
+  "outputName": "sa-automala",
+  "numSamples": 100,
+  "timeout": 600,
+  "sampleTimeout": 60,
+  "optimizer": {
+    "name": "sa-automala",
+    "initStepSize": 1.0,
+    "roundLength": 100,
+    "constraintWeight": 1000,
+    "maxStepSearches": 30,
+    "initTemperature": 1000,
+    "coolingRate": 0.01,
+    "minTemperature": 0.1
+  }
+}
