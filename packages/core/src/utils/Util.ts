@@ -1025,6 +1025,9 @@ export const prettyResolvedExpr = (e: ResolvedExpr<A>): string => {
         ")"
       );
     }
+    case "CollectionAccess": {
+      return `${prettyResolvedExpr(e.name)}[${e.field.value}]`;
+    }
     default: {
       const res = JSON.stringify(e);
       return res;

@@ -18,9 +18,9 @@ Global {
       center: (0.,0.)
       fillColor: none()
       strokeColor: Colors.lightGray
-      strokeWidth: 2.
       width: canvas.width
       height: canvas.height
+			ensureOnCanvas: false
    }
 
    scalar setRadius = 18.
