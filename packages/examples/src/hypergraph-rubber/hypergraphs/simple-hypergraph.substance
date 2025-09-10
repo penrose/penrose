@@ -1,0 +1,28 @@
+Node n1, n2, n3
+Node n4, n5, n6
+
+Hyperedge h1, h2, h3
+
+isIn(n1, h1)
+isIn(n1, h2)
+notIn(n1, h3)
+
+notIn(n2, h1)
+notIn(n2, h2)
+isIn(n2, h3)
+
+notIn(n3, h1)
+isIn(n3, h2)
+isIn(n3, h3)
+
+isIn(n4, h1)
+isIn(n4, h2)
+notIn(n4, h3)
+
+notIn(n5, h1)
+notIn(n5, h2)
+isIn(n5, h3)
+
+notIn(n6, h1)
+notIn(n6, h2)
+isIn(n6, h3)
