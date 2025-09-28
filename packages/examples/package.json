@@ -11,7 +11,7 @@
   "devDependencies": {
     "@types/node-fetch": "^2.6.11",
     "prettier": "^3",
-    "vite": "^4",
+    "vite": "^5",
     "vitest": "^0.31"
   },
   "scripts": {

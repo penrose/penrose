@@ -19,7 +19,7 @@
     "@babel/core": "^7",
     "@babel/preset-typescript": "^7",
     "babel-preset-solid": "^1",
-    "vite": "^4",
+    "vite": "^5",
     "vite-plugin-solid": "^2"
   },
   "scripts": {

@@ -88,7 +88,7 @@
     "@types/react-dom": "^18.2.0",
     "babel-loader": "^8.2.5",
     "storybook": "^8.1.11",
-    "vite": "^4.0.4"
+    "vite": "^5.4.20"
   },
   "gitHead": "edad5498aeabe85b1c5b320ca862faa879ff1d23"
 }

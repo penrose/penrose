@@ -17898,7 +17898,7 @@ vite-plugin-top-level-await@^1.4.1:
     "@swc/core" "^1.3.100"
     uuid "^9.0.1"
 
-"vite@^3.0.0 || ^4.0.0", vite@^4, vite@^4.0.4:
+"vite@^3.0.0 || ^4.0.0":
   version "4.5.14"
   resolved "https://registry.yarnpkg.com/vite/-/vite-4.5.14.tgz#2e652bc1d898265d987d6543ce866ecd65fa4086"
   integrity sha512-+v57oAaoYNnO3hIu5Z/tJRZjq5aHM2zDve9YZ8HngVHbhk66RStobhb1sqPMIPEleV6cNKYK4eGrAbE9Ulbl2g==
@@ -17909,10 +17909,10 @@ vite-plugin-top-level-await@^1.4.1:
   optionalDependencies:
     fsevents "~2.3.2"
 
-vite@^5.0.0, vite@^5.2.1, vite@^5.3.3:
-  version "5.4.7"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-5.4.7.tgz#d226f57c08b61379e955f3836253ed3efb2dcf00"
-  integrity sha512-5l2zxqMEPVENgvzTuBpHer2awaetimj2BGkhBPdnwKbPNOlHsODU+oiazEZzLK7KhAnOrO+XGYJYn4ZlUhDtDQ==
+vite@^5, vite@^5.0.0, vite@^5.2.1, vite@^5.3.3, vite@^5.4.20:
+  version "5.4.20"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-5.4.20.tgz#3267a5e03f21212f44edfd72758138e8fcecd76a"
+  integrity sha512-j3lYzGC3P+B5Yfy/pfKNgVEg4+UtcIJcVRt2cDjIOmhLourAqPqf8P7acgxeiSgUB7E3p2P8/3gNIgDLpwzs4g==
   dependencies:
     esbuild "^0.21.3"
     postcss "^8.4.43"
