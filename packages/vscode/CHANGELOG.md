@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.3.0] (2025-09-23)
+
+### :warning: BREAKING CHANGE
+
+- separate Substance environment and remove unused features (#1677)
+
+### :rocket: New Feature
+
+- 4.0.0-alpha.4 ([#1865](https://github.com/penrose/penrose/issues/1865)) ([3cce51d](https://github.com/penrose/penrose/commit/3cce51d26af58058c66c6703680ddad083840ec2))
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+
+### :bug: Bug Fix
+
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- bump version to 4.0.0-alpha.3 ([#1851](https://github.com/penrose/penrose/issues/1851)) ([e6746f9](https://github.com/penrose/penrose/commit/e6746f9dab99dd86b0955f5c582b223d5246f0c8))
+- bump version to 4.0.0-alpha.5 ([#1866](https://github.com/penrose/penrose/issues/1866)) ([13ca695](https://github.com/penrose/penrose/commit/13ca695b2cae76e544b3a60217d373e06f4f1987))
+
 ## [v4.0.0-alpha.5](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.5) (2024-10-28)
 
 ### :warning: BREAKING CHANGE

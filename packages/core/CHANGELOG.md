@@ -3,6 +3,75 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.3.0] (2025-09-23)
+
+### :warning: BREAKING CHANGE
+
+- separate Substance environment and remove unused features (#1677)
+
+### :rocket: New Feature
+
+- 4.0.0-alpha.4 ([#1865](https://github.com/penrose/penrose/issues/1865)) ([3cce51d](https://github.com/penrose/penrose/commit/3cce51d26af58058c66c6703680ddad083840ec2))
+- Arc mesh example ([#1789](https://github.com/penrose/penrose/issues/1789)) ([edd0a04](https://github.com/penrose/penrose/commit/edd0a041068f00e059fa2dfd5b70dd76a5a3df99))
+- Bloom ([#1826](https://github.com/penrose/penrose/issues/1826)) ([0639db8](https://github.com/penrose/penrose/commit/0639db88bff04af7e9ac5e01d86c76f96a36fced))
+- Editor UX Features ([#1813](https://github.com/penrose/penrose/issues/1813)) ([124f43a](https://github.com/penrose/penrose/commit/124f43ac659e22deee8f43c39e0fa4ab61f84886))
+- LSP-style optimization worker(s) ([#1801](https://github.com/penrose/penrose/issues/1801)) ([cff021a](https://github.com/penrose/penrose/commit/cff021a613cf1f796efce92e4a58f1dc34d66c65))
+- Lsp-style worker + editor vite upgrade ([#1804](https://github.com/penrose/penrose/issues/1804)) ([f711e9d](https://github.com/penrose/penrose/commit/f711e9dff1120ccd799d2544c983be8df26ebafa))
+- Random Index Style Function & Chaos Game ([#1643](https://github.com/penrose/penrose/issues/1643)) ([36d4299](https://github.com/penrose/penrose/commit/36d4299a03c965b27b611dbb8c3fee941bbfbb4a))
+- codemirror migration ([#1798](https://github.com/penrose/penrose/issues/1798)) ([59d77f2](https://github.com/penrose/penrose/commit/59d77f22822cc28a32daf812f0b8c4b9e791786c))
+- distribute horizontal and vertical constraint functions ([#1794](https://github.com/penrose/penrose/issues/1794)) ([939f5fe](https://github.com/penrose/penrose/commit/939f5fea1019cc6d0adf8968188fb1e598aab757))
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+- interactive widgets + programatically constrained dragging (experiemental) ([#1796](https://github.com/penrose/penrose/issues/1796)) ([d5f269e](https://github.com/penrose/penrose/commit/d5f269e9fd60740997033b93c2c99cf3a6926bdb))
+- join paths ([#1770](https://github.com/penrose/penrose/issues/1770)) ([42ea8ec](https://github.com/penrose/penrose/commit/42ea8ec954655fabdd0eea0e208cd2f4810afeca))
+- optional ordering in `distribute...` constraints ([#1838](https://github.com/penrose/penrose/issues/1838)) ([245ba9a](https://github.com/penrose/penrose/commit/245ba9a1269d891afd9af7f383453ec5b90d0513))
+- run the compiler and optimizer in a web worker ([#1681](https://github.com/penrose/penrose/issues/1681)) ([42a657d](https://github.com/penrose/penrose/commit/42a657dcb32e565ebd8923df671f673b6b6436d5))
+- substance literal values ([#1682](https://github.com/penrose/penrose/issues/1682)) ([7c1978f](https://github.com/penrose/penrose/commit/7c1978f4e33498828d6893d7d8f9257d2f1f839b))
+
+### :bug: Bug Fix
+
+- Better Hover + info box type names ([#1840](https://github.com/penrose/penrose/issues/1840)) ([ace6ed6](https://github.com/penrose/penrose/commit/ace6ed6356c57c8274d85da518db6386f2bf93c7))
+- Revert "feat: LSP-style optimization worker(s)" ([#1803](https://github.com/penrose/penrose/issues/1803)) ([9dc8968](https://github.com/penrose/penrose/commit/9dc8968716c4ac4584a152de81744bb0b555785e))
+- Style function body should not be in errors ([#1746](https://github.com/penrose/penrose/issues/1746)) ([ed89d2b](https://github.com/penrose/penrose/commit/ed89d2b5815100f529604a5949c6dec17ddcf295))
+- Substance parsing of floating-point numbers ([#1672](https://github.com/penrose/penrose/issues/1672)) ([e6e271a](https://github.com/penrose/penrose/commit/e6e271a7cab45bd5b2efa77155c050a9271a6c37))
+- `floor` ([#1878](https://github.com/penrose/penrose/issues/1878)) ([b615a55](https://github.com/penrose/penrose/commit/b615a55f3dc6c70e52e7caf51f8b70559ccea8a2))
+- a better path resolution algorithm ([#1795](https://github.com/penrose/penrose/issues/1795)) ([922004a](https://github.com/penrose/penrose/commit/922004ae0055087790b5f8eed335e9fe8e0e5da9))
+- avoid non-finite values in L-BFGS line search ([#1903](https://github.com/penrose/penrose/issues/1903)) ([0a18d1c](https://github.com/penrose/penrose/commit/0a18d1c25c9529714438e1271aefcc227b08b924))
+- exclude function body from `FunctionInternalError` ([#1714](https://github.com/penrose/penrose/issues/1714)) ([0f96b30](https://github.com/penrose/penrose/commit/0f96b30b3d1e628024327eb53f68a2b625054c31))
+- improper Style matching of functions without parameters ([#1679](https://github.com/penrose/penrose/issues/1679)) ([171110c](https://github.com/penrose/penrose/commit/171110c60179a46fbd5cb790ebcab7cf9898fce4))
+- improper handling of flipped index ranges ([#1687](https://github.com/penrose/penrose/issues/1687)) ([f4c5675](https://github.com/penrose/penrose/commit/f4c5675bfe3b6195a9b101fe04d52589a94b8cf9))
+- no error markers ([#1771](https://github.com/penrose/penrose/issues/1771)) ([fbe8a81](https://github.com/penrose/penrose/commit/fbe8a8124f2be25202cd84ec02d7317f40da6d59))
+- parse empty predicates ([#1827](https://github.com/penrose/penrose/issues/1827)) ([7a207f6](https://github.com/penrose/penrose/commit/7a207f62b9d9e12b502da9848bfa52cab567c24e))
+- pretty-printed paths use dots consistently ([#1825](https://github.com/penrose/penrose/issues/1825)) ([3a6c0a8](https://github.com/penrose/penrose/commit/3a6c0a8ddf32e5b05a24bcccfe0fa4865f4ca142))
+- prohibiting inline subtyping on literal types ([#1820](https://github.com/penrose/penrose/issues/1820)) ([53dc10f](https://github.com/penrose/penrose/commit/53dc10f9e6d123ab5810c1adb4c20aa75071476b))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+
+### :nail_care: Polish
+
+- OptimizerWorker/worker ([#1765](https://github.com/penrose/penrose/issues/1765)) ([4110f80](https://github.com/penrose/penrose/commit/4110f80092aa6b4c1f199a22a7144ab1220dceeb))
+- integrate Rose ([#1636](https://github.com/penrose/penrose/issues/1636)) ([d7c1ef4](https://github.com/penrose/penrose/commit/d7c1ef4be11ac0251f026c755039bccc05818303))
+- replace `safe` util with nicer `unwrap` ([#1662](https://github.com/penrose/penrose/issues/1662)) ([4621bb5](https://github.com/penrose/penrose/commit/4621bb5f502b7e14bf70c828176f282ca2acd9af))
+
+### :memo: Documentation
+
+- last minute bloom blog changes, v2 ([#1855](https://github.com/penrose/penrose/issues/1855)) ([745a840](https://github.com/penrose/penrose/commit/745a8404ebf72c77eff1b7d303ed873faf625df2))
+
+### :house: Internal
+
+- bump version to 4.0.0-alpha.0 ([#1735](https://github.com/penrose/penrose/issues/1735)) ([da1343d](https://github.com/penrose/penrose/commit/da1343dca34cb1291894b754b7f7ac3aed672df5))
+- bump version to 4.0.0-alpha.2 ([#1829](https://github.com/penrose/penrose/issues/1829)) ([f1cb41a](https://github.com/penrose/penrose/commit/f1cb41a60b0dbe5eec978a5b32c73b36355cfcb2))
+- bump version to 4.0.0-alpha.3 ([#1851](https://github.com/penrose/penrose/issues/1851)) ([e6746f9](https://github.com/penrose/penrose/commit/e6746f9dab99dd86b0955f5c582b223d5246f0c8))
+- bump version to 4.0.0-alpha.5 ([#1866](https://github.com/penrose/penrose/issues/1866)) ([13ca695](https://github.com/penrose/penrose/commit/13ca695b2cae76e544b3a60217d373e06f4f1987))
+- fix `no-non-null-assertion` lint rule name ([#1663](https://github.com/penrose/penrose/issues/1663)) ([b8b18b3](https://github.com/penrose/penrose/commit/b8b18b34ede45e06426c9704ae1820a790b31a76))
+- fix typo in L-BFGS docstring ([#1809](https://github.com/penrose/penrose/issues/1809)) ([806d1a0](https://github.com/penrose/penrose/commit/806d1a021056eb36e2bf7970ae9c73b5171aaf98))
+- obviate custom unary-minus ESLint package ([#1673](https://github.com/penrose/penrose/issues/1673)) ([3ffb9e8](https://github.com/penrose/penrose/commit/3ffb9e8bd4942ab331d63c332ebaebba4d0d1444))
+- rename `contrib` to `lib` in `core` ([#1651](https://github.com/penrose/penrose/issues/1651)) ([f909232](https://github.com/penrose/penrose/commit/f9092321d591497cd398bafb6f5fa761e933dcfb))
+- rename venn to euler diagrams ([#1756](https://github.com/penrose/penrose/issues/1756)) ([355b130](https://github.com/penrose/penrose/commit/355b130e044f613a6fab7abe55681ab5f0df4fee))
+- simplify names of `IsSubset` and `NotIntersecting` ([#1724](https://github.com/penrose/penrose/issues/1724)) ([b5e8cb8](https://github.com/penrose/penrose/commit/b5e8cb8675c63f279e9e769913b24c1ec8055b23))
+
+### :running_woman: Performance
+
+- share memory across all Rose compilations ([#1725](https://github.com/penrose/penrose/issues/1725)) ([10869e2](https://github.com/penrose/penrose/commit/10869e2e5269857a1b01a00b0282e42d886dc04a))
+
 ## [v4.0.0-alpha.5](https://github.com/penrose/penrose/compare/v3.2.0...v4.0.0-alpha.5) (2024-10-28)
 
 ### :warning: BREAKING CHANGE
