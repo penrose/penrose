@@ -199,13 +199,21 @@ export const attrRotation = (
   const h = properties.height;
   const center = properties.center;
   const rotation = properties.rotation.contents;
-  const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
-  let transform = elem.getAttribute("transform");
-  transform =
-    transform === null
-      ? `rotate(${rotation}, ${x}, ${y})`
-      : transform + `rotate(${rotation}, ${x}, ${y})`;
-  elem.setAttribute("transform", transform);
+
+  // Skip adding transform attribute if rotation is zero
+  // (see https://github.com/penrose/penrose/issues/874)
+  if (rotation !== 0) {
+    const [x, y] = toScreen(
+      [center.contents[0], center.contents[1]],
+      canvasSize,
+    );
+    let transform = elem.getAttribute("transform");
+    transform =
+      transform === null
+        ? `rotate(${rotation}, ${x}, ${y})`
+        : transform + `rotate(${rotation}, ${x}, ${y})`;
+    elem.setAttribute("transform", transform);
+  }
 
   return ["rotation", "center", "width", "height"]; // Return array of input properties programatically mapped
 };
