@@ -29,9 +29,7 @@
   >
     <title>`C`.icon</title>
   </circle>
-  <g
-    transform="rotate(0, 502.14996078516884, 154.05121225368418)translate(489.9899607851688, 142.41921225368418)"
-  >
+  <g transform="translate(489.9899607851688, 142.41921225368418)">
     <title>`C`.text</title>
     <svg
       style="font-size: 32px"
@@ -70,9 +68,7 @@
   >
     <title>`B`.icon</title>
   </circle>
-  <g
-    transform="rotate(0, 323.24382263074165, 282.30573588269715)translate(311.09982263074164, 271.37773588269715)"
-  >
+  <g transform="translate(311.09982263074164, 271.37773588269715)">
     <title>`B`.text</title>
     <svg
       style="font-size: 32px"
@@ -111,9 +107,7 @@
   >
     <title>`F`.icon</title>
   </circle>
-  <g
-    transform="rotate(0, 444.23202331227606, 204.89989505441076)translate(432.2480233122761, 194.01989505441077)"
-  >
+  <g transform="translate(432.2480233122761, 194.01989505441077)">
     <title>`F`.text</title>
     <svg
       style="font-size: 32px"
@@ -152,9 +146,7 @@
   >
     <title>`D`.icon</title>
   </circle>
-  <g
-    transform="rotate(0, 267.1727977479694, 297.94198181732736)translate(253.92479774796942, 287.01398181732736)"
-  >
+  <g transform="translate(253.92479774796942, 287.01398181732736)">
     <title>`D`.text</title>
     <svg
       style="font-size: 32px"
@@ -193,9 +185,7 @@
   >
     <title>`E`.icon</title>
   </circle>
-  <g
-    transform="rotate(0, 327.6521958730647, 342.3221621795777)translate(315.42819587306474, 331.4421621795777)"
-  >
+  <g transform="translate(315.42819587306474, 331.4421621795777)">
     <title>`E`.text</title>
     <svg
       style="font-size: 32px"
@@ -224,9 +214,7 @@
       </g>
     </svg>
   </g>
-  <g
-    transform="rotate(0, 510.09871014235745, 311.6172756810304)translate(498.09871014235745, 300.16127568103036)"
-  >
+  <g transform="translate(498.09871014235745, 300.16127568103036)">
     <title>`A`.text</title>
     <svg
       style="font-size: 32px"
@@ -265,9 +253,7 @@
   >
     <title>`G`.icon</title>
   </circle>
-  <g
-    transform="rotate(0, 422.4656149624685, 125.06512326563981)translate(409.8896149624685, 113.43312326563981)"
-  >
+  <g transform="translate(409.8896149624685, 113.43312326563981)">
     <title>`G`.text</title>
     <svg
       style="font-size: 32px"
