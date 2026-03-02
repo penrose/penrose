@@ -114,7 +114,7 @@
     "@types/seedrandom": "^2.4.28",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
-    "eslint": "^8.45.0",
+    "eslint": "^9.26.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.27.5",
