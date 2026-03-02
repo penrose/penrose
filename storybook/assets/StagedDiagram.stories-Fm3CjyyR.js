@@ -1,4 +1,4 @@
-import{j as e}from"./jsx-runtime-QvZ8i92b.js";import{s as te,a as ae,r as ne,d as oe,m as g,__tla as re}from"./vector-wedge.substance-Dr62AGZ5.js";import{r as d}from"./index-uubelm5h.js";import{H as p}from"./styled-components.browser.esm-CdM1cP8A.js";import{S as le,__tla as ie}from"./Simple-DpOqLLOr.js";import{R as se,L as ce}from"./Resample-CdO5AFoh.js";import{__tla as de}from"./iframe-BHpLOgMN.js";import"../sb-preview/runtime.js";import"./hoist-non-react-statics.cjs-DAARuSHx.js";import{__tla as pe}from"./svg-BcVDPuve.js";let t,a,n,z,I,he=Promise.all([(()=>{try{return re}catch{}})(),(()=>{try{return ie}catch{}})(),(()=>{try{return de}catch{}})(),(()=>{try{return pe}catch{}})()]).then(async()=>{var x,q,L,T,W,R,O,G,E;let o,b,m,v,f,C,k,r,B,S,y,D,l,P,w,h,A,u,c;o={substance:te,style:[{contents:ae,resolver:ne}],domain:oe,variation:"SnorlaxIbis743",excludeWarnings:["BBoxApproximationWarning"]},b=`-- name in registry: incenter-triangle
+import{j as e}from"./jsx-runtime-CCjYJYRa.js";import{r as te,s as ae,d as ne,a as oe,m as g,__tla as re}from"./vector-wedge.substance-afuLBBwM.js";import{r as d}from"./index-uubelm5h.js";import{H as p}from"./styled-components.browser.esm-CdM1cP8A.js";import{S as le,__tla as ie}from"./Simple-DawFUjKL.js";import{R as se,L as ce}from"./Resample-CLKmpmi0.js";import{__tla as de}from"./iframe-Dl3qj4Hc.js";import"../sb-preview/runtime.js";import"./hoist-non-react-statics.cjs-DAARuSHx.js";import{__tla as pe}from"./svg-DPOln9Bx.js";let t,a,n,z,I,he=Promise.all([(()=>{try{return re}catch{}})(),(()=>{try{return ie}catch{}})(),(()=>{try{return de}catch{}})(),(()=>{try{return pe}catch{}})()]).then(async()=>{var x,q,L,T,W,R,O,G,E;let o,b,m,v,f,C,k,r,B,S,y,D,l,P,w,h,A,u,c;o={substance:oe,style:[{contents:ae,resolver:te}],domain:ne},b=`-- name in registry: incenter-triangle
 Point J, K, L, P, m
 Let JKL := Triangle(J, K, L)
 Incenter(P, JKL)
@@ -1191,7 +1191,7 @@ predicate Circumcenter(Point, Triangle) -- This predicate makes a point be the c
 -- Triangle triangleABC
 -- triangleABC := Triangle(A, B, C)
 -- Circumcenter(D, triangleABC)
--- AutoLabel A, B, C, D`,r={substance:b,style:[{contents:v,resolver:m},{contents:C,resolver:f}],domain:k,variation:"RationalityZebra567",excludeWarnings:["BBoxApproximationWarning"]},B=`-- A short walk used to estimate the solution to
+-- AutoLabel A, B, C, D`,r={substance:b,style:[{contents:v,resolver:m},{contents:C,resolver:f}],domain:k},B=`-- A short walk used to estimate the solution to
 -- a Laplace equation \u0394u = 0 with pure Dirichlet
 -- boundary conditions, via WoS.
 
@@ -2327,7 +2327,7 @@ type Ray
 constructor toBoundary( Point p, Subdomain S ) -> Ray
 constructor headOf( Ray r ) -> Point
 
-`,l={substance:B,style:[{contents:y,resolver:S}],domain:D,variation:"LilyDunlin3394",excludeWarnings:[]},P=p.div`
+`,l={substance:B,style:[{contents:y,resolver:S}],domain:D},P=p.div`
   position: relative;
   border-radius: 10px;
   border: 0.5px solid rgba(0, 0, 0, 0.2);
@@ -2363,7 +2363,7 @@ constructor headOf( Ray r ) -> Point
   flex-wrap: wrap;
   justify-content: center;
   margin: 10px 0px;
-`,u=i=>{const{trio:N,imageResolver:j}=i,{variation:M,substance:F,style:_,domain:K}=N,[H,$]=d.useState(M),[U,J]=d.useState(0),[V,Y]=d.useState(!1),[Z,X]=d.useState([""]);return e.jsx(P,{children:V?e.jsxs(e.Fragment,{children:[e.jsx(le,{name:"embed",domain:K,substance:F,style:_,variation:H,interactive:!1,animate:!0,stepSize:5,imageResolver:j,onFrame:s=>{X(s.optStages),J(s.currentStageIndex)}}),e.jsxs(A,{children:[Z.map((s,ee)=>{const Q=s===""?"default":s;return ee===U?e.jsx(h,{$active:!0,children:Q}):e.jsx(h,{children:Q})}),e.jsx("div",{onClick:()=>$(Math.random().toString()),style:{cursor:"pointer"},children:e.jsx(se,{size:28,color:"black"})})]})]}):e.jsxs("div",{style:{display:"flex",alignItems:"center",justifyContent:"center"},children:[e.jsx(w,{onClick:()=>Y(!0),children:"Click to lay out the diagram"}),e.jsx(ce,{width:350,color:"#0001"})]})})},I={title:"Example/StagedDiagram Component",component:u},c=i=>e.jsx("div",{style:{width:"50%"},children:e.jsx(u,{...i})}),n=c.bind({}),n.args={trio:{substance:l.substance,style:l.style[0].contents,domain:l.domain,variation:"test3"},imageResolver:l.style[0].resolver},t=c.bind({}),t.args={trio:{substance:r.substance,style:r.style[0].contents,domain:r.domain,variation:"test"},imageResolver:r.style[0].resolver},a=c.bind({}),a.args={trio:{substance:o.substance,style:o.style[0].contents,domain:o.domain,variation:"test"},imageResolver:o.style[0].resolver},n.parameters={...n.parameters,docs:{...(x=n.parameters)==null?void 0:x.docs,source:{originalSource:`args => <div style={{
+`,u=i=>{const{trio:N,imageResolver:j}=i,{variation:M,substance:F,style:_,domain:K}=N,[H,$]=d.useState(M),[U,J]=d.useState(0),[V,Y]=d.useState(!1),[X,Z]=d.useState([""]);return e.jsx(P,{children:V?e.jsxs(e.Fragment,{children:[e.jsx(le,{name:"embed",domain:K,substance:F,style:_,variation:H,interactive:!1,animate:!0,stepSize:5,imageResolver:j,onFrame:s=>{Z(s.optStages),J(s.currentStageIndex)}}),e.jsxs(A,{children:[X.map((s,ee)=>{const Q=s===""?"default":s;return ee===U?e.jsx(h,{$active:!0,children:Q}):e.jsx(h,{children:Q})}),e.jsx("div",{onClick:()=>$(Math.random().toString()),style:{cursor:"pointer"},children:e.jsx(se,{size:28,color:"black"})})]})]}):e.jsxs("div",{style:{display:"flex",alignItems:"center",justifyContent:"center"},children:[e.jsx(w,{onClick:()=>Y(!0),children:"Click to lay out the diagram"}),e.jsx(ce,{width:350,color:"#0001"})]})})},I={title:"Example/StagedDiagram Component",component:u},c=i=>e.jsx("div",{style:{width:"50%"},children:e.jsx(u,{...i})}),n=c.bind({}),n.args={trio:{substance:l.substance,style:l.style[0].contents,domain:l.domain,variation:"test3"},imageResolver:l.style[0].resolver},t=c.bind({}),t.args={trio:{substance:r.substance,style:r.style[0].contents,domain:r.domain,variation:"test"},imageResolver:r.style[0].resolver},a=c.bind({}),a.args={trio:{substance:o.substance,style:o.style[0].contents,domain:o.domain,variation:"test"},imageResolver:o.style[0].resolver},n.parameters={...n.parameters,docs:{...(x=n.parameters)==null?void 0:x.docs,source:{originalSource:`args => <div style={{
   width: "50%"
 }}>
     <StagedDiagram {...args} />

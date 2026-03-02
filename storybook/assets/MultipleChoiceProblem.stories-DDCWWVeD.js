@@ -1,4 +1,4 @@
-import{j as qe}from"./jsx-runtime-QvZ8i92b.js";import{H as vt,F as Yi}from"./styled-components.browser.esm-CdM1cP8A.js";import{r as wt}from"./index-uubelm5h.js";import{S as $i,__tla as ji}from"./Simple-DpOqLLOr.js";import"./hoist-non-react-statics.cjs-DAARuSHx.js";import{__tla as Xi}from"./svg-BcVDPuve.js";let et,Bn,Cn,Zi=Promise.all([(()=>{try{return ji}catch{}})(),(()=>{try{return Xi}catch{}})()]).then(async()=>{var G0,U0,Y0;const kt=`Hydrogen h
+import{j as qe}from"./jsx-runtime-CCjYJYRa.js";import{H as vt,F as Yi}from"./styled-components.browser.esm-CdM1cP8A.js";import{r as wt}from"./index-uubelm5h.js";import{S as $i,__tla as ji}from"./Simple-DawFUjKL.js";import"./hoist-non-react-statics.cjs-DAARuSHx.js";import{__tla as Xi}from"./svg-DPOln9Bx.js";let et,Bn,Cn,Zi=Promise.all([(()=>{try{return ji}catch{}})(),(()=>{try{return Xi}catch{}})()]).then(async()=>{var G0,U0,Y0;const kt=`Hydrogen h
 Carbon c
 Nitrogen n
 Bond b1 := SingleBond(c, h)

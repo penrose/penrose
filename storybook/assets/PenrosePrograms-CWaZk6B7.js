@@ -1,4 +1,4 @@
-import{d as e,s as t,a as n}from"./vector-wedge.substance-Dr62AGZ5.js";const o=`canvas {
+import{d as e,s as t,a as n}from"./vector-wedge.substance-afuLBBwM.js";const o=`canvas {
   width = 800
   height = 700
 }
@@ -207,4 +207,4 @@ predicate Subset(Set s1, Set s2)
   `},l={domain:a,substance:`
 Set A
 AutoLabel All
-`,style:r,variation:""},d={substance:i,style:o,domain:s,variation:""},S={variation:"ArtemisCrane740",domain:e,substance:t,style:n};export{d as c,c as e,l as o,S as v};
+`,style:r,variation:""},d={substance:i,style:o,domain:s,variation:""},S={variation:"ArtemisCrane740",domain:e,substance:n,style:t};export{d as c,c as e,l as o,S as v};
