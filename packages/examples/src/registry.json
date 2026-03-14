@@ -436,6 +436,8 @@
   "solid/eigenspace": { "trio": false },
   "solid/triangles": { "trio": false },
   "solid/vectors": { "trio": false },
+  "bloom/simple-circles": { "trio": false, "tsx": true, "name": "Simple Circles (Bloom JSX)" },
+  "bloom/custom-components": { "trio": false, "tsx": true, "name": "Custom Components (Bloom JSX)" },
   "tsne/tsne": {
     "name": "T-SNE Test"
   },

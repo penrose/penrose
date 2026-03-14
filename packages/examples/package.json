@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@penrose/bloom": "^3.3.0",
     "@penrose/core": "^3.3.0",
     "@penrose/solids": "^3.3.0",
     "solid-js": "^1"

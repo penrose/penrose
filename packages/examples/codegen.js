@@ -96,6 +96,7 @@ for (const [k, v] of Object.entries(registry)) {
     );
     if ("gallery" in v) lines.push(`    gallery: ${v.gallery},`);
   } else {
+    if (v.tsx) lines.push(`    tsx: true,`);
     lines.push(
       `    f: async () => (await import(${JSON.stringify(
         `./${k}.js`,

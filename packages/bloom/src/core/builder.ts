@@ -259,6 +259,7 @@ export class DiagramBuilder {
     this.canvas = canvas;
     this.variation = variation;
     this.lassoStrength = lassoStrength;
+    setActiveBuilder(this);
 
     const { makeInput: createVar } = simpleContext(variation);
     this.samplingContext = {
@@ -433,7 +434,13 @@ export class DiagramBuilder {
             if (where(assignmentRecord)) {
               const str = matchString(assignmentRecord);
               if (!deduplicate || !visited.has(str)) {
-                func(assignmentRecord, matches++);
+                const prev = _activeBuilder;
+                _activeBuilder = this;
+                try {
+                  func(assignmentRecord, matches++);
+                } finally {
+                  _activeBuilder = prev;
+                }
                 if (deduplicate) {
                   visited.add(str);
                 }
@@ -889,4 +896,23 @@ export class DiagramBuilder {
       },
     }));
   };
+}
+
+// Module-level active builder context for the JSX runtime.
+// _activeBuilder is set when a DiagramBuilder is constructed and within forall callbacks,
+// so that the JSX factory can call builder methods without explicit builder reference.
+let _activeBuilder: DiagramBuilder | null = null;
+
+/**
+ * Get the currently active DiagramBuilder (used by the JSX runtime).
+ */
+export function getActiveBuilder(): DiagramBuilder | null {
+  return _activeBuilder;
+}
+
+/**
+ * Set the currently active DiagramBuilder (used by the JSX runtime and advanced users).
+ */
+export function setActiveBuilder(b: DiagramBuilder | null): void {
+  _activeBuilder = b;
 }
