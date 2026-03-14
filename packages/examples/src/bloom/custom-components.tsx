@@ -5,6 +5,7 @@
  * Nodes are rendered as circles with a reusable `NodeShape`
  * functional component. Demonstrates kebab-case prop names.
  */
+import type { Diagram } from "@penrose/bloom";
 import { canvas, DiagramBuilder, objectives } from "@penrose/bloom";
 
 /** Reusable functional component: a styled circle node */
@@ -18,7 +19,7 @@ const NodeShape = () => (
   />
 );
 
-export default async (): Promise<string> => {
+export const buildCustomComponentsDiagram = async (): Promise<Diagram> => {
   const db = new DiagramBuilder(canvas(500, 400), "custom-components");
   const { type, predicate, forall, encourage, build } = db;
 
@@ -58,7 +59,13 @@ export default async (): Promise<string> => {
     encourage(objectives.notTooClose(u.icon, v.icon), 2);
   });
 
-  const diagram = await build();
+  return await build();
+};
+
+export { buildCustomComponentsDiagram as buildDiagram };
+
+export default async (): Promise<string> => {
+  const diagram = await buildCustomComponentsDiagram();
   const { svg } = await diagram.render();
   return svg.outerHTML;
 };

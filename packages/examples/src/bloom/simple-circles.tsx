@@ -4,9 +4,10 @@
  * A simple diagram demonstrating Bloom JSX syntax:
  * three labeled circles that don't overlap and stay on canvas.
  */
+import type { Diagram } from "@penrose/bloom";
 import { canvas, DiagramBuilder, objectives } from "@penrose/bloom";
 
-export default async (): Promise<string> => {
+export const buildSimpleCirclesDiagram = async (): Promise<Diagram> => {
   const db = new DiagramBuilder(canvas(400, 400), "bloom-circles");
   const { type, forall, ensure, encourage, build } = db;
 
@@ -34,7 +35,11 @@ export default async (): Promise<string> => {
     encourage(objectives.notTooClose(a.icon, b.icon));
   });
 
-  const diagram = await build();
+  return await build();
+};
+
+export default async (): Promise<string> => {
+  const diagram = await buildSimpleCirclesDiagram();
   const { svg } = await diagram.render();
   return svg.outerHTML;
 };

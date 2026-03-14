@@ -1,0 +1,135 @@
+:root {
+  color-scheme: light;
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+  background: radial-gradient(circle at top left, #f7f2e8 0%, transparent 30%),
+    linear-gradient(180deg, #f3efe6 0%, #e6e0d4 100%);
+  color: #1f1b16;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+code {
+  font-family: "SFMono-Regular", "Menlo", "Monaco", monospace;
+  font-size: 0.9em;
+}
+
+.page {
+  padding: 48px 24px 72px;
+}
+
+.hero {
+  max-width: 760px;
+  margin: 0 auto 32px;
+}
+
+.eyebrow,
+.count {
+  margin: 0;
+  font-family: "SFMono-Regular", "Menlo", "Monaco", monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #726552;
+}
+
+h1 {
+  margin: 10px 0 12px;
+  font-size: clamp(2.5rem, 4vw, 4.2rem);
+  line-height: 0.95;
+}
+
+.subtitle {
+  margin: 0 0 12px;
+  max-width: 54ch;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #4e4437;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.card {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid rgba(78, 68, 55, 0.14);
+  border-radius: 20px;
+  background: rgba(255, 252, 247, 0.92);
+  box-shadow: 0 14px 30px rgba(74, 61, 42, 0.08);
+}
+
+.card__meta h2 {
+  margin: 0 0 6px;
+  font-size: 1.2rem;
+}
+
+.card__meta p {
+  margin: 0;
+  font-family: "SFMono-Regular", "Menlo", "Monaco", monospace;
+  font-size: 0.82rem;
+  color: #726552;
+}
+
+.card__canvas {
+  height: 320px;
+  padding: 12px;
+  border-radius: 14px;
+  background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.9),
+      rgba(244, 239, 230, 0.8)
+    ),
+    repeating-linear-gradient(
+      45deg,
+      rgba(115, 100, 76, 0.03),
+      rgba(115, 100, 76, 0.03) 10px,
+      transparent 10px,
+      transparent 20px
+    );
+  overflow: hidden;
+}
+
+.card__canvas > div {
+  width: 100%;
+  height: 100%;
+}
+
+.card__canvas svg {
+  width: 100%;
+  height: 100%;
+}
+
+.status {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #726552;
+}
+
+.status--error {
+  color: #a33126;
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding-inline: 16px;
+  }
+
+  .gallery {
+    grid-template-columns: 1fr;
+  }
+}
