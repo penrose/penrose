@@ -1,0 +1,35 @@
+{
+  "name": "@penrose/group-explorer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@penrose/bloom": "^3.3.0",
+    "@penrose/core": "^3.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.2.2",
+    "vite": "^5",
+    "vite-plugin-top-level-await": "^1.4.1"
+  },
+  "nx": {
+    "targets": {
+      "dev": {
+        "dependsOn": ["^build"]
+      },
+      "build": {
+        "dependsOn": ["^build"]
+      }
+    }
+  }
+}

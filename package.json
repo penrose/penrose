@@ -45,7 +45,8 @@
   },
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "packages/bloom/example/*"
     ],
     "nohoist": [
       "**/@types/jest",
