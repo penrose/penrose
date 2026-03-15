@@ -12,8 +12,16 @@ import {
 const SEED = "MonsoonCaterpillar95943";
 
 export const buildDiagram = async (variation = SEED): Promise<Diagram> => {
-  const { ensure, encourage, build, type, predicate, forall, layer, forallWhere } =
-    new DiagramBuilder(canvas(800, 700), variation);
+  const {
+    ensure,
+    encourage,
+    build,
+    type,
+    predicate,
+    forall,
+    layer,
+    forallWhere,
+  } = new DiagramBuilder(canvas(800, 700), variation);
 
   const Set = type();
   const IsSubset = predicate();
@@ -55,12 +63,15 @@ export const buildDiagram = async (variation = SEED): Promise<Diagram> => {
     layer(x.icon, x.text);
   });
 
-
-  forallWhere({ x: Set, y: Set }, ({x, y}) => IsSubset.test(x, y), ({ x, y }) => {
+  forallWhere(
+    { x: Set, y: Set },
+    ({ x, y }) => IsSubset.test(x, y),
+    ({ x, y }) => {
       ensure(constraints.contains(y.icon, x.icon, 5));
       ensure(constraints.disjoint(y.text, x.icon, 10));
       layer(y.icon, x.icon);
-  });
+    },
+  );
 
   forall({ x: Set, y: Set }, ({ x, y }) => {
     if (Disjoint.test(x, y)) {

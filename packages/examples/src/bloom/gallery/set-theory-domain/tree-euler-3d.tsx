@@ -104,7 +104,7 @@ export const buildDiagram = async (): Promise<Diagram> => {
       />
     );
     layer(x.shadow, x.icon);
-		layer(x.shading, x.icon);
+    layer(x.shading, x.icon);
 
     // Label
     x.text = (
