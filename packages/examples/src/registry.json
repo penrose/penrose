@@ -611,5 +611,6 @@
   "set-potatoes/non-surjection-not-epimorphism": {
     "name": "A non-surjection is not an epimorphism",
     "gallery": true
-  }
+  },
+  "bloom/gallery/set-theory-domain/tree-euler-3d": { "trio": false, "tsx": true, "name": "Sets as Euler Diagram in 2.5D (Bloom JSX)" }
 }
