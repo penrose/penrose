@@ -14,6 +14,7 @@ type TsxEntry = {
 };
 
 type BuildDiagram = () => Promise<Diagram>;
+const EXAMPLE_PARAM = "example";
 
 const app = document.querySelector<HTMLDivElement>("#app");
 
@@ -21,8 +22,7 @@ if (!app) {
   throw new Error("Missing #app container");
 }
 
-const buildRegistry: Record<string, BuildDiagram> = {
-};
+const buildRegistry: Record<string, BuildDiagram> = {};
 
 const galleryModules = import.meta.glob("./bloom/gallery/**/*.tsx") as Record<
   string,
@@ -67,6 +67,27 @@ const getBloomTsxExamples = (): TsxEntry[] =>
     .sort((a, b) => a.name.localeCompare(b.name));
 
 const examples = getBloomTsxExamples();
+
+const findExample = (id: string | null): TsxEntry | null => {
+  if (!id) {
+    return null;
+  }
+  return examples.find((example) => example.id === id) ?? null;
+};
+
+const getSelectedExampleId = (): string | null =>
+  findExample(new URLSearchParams(window.location.search).get(EXAMPLE_PARAM))
+    ?.id ?? null;
+
+const setSelectedExampleId = (id: string | null) => {
+  const url = new URL(window.location.href);
+  if (id) {
+    url.searchParams.set(EXAMPLE_PARAM, id);
+  } else {
+    url.searchParams.delete(EXAMPLE_PARAM);
+  }
+  window.history.pushState({}, "", url);
+};
 
 const loadBuildDiagram = async (id: string): Promise<BuildDiagram> => {
   const staticBuild = buildRegistry[id];
@@ -123,16 +144,38 @@ const useQueuedDiagram = (id: string) => {
   return { diagram, error };
 };
 
-function ExampleCard(props: { example: TsxEntry }) {
+function ExampleCard(props: {
+  example: TsxEntry;
+  inspected: boolean;
+  onInspect: (id: string | null) => void;
+}) {
   const { diagram, error } = useQueuedDiagram(props.example.id);
 
   return (
-    <article className="card" data-example-id={props.example.id}>
+    <article
+      className={`card${props.inspected ? " card--focused" : ""}`}
+      data-example-id={props.example.id}
+    >
       <div className="card__meta">
-        <h2>{props.example.name}</h2>
+        <div className="card__heading">
+          <h2>{props.example.name}</h2>
+          <button
+            className="card__action"
+            type="button"
+            onClick={() =>
+              props.onInspect(props.inspected ? null : props.example.id)
+            }
+          >
+            {props.inspected ? "Back to gallery" : "Inspect"}
+          </button>
+        </div>
         <p>{props.example.id}</p>
       </div>
-      <div className="card__canvas">
+      <div
+        className={`card__canvas${
+          props.inspected ? " card__canvas--focused" : ""
+        }`}
+      >
         {error ? (
           <p className="status status--error">Failed to render: {error}</p>
         ) : !diagram ? (
@@ -146,22 +189,77 @@ function ExampleCard(props: { example: TsxEntry }) {
 }
 
 function App() {
+  const [selectedId, setSelectedId] = useState<string | null>(() =>
+    getSelectedExampleId(),
+  );
+
+  useEffect(() => {
+    const syncSelection = () => {
+      setSelectedId(getSelectedExampleId());
+    };
+
+    window.addEventListener("popstate", syncSelection);
+    return () => {
+      window.removeEventListener("popstate", syncSelection);
+    };
+  }, []);
+
+  const selectedExample = findExample(selectedId);
+  const visibleExamples = selectedExample ? [selectedExample] : examples;
+  const inspectExample = (id: string | null) => {
+    setSelectedExampleId(id);
+    setSelectedId(id);
+  };
+
   return (
     <main className="page">
       <header className="hero">
         <p className="eyebrow">packages/examples</p>
         <h1>Bloom TSX Gallery</h1>
         <p className="subtitle">
-          Rendering every registry entry with <code>tsx: true</code> under{" "}
-          <code>bloom/</code>.
+          {selectedExample ? (
+            <>
+              Inspecting <code>{selectedExample.id}</code>.
+            </>
+          ) : (
+            <>
+              Rendering every registry entry with <code>tsx: true</code> under{" "}
+              <code>bloom/</code>.
+            </>
+          )}
         </p>
-        <p className="count">
-          {examples.length} example{examples.length === 1 ? "" : "s"}
-        </p>
+        <div className="hero__controls">
+          <label className="picker">
+            <span>Inspect</span>
+            <select
+              value={selectedId ?? ""}
+              onChange={(event) => inspectExample(event.target.value || null)}
+            >
+              <option value="">All examples</option>
+              {examples.map((example) => (
+                <option key={example.id} value={example.id}>
+                  {example.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p className="count">
+            {selectedExample
+              ? "1 example in focus"
+              : `${examples.length} examples`}
+          </p>
+        </div>
       </header>
-      <section className="gallery">
-        {examples.map((example) => (
-          <ExampleCard key={example.id} example={example} />
+      <section
+        className={`gallery${selectedExample ? " gallery--focused" : ""}`}
+      >
+        {visibleExamples.map((example) => (
+          <ExampleCard
+            key={example.id}
+            example={example}
+            inspected={example.id === selectedId}
+            onInspect={inspectExample}
+          />
         ))}
       </section>
     </main>

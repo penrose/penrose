@@ -29,6 +29,14 @@ code {
   margin: 0 auto 32px;
 }
 
+.hero__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: end;
+  justify-content: space-between;
+}
+
 .eyebrow,
 .count {
   margin: 0;
@@ -52,12 +60,39 @@ h1 {
   color: #4e4437;
 }
 
+.picker {
+  display: grid;
+  gap: 6px;
+  font-family: "SFMono-Regular", "Menlo", "Monaco", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #726552;
+}
+
+.picker select {
+  min-width: min(420px, calc(100vw - 32px));
+  padding: 10px 14px;
+  border: 1px solid rgba(78, 68, 55, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 252, 247, 0.95);
+  color: #1f1b16;
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
 .gallery {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 20px;
   max-width: 1400px;
   margin: 0 auto;
+}
+
+.gallery--focused {
+  grid-template-columns: minmax(0, 960px);
+  justify-content: center;
 }
 
 .card {
@@ -70,6 +105,17 @@ h1 {
   box-shadow: 0 14px 30px rgba(74, 61, 42, 0.08);
 }
 
+.card--focused {
+  padding: 22px;
+}
+
+.card__heading {
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  justify-content: space-between;
+}
+
 .card__meta h2 {
   margin: 0 0 6px;
   font-size: 1.2rem;
@@ -80,6 +126,20 @@ h1 {
   font-family: "SFMono-Regular", "Menlo", "Monaco", monospace;
   font-size: 0.82rem;
   color: #726552;
+}
+
+.card__action {
+  padding: 8px 14px;
+  border: 1px solid rgba(78, 68, 55, 0.16);
+  border-radius: 999px;
+  background: rgba(243, 239, 230, 0.9);
+  color: #1f1b16;
+  font: inherit;
+  cursor: pointer;
+}
+
+.card__action:hover {
+  background: rgba(232, 225, 211, 0.95);
 }
 
 .card__canvas {
@@ -99,6 +159,10 @@ h1 {
       transparent 20px
     );
   overflow: hidden;
+}
+
+.card__canvas--focused {
+  height: min(72vh, 820px);
 }
 
 .card__canvas > div {
@@ -129,7 +193,24 @@ h1 {
     padding-inline: 16px;
   }
 
+  .hero__controls {
+    align-items: stretch;
+  }
+
+  .picker select {
+    min-width: 0;
+    width: 100%;
+  }
+
   .gallery {
     grid-template-columns: 1fr;
+  }
+
+  .card__heading {
+    flex-direction: column;
+  }
+
+  .card__action {
+    width: fit-content;
   }
 }

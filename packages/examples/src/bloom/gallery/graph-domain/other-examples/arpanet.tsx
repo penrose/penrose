@@ -1,7 +1,7 @@
 /** @jsxImportSource @penrose/bloom */
 // Gallery translation of: graph-domain/other-examples/arpanet
 
-import type { Diagram, Shape } from "@penrose/bloom";
+import type { Diagram, Shape, Substance } from "@penrose/bloom";
 import {
   DiagramBuilder,
   add,
@@ -82,7 +82,7 @@ export const buildDiagram = async (variation = SEED): Promise<Diagram> => {
   ])[];
 
   const edgeShapes = new Map<string, Shape>();
-  const edgeKey = (u: { label: string }, v: { label: string }): string =>
+  const edgeKey = (u: Substance, v: Substance): string =>
     `${u.label}->${v.label}`;
 
   for (const [from, to] of edges) {
@@ -146,7 +146,7 @@ export const buildDiagram = async (variation = SEED): Promise<Diagram> => {
         />
       );
 
-      edgeShapes.set(edgeKey(u.label, v.label), edge);
+      edgeShapes.set(edgeKey(u, v), edge);
 
       encourage(
         objectives.lessThan(
@@ -162,13 +162,15 @@ export const buildDiagram = async (variation = SEED): Promise<Diagram> => {
     { u: Vertex, v: Vertex },
     ({ u, v }) => Edge.test(u, v),
     ({ u, v }) => {
-      const edge = edgeShapes.get(edgeKey(u.label, v.label));
+      const edge = edgeShapes.get(edgeKey(u, v));
       if (!edge) {
         return;
       }
 
       layer(background, edge);
+      layer(edge, u.dot2);
       layer(edge, u.dot);
+      layer(edge, v.dot2);
       layer(edge, v.dot);
     },
   );
@@ -177,7 +179,7 @@ export const buildDiagram = async (variation = SEED): Promise<Diagram> => {
     { u: Vertex, v: Vertex, w: Vertex },
     ({ u, v }) => Edge.test(u, v),
     ({ u, v, w }) => {
-      const edge = edgeShapes.get(edgeKey(u.label, v.label));
+      const edge = edgeShapes.get(edgeKey(u, v));
       if (!edge) {
         return;
       }
