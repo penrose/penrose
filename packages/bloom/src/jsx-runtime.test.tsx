@@ -1,9 +1,9 @@
 /** @jsxImportSource @penrose/bloom */
 
 import { describe, expect, test } from "vitest";
-import { canvas, DiagramBuilder } from "./index.js";
-import type { Circle, Group, RawSvgElement, Text } from "./core/types.js";
 import { getActiveBuilder, setActiveBuilder } from "./core/builder.js";
+import type { Circle, Group, RawSvgElement, Text } from "./core/types.js";
+import { DiagramBuilder, canvas } from "./index.js";
 import { isRawSvgElement } from "./jsx-runtime.js";
 
 describe("jsx-runtime", () => {

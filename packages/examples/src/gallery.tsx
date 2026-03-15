@@ -1,11 +1,9 @@
+/// <reference types="vite/client" />
 import type { Diagram } from "@penrose/bloom";
 import { Renderer } from "@penrose/bloom";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 
-import { buildCustomComponentsDiagram } from "./bloom/custom-components.js";
-import { buildTwoTrianglesDiagram } from "./bloom/generated-active/two-triangles.js";
-import { buildSimpleCirclesDiagram } from "./bloom/simple-circles.js";
 import "./gallery.css";
 import type { Meta } from "./index.js";
 import registry from "./registry.js";
@@ -24,9 +22,6 @@ if (!app) {
 }
 
 const buildRegistry: Record<string, BuildDiagram> = {
-  "bloom/custom-components": buildCustomComponentsDiagram,
-  "bloom/generated/triangle-mesh-3d/two-triangles": buildTwoTrianglesDiagram,
-  "bloom/simple-circles": buildSimpleCirclesDiagram,
 };
 
 const galleryModules = import.meta.glob("./bloom/gallery/**/*.tsx") as Record<

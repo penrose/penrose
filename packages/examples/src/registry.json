@@ -436,8 +436,16 @@
   "solid/eigenspace": { "trio": false },
   "solid/triangles": { "trio": false },
   "solid/vectors": { "trio": false },
-  "bloom/simple-circles": { "trio": false, "tsx": true, "name": "Simple Circles (Bloom JSX)" },
-  "bloom/custom-components": { "trio": false, "tsx": true, "name": "Custom Components (Bloom JSX)" },
+  "bloom/gallery/simple-circles": {
+    "trio": false,
+    "tsx": true,
+    "name": "Simple Circles (Bloom JSX)"
+  },
+  "bloom/gallery/custom-components": {
+    "trio": false,
+    "tsx": true,
+    "name": "Custom Components (Bloom JSX)"
+  },
   "tsne/tsne": {
     "name": "T-SNE Test"
   },
@@ -612,5 +620,46 @@
     "name": "A non-surjection is not an epimorphism",
     "gallery": true
   },
-  "bloom/gallery/set-theory-domain/tree-euler-3d": { "trio": false, "tsx": true, "name": "Sets as Euler Diagram in 2.5D (Bloom JSX)" }
+  "bloom/gallery/array-models/insertionSort": {
+    "trio": false,
+    "tsx": true,
+    "name": "Insertion Sort (Bloom JSX)"
+  },
+
+  "bloom/gallery/dataviz/linearreg": {
+    "trio": false,
+    "tsx": true,
+    "name": "Linear Regression (Bloom JSX)"
+  },
+  
+  "bloom/gallery/graph-domain/other-examples/arpanet": {
+    "trio": false,
+    "tsx": true,
+    "name": "Curved Graph Example with Dots (Bloom JSX)"
+  },
+  "bloom/gallery/graph-domain/other-examples/hamiltonian-cycle": {
+    "trio": false,
+    "tsx": true,
+    "name": "Hamiltonian Cycle (Bloom JSX)"
+  },
+  "bloom/gallery/group-theory/quaternion-multiplication-table": {
+    "trio": false,
+    "tsx": true,
+    "name": "Quaternions as Table (Bloom JSX)"
+  },
+  "bloom/gallery/set-theory-domain/continuousmap": {
+    "trio": false,
+    "tsx": true,
+    "name": "Continuous Map (Bloom JSX)"
+  },
+  "bloom/gallery/set-theory-domain/tree-euler": {
+    "trio": false,
+    "tsx": true,
+    "name": "Sets as Euler Diagram (Bloom JSX)"
+  },
+  "bloom/gallery/set-theory-domain/tree-euler-3d": {
+    "trio": false,
+    "tsx": true,
+    "name": "Sets as Euler Diagram in 2.5D (Bloom JSX)"
+  }
 }

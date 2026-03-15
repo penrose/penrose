@@ -8,14 +8,14 @@ import { describe, expect, test } from "vitest";
 
 describe("bloom JSX examples smoke test", () => {
   test("simple-circles renders an SVG", async () => {
-    const { default: run } = await import("./bloom/simple-circles.js");
+    const { default: run } = await import("./bloom/gallery/simple-circles.js");
     const svg = await run();
     expect(svg).toContain("<svg");
     expect(svg).toContain("circle");
   });
 
   test("custom-components renders an SVG", async () => {
-    const { default: run } = await import("./bloom/custom-components.js");
+    const { default: run } = await import("./bloom/gallery/custom-components.js");
     const svg = await run();
     expect(svg).toContain("<svg");
     expect(svg).toContain("circle");

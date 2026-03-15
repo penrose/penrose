@@ -2,18 +2,19 @@
 // Gallery translation of: set-theory-domain/tree-euler-3d
 
 import type { Diagram } from "@penrose/bloom";
-import { canvas, DiagramBuilder, constraints, objectives, ops } from "@penrose/bloom";
+import {
+  DiagramBuilder,
+  canvas,
+  constraints,
+  objectives,
+  ops,
+  rgba,
+} from "@penrose/bloom";
+import { mul } from "@penrose/core";
 
 export const buildDiagram = async (): Promise<Diagram> => {
-  const {
-    ensure,
-    encourage,
-    build,
-    type,
-    predicate,
-    forall,
-    layer,
-  } = new DiagramBuilder(canvas(800, 700), "abcd");
+  const { ensure, encourage, build, type, predicate, forall, layer } =
+    new DiagramBuilder(canvas(800, 700), "BourbonFalcon9173");
 
   // domain
   const Set = type();
@@ -50,58 +51,83 @@ export const buildDiagram = async (): Promise<Diagram> => {
   IsDisjoint(D, E);
   IsDisjoint(F, G);
 
-
   <defs>
-    <radialGradient id="radial-gradient" cx="388.77" cy="378.93" fx="227.19844299493337" fy="199.3018850052363" r="571.68" gradientUnits="userSpaceOnUse">
-      <stop offset="0.14" stop-color="#dbdbdb"/>
-      <stop offset="0.29" stop-color="#bdbdbd"/>
-      <stop offset="0.6" stop-color="#707070"/>
-      <stop offset="0.72" stop-color="#525252"/>
-      <stop offset="0.76" stop-color="#656565"/>
-      <stop offset="0.84" stop-color="#959595"/>
-      <stop offset="0.96" stop-color="#e2e2e2"/>
-      <stop offset="1" stop-color="#fff"/>
+    <radialGradient
+      id="radial-gradient"
+      gradientUnits="objectBoundingBox"
+      cx="0.4687"
+      cy="0.4569"
+      fx="0.2739"
+      fy="0.2402"
+      r="0.689"
+    >
+      <stop offset="0.14" stop-color="#dbdbdb" />
+      <stop offset="0.29" stop-color="#bdbdbd" />
+      <stop offset="0.6" stop-color="#707070" />
+      <stop offset="0.72" stop-color="#525252" />
+      <stop offset="0.76" stop-color="#656565" />
+      <stop offset="0.84" stop-color="#959595" />
+      <stop offset="0.96" stop-color="#e2e2e2" />
+      <stop offset="1" stop-color="#fff" />
     </radialGradient>
-		<linearGradient id="linear-gradient" x1="214.17" y1="30.72" x2="996.08" y2="1361.33" gradientUnits="userSpaceOnUse">
-      <stop offset="0.14" stop-color="#dbdbdb" stop-opacity="0"/>
-      <stop offset="0.88"/>
+    <linearGradient
+      id="linear-gradient"
+      x1="214.17"
+      y1="30.72"
+      x2="996.08"
+      y2="1361.33"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0.14" stop-color="#dbdbdb" stop-opacity="0" />
+      <stop offset="0.88" />
     </linearGradient>
-  </defs>
+  </defs>;
 
-  // Layer from back to front: A (largest, darkest), B/C, D/E/F/G
   forall({ x: Set }, ({ x }) => {
-
     // Main shape
-    x.icon = (
+    x.icon = <circle stroke-width={2} drag={true} ensure-on-canvas />;
+
+    x.shading = (
       <circle
-        stroke-width={2}
-				drag={true}
-        ensure-on-canvas
+        center={x.icon.center}
+        r={x.icon.r}
+        fill="url(#radial-gradient)"
       />
     );
-
-		x.shading = <circle center={x.icon.center} r={x.icon.r} fill="url(#radial-gradient)"/>
-		x.shadow = <ellipse center={ops.vadd(x.icon.center, [30, 10])} rx={x.icon.r * 1.07} ry={x.icon.r * 2} opacity="0.3" fill="url(#linear-gradient)"/>
+    x.shadow = (
+      <ellipse
+        center={ops.vadd(x.icon.center, [30, -10])}
+        rx={mul(x.icon.r, 1.02)}
+        ry={mul(x.icon.r, 1.07)}
+        opacity="0.3"
+        fill="url(#linear-gradient)"
+      />
+    );
+    layer(x.shadow, x.icon);
+		layer(x.shading, x.icon);
 
     // Label
     x.text = (
       <equation
         string={x.label}
-        font-size="32px"
+        width={mul(x.icon.r, 0.4)}
+        height={mul(x.icon.r, 0.4)}
+        fillColor={rgba(1, 1, 1, 1)}
         ensure-on-canvas
       />
     );
+    layer(x.icon, x.text);
 
-
+    ensure(constraints.greaterThan(x.icon.r, 20));
     ensure(constraints.contains(x.icon, x.text));
     encourage(objectives.sameCenter(x.text, x.icon));
   });
-
 
   forall({ a: Set, b: Set }, ({ a, b }) => {
     if (IsSubset.test(a, b)) {
       ensure(constraints.contains(a.icon, b.icon, 10));
       ensure(constraints.disjoint(a.text, b.icon, 5));
+      layer(a.icon, b.icon);
     }
   });
 

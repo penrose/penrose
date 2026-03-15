@@ -38,6 +38,8 @@ export const buildSimpleCirclesDiagram = async (): Promise<Diagram> => {
   return await build();
 };
 
+export { buildSimpleCirclesDiagram as buildDiagram }
+
 export default async (): Promise<string> => {
   const diagram = await buildSimpleCirclesDiagram();
   const { svg } = await diagram.render();
