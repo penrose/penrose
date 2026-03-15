@@ -5,12 +5,15 @@ import type { Circle, Diagram, Vec2 } from "@penrose/bloom";
 import {
   DiagramBuilder,
   canvas,
+  div,
   interpolateQuadraticFromPoints,
   mul,
   normalize,
   objectives,
   ops,
   rot90,
+  sqr,
+  sub,
 } from "@penrose/bloom";
 
 import { rgba } from "../utils.js";
@@ -19,7 +22,6 @@ const SEED = "MeadowbrookChimpanzee02726";
 const targetEdgeLength = 40;
 const pathWidth = 1;
 const pathOutlineWidth = 3;
-const repelDist = 60;
 
 export const buildDiagram = async (variation = SEED): Promise<Diagram> => {
   const { build, encourage, layer, type, predicate, forall, forallWhere } =
@@ -163,15 +165,13 @@ export const buildDiagram = async (variation = SEED): Promise<Diagram> => {
     },
   );
 
-  // Repel all node pairs
-  forall({ a: Element, b: Element }, ({ a, b }) => {
-    encourage(
-      objectives.repelPt(
-        1,
-        (a.icon as Circle).center,
-        (b.icon as Circle).center,
-      ),
+  // Coulomb repulsion: encourage equal(0, 2*sqr(1000/d))
+  // Matches original: energy = (2*(1000/d)^2)^2
+  forall({ g1: Element, g2: Element }, ({ g1, g2 }) => {
+    const d = ops.vnorm(
+      ops.vsub((g1.icon as Circle).center, (g2.icon as Circle).center),
     );
+    encourage(objectives.equal(0, mul(2, sqr(div(1000, d)))));
   });
 
   // Generator colors: g2 (i) = red, g3 (j) = blue
@@ -193,7 +193,7 @@ export const buildDiagram = async (variation = SEED): Promise<Diagram> => {
         const normal = rot90(tangent as Vec2);
 
         const p0 = aIcon.center as Vec2;
-        // Offset endpoint back along edge and sideways (like the style)
+        // Offset endpoint: back 10 along tangent, +3 along normal (matches style)
         const p2 = ops.vadd(
           ops.vsub(bIcon.center, ops.vmul(10, tangent)),
           ops.vmul(3, normal),
@@ -222,13 +222,11 @@ export const buildDiagram = async (variation = SEED): Promise<Diagram> => {
         layer(orientedPath, aIcon);
         layer(orientedPath, bIcon);
 
-        // Spring force: encourage edge length ≈ targetEdgeLength
-        encourage(
-          objectives.equal(
-            ops.vnorm(ops.vsub(aIcon.center, bIcon.center)),
-            targetEdgeLength,
-          ),
-        );
+        // Spring force: encourage equal(0, k*(d-L)^2/2) with k=1
+        // Matches original: energy = ((d-L)^2/2)^2
+        const d = ops.vnorm(ops.vsub(aIcon.center, bIcon.center));
+        const dMinusL = sub(d, targetEdgeLength);
+        encourage(objectives.equal(0, mul(0.5, sqr(dMinusL))));
       },
     );
   }
