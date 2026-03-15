@@ -38,10 +38,10 @@ export interface OtherMeta extends BaseMeta {
   f: () => Promise<string>;
 }
 
-export interface TsxMeta extends BaseMeta {
+export interface BloomMeta extends BaseMeta {
   trio: false;
-  tsx: true;
+  bloom: true;
   f: () => Promise<string>;
 }
 
-export type Meta = TrioMeta | OtherMeta | TsxMeta;
+export type Meta = TrioMeta | OtherMeta | BloomMeta;

@@ -139,10 +139,3 @@ export const buildDiagram = async (): Promise<Diagram> => {
 
   return await build();
 };
-
-export default async (): Promise<string> => {
-  const diagram = await buildDiagram();
-  const { svg } = await diagram.render();
-  diagram.discard();
-  return svg.outerHTML;
-};

@@ -49,14 +49,14 @@ const getBloomTsxExamples = (): TsxEntry[] =>
         entry,
       ): entry is [
         string,
-        Meta & { trio: false; tsx: true; f: () => Promise<string> },
+        Meta & { trio: false; bloom: true; f: () => Promise<string> },
       ] => {
         const [id, meta] = entry;
         return (
           id.startsWith("bloom/") &&
           meta.trio === false &&
-          "tsx" in meta &&
-          meta.tsx
+          "bloom" in meta &&
+          meta.bloom
         );
       },
     )

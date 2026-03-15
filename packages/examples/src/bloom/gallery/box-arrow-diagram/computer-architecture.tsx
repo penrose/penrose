@@ -141,10 +141,3 @@ export const buildDiagram = async (variation = SEED): Promise<Diagram> => {
 
   return await build();
 };
-
-export default async (variation = SEED): Promise<string> => {
-  const diagram = await buildDiagram(variation);
-  const { svg } = await diagram.render();
-  diagram.discard();
-  return svg.outerHTML;
-};

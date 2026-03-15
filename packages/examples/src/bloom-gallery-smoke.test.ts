@@ -34,9 +34,12 @@ describe("translated Bloom gallery examples", () => {
     ] as const;
 
     for (const path of examples) {
-      const { default: run } = await import(path);
-      const svg = await run();
-      expect(svg, path).toContain("<svg");
+      const { buildDiagram } = await import(path);
+      const diagram = await buildDiagram();
+      while (await diagram.optimizationStep()) {}
+      const { svg } = await diagram.render();
+      diagram.discard();
+      expect(svg.outerHTML, path).toContain("<svg");
     }
-  });
+  }, 120_000);
 });
