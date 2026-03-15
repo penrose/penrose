@@ -30,20 +30,6 @@ import type {
 } from "./core/types.js";
 import { penroseShapeFieldTypes, ShapeType } from "./core/types.js";
 
-/** Convert an object with kebab-case keys to camelCase keys */
-const kebabToCamel = (
-  props: Record<string, unknown>,
-): Record<string, unknown> => {
-  const result: Record<string, unknown> = {};
-  for (const [key, val] of Object.entries(props)) {
-    const camelKey = key.replace(/-([a-z])/g, (_, c: string) =>
-      c.toUpperCase(),
-    );
-    result[camelKey] = val;
-  }
-  return result;
-};
-
 /** Map from JSX intrinsic element names to DiagramBuilder method names */
 const elementToMethod: Record<string, string> = {
   circle: "circle",
@@ -88,10 +74,14 @@ const BLOOM_SPECIAL_PROPS = new Set([
 /**
  * Separate props into Bloom-specific props (passed to builder) and
  * raw SVG attributes (string values for unknown fields, applied post-render).
+ *
+ * Iterates the original (kebab-case) props so that rawAttrs keys are preserved
+ * in their original form (e.g. `paint-order`, not `paintOrder`). bloomProps
+ * keys are converted to camelCase for the builder.
  */
 const separateProps = (
   tag: string,
-  camelProps: Record<string, unknown>,
+  originalProps: Record<string, unknown>,
 ): { bloomProps: Record<string, unknown>; rawAttrs: Record<string, string> } => {
   const shapeType = elementToShapeType[tag];
   const fieldTypes = shapeType
@@ -101,19 +91,24 @@ const separateProps = (
   const bloomProps: Record<string, unknown> = {};
   const rawAttrs: Record<string, string> = {};
 
-  for (const [key, val] of Object.entries(camelProps)) {
-    if (BLOOM_SPECIAL_PROPS.has(key)) {
+  for (const [origKey, val] of Object.entries(originalProps)) {
+    const camelKey = origKey.replace(/-([a-z])/g, (_, c: string) =>
+      c.toUpperCase(),
+    );
+    if (BLOOM_SPECIAL_PROPS.has(camelKey)) {
       // Special Bloom props — always go to builder
       continue; // "children" is handled separately
-    } else if (fieldTypes && key in fieldTypes) {
-      // Known Penrose field — goes to builder
-      bloomProps[key] = val;
+    } else if (fieldTypes && camelKey in fieldTypes) {
+      // Known Penrose field — goes to builder (camelCase key)
+      bloomProps[camelKey] = val;
     } else if (typeof val === "string" && fieldTypes !== undefined) {
-      // String value for an unknown field on a known shape → raw SVG attr
-      rawAttrs[key] = val;
+      // String value for an unknown field on a known shape → raw SVG attr.
+      // Keep the original key so setAttribute receives the correct SVG
+      // attribute name (e.g. "paint-order", not "paintOrder").
+      rawAttrs[origKey] = val;
     } else {
       // Num, array, or other — goes to builder (unknown fields are ignored by toPenroseShape)
-      bloomProps[key] = val;
+      bloomProps[camelKey] = val;
     }
   }
 
@@ -197,8 +192,7 @@ export function jsx(
   const methodName = elementToMethod[type];
   if (methodName !== undefined) {
     // Known shape type — call builder method, separating raw SVG attrs
-    const camelProps = kebabToCamel(props);
-    const { bloomProps, rawAttrs } = separateProps(type, camelProps);
+    const { bloomProps, rawAttrs } = separateProps(type, props);
     const finalProps =
       Object.keys(rawAttrs).length > 0
         ? { ...bloomProps, rawAttrs }

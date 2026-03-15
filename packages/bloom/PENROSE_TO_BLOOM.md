@@ -49,45 +49,47 @@ forall({ n: Node }, ({ n }) => { n.icon = <circle r={40} />; });
 
 ---
 
-## 2. Use Rose Operators When Working with Optimizer Variables
+## 2. Unspecified Fields Are Optimized — Use Penrose Operators on Them
 
-Bloom's `Num` type is `number | Var | Unary | Binary | ...` — a plain TypeScript
-union, **not a class with overloaded operators**. Whether a shape field is a
-`number` or a `Var` (optimizer variable) depends on how it was set:
+### What gets optimized
 
-- **Explicitly set fields** stay as the type you provide. If you wrote
-  `<circle r={42} />` or `circle({ center: [100, 200] })`, those fields hold
-  plain `number`s and JS arithmetic on them works fine.
-- **Unspecified fields** are filled by `sampleShape` and become `Var` nodes —
-  the optimizer varies these. JS arithmetic on `Var` objects produces `NaN` or
-  nonsense because `Var` is a plain object, not a number.
-
-**In practice:** use JS operators freely on values you set to concrete constants.
-Use the Penrose math API when you need to compute something from an
-optimizer-controlled value (e.g., placing a label relative to an auto-placed
-circle center):
+In Penrose Style, `?` means "the optimizer decides this value." Every shape field
+that is not explicitly set in Bloom has the same semantics — it is auto-sampled
+as a `Var` (optimizer variable) and will be varied to satisfy constraints and
+objectives.
 
 ```tsx
-// ✅ Fine — both values are concrete numbers you set explicitly
+// <circle /> — ALL positional fields (center, r) are Var: optimizer places them
+// <circle r={40} /> — r is fixed at 40; center is still Var
+// <circle r={40} center={[100, 200]} /> — both fixed; nothing is optimized
+```
+
+**Prefer leaving layout fields unspecified** and expressing intent through
+`ensure`/`encourage`. Let the optimizer do the work.
+
+### JS operators work on concrete numbers, not on Var
+
+Bloom's `Num` type is `number | Var | Unary | Binary | ...` — a plain TypeScript
+union, **not a class with overloaded operators**. Fields you set explicitly hold
+whatever type you gave (plain `number` for literals). Unspecified fields hold
+`Var` objects — and JS `+`, `-`, `*`, `/` on a `Var` produce `NaN` silently.
+
+```tsx
+// ✅ Fine — cx/cy are plain JS numbers; arithmetic stays concrete
 const cx = 100, cy = 200;
 <circle center={[cx + 50, cy]} r={40} />
 
-// ✅ Fine — using shape fields that you explicitly set as numbers
-const n = Node();
-n.icon = circle({ center: [100, 200], r: 40 });
-const labelY = n.icon.center[1] - 20; // center[1] is 200 (a number)
-
-// ❌ Wrong — r was not set, so it's a Var; JS * gives NaN
+// ❌ Wrong — n.icon.r is a Var (not set); JS * gives NaN
 forall({ n: Node }, ({ n }) => {
-  n.icon = <circle />; // r is auto-sampled → Var
-  n.label = <circle r={n.icon.r * 2} />; // NaN!
+  n.icon = <circle />;               // r → Var (optimizer decides)
+  n.halo = <circle r={n.icon.r * 2} />; // NaN
 });
 
-// ✅ Correct — use mul() to combine optimizer variables
+// ✅ Correct — use Penrose API to combine optimizer variables
 import { mul, ops } from "@penrose/core";
 forall({ n: Node }, ({ n }) => {
   n.icon = <circle />;
-  n.label = <circle r={mul(n.icon.r, 2)} />;
+  n.halo = <circle r={mul(n.icon.r, 2)} />;
 });
 ```
 
@@ -115,6 +117,55 @@ import { add, mul, sub, neg, abs, sqrt, ops } from "@penrose/core";
 Comparison operators (`<`, `>`, `===`) on `Var` values compare object identity,
 not numerical value. For constraint/objective purposes use `constraints.*` and
 `objectives.*` from `@penrose/bloom`.
+
+### Which fields are sampled by default
+
+Not all unset fields behave the same. Some have fixed defaults (e.g., stroke
+properties), while others are **randomly sampled** — including `fillColor` on
+the most common shapes. The full per-shape table is in
+`packages/docs-site/docs/ref/style/shapes/`. The sampled fields (those that
+vary with the random seed) are:
+
+| Shape | Sampled fields |
+|-------|---------------|
+| Circle | `center`, `r`, `fillColor` |
+| Ellipse | `center`, `rx`, `ry`, `fillColor` |
+| Rectangle | `center`, `width`, `height`, `fillColor` |
+| Line | `start`, `end` |
+| Image | `center`, `width`, `height` |
+| Polygon | `fillColor` |
+| Text | `center` |
+| Equation | `center` |
+| Path / Polyline / Group | *(none — all fields have fixed defaults)* |
+
+`strokeColor` has a fixed default on every shape and is **not** sampled.
+
+**Implication for translation:** if the source style sets `fillColor` on a
+circle, you should replicate it; leaving it unset will produce a different
+(randomly-colored) diagram on every seed. If the source intentionally omits
+fill color and lets it be sampled, leaving it unset is correct.
+
+### Avoid inventing magic constants
+
+When translating a trio, **do not introduce numeric constants that are not in the
+source**. Arbitrary numbers like `center={[150, 0]}` or `r={45}` anchor shapes
+to fixed pixel positions, defeating the optimizer.
+
+If the source style uses a magic number (e.g., a padding constant like `20.0`),
+treat it one of two ways:
+
+1. **It's a layout hint the optimizer can replace** — drop it and express the
+   intent as a constraint/objective instead. For example, `labelPadding = 10`
+   in Style becomes `ensure(constraints.contains(icon, label, 10))` in Bloom,
+   with the optimizer free to satisfy it.
+
+2. **It's a genuine fixed value** (canvas size, number of items, a coordinate
+   system constant) — use it verbatim as a JS constant, not as a shape field
+   that should be optimized.
+
+When in doubt, ask: *"Would changing this number change what diagram is
+described, or just where it ends up on the canvas?"* If the latter, leave it
+out and let the optimizer decide.
 
 ---
 
@@ -223,7 +274,10 @@ from a random seed every run, making snapshot tests non-deterministic.
 
 - [ ] `/** @jsxImportSource @penrose/bloom */` at the top of every `.tsx` file
 - [ ] All shape JSX inside `forall` callbacks (or immediately after `new DiagramBuilder`)
-- [ ] No JS arithmetic (`+`, `-`, `*`) on `Num` values — use `add`, `mul`, `ops.*`
+- [ ] Layout fields left unspecified where possible — let the optimizer place them
+- [ ] No JS arithmetic on optimizer variables (`Var`); use `add`, `mul`, `ops.*` instead
+- [ ] No magic constants invented during translation — only numbers present in the source
+- [ ] Source magic numbers evaluated: use as constraint padding or drop in favour of the optimizer
 - [ ] Loops and conditionals written in JS, not simulated with multi-selector foralls
 - [ ] `variation` string passed to `DiagramBuilder` and recorded in `registry.json`
 - [ ] Export a default `async (variation?: string): Promise<string>` function that returns the SVG string
