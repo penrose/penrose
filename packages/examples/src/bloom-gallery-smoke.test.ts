@@ -28,6 +28,7 @@ describe("translated Bloom gallery examples", () => {
       "./bloom/gallery/graph-domain/other-examples/arpanet.tsx",
       "./bloom/gallery/graph-domain/other-examples/hamiltonian-cycle.tsx",
       "./bloom/gallery/group-theory/quaternion-multiplication-table.tsx",
+      "./bloom/gallery/group-theory/cayley-graph.tsx",
       "./bloom/gallery/set-theory-domain/continuousmap.tsx",
       "./bloom/gallery/set-theory-domain/tree-euler.tsx",
     ] as const;

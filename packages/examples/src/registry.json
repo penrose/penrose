@@ -647,6 +647,11 @@
     "tsx": true,
     "name": "Quaternions as Table (Bloom JSX)"
   },
+  "bloom/gallery/group-theory/cayley-graph": {
+    "trio": false,
+    "tsx": true,
+    "name": "Quaternions as Cayley Graph (Bloom JSX)"
+  },
   "bloom/gallery/set-theory-domain/continuousmap": {
     "trio": false,
     "tsx": true,
