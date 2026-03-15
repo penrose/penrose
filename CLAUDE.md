@@ -83,17 +83,44 @@ const diagram = await build();
 const { svg } = await diagram.render();
 ```
 
-**Prop names are SVG-native kebab-case** (`fill-color`, `stroke-width`, `corner-radius`, etc.) converted to camelCase at runtime. Supported elements: `circle`, `ellipse`, `rect` (→ Rectangle), `line`, `path`, `polygon`, `polyline`, `text`, `image`, `g` (→ Group), `equation`.
+**Prop names are SVG-native kebab-case** (`fill-color`, `stroke-width`, `corner-radius`, etc.) converted to camelCase at runtime.
+
+**Two categories of JSX elements:**
+
+1. **Known shape elements** — `circle`, `ellipse`, `rect` (→ Rectangle), `line`, `path`, `polygon`, `polyline`, `text`, `image`, `g` (→ Group), `equation`. These call the corresponding `DiagramBuilder` method and go through the LBFGS optimizer. Props that match known Bloom fields (see `penroseShapeFieldTypes` in `types.ts`) are passed to the builder; string props for unrecognized fields become `rawAttrs` applied after rendering (useful for things like `fill="url(#grad1)"`).
+
+2. **Unknown SVG elements** — any other tag (`defs`, `linearGradient`, `stop`, `filter`, `clipPath`, etc.) returns a `RawSvgElement` and is registered with the active builder via `addRawSvgDef()`. These are injected directly into the SVG output before the optimized shapes. Parent elements absorb their children from the top-level list so only the outermost element is injected.
+
+```tsx
+// defs registered as side-effect; children dedup'd automatically
+<defs>
+  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="cornflowerblue" />
+    <stop offset="100%" stop-color="tomato" />
+  </linearGradient>
+</defs>;
+
+forall({ n: Node }, ({ n }) => {
+  // fill="url(#grad1)" is a rawAttr — overrides Penrose's fillColor post-render
+  n.icon = <circle r={50} fill="url(#grad1)" ensure-on-canvas />;
+});
+```
+
+**Rendering pipeline for raw defs / rawAttrs:**
+- `builder.build()` collects `rawSvgDefs: RawSvgElement[]` and `rawAttrsByName: Map<string, Record<string, string>>` from all registered defs and shapes
+- `Diagram.render()` calls `stateToSVG()` (Penrose pipeline), then prepends raw defs into the SVG and applies `rawAttrs` overrides via the `titleCache` (shape name → SVG element map)
 
 **Semantics are eager** — shapes are created immediately when JSX is evaluated, just like calling `builder.circle()`. Reference a shape's fields only after the `forall` block that assigns them.
 
-**Functional components** are supported: any function `(props) => Shape` can be used as a JSX element.
+**Functional components** are supported: any function `(props) => Shape | RawSvgElement` can be used as a JSX element.
 
 **Active builder context** — `DiagramBuilder` sets itself as the active builder on construction and within each `forall` callback. The JSX factory calls `getActiveBuilder()` to find the right builder without requiring it to be passed explicitly. Use `setActiveBuilder()` if you need manual control.
 
 **Key files:**
-- `packages/bloom/src/jsx-runtime.ts` — JSX factory (`jsx`, `jsxs`, `jsxDEV`, `Fragment`) + `JSX.IntrinsicElements` type declarations
-- `packages/bloom/src/core/builder.ts` — `getActiveBuilder()` / `setActiveBuilder()` exports; `_activeBuilder` context managed in constructor and `internalForallWhere`
+- `packages/bloom/src/jsx-runtime.ts` — JSX factory (`jsx`, `jsxs`, `jsxDEV`, `Fragment`) + `JSX.IntrinsicElements` type declarations; `isRawSvgElement` type guard
+- `packages/bloom/src/core/types.ts` — `RawSvgElement` interface; `rawAttrs` field on `ShapeCommon`
+- `packages/bloom/src/core/builder.ts` — `addRawSvgDef()` with child deduplication; `getActiveBuilder()` / `setActiveBuilder()`; `_activeBuilder` context managed in constructor and `internalForallWhere`
+- `packages/bloom/src/core/utils.ts` — `appendRawSvgElements()` injects `RawSvgElement` trees into SVG
 - `packages/bloom/package.json` — `exports` field maps `./jsx-runtime` and `./jsx-dev-runtime` to `dist/jsx-runtime.js`
 
 **Testing bloom JSX:**

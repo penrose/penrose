@@ -13,6 +13,9 @@
  *
  * Prop names use SVG-native kebab-case (e.g. `fill-color`, `stroke-width`).
  * They are converted to camelCase before being passed to the builder.
+ *
+ * Unknown SVG elements (defs, linearGradient, etc.) are registered as raw SVG
+ * defs and injected into the rendered SVG output.
  */
 import { getActiveBuilder } from "./core/builder.js";
 import type { Num } from "@penrose/core";
@@ -21,9 +24,11 @@ import type {
   DragConstraint,
   Group,
   PathData,
+  RawSvgElement,
   Shape,
   Vec2,
 } from "./core/types.js";
+import { penroseShapeFieldTypes, ShapeType } from "./core/types.js";
 
 /** Convert an object with kebab-case keys to camelCase keys */
 const kebabToCamel = (
@@ -54,22 +59,122 @@ const elementToMethod: Record<string, string> = {
   equation: "equation",
 };
 
+/** Map from JSX intrinsic element names to ShapeType (for rawAttrs detection) */
+const elementToShapeType: Record<string, ShapeType> = {
+  circle: ShapeType.Circle,
+  ellipse: ShapeType.Ellipse,
+  rect: ShapeType.Rectangle,
+  line: ShapeType.Line,
+  path: ShapeType.Path,
+  polygon: ShapeType.Polygon,
+  polyline: ShapeType.Polyline,
+  text: ShapeType.Text,
+  image: ShapeType.Image,
+  g: ShapeType.Group,
+  equation: ShapeType.Equation,
+};
+
+/**
+ * Props that are special Bloom props not in penroseShapeFieldTypes but
+ * should still be passed to the builder method (not treated as raw SVG attrs).
+ */
+const BLOOM_SPECIAL_PROPS = new Set([
+  "drag",
+  "dragConstraint",
+  "interactiveOnly",
+  "children",
+]);
+
+/**
+ * Separate props into Bloom-specific props (passed to builder) and
+ * raw SVG attributes (string values for unknown fields, applied post-render).
+ */
+const separateProps = (
+  tag: string,
+  camelProps: Record<string, unknown>,
+): { bloomProps: Record<string, unknown>; rawAttrs: Record<string, string> } => {
+  const shapeType = elementToShapeType[tag];
+  const fieldTypes = shapeType
+    ? penroseShapeFieldTypes.get(shapeType)
+    : undefined;
+
+  const bloomProps: Record<string, unknown> = {};
+  const rawAttrs: Record<string, string> = {};
+
+  for (const [key, val] of Object.entries(camelProps)) {
+    if (BLOOM_SPECIAL_PROPS.has(key)) {
+      // Special Bloom props — always go to builder
+      continue; // "children" is handled separately
+    } else if (fieldTypes && key in fieldTypes) {
+      // Known Penrose field — goes to builder
+      bloomProps[key] = val;
+    } else if (typeof val === "string" && fieldTypes !== undefined) {
+      // String value for an unknown field on a known shape → raw SVG attr
+      rawAttrs[key] = val;
+    } else {
+      // Num, array, or other — goes to builder (unknown fields are ignored by toPenroseShape)
+      bloomProps[key] = val;
+    }
+  }
+
+  return { bloomProps, rawAttrs };
+};
+
+/** Create a RawSvgElement from an unknown JSX element */
+const createRawSvgElement = (
+  tag: string,
+  props: Record<string, unknown>,
+): RawSvgElement => {
+  const attrs: Record<string, string> = {};
+  const children: RawSvgElement[] = [];
+
+  for (const [key, val] of Object.entries(props)) {
+    if (key === "children") {
+      const rawChildren = val;
+      const childArr = Array.isArray(rawChildren)
+        ? rawChildren
+        : [rawChildren];
+      for (const child of childArr) {
+        if (isRawSvgElement(child)) {
+          children.push(child);
+        }
+      }
+    } else if (typeof val === "string" || typeof val === "number") {
+      // Convert kebab-case attr names back to SVG native (they came in as raw kebab-case props)
+      attrs[key] = String(val);
+    }
+  }
+
+  return { _rawSvg: true, tag, attrs, children };
+};
+
+/** Type guard for RawSvgElement */
+export const isRawSvgElement = (val: unknown): val is RawSvgElement =>
+  typeof val === "object" &&
+  val !== null &&
+  "_rawSvg" in val &&
+  (val as RawSvgElement)._rawSvg === true;
+
 /** Sentinel value for JSX fragments (not supported — throws at runtime) */
 export const Fragment: unique symbol = Symbol("Fragment");
 
 /**
  * JSX factory function. Called by the TypeScript compiler for every JSX element.
- * Looks up the active DiagramBuilder via `getActiveBuilder()` and calls the
- * corresponding shape method with the converted props.
+ *
+ * - For known Bloom shape elements (circle, rect, etc.): calls the corresponding
+ *   builder method. String props for unknown fields become rawAttrs (applied post-render).
+ * - For unknown SVG elements (defs, linearGradient, etc.): creates a RawSvgElement
+ *   and registers it with the active builder as a raw SVG def.
+ * - For functional components: calls the function directly.
  */
 export function jsx(
   type:
     | string
     | typeof Fragment
-    | ((props: Record<string, unknown>) => Shape),
+    | ((props: Record<string, unknown>) => Shape | RawSvgElement),
   props: Record<string, unknown>,
   _key?: string,
-): Shape {
+): Shape | RawSvgElement {
   if (type === Fragment) {
     throw new Error(
       "JSX fragments (<>...</>) are not supported in Bloom. " +
@@ -90,16 +195,23 @@ export function jsx(
   }
 
   const methodName = elementToMethod[type];
-  if (methodName === undefined) {
-    throw new Error(
-      `Unknown JSX element: "${type}". ` +
-        `Supported elements: ${Object.keys(elementToMethod).join(", ")}`,
-    );
+  if (methodName !== undefined) {
+    // Known shape type — call builder method, separating raw SVG attrs
+    const camelProps = kebabToCamel(props);
+    const { bloomProps, rawAttrs } = separateProps(type, camelProps);
+    const finalProps =
+      Object.keys(rawAttrs).length > 0
+        ? { ...bloomProps, rawAttrs }
+        : bloomProps;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (builder as any)[methodName](finalProps) as Shape;
+  } else {
+    // Unknown SVG element — raw def (defs, linearGradient, stop, filter, etc.)
+    // Props for raw elements are passed as-is (kebab-case) since they go directly to SVG
+    const rawEl = createRawSvgElement(type, props);
+    builder.addRawSvgDef(rawEl);
+    return rawEl;
   }
-
-  const camelProps = kebabToCamel(props);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (builder as any)[methodName](camelProps) as Shape;
 }
 
 /** Alias for jsx — used when there are multiple children (same semantics for Bloom) */
@@ -164,20 +276,20 @@ interface StringJSXProps {
 // --- JSX namespace (TypeScript uses this for type-checking JSX expressions) ---
 
 export namespace JSX {
-  export type Element = Shape;
+  export type Element = Shape | RawSvgElement;
 
   export interface IntrinsicElements {
     /** SVG circle / Bloom Circle */
     circle: CommonJSXProps &
       StrokeJSXProps &
       FillJSXProps &
-      CenterJSXProps & { r?: Num };
+      CenterJSXProps & { r?: Num; fill?: string };
 
     /** SVG ellipse / Bloom Ellipse */
     ellipse: CommonJSXProps &
       StrokeJSXProps &
       FillJSXProps &
-      CenterJSXProps & { rx?: Num; ry?: Num };
+      CenterJSXProps & { rx?: Num; ry?: Num; fill?: string };
 
     /** SVG rect / Bloom Rectangle */
     rect: CommonJSXProps &
@@ -185,7 +297,7 @@ export namespace JSX {
       FillJSXProps &
       CenterJSXProps &
       RotateJSXProps &
-      RectSizeJSXProps & { "corner-radius"?: Num };
+      RectSizeJSXProps & { "corner-radius"?: Num; fill?: string };
 
     /** SVG line / Bloom Line */
     line: CommonJSXProps &
@@ -254,7 +366,7 @@ export namespace JSX {
 
     /** SVG g (group) / Bloom Group */
     g: CommonJSXProps & {
-      shapes?: Shape[];
+      shapes?: Array<Shape | RawSvgElement>;
       "clip-path"?: Exclude<Shape, Group>;
     };
 
@@ -268,5 +380,9 @@ export namespace JSX {
         ascent?: Num;
         descent?: Num;
       };
+
+    /** Any other SVG element — treated as a raw SVG def (defs, linearGradient, etc.) */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [tag: string]: any;
   }
 }

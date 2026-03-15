@@ -2,8 +2,9 @@
 
 import { describe, expect, test } from "vitest";
 import { canvas, DiagramBuilder } from "./index.js";
-import type { Circle, Group, Text } from "./core/types.js";
+import type { Circle, Group, RawSvgElement, Text } from "./core/types.js";
 import { getActiveBuilder, setActiveBuilder } from "./core/builder.js";
+import { isRawSvgElement } from "./jsx-runtime.js";
 
 describe("jsx-runtime", () => {
   test("active builder is set in constructor", () => {
@@ -90,6 +91,53 @@ describe("jsx-runtime", () => {
     expect(() => {
       return (<circle r={10} />) as unknown;
     }).toThrow("DiagramBuilder context");
+  });
+
+  test("unknown SVG elements become RawSvgElements and register as raw defs", () => {
+    const db = new DiagramBuilder(canvas(400, 400), "test-defs");
+
+    // Evaluate JSX outside forall — defs are registered as side-effects
+    const defsEl = (
+      <defs>
+        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="cornflowerblue" />
+          <stop offset="100%" stop-color="tomato" />
+        </linearGradient>
+      </defs>
+    ) as unknown as RawSvgElement;
+
+    expect(isRawSvgElement(defsEl)).toBe(true);
+    expect(defsEl.tag).toBe("defs");
+    expect(defsEl.children).toHaveLength(1);
+
+    const grad = defsEl.children[0];
+    expect(grad.tag).toBe("linearGradient");
+    expect(grad.attrs["id"]).toBe("grad1");
+    expect(grad.children).toHaveLength(2);
+    expect(grad.children[0].attrs["offset"]).toBe("0%");
+
+    setActiveBuilder(null); // clean up
+  });
+
+  test("string fill prop on circle becomes rawAttr overriding Penrose fill", () => {
+    const db = new DiagramBuilder(canvas(400, 400), "test-fill");
+    const Node = db.type();
+    const n = Node();
+
+    db.forall({ n: Node }, ({ n }) => {
+      n.icon = <circle r={50} fill="url(#grad1)" ensure-on-canvas />;
+    });
+
+    const shape = n.icon as Circle;
+    // Shape is still a Circle with shapeType
+    expect(shape.shapeType).toBe("Circle");
+    // rawAttrs carries the raw fill string
+    expect(shape.rawAttrs).toBeDefined();
+    expect(shape.rawAttrs!["fill"]).toBe("url(#grad1)");
+    // ensureOnCanvas is a known field and goes to bloomProps
+    expect(shape.ensureOnCanvas).toBe(true);
+
+    setActiveBuilder(null); // clean up
   });
 
   test("active builder is restored after forall callback", () => {

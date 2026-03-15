@@ -22,6 +22,19 @@ export interface ShapeCommon {
   name: string;
   ensureOnCanvas: boolean;
   interactiveOnly: boolean;
+  /** Raw SVG attributes to apply after rendering (override Penrose-computed values) */
+  rawAttrs?: Record<string, string>;
+}
+
+/**
+ * A raw SVG element created by JSX for unknown element types (defs, linearGradient, etc.).
+ * These are injected into the SVG output without going through the optimizer.
+ */
+export interface RawSvgElement {
+  readonly _rawSvg: true;
+  readonly tag: string;
+  readonly attrs: Record<string, string>;
+  readonly children: RawSvgElement[];
 }
 
 export interface Stroke {
