@@ -15,7 +15,7 @@ import {
 
 import { rgba } from "../../utils.js";
 
-const SEED = "CascaraKudu41689";
+const SEED = "CascaraKudu416890";
 const edgeDist = 100;
 const repelDist = 150;
 

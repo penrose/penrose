@@ -42,9 +42,9 @@ const hotColor = (index: number, total: number) => {
 };
 
 const positions = labels.map((_, index) => {
-  const t = index / labels.length;
-  const u = (t - 0.5) * tableHeight;
-  const v = (1 - t - 0.5) * tableWidth;
+  const t = (index + 0.5) / labels.length;
+  const u = (t - 0.5) * tableWidth;
+  const v = (0.5 - t) * tableHeight;
   return {
     u,
     v,
@@ -54,20 +54,20 @@ const positions = labels.map((_, index) => {
 });
 
 export const buildDiagram = async (variation = SEED): Promise<Diagram> => {
-  const { build } = new DiagramBuilder(canvas(240, 200), variation);
+  const { build } = new DiagramBuilder(canvas(260, 220), variation);
 
   for (const [index, label] of labels.entries()) {
     const { u, v } = positions[index];
 
     <equation
       string={label}
-      center={[-tableWidth / 2, v]}
+      center={[-tableWidth / 2 - 12, v]}
       font-size={"8px"}
       fill-color={rgba(102, 102, 102, 1)}
     />;
     <equation
       string={label}
-      center={[u, tableHeight / 2]}
+      center={[u, tableHeight / 2 + 12]}
       font-size={"8px"}
       fill-color={rgba(102, 102, 102, 1)}
     />;
