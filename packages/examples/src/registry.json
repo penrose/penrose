@@ -656,5 +656,10 @@
     "trio": false,
     "bloom": true,
     "name": "Sets as Euler Diagram in 2.5D (Bloom JSX)"
+  },
+  "bloom/gallery/misc/tiger": {
+    "trio": false,
+    "bloom": true,
+    "name": "Tiger with Cursor-Following Eyes (Bloom JSX)"
   }
 }

@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import type { Diagram } from "@penrose/bloom";
 import { Renderer } from "@penrose/bloom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 
 import "./gallery.css";
@@ -150,6 +150,36 @@ function ExampleCard(props: {
   onInspect: (id: string | null) => void;
 }) {
   const { diagram, error } = useQueuedDiagram(props.example.id);
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  // Cursor-tracking: for diagrams that expose "cursorX" / "cursorY" named
+  // inputs (e.g. the tiger example), convert pointer position to Bloom canvas
+  // coordinates and feed them into the diagram so the optimizer can react.
+  useEffect(() => {
+    if (!diagram || !canvasRef.current) return;
+    const container = canvasRef.current;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const svg = container.querySelector("svg");
+      if (!svg) return;
+      const vb = svg.getAttribute("viewBox");
+      if (!vb) return;
+      const [, , vbW, vbH] = vb.split(" ").map(Number);
+      const rect = svg.getBoundingClientRect();
+      const svgX = ((e.clientX - rect.left) / rect.width) * vbW;
+      const svgY = ((e.clientY - rect.top) / rect.height) * vbH;
+      // Bloom canvas: origin at center, y-up
+      try {
+        diagram.setInput("cursorX", svgX - vbW / 2);
+        diagram.setInput("cursorY", vbH / 2 - svgY);
+      } catch {
+        // diagram does not have cursor inputs — no-op
+      }
+    };
+
+    container.addEventListener("mousemove", handleMouseMove);
+    return () => container.removeEventListener("mousemove", handleMouseMove);
+  }, [diagram]);
 
   return (
     <article
@@ -172,6 +202,7 @@ function ExampleCard(props: {
         <p>{props.example.id}</p>
       </div>
       <div
+        ref={canvasRef}
         className={`card__canvas${
           props.inspected ? " card__canvas--focused" : ""
         }`}

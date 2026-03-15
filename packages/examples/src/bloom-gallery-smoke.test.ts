@@ -31,6 +31,7 @@ describe("translated Bloom gallery examples", () => {
       "./bloom/gallery/group-theory/cayley-graph.tsx",
       "./bloom/gallery/set-theory-domain/continuousmap.tsx",
       "./bloom/gallery/set-theory-domain/tree-euler.tsx",
+      "./bloom/gallery/misc/tiger.tsx",
     ] as const;
 
     for (const path of examples) {
