@@ -3,6 +3,7 @@ import {
   DiagramBuilder,
   Renderer,
   canvas,
+  div,
   interpolateQuadraticFromPoints,
   mul,
   normalize,
@@ -215,7 +216,7 @@ export default function CayleyGraph({ group }: Props) {
       observer.disconnect();
       if (debounceTimer !== null) clearTimeout(debounceTimer);
     };
-  }, []);
+  }, [diagram]);
 
   if (!diagram) {
     return (
