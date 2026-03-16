@@ -3,6 +3,7 @@ import {
   DiagramBuilder,
   Renderer,
   canvas,
+  div,
   interpolateQuadraticFromPoints,
   mul,
   normalize,
@@ -115,15 +116,12 @@ export const buildCayleyGraph = async (
     },
   );
 
-  // Repulsion between all element pairs (repelPt is singularity-free)
+  // Coulomb repulsion between all element pairs
   forall({ g1: Element, g2: Element }, ({ g1, g2 }) => {
-    encourage(
-      objectives.repelPt(
-        10000,
-        (g1.icon as Circle).center as Vec2,
-        (g2.icon as Circle).center as Vec2,
-      ),
+    const d = ops.vnorm(
+      ops.vsub((g1.icon as Circle).center, (g2.icon as Circle).center),
     );
+    encourage(objectives.equal(0, mul(2, sqr(div(1000, d)))));
   });
 
   // Draw arrows for each generator
