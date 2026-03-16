@@ -42,6 +42,7 @@ export const buildCayleyGraph = async (
   group: GroupData,
   variation = "default",
 ) => {
+  const canvasSize = Math.max(200, 100 + 30 * group.order);
   const {
     build,
     circle,
@@ -53,7 +54,7 @@ export const buildCayleyGraph = async (
     predicate,
     forall,
     forallWhere,
-  } = new DiagramBuilder(canvas(340, 300), variation);
+  } = new DiagramBuilder(canvas(canvasSize, canvasSize), variation);
 
   const Element = type();
   const IsIdentity = predicate();
