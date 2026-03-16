@@ -1,11 +1,8 @@
 import type { Circle, Vec2 } from "@penrose/bloom";
-import type { Num } from "@penrose/core";
 import {
   DiagramBuilder,
   Renderer,
-  add,
   canvas,
-  div,
   interpolateQuadraticFromPoints,
   mul,
   normalize,
@@ -16,7 +13,7 @@ import {
   sub,
   useDiagram,
 } from "@penrose/bloom";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { GroupData } from "./groups.js";
 
 const TARGET_EDGE_LENGTH = 40;
@@ -55,7 +52,7 @@ export const buildCayleyGraph = async (
     predicate,
     forall,
     forallWhere,
-  } = new DiagramBuilder(canvas(170, 150), variation);
+  } = new DiagramBuilder(canvas(340, 300), variation);
 
   const Element = type();
   const IsIdentity = predicate();
@@ -101,22 +98,6 @@ export const buildCayleyGraph = async (
 
     layer(g.icon, g.labelText);
   });
-
-  // Encourage the centroid of all nodes to sit at the canvas center (0, 0).
-  // Summing centers symbolically and penalising (avg_x)^2 + (avg_y)^2 acts as
-  // a weak gravity toward the origin without distorting the graph structure.
-  {
-    let sumX: Num = 0;
-    let sumY: Num = 0;
-    for (const e of elements) {
-      const center = (e.icon as Circle).center;
-      sumX = add(sumX, center[0]);
-      sumY = add(sumY, center[1]);
-    }
-    const n = group.order;
-    encourage(objectives.equal(0, div(sumX, n)));
-    encourage(objectives.equal(0, div(sumY, n)));
-  }
 
   // Mark identity with a larger outer circle
   forallWhere(
@@ -196,13 +177,45 @@ interface Props {
   group: GroupData;
 }
 
+const CROP_PAD = 10;
+
 export default function CayleyGraph({ group }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const buildFn = useCallback(
     () => buildCayleyGraph(group, group.id),
     [group],
   );
-
   const diagram = useDiagram(buildFn);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const cropToContent = () => {
+      const svg = container.querySelector("svg");
+      if (!svg) return;
+      const bbox = (svg as SVGGraphicsElement).getBBox();
+      if (bbox.width === 0 || bbox.height === 0) return;
+      svg.setAttribute(
+        "viewBox",
+        `${bbox.x - CROP_PAD} ${bbox.y - CROP_PAD} ${bbox.width + 2 * CROP_PAD} ${bbox.height + 2 * CROP_PAD}`,
+      );
+    };
+
+    const observer = new MutationObserver(() => {
+      if (debounceTimer !== null) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(cropToContent, 150);
+    });
+
+    observer.observe(container, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      if (debounceTimer !== null) clearTimeout(debounceTimer);
+    };
+  }, []);
 
   if (!diagram) {
     return (
@@ -221,7 +234,7 @@ export default function CayleyGraph({ group }: Props) {
   }
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <div ref={containerRef} style={{ width: "100%", height: "100%" }}>
       <Renderer diagram={diagram} />
     </div>
   );
