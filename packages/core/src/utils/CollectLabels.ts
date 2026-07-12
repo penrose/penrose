@@ -152,15 +152,15 @@ const tex2svg = async (
       const em_to_px = (n: number) => n * toPxFontSize(number, unit);
       const scaledWidth = em_to_px(width);
       const scaledHeight = em_to_px(height);
-      const scaledD = (d / exH) * scaledHeight;
-      const scaledDescent = scaledD;
-      const scaledAscent = scaledHeight - scaledDescent; // HACK: interpreting ascent to be height - descent, which might be very wrong
+      const scaledD = exH && !Number.isNaN(exH) && exH !== 0 ? (d / exH) * scaledHeight : 0;
+      const scaledDescent = Number.isNaN(scaledD) ? 0 : scaledD;
+      const scaledAscent = Number.isNaN(scaledHeight - scaledDescent) ? scaledHeight : scaledHeight - scaledDescent; // HACK: interpreting ascent to be height - descent, which might be very wrong
 
       resolve(
         ok({
           body,
-          width: scaledWidth,
-          height: scaledHeight,
+          width: Number.isNaN(scaledWidth) ? 0 : scaledWidth,
+          height: Number.isNaN(scaledHeight) ? 0 : scaledHeight,
           descent: scaledDescent,
           ascent: scaledAscent,
         }),
@@ -329,15 +329,27 @@ export function measureText(text: string, font: string): TextMeasurement {
   measureTextContext.font = font;
   const measurements = measureTextContext.measureText(text);
   measureTextElement.remove();
+
+  const getSafeNum = (val: any): number => {
+    return typeof val === "number" && !Number.isNaN(val) ? Math.abs(val) : 0;
+  };
+
+  const left = getSafeNum(measurements.actualBoundingBoxLeft);
+  const right = getSafeNum(measurements.actualBoundingBoxRight);
+  const ascent = getSafeNum(measurements.actualBoundingBoxAscent);
+  const descent = getSafeNum(measurements.actualBoundingBoxDescent);
+
+  let width = left + right;
+  // If actualBoundingBox properties aren't supported or return 0, fallback to standard width
+  if (width === 0 && text.length > 0) {
+    width = getSafeNum(measurements.width);
+  }
+
   return {
-    width:
-      Math.abs(measurements.actualBoundingBoxLeft) +
-      Math.abs(measurements.actualBoundingBoxRight),
-    height:
-      Math.abs(measurements.actualBoundingBoxAscent) +
-      Math.abs(measurements.actualBoundingBoxDescent),
-    actualDescent: Math.abs(measurements.actualBoundingBoxDescent),
-    actualAscent: Math.abs(measurements.actualBoundingBoxAscent),
+    width,
+    height: ascent + descent,
+    actualDescent: descent,
+    actualAscent: ascent,
   };
 }
 
