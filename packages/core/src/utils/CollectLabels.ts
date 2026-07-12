@@ -154,7 +154,7 @@ const tex2svg = async (
       const scaledHeight = em_to_px(height);
       const scaledD = exH && !Number.isNaN(exH) && exH !== 0 ? (d / exH) * scaledHeight : 0;
       const scaledDescent = Number.isNaN(scaledD) ? 0 : scaledD;
-      const scaledAscent = Number.isNaN(scaledHeight - scaledDescent) ? scaledHeight : scaledHeight - scaledDescent; // HACK: interpreting ascent to be height - descent, which might be very wrong
+      const scaledAscent = Number.isNaN(scaledHeight - scaledDescent) ? scaledHeight : scaledHeight - scaledDescent;
 
       resolve(
         ok({
@@ -330,19 +330,19 @@ export function measureText(text: string, font: string): TextMeasurement {
   const measurements = measureTextContext.measureText(text);
   measureTextElement.remove();
 
-  const getSafeNum = (val: any): number => {
+  const getSafeAbs = (val: number): number => {
     return typeof val === "number" && !Number.isNaN(val) ? Math.abs(val) : 0;
   };
 
-  const left = getSafeNum(measurements.actualBoundingBoxLeft);
-  const right = getSafeNum(measurements.actualBoundingBoxRight);
-  const ascent = getSafeNum(measurements.actualBoundingBoxAscent);
-  const descent = getSafeNum(measurements.actualBoundingBoxDescent);
+  const left = getSafeAbs(measurements.actualBoundingBoxLeft);
+  const right = getSafeAbs(measurements.actualBoundingBoxRight);
+  const ascent = getSafeAbs(measurements.actualBoundingBoxAscent);
+  const descent = getSafeAbs(measurements.actualBoundingBoxDescent);
 
   let width = left + right;
   // If actualBoundingBox properties aren't supported or return 0, fallback to standard width
   if (width === 0 && text.length > 0) {
-    width = getSafeNum(measurements.width);
+    width = getSafeAbs(measurements.width);
   }
 
   return {
