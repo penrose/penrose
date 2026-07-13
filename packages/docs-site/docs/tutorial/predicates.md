@@ -74,7 +74,7 @@ Now our selector is not just `forall Set A` since we only want to apply these st
 ```style
 forall Set A; Set B
 where Subset(A, B) {
-    ensure contains(A.icon, B.icon, 5.0)
+    ensure contains(B.icon, A.icon, 5.0)
     A.icon above B.icon
 }
 ```
@@ -101,7 +101,7 @@ So putting it all together, we have:
 ```style
 forall Set A; Set B
 where Subset(A, B) {
-    ensure contains(A.icon, B.icon, 5.0)
+    ensure contains(B.icon, A.icon, 5.0)
     A.icon above B.icon
 }
 
