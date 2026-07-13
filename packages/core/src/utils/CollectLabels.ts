@@ -152,9 +152,12 @@ const tex2svg = async (
       const em_to_px = (n: number) => n * toPxFontSize(number, unit);
       const scaledWidth = em_to_px(width);
       const scaledHeight = em_to_px(height);
-      const scaledD = exH && !Number.isNaN(exH) && exH !== 0 ? (d / exH) * scaledHeight : 0;
+      const scaledD =
+        exH && !Number.isNaN(exH) && exH !== 0 ? (d / exH) * scaledHeight : 0;
       const scaledDescent = Number.isNaN(scaledD) ? 0 : scaledD;
-      const scaledAscent = Number.isNaN(scaledHeight - scaledDescent) ? scaledHeight : scaledHeight - scaledDescent;
+      const scaledAscent = Number.isNaN(scaledHeight - scaledDescent)
+        ? scaledHeight
+        : scaledHeight - scaledDescent;
 
       resolve(
         ok({
