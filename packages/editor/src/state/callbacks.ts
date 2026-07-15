@@ -15,7 +15,7 @@ import {
   useRecoilValue,
 } from "recoil";
 import { v4 as uuid } from "uuid";
-import { isErr, showOptimizerError } from "../optimizer/common.js";
+import { DiagramID, isErr, showOptimizerError } from "../optimizer/common.js";
 import {
   DownloadPNG,
   DownloadSVG,
@@ -68,6 +68,7 @@ const _compileDiagram = async (
   domain: string,
   variation: string,
   excludeWarnings: string[],
+  prevDiagramId: DiagramID | null,
   set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
 ) => {
   // indicate that buttons should gray out for now
@@ -100,6 +101,14 @@ const _compileDiagram = async (
       error: compileResult.error,
     }));
     return;
+  }
+
+  // discard the previous diagram to free its workers and optimizer caches
+  if (
+    prevDiagramId !== null &&
+    prevDiagramId !== compileResult.value.diagramId
+  ) {
+    optimizer.discardDiagram(prevDiagramId);
   }
 
   // get currently available step sequence id and history (should be exactly one
@@ -155,12 +164,16 @@ export const useCompileDiagram = () => {
         const domainFile = workspace.files.domain.contents;
         const substanceFile = workspace.files.substance.contents;
         const styleFile = workspace.files.style.contents;
+        const prevDiagramId = (
+          snapshot.getLoadable(diagramState).contents as Diagram
+        ).diagramId;
         await _compileDiagram(
           substanceFile,
           styleFile,
           domainFile,
           metadata.variation,
           metadata.excludeWarnings,
+          prevDiagramId,
           set,
         );
       },
@@ -478,6 +491,10 @@ export const useLoadLocalWorkspace = () =>
     }
 
     if (loadedWorkspace != null) {
+      const prevDiagramId = (
+        snapshot.getLoadable(diagramState).contents as Diagram
+      ).diagramId;
+
       set(currentWorkspaceState, loadedWorkspace as Workspace);
       await _compileDiagram(
         loadedWorkspace.files.substance.contents,
@@ -485,6 +502,7 @@ export const useLoadLocalWorkspace = () =>
         loadedWorkspace.files.domain.contents,
         uuid(),
         [],
+        prevDiagramId,
         set,
       );
       useResetEditorHistory(set);
@@ -546,6 +564,9 @@ export const useLoadExampleWorkspace = () =>
             },
           },
         });
+        const prevDiagramId = (
+          snapshot.getLoadable(diagramState).contents as Diagram
+        ).diagramId;
         reset(diagramState);
         await _compileDiagram(
           substance,
@@ -553,6 +574,7 @@ export const useLoadExampleWorkspace = () =>
           domain,
           variation,
           excludeWarnings,
+          prevDiagramId,
           set,
         );
 
@@ -689,6 +711,9 @@ export const useCheckURL = () =>
           },
         },
       });
+      const prevDiagramId = (
+        snapshot.getLoadable(diagramState).contents as Diagram
+      ).diagramId;
       reset(diagramState);
       await _compileDiagram(
         substance,
@@ -696,6 +721,7 @@ export const useCheckURL = () =>
         domain,
         variation,
         excludeWarnings,
+        prevDiagramId,
         set,
       );
       toast.dismiss(t);
