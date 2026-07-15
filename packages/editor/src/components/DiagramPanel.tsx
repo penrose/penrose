@@ -55,6 +55,10 @@ export default function DiagramPanel() {
     new Map(),
   );
 
+  // store svg in a local state rather than in the diagramState recoil atom
+  // to prevent past svgs from filling up the heap.
+  const [svg, setSvg] = useState<SVGSVGElement | null>(null);
+
   const currDiagramId = useRef<DiagramID | null>(null);
   const currStepSequenceId = useRef<StepSequenceID | null>(null);
 
@@ -85,13 +89,11 @@ export default function DiagramPanel() {
         }
 
         setSvgTitleCache(titleCache);
-        setDiagram((state) => ({
-          ...state,
-          svg: rendered,
-        }));
+        setSvg(rendered);
       })();
     } else if (state === null && cur !== null) {
       cur.innerHTML = "";
+      setSvg(null);
     }
   }, [state, settings.contents.interactive]);
 
@@ -100,12 +102,13 @@ export default function DiagramPanel() {
     if (settings.contents.interactive === "PlayMode") {
       renderPlayModeInteractivity(
         diagram,
+        svg,
         svgTitleCache,
         setDiagram,
         setWorkerState,
       );
     }
-  }, [diagram, svgTitleCache, settings.contents.interactive]);
+  }, [diagram, svg, svgTitleCache, settings.contents.interactive]);
 
   // starts a chain of callbacks, running every animation frame, to compute the
   // most recent shapes, until it sees that the step sequence it was given has
@@ -302,7 +305,7 @@ export default function DiagramPanel() {
           }}
           ref={canvasRef}
         >
-          {diagram.svg &&
+          {svg &&
             state &&
             !workerState.compiling &&
             !workerState.resampling &&
@@ -310,7 +313,7 @@ export default function DiagramPanel() {
             diagram.diagramId !== null &&
             diagram.historyLoc !== null && (
               <InteractivityOverlay
-                diagramSVG={diagram.svg}
+                diagramSVG={svg}
                 state={state}
                 svgTitleCache={svgTitleCache}
                 diagramId={diagram.diagramId}
