@@ -55,6 +55,13 @@ const InteractivityOverlay = memo(
     useEffect(() => {
       const clickables = new Set<Element>();
 
+      // keep track of every member event listener that is attached to be cleaned up later
+      const memberListeners: {
+        member: SVGElement;
+        type: "mousedown" | "mouseover";
+        listener: (e: MouseEvent) => void;
+      }[] = [];
+
       const interactables = function* () {
         const translatables =
           props.state.interactivityInfo.translatableShapePaths.keys();
@@ -94,6 +101,10 @@ const InteractivityOverlay = memo(
           member.setAttribute("pointer-events", "visiblePainted");
           member.addEventListener("mousedown", mousedownListener);
           member.addEventListener("mouseover", mouseoverListener);
+          memberListeners.push(
+            { member, type: "mousedown", listener: mousedownListener },
+            { member, type: "mouseover", listener: mouseoverListener },
+          );
 
           clickables.add(member);
         }
@@ -121,6 +132,9 @@ const InteractivityOverlay = memo(
       return () => {
         document.removeEventListener("mousedown", onMousedownBackground);
         document.removeEventListener("mouseover", onMouseoverBackground);
+        for (const { member, type, listener } of memberListeners) {
+          member.removeEventListener(type, listener);
+        }
       };
     }, [props.svgTitleCache, clickedPath, hoveredPath]);
 
