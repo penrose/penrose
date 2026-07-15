@@ -138,7 +138,7 @@ const recursivelyDeleteStepSequence = (sequenceId: StepSequenceID) => {
     const info = historyInfo.get(currSeqId);
 
     historyInfo.delete(currSeqId);
-    historyInfo.delete(currSeqId);
+    historyValues.delete(currSeqId);
 
     currSeqId = info?.child ?? null;
   }
