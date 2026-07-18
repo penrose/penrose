@@ -54,6 +54,7 @@ const InteractivityOverlay = memo(
 
     useEffect(() => {
       const clickables = new Set<Element>();
+      const listenerCleanups: (() => void)[] = [];
 
       const interactables = function* () {
         const translatables =
@@ -94,6 +95,10 @@ const InteractivityOverlay = memo(
           member.setAttribute("pointer-events", "visiblePainted");
           member.addEventListener("mousedown", mousedownListener);
           member.addEventListener("mouseover", mouseoverListener);
+          listenerCleanups.push(() => {
+            member.removeEventListener("mousedown", mousedownListener);
+            member.removeEventListener("mouseover", mouseoverListener);
+          });
 
           clickables.add(member);
         }
@@ -119,6 +124,7 @@ const InteractivityOverlay = memo(
       document.addEventListener("mouseover", onMouseoverBackground);
 
       return () => {
+        for (const cleanup of listenerCleanups) cleanup();
         document.removeEventListener("mousedown", onMousedownBackground);
         document.removeEventListener("mouseover", onMouseoverBackground);
       };

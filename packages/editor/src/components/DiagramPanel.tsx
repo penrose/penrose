@@ -1,5 +1,5 @@
 import { isPenroseError, runtimeError, showError } from "@penrose/core";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
 import styled from "styled-components";
@@ -49,6 +49,19 @@ export default function DiagramPanel() {
   const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
   const [computeLayoutRunning, setComputeLayoutRunning] = useState(false);
   const settings = useRecoilValueLoadable(settingsState);
+  const [diagramSVG, setDiagramSVG] = useState<SVGSVGElement | null>(null);
+
+  // Rendering a diagram is asynchronous. Optimization can produce states more
+  // quickly than stateToSVG can render them, so keep at most one SVG render in
+  // flight and replace any queued state with the newest one.
+  const renderGeneration = useRef(0);
+  const renderQueue = useRef<{
+    generation: number;
+    state: NonNullable<Diagram["state"]>;
+    resolvePath: (path: string) => ReturnType<typeof pathResolver>;
+  } | null>(null);
+  const renderQueueRunning = useRef(false);
+  const renderQueueMounted = useRef(false);
 
   // keep a map from paths to title elements, so we can grab their parent svg elements
   const [svgTitleCache, setSvgTitleCache] = useState<Map<string, SVGElement>>(
@@ -62,20 +75,41 @@ export default function DiagramPanel() {
   const compileDiagram = useCompileDiagram();
   const resampleDiagram = useResampleDiagram();
 
-  useEffect(() => {
-    const cur = canvasRef.current;
-    setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
-    if (state !== null && cur !== null) {
-      (async () => {
+  const drainRenderQueue = useCallback(async () => {
+    if (renderQueueRunning.current) {
+      return;
+    }
+
+    renderQueueRunning.current = true;
+    try {
+      while (renderQueueMounted.current && renderQueue.current !== null) {
+        const request = renderQueue.current;
+        renderQueue.current = null;
+
         const titleCache = new Map<string, SVGElement>();
-        const rendered = await stateToSVG(state, {
-          pathResolver: (path: string) =>
-            pathResolver(path, rogerState, workspace),
+        const rendered = await stateToSVG(request.state, {
+          pathResolver: request.resolvePath,
           width: "100%",
           height: "100%",
           texLabels: false,
           titleCache,
         });
+
+        // A newer state (or a cleared/unmounted panel) supersedes this SVG.
+        // Dropping it here bounds detached SVG retention to the single render
+        // currently in flight instead of one tree per optimizer frame.
+        if (
+          !renderQueueMounted.current ||
+          request.generation !== renderGeneration.current
+        ) {
+          continue;
+        }
+
+        const cur = canvasRef.current;
+        if (cur === null) {
+          continue;
+        }
+
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
@@ -85,27 +119,61 @@ export default function DiagramPanel() {
         }
 
         setSvgTitleCache(titleCache);
-        setDiagram((state) => ({
-          ...state,
-          svg: rendered,
-        }));
-      })();
-    } else if (state === null && cur !== null) {
-      cur.innerHTML = "";
+        setDiagramSVG(rendered);
+      }
+    } finally {
+      renderQueueRunning.current = false;
+      if (renderQueueMounted.current && renderQueue.current !== null) {
+        void drainRenderQueue();
+      }
     }
-  }, [state, settings.contents.interactive]);
+  }, []);
+
+  useEffect(() => {
+    setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
+    renderQueueMounted.current = true;
+    return () => {
+      renderQueueMounted.current = false;
+      renderGeneration.current += 1;
+      renderQueue.current = null;
+    };
+  }, [setCanvasState]);
+
+  useEffect(() => {
+    const generation = renderGeneration.current + 1;
+    renderGeneration.current = generation;
+
+    if (state === null) {
+      renderQueue.current = null;
+      canvasRef.current?.replaceChildren();
+      setSvgTitleCache(new Map());
+      setDiagramSVG(null);
+      return;
+    }
+
+    renderQueue.current = {
+      generation,
+      state,
+      resolvePath: (path: string) => pathResolver(path, rogerState, workspace),
+    };
+    void drainRenderQueue();
+  }, [drainRenderQueue, rogerState, state, workspace]);
 
   // attach event listeners that trigger interaction but constrain dragging
   useEffect(() => {
     if (settings.contents.interactive === "PlayMode") {
+      if (diagramSVG === null) {
+        return;
+      }
       renderPlayModeInteractivity(
         diagram,
+        diagramSVG,
         svgTitleCache,
         setDiagram,
         setWorkerState,
       );
     }
-  }, [diagram, svgTitleCache, settings.contents.interactive]);
+  }, [diagram, diagramSVG, svgTitleCache, settings.contents.interactive]);
 
   // starts a chain of callbacks, running every animation frame, to compute the
   // most recent shapes, until it sees that the step sequence it was given has
@@ -302,7 +370,7 @@ export default function DiagramPanel() {
           }}
           ref={canvasRef}
         >
-          {diagram.svg &&
+          {diagramSVG &&
             state &&
             !workerState.compiling &&
             !workerState.resampling &&
@@ -310,7 +378,7 @@ export default function DiagramPanel() {
             diagram.diagramId !== null &&
             diagram.historyLoc !== null && (
               <InteractivityOverlay
-                diagramSVG={diagram.svg}
+                diagramSVG={diagramSVG}
                 state={state}
                 svgTitleCache={svgTitleCache}
                 diagramId={diagram.diagramId}

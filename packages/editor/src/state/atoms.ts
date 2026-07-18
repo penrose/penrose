@@ -344,7 +344,6 @@ export type Diagram = {
   historyInfo: HistoryInfo | null;
   diagramId: DiagramID | null;
   historyLoc: HistoryLoc | null;
-  svg: SVGSVGElement | null;
   metadata: DiagramMetadata;
 };
 
@@ -373,7 +372,6 @@ export const diagramState = atom<Diagram>({
     warnings: [],
     diagramId: null,
     historyLoc: null,
-    svg: null,
     historyInfo: null,
     metadata: {
       variation: generateVariation(),
