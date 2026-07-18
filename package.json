@@ -2,6 +2,9 @@
   "repository": "penrose/penrose",
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "private": true,
+  "engines": {
+    "node": "^18.12.0 || >=20.9.0"
+  },
   "packages": [
     "packages/*"
   ],
