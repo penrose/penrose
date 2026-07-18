@@ -64,7 +64,7 @@
     "styled-components": "^5.3.5",
     "svgo": "^3.0.2",
     "true-myth": "^4.1.0",
-    "uuid": "^9.0.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.182",
