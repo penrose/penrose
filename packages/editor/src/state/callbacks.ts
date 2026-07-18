@@ -60,6 +60,7 @@ import {
   showCompileErrsState,
   workspaceMetadataSelector,
 } from "./atoms.js";
+import { getRenderState, setRenderState } from "./renderState.js";
 import { generateVariation } from "./variation.js";
 
 const _compileDiagram = async (
@@ -103,7 +104,8 @@ const _compileDiagram = async (
     return;
   }
 
-  // discard the previous diagram to free its workers and optimizer caches
+  // the recompile produced a fresh diagram, so tear down the previous one to
+  // free its worker and the main-thread caches (rendered SVG labels, etc.)
   if (
     prevDiagramId !== null &&
     prevDiagramId !== compileResult.value.diagramId
@@ -349,7 +351,7 @@ export const useDownloadSvgTex = () =>
       .contents as RogerState;
     const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
     if (canvas.ref && canvas.ref.current !== null) {
-      const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
+      const state = getRenderState();
       if (state !== null) {
         const rendered = await stateToSVG(state, {
           pathResolver: (path: string) =>
@@ -384,7 +386,6 @@ export const useDownloadSvgTex = () =>
 
 export const useDownloadPng = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
-    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
     const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
     if (canvas.ref && canvas.ref.current !== null) {
       const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
@@ -392,8 +393,9 @@ export const useDownloadPng = () =>
         const metadata = snapshot.getLoadable(workspaceMetadataSelector)
           .contents as WorkspaceMetadata;
         const filename = `${metadata.name}.png`;
-        if (diagram.state) {
-          const { canvas: canvasDims } = diagram.state;
+        const state = getRenderState();
+        if (state) {
+          const { canvas: canvasDims } = state;
           const { width, height } = canvasDims;
           DownloadPNG(svg, filename, width, height, 1);
         }
@@ -407,8 +409,7 @@ export const useDownloadPng = () =>
 
 export const useDownloadPdf = () =>
   useRecoilCallback(({ snapshot }) => async () => {
-    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
-    const { state } = diagram;
+    const state = getRenderState();
     const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
     if (canvas.ref && canvas.ref.current !== null) {
       const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
@@ -491,10 +492,6 @@ export const useLoadLocalWorkspace = () =>
     }
 
     if (loadedWorkspace != null) {
-      const prevDiagramId = (
-        snapshot.getLoadable(diagramState).contents as Diagram
-      ).diagramId;
-
       set(currentWorkspaceState, loadedWorkspace as Workspace);
       await _compileDiagram(
         loadedWorkspace.files.substance.contents,
@@ -502,7 +499,7 @@ export const useLoadLocalWorkspace = () =>
         loadedWorkspace.files.domain.contents,
         uuid(),
         [],
-        prevDiagramId,
+        (snapshot.getLoadable(diagramState).contents as Diagram).diagramId,
         set,
       );
       useResetEditorHistory(set);
@@ -568,6 +565,7 @@ export const useLoadExampleWorkspace = () =>
           snapshot.getLoadable(diagramState).contents as Diagram
         ).diagramId;
         reset(diagramState);
+        setRenderState(null);
         await _compileDiagram(
           substance,
           styleJoined,
@@ -595,6 +593,7 @@ export const useNewWorkspace = () =>
     // set rather than reset to generate new id to avoid id conflicts
     set(currentWorkspaceState, () => defaultWorkspaceState());
     reset(diagramState);
+    setRenderState(null);
     useResetEditorHistory(set);
   });
 
@@ -715,6 +714,7 @@ export const useCheckURL = () =>
         snapshot.getLoadable(diagramState).contents as Diagram
       ).diagramId;
       reset(diagramState);
+      setRenderState(null);
       await _compileDiagram(
         substance,
         styleJoined,
@@ -829,6 +829,7 @@ export const useDeleteWorkspace = () =>
                 // set rather than reset to generate new id to avoid id conflicts
                 set(currentWorkspaceState, () => defaultWorkspaceState());
                 reset(diagramState);
+                setRenderState(null);
               }
               toast.dismiss(notif);
               toast.success(`Deleted ${name}`);

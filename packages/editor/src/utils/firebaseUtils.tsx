@@ -23,6 +23,7 @@ import {
   settingsState,
 } from "../state/atoms.js";
 import { useClearAutosave } from "../state/callbacks.js";
+import { setRenderState } from "../state/renderState.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBhmlpWCnREhtaeVR9fpAllSDSu9UtCXkc",
@@ -84,6 +85,7 @@ export const signOutWrapper = () =>
         // set rather than reset to generate new id to avoid id conflicts
         set(currentWorkspaceState, () => defaultWorkspaceState());
         reset(diagramState);
+        setRenderState(null);
 
         toast.success("Logged out");
       })

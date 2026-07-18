@@ -4,7 +4,7 @@ import {
   getDomainCache,
   getSubstanceCache,
 } from "@penrose/components";
-import { PenroseError, PenroseWarning, RenderState } from "@penrose/core";
+import { PenroseError, PenroseWarning } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { User as FirebaseUser } from "firebase/auth";
@@ -338,7 +338,10 @@ export type DiagramMetadata = {
 };
 
 export type Diagram = {
-  state: RenderState | null;
+  // NOTE: the live `RenderState` is intentionally NOT stored here. It changes
+  // every optimization frame and Recoil retains a copy per state version, which
+  // leaked memory proportional to the diagram size. It now lives in the
+  // external store in `state/renderState.ts` instead.
   error: PenroseError | null;
   warnings: PenroseWarning[];
   historyInfo: HistoryInfo | null;
@@ -367,7 +370,6 @@ export const canvasState = atom<Canvas>({
 export const diagramState = atom<Diagram>({
   key: "diagramState",
   default: {
-    state: null,
     error: null,
     warnings: [],
     diagramId: null,
