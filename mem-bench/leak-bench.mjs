@@ -139,7 +139,11 @@ async function seedEditMode(page) {
           if (!store) return resolve("no-store");
           const tx = db.transaction(store, "readwrite");
           tx.objectStore(store).put(
-            { githubAccessToken: null, vimMode: false, interactive: "EditMode" },
+            {
+              githubAccessToken: null,
+              vimMode: false,
+              interactive: "EditMode",
+            },
             "settings",
           );
           tx.oncomplete = () => resolve("ok");
@@ -321,7 +325,9 @@ async function main() {
   // Show benchmark configuration
   console.log(`\nPenrose editor memory-leak benchmark`);
   console.log(`  url        ${BASE_URL}`);
-  console.log(`  action     ${ACTION}${INTERACTIVE ? " + EditMode hover sweep" : ""}`);
+  console.log(
+    `  action     ${ACTION}${INTERACTIVE ? " + EditMode hover sweep" : ""}`,
+  );
   console.log(`  rounds     ${ITERATIONS} (+${WARMUP} warmup)`);
   console.log(`  settle     ${SETTLE}ms`);
   console.log(`  examples   ${EXAMPLES.length}\n`);
@@ -330,11 +336,7 @@ async function main() {
   const browser = await puppeteer.launch({
     executablePath: CHROME,
     headless: !HEADFUL,
-    args: [
-      "--no-sandbox",
-      "--disable-dev-shm-usage",
-      "--js-flags=--expose-gc",
-    ],
+    args: ["--no-sandbox", "--disable-dev-shm-usage", "--js-flags=--expose-gc"],
     defaultViewport: { width: 1280, height: 900 },
   });
 
@@ -352,7 +354,9 @@ async function main() {
   const pad = (s, n) => String(s).padEnd(n);
   const padL = (s, n) => String(s).padStart(n);
   console.log(`\n${"=".repeat(94)}`);
-  console.log(`RESULTS  (per-round = OLS slope over ${ITERATIONS} rounds, post-GC)`);
+  console.log(
+    `RESULTS  (per-round = OLS slope over ${ITERATIONS} rounds, post-GC)`,
+  );
   console.log("=".repeat(94));
   console.log(
     pad("example", 40) +
@@ -365,7 +369,9 @@ async function main() {
 
   // Sort by DOM-node leak then heap leak
   const ok = results.filter((r) => !r.error);
-  ok.sort((a, b) => b.nodeSlope - a.nodeSlope || b.heapSlopeBytes - a.heapSlopeBytes);
+  ok.sort(
+    (a, b) => b.nodeSlope - a.nodeSlope || b.heapSlopeBytes - a.heapSlopeBytes,
+  );
   for (const r of ok) {
     const dNodes = r.nodeLast - r.nodeFirst;
     // Flag a likely real leak if there is steady positive growth in either the
@@ -389,7 +395,9 @@ async function main() {
   }
 
   console.log("=".repeat(94));
-  console.log("⚠ leak = steady growth (R²>0.8) in nodes (>5/rd) or heap (>20kB/rd)\n");
+  console.log(
+    "⚠ leak = steady growth (R²>0.8) in nodes (>5/rd) or heap (>20kB/rd)\n",
+  );
 
   // Write to JSON file
   if (JSON_OUT) {

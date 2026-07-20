@@ -46,18 +46,18 @@ node leak-bench.mjs --json out.json       # dump raw per-round series
 
 ## Options
 
-| flag | default | meaning |
-|------|---------|---------|
-| `--url` | `http://localhost:4173/try/` | editor base URL |
-| `--chrome` | `/usr/sbin/google-chrome-stable` | Chrome executable |
-| `--action` | `resample` | `resample` \| `compile` \| `both` |
-| `--examples` | curated set | comma-separated registry ids |
-| `--iterations` | `30` | measured rounds per example |
-| `--warmup` | `3` | unmeasured warmup rounds (settle JIT/caches) |
-| `--settle` | `1200` | ms to wait after each action before measuring |
-| `--interactive` | off | switch each diagram to EditMode and sweep the mouse over its interactive shapes every round — mounts InteractivityOverlay and exercises its per-element listeners (the `listeners/round` leak). Only examples with draggable shapes (e.g. `mobius/mobius`, `set-theory-domain/tree-euler`) move that metric. |
-| `--headful` | off | show the browser |
-| `--json` | — | also write raw results to a file |
+| flag            | default                          | meaning                                                                                                                                                                                                                                                                                                      |
+| --------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--url`         | `http://localhost:4173/try/`     | editor base URL                                                                                                                                                                                                                                                                                              |
+| `--chrome`      | `/usr/sbin/google-chrome-stable` | Chrome executable                                                                                                                                                                                                                                                                                            |
+| `--action`      | `resample`                       | `resample` \| `compile` \| `both`                                                                                                                                                                                                                                                                            |
+| `--examples`    | curated set                      | comma-separated registry ids                                                                                                                                                                                                                                                                                 |
+| `--iterations`  | `30`                             | measured rounds per example                                                                                                                                                                                                                                                                                  |
+| `--warmup`      | `3`                              | unmeasured warmup rounds (settle JIT/caches)                                                                                                                                                                                                                                                                 |
+| `--settle`      | `1200`                           | ms to wait after each action before measuring                                                                                                                                                                                                                                                                |
+| `--interactive` | off                              | switch each diagram to EditMode and sweep the mouse over its interactive shapes every round — mounts InteractivityOverlay and exercises its per-element listeners (the `listeners/round` leak). Only examples with draggable shapes (e.g. `mobius/mobius`, `set-theory-domain/tree-euler`) move that metric. |
+| `--headful`     | off                              | show the browser                                                                                                                                                                                                                                                                                             |
+| `--json`        | —                                | also write raw results to a file                                                                                                                                                                                                                                                                             |
 
 Registry ids are the keys in `packages/examples/src/registry.json` (e.g.
 `array-models/insertionSort`, `dinoshade/dinoshade`).
