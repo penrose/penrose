@@ -290,6 +290,8 @@ export const stateToSVG = async (
     pathResolver: PathResolver;
     texLabels: boolean;
     titleCache?: Map<string, SVGElement>;
+    /** Unique per diagram so SVG ids (markers, clipPaths) do not collide across diagrams. */
+    namespace: string;
   },
 ): Promise<SVGSVGElement> => {
   const { canvas, labelCache, variation, computeShapes, varyingValues } = state;
@@ -307,7 +309,7 @@ export const stateToSVG = async (
     labels: labelCache,
     canvasSize: canvas.size,
     variation,
-    namespace: "",
+    namespace: config.namespace,
     texLabels: config.texLabels,
     pathResolver: config.pathResolver,
     titleCache: config.titleCache,
