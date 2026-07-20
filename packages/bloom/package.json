@@ -16,6 +16,7 @@
   "scripts": {
     "build": "tsc && rollup -c",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "test": "vitest run --no-threads",
     "docs": "typedoc"
   },
   "nx": {

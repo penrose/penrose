@@ -220,6 +220,8 @@ export class SharedInput {
  */
 export class DiagramBuilder {
   private substanceTypeMap: Map<Substance, Type> = new Map();
+  private declaredTypes: Set<Type> = new Set();
+  private typeSupertypes: Map<Type, Set<Type>> = new Map();
   private nextSubstanceId = 0;
   private substanceIdMap: Map<Substance, number> = new Map();
   private canvas: Canvas;
@@ -345,21 +347,39 @@ export class DiagramBuilder {
 
   /**
    * Create a new substance type. The type object serves as a constructor for new
-   * substances:
+   * substances. Pass previously declared types as arguments to make them direct
+   * supertypes of the new type.
    *
    * ```TS
    * const Vector = type();
+   * const Drawable = type();
+   * const UnitVector = type(Vector, Drawable);
    *
    * const v1 = Vector();
-   * const v2 = Vector();
-   * ...
+   * const v2 = UnitVector();
    * ```
+   *
+   * A selector for `Vector` matches both `v1` and `v2`. Supertypes must be
+   * created by the same `DiagramBuilder` before their subtypes.
+   *
+   * @param supertypes Types that the new type extends
    */
-  type = (): Type => {
+  type = (...supertypes: Type[]): Type => {
+    for (const supertype of supertypes) {
+      if (!this.declaredTypes.has(supertype)) {
+        throw new Error(
+          "Supertypes must be created by the same DiagramBuilder before their subtypes",
+        );
+      }
+    }
+
     const substance = this.substance.bind(this);
-    return function t() {
+    const t = function t() {
       return substance(t);
     };
+    this.declaredTypes.add(t);
+    this.typeSupertypes.set(t, new Set(supertypes));
+    return t;
   };
 
   /**
@@ -397,6 +417,25 @@ export class DiagramBuilder {
     return pred as Predicate;
   };
 
+  private isSubtype = (actual: Type, expected: Type): boolean => {
+    const pending = [actual];
+    const visited = new Set<Type>();
+
+    while (pending.length > 0) {
+      const current = pending.pop()!;
+      if (current === expected) {
+        return true;
+      }
+      if (visited.has(current)) {
+        continue;
+      }
+      visited.add(current);
+      pending.push(...(this.typeSupertypes.get(current) ?? []));
+    }
+
+    return false;
+  };
+
   private internalForallWhere = (
     vars: SelectorVars,
     deduplicate: boolean,
@@ -421,7 +460,7 @@ export class DiagramBuilder {
 
       for (const [subst, type] of this.substanceTypeMap) {
         if (
-          pairsToAssign[0].type === type &&
+          this.isSubtype(type, pairsToAssign[0].type) &&
           !assignment.some((a) => a.substance === subst)
         ) {
           if (pairsToAssign.length === 1) {
