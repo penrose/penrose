@@ -42,6 +42,7 @@ import {
   ShapeProps,
   ShapeType,
   Substance,
+  Text,
   TextProps,
   Type,
   Vec2,
