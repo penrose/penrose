@@ -1,5 +1,6 @@
 import {
   Canvas,
+  Graph,
   IdxsByPath,
   InputInfo,
   InputMeta,
@@ -220,8 +221,8 @@ export class SharedInput {
  */
 export class DiagramBuilder {
   private substanceTypeMap: Map<Substance, Type> = new Map();
-  private declaredTypes: Set<Type> = new Set();
-  private typeSupertypes: Map<Type, Set<Type>> = new Map();
+  /** Subtype → supertype edges; same orientation as Domain's type graph. */
+  private typeGraph: Graph<Type> = new Graph();
   private nextSubstanceId = 0;
   private substanceIdMap: Map<Substance, number> = new Map();
   private canvas: Canvas;
@@ -366,7 +367,7 @@ export class DiagramBuilder {
    */
   type = (...supertypes: Type[]): Type => {
     for (const supertype of supertypes) {
-      if (!this.declaredTypes.has(supertype)) {
+      if (!this.typeGraph.hasNode(supertype)) {
         throw new Error(
           "Supertypes must be created by the same DiagramBuilder before their subtypes",
         );
@@ -377,8 +378,11 @@ export class DiagramBuilder {
     const t = function t() {
       return substance(t);
     };
-    this.declaredTypes.add(t);
-    this.typeSupertypes.set(t, new Set(supertypes));
+    this.typeGraph.setNode(t, undefined);
+    // Deduplicate so repeated direct parents (e.g. type(A, A)) don't add multi-edges.
+    for (const supertype of new Set(supertypes)) {
+      this.typeGraph.setEdge({ i: t, j: supertype, e: undefined });
+    }
     return t;
   };
 
@@ -418,22 +422,8 @@ export class DiagramBuilder {
   };
 
   private isSubtype = (actual: Type, expected: Type): boolean => {
-    const pending = [actual];
-    const visited = new Set<Type>();
-
-    while (pending.length > 0) {
-      const current = pending.pop()!;
-      if (current === expected) {
-        return true;
-      }
-      if (visited.has(current)) {
-        continue;
-      }
-      visited.add(current);
-      pending.push(...(this.typeSupertypes.get(current) ?? []));
-    }
-
-    return false;
+    // Matches Domain.isDeclaredSubtype / superTypesOf via Graph.descendants.
+    return this.typeGraph.descendants(actual).has(expected);
   };
 
   private internalForallWhere = (
