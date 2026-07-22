@@ -70,6 +70,21 @@ relationship `Connects`. We then instantiate two points into two substances, `p1
 specify that `arrow` connects `p1` to `p2`. Predicates are untyped, so we could have put any objects in any order into
 `Connects`; we just need to make sure we’re consistent when we style this relationship later.
 
+#### Subtypes
+
+A type can extend one or more types that were declared earlier:
+
+```javascript
+const Point = type();
+const Colored = type();
+const LabeledPoint = type(Point, Colored);
+```
+
+Selectors include subtypes transitively. A selector for `Point` matches both
+`Point()` and `LabeledPoint()` substances, while a selector for `LabeledPoint`
+does not match a plain `Point()`. Passing multiple supertypes, as above, makes
+`LabeledPoint` match selectors for both `Point` and `Colored`.
+
 The final step is to ‘style’ these constructs:
 
 ```javascript
