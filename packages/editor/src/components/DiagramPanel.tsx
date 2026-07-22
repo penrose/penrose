@@ -136,10 +136,12 @@ export default function DiagramPanel() {
     // get updated history info for the diagram
     const pollResult = await optimizer.poll(diagramId);
     if (isErr(pollResult)) {
-      setDiagram((diagram) => ({
-        ...diagram,
-        error: runtimeError(showOptimizerError(pollResult.error)),
-      }));
+      if (pollResult.error.tag !== "InvalidDiagramIDError") {
+        setDiagram((diagram) => ({
+          ...diagram,
+          error: runtimeError(showOptimizerError(pollResult.error)),
+        }));
+      }
       setComputeLayoutRunning(false);
       return;
     }
@@ -173,6 +175,16 @@ export default function DiagramPanel() {
     // per-version cache
     let newRenderState: RenderState | null = null;
     if (layoutResult.isErr()) {
+      // Same supersession race as the poll above: a recompile can discard this
+      // diagram between the poll and this computeLayout. Stop quietly on an
+      // InvalidDiagramIDError; the restart effect picks up the new diagram.
+      if (
+        !isPenroseError(layoutResult.error) &&
+        layoutResult.error.tag === "InvalidDiagramIDError"
+      ) {
+        setComputeLayoutRunning(false);
+        return;
+      }
       newDiagram = {
         ...newDiagram,
         error: isPenroseError(layoutResult.error)
