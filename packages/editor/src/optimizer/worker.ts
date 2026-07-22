@@ -138,7 +138,7 @@ const recursivelyDeleteStepSequence = (sequenceId: StepSequenceID) => {
     const info = historyInfo.get(currSeqId);
 
     historyInfo.delete(currSeqId);
-    historyInfo.delete(currSeqId);
+    historyValues.delete(currSeqId);
 
     currSeqId = info?.child ?? null;
   }
@@ -354,6 +354,12 @@ const resample = (variation: string): ResampleResult => {
     variation,
     constraintSets: cloneDeep(unpinnedContraintSets),
   });
+
+  // resample starts a fresh new step sequence which the UI will point to.
+  // drop all existing sequences so they don't accumulate on the heap.
+  historyInfo.clear();
+  historyValues.clear();
+
   const stepSequenceId = makeNewStepSequence(null, variation, [
     ...penroseState.varyingValues,
   ]);

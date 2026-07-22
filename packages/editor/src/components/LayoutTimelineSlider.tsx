@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { showOptimizerError } from "../optimizer/common";
 import { diagramState, diagramWorkerState, optimizer } from "../state/atoms.js";
+import { setRenderState } from "../state/renderState.js";
 import SegmentedSlider from "./SegmentedSlider.js";
 
 export const LayoutTimelineSlider: React.FC<{}> = (props) => {
@@ -37,10 +38,7 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
         }));
       } else {
         setWaiting(false);
-        setDiagram((diagram) => ({
-          ...diagram,
-          state: state.value,
-        }));
+        setRenderState(state.value);
       }
 
       setDiagram((diagram) => ({

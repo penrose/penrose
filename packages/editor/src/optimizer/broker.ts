@@ -36,8 +36,9 @@ const numWorkersToKeep = 3;
 
 const workers = new SizeBoundedMap<DiagramID, Worker>(
   numWorkersToKeep,
-  (_, worker) => {
+  (diagramId, worker) => {
     worker.terminate();
+    notify({ tag: MessageTags.DiscardDiagram, diagramId });
   },
 );
 

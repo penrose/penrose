@@ -8,7 +8,6 @@ import {
   currentAppUser,
   diagramGridState,
   diagramMetadataSelector,
-  diagramState,
   savedFilesState,
   settingsState,
 } from "../state/atoms.js";
@@ -17,6 +16,7 @@ import {
   useCompileDiagram,
   useRecoverAll,
 } from "../state/callbacks.js";
+import { useRenderState } from "../state/renderState.js";
 import { logInWrapper, signOutWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
 import { SettingHeader, SettingLabel } from "./SettingElements.js";
@@ -61,7 +61,7 @@ export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
   const [numLegacyDiagrams, setNumLegacyDiagrams] = useState<number>(0);
   const currentUser = useRecoilValue(currentAppUser);
-  const { state } = useRecoilValue(diagramState);
+  const state = useRenderState();
   const useLogin = logInWrapper();
   const useLogout = signOutWrapper();
   const recoverAll = useRecoverAll();

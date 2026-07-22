@@ -97,17 +97,19 @@ export const interactAndUpdate = async (
 
 export const renderPlayModeInteractivity = (
   diagram: Diagram,
+  state: RenderState | null,
+  svg: SVGSVGElement | null,
   svgTitleCache: Map<string, SVGElement>,
   setDiagram: (setter: (diagram: Diagram) => Diagram) => void,
   setWorker: (setter: (diagram: any) => any) => void,
 ) => {
-  if (!diagram.state || !diagram.svg) return;
+  if (!state || !svg) return;
 
   for (const [_, elem] of svgTitleCache) {
     elem.setAttribute("pointer-events", "none");
   }
 
-  for (const [path, constraint] of diagram.state.interactivityInfo
+  for (const [path, constraint] of state.interactivityInfo
     .draggingConstraints) {
     const elem = svgTitleCache.get(path);
     if (elem === undefined) continue;
@@ -152,9 +154,9 @@ export const renderPlayModeInteractivity = (
       }
 
       const mousedownListener = makeTranslateOnMouseDown(
-        diagram.svg,
+        svg,
         member,
-        diagram.state.canvas,
+        state.canvas,
         path,
         translate,
         constraintFn,

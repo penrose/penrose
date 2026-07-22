@@ -80,10 +80,20 @@ export default class Optimizer {
         break;
 
       case "Notification":
-        throw new Error(
-          `Optimizer received unknown notification ${data.data.tag}`,
-        );
+        if (data.data.tag === MessageTags.DiscardDiagram) {
+          this.purgeDiagramCaches(data.data.diagramId);
+        } else {
+          throw new Error(
+            `Optimizer received unknown notification ${data.data.tag}`,
+          );
+        }
+        break;
     }
+  };
+
+  private purgeDiagramCaches = (diagramId: DiagramID): void => {
+    this.svgCaches.delete(diagramId);
+    this.labelMeasurements.delete(diagramId);
   };
 
   /** Convenience wrapper */

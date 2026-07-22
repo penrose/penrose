@@ -1,4 +1,9 @@
-import { isPenroseError, runtimeError, showError } from "@penrose/core";
+import {
+  RenderState,
+  isPenroseError,
+  runtimeError,
+  showError,
+} from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
@@ -21,6 +26,7 @@ import {
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { useCompileDiagram, useResampleDiagram } from "../state/callbacks.js";
+import { setRenderState, useRenderState } from "../state/renderState.js";
 import { pathResolver } from "../utils/downloadUtils.js";
 import {
   renderPlayModeInteractivity,
@@ -42,7 +48,9 @@ export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [diagram, setDiagram] = useRecoilState(diagramState);
   const [_, setCanvasState] = useRecoilState(canvasState);
-  const { state, error, warnings, metadata } = diagram;
+  const { error, warnings, metadata } = diagram;
+  // the live render state lives in an external store, not the Recoil atom
+  const state = useRenderState();
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
@@ -54,6 +62,12 @@ export default function DiagramPanel() {
   const [svgTitleCache, setSvgTitleCache] = useState<Map<string, SVGElement>>(
     new Map(),
   );
+
+  // The rendered diagram SVG is deliberately kept in local component state
+  // rather than in the `diagramState` Recoil atom: storing a DOM node in an
+  // atom makes Recoil's (dev-only) state history retain every rendered SVG,
+  // which leaks hundreds of detached trees during optimization.
+  const [svg, setSvg] = useState<SVGSVGElement | null>(null);
 
   const currDiagramId = useRef<DiagramID | null>(null);
   const currStepSequenceId = useRef<StepSequenceID | null>(null);
@@ -85,13 +99,11 @@ export default function DiagramPanel() {
         }
 
         setSvgTitleCache(titleCache);
-        setDiagram((state) => ({
-          ...state,
-          svg: rendered,
-        }));
+        setSvg(rendered);
       })();
     } else if (state === null && cur !== null) {
       cur.innerHTML = "";
+      setSvg(null);
     }
   }, [state, settings.contents.interactive]);
 
@@ -100,12 +112,14 @@ export default function DiagramPanel() {
     if (settings.contents.interactive === "PlayMode") {
       renderPlayModeInteractivity(
         diagram,
+        state,
+        svg,
         svgTitleCache,
         setDiagram,
         setWorkerState,
       );
     }
-  }, [diagram, svgTitleCache, settings.contents.interactive]);
+  }, [diagram, state, svg, svgTitleCache, settings.contents.interactive]);
 
   // starts a chain of callbacks, running every animation frame, to compute the
   // most recent shapes, until it sees that the step sequence it was given has
@@ -133,12 +147,6 @@ export default function DiagramPanel() {
     // get history of the current step sequence
     const stepSequenceInfo = pollResult.value.get(stepSequenceId);
     if (!stepSequenceInfo) {
-      setDiagram((diagram) => ({
-        ...diagram,
-        error: runtimeError(
-          `Invalid step sequence id ${stepSequenceId} for diagram`,
-        ),
-      }));
       setComputeLayoutRunning(false);
       return;
     }
@@ -160,6 +168,10 @@ export default function DiagramPanel() {
       newHistoryLoc,
     );
 
+    // the render state is committed to the external store (not the Recoil
+    // atom) in the guarded commit below, so it doesn't accumulate in Recoil's
+    // per-version cache
+    let newRenderState: RenderState | null = null;
     if (layoutResult.isErr()) {
       newDiagram = {
         ...newDiagram,
@@ -170,10 +182,7 @@ export default function DiagramPanel() {
       // don't return here, since we want to check whether the step sequence has
       // stopped optimizing, and set the diagram state accordingly
     } else {
-      newDiagram = {
-        ...newDiagram,
-        state: layoutResult.value,
-      };
+      newRenderState = layoutResult.value;
     }
 
     if (stepSequenceInfo.state.tag == "Pending") {
@@ -200,6 +209,9 @@ export default function DiagramPanel() {
       if (
         diagram.historyLoc?.sequenceId === newDiagram.historyLoc?.sequenceId
       ) {
+        // keep the render state consistent with the committed history loc;
+        // setRenderState is idempotent so it's safe inside the updater
+        if (newRenderState !== null) setRenderState(newRenderState);
         return {
           ...diagram,
           ...newDiagram,
@@ -302,7 +314,7 @@ export default function DiagramPanel() {
           }}
           ref={canvasRef}
         >
-          {diagram.svg &&
+          {svg &&
             state &&
             !workerState.compiling &&
             !workerState.resampling &&
@@ -310,7 +322,7 @@ export default function DiagramPanel() {
             diagram.diagramId !== null &&
             diagram.historyLoc !== null && (
               <InteractivityOverlay
-                diagramSVG={diagram.svg}
+                diagramSVG={svg}
                 state={state}
                 svgTitleCache={svgTitleCache}
                 diagramId={diagram.diagramId}

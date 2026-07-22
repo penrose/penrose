@@ -1,0 +1,13 @@
+{
+  "name": "penrose-mem-bench",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Headless memory-leak benchmark for the Penrose editor",
+  "scripts": {
+    "bench": "node leak-bench.mjs"
+  },
+  "dependencies": {
+    "puppeteer-core": "^23.0.0"
+  }
+}
