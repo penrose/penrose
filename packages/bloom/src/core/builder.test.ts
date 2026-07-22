@@ -1,9 +1,34 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { DiagramBuilder } from "./builder.js";
+import { Diagram } from "./diagram.js";
 import { Substance, Type } from "./types.js";
 import { canvas } from "./utils.js";
 
 const makeBuilder = () => new DiagramBuilder(canvas(100, 100));
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+describe("DiagramBuilder optimization terms", () => {
+  test("routes constraints and objectives to separate optimizer inputs", async () => {
+    const create = vi.spyOn(Diagram, "create").mockResolvedValue({} as Diagram);
+    const builder = makeBuilder();
+    const constraint = 1;
+    const objective = 2;
+
+    builder.ensure(constraint);
+    builder.encourage(objective);
+    await builder.build();
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        constraints: [constraint],
+        objectives: [objective],
+      }),
+    );
+  });
+});
 
 const select = (builder: DiagramBuilder, type: Type): Substance[] => {
   const matches: Substance[] = [];
