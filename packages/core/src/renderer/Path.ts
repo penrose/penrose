@@ -47,7 +47,7 @@ export const toPathString = (
 
 export const RenderPath = (
   shape: Path<number>,
-  { canvasSize, titleCache }: RenderProps,
+  { canvasSize, namespace, variation, titleCache }: RenderProps,
 ): SVGGElement => {
   // TODO: distinguish between fill opacity and stroke opacity
   const strokeColor = toSvgPaintProperty(shape.strokeColor.contents);
@@ -77,11 +77,12 @@ export const RenderPath = (
       "http://www.w3.org/2000/svg",
       "g",
     );
-    const startArrowId = shape.name.contents + "-startArrowId";
-    const endArrowId = shape.name.contents + "-endArrowId";
+    // an unique id for this instance is determined by the variation and namespace
+    const unique = `${namespace}-${variation}-${shape.name.contents}`;
+    const startArrowId = unique + "-startArrowId";
+    const endArrowId = unique + "-endArrowId";
 
     if (startArrowhead) {
-      const startArrowId = shape.name.contents + "-startArrowId";
       const startArrowheadSize = shape.startArrowheadSize.contents;
       const flip = shape.flipStartArrowhead.contents;
       groupElem.appendChild(
@@ -96,7 +97,6 @@ export const RenderPath = (
       );
     }
     if (endArrowhead) {
-      const endArrowId = shape.name.contents + "-endArrowId";
       const endArrowheadSize = shape.endArrowheadSize.contents;
       groupElem.appendChild(
         arrowHead(

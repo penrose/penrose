@@ -32,6 +32,9 @@ import {
 
 const log = consola.create({ level: LogLevels.warn }).withTag("diagram");
 
+/** Monotonic id so SVG element ids stay unique across diagrams on one page. */
+let nextDiagramNamespaceId = 0;
+
 /** Data passed into `create` */
 export type DiagramCreationData = {
   canvas: Canvas;
@@ -98,6 +101,7 @@ export class Diagram {
   private onOptimizationFinished = (xs: number[]) => {};
   private onOptimizationStepped = (xs: number[]) => {};
   private onOptimizationStarted = (xs: number[]) => {};
+  private readonly namespace = `bloom-${nextDiagramNamespaceId++}`;
 
   /**
    * Create a new renderable diagram. This should not be called directly; use
@@ -133,6 +137,7 @@ export class Diagram {
       pathResolver: async (str) => str,
       texLabels: false,
       titleCache,
+      namespace: this.namespace,
     });
 
     return {
