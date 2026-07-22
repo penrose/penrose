@@ -4,20 +4,28 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@penrose/bloom": "^3.3.0",
     "@penrose/core": "^3.3.0",
     "@penrose/solids": "^3.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "solid-js": "^1"
   },
   "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
     "@types/node-fetch": "^2.6.11",
     "prettier": "^3",
     "vite": "^5",
+    "vite-plugin-top-level-await": "^1.4.1",
     "vitest": "^0.31"
   },
   "scripts": {
     "build": "rimraf dist && tsc",
     "build-decls": ":",
     "codegen": "git clean -dfqX src && node codegen.js",
+    "gallery": "vite",
+    "gallery:preview": "vite preview",
     "test": "vitest run --no-threads --reporter=verbose",
     "typecheck": ":"
   },

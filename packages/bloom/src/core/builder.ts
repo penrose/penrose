@@ -37,6 +37,7 @@ import {
   Polyline,
   PolylineProps,
   Predicate,
+  RawSvgElement,
   Rectangle,
   RectangleProps,
   Shape,
@@ -241,6 +242,7 @@ export class DiagramBuilder {
   private externalInputs: Set<SharedInput> = new Set();
   private lassoStrength: number;
   private interactiveOnlyShapes: Set<Shape> = new Set();
+  private rawSvgDefs: RawSvgElement[] = [];
   /** Shape name -> event name -> listener */
   private eventListeners: Map<
     string,
@@ -263,6 +265,7 @@ export class DiagramBuilder {
     this.canvas = canvas;
     this.variation = variation;
     this.lassoStrength = lassoStrength;
+    setActiveBuilder(this);
 
     const { makeInput: createVar } = simpleContext(variation);
     this.samplingContext = {
@@ -331,6 +334,31 @@ export class DiagramBuilder {
         },
       });
     }
+  };
+
+  /**
+   * Register a raw SVG element (defs, linearGradient, etc.) to be injected into
+   * the rendered SVG. Called automatically by the JSX factory for unknown element types.
+   * When a parent element is added, its children are removed from the top-level list.
+   */
+  addRawSvgDef = (def: RawSvgElement) => {
+    // Remove any existing registered elements that are children of this new element
+    const descendants = this.getAllRawSvgDescendants(def);
+    this.rawSvgDefs = this.rawSvgDefs.filter((d) => !descendants.has(d));
+    this.rawSvgDefs.push(def);
+  };
+
+  private getAllRawSvgDescendants = (
+    def: RawSvgElement,
+  ): Set<RawSvgElement> => {
+    const result = new Set<RawSvgElement>();
+    for (const child of def.children) {
+      result.add(child);
+      for (const desc of this.getAllRawSvgDescendants(child)) {
+        result.add(desc);
+      }
+    }
+    return result;
   };
 
   /**
@@ -463,7 +491,13 @@ export class DiagramBuilder {
             if (where(assignmentRecord)) {
               const str = matchString(assignmentRecord);
               if (!deduplicate || !visited.has(str)) {
-                func(assignmentRecord, matches++);
+                const prev = _activeBuilder;
+                _activeBuilder = this;
+                try {
+                  func(assignmentRecord, matches++);
+                } finally {
+                  _activeBuilder = prev;
+                }
                 if (deduplicate) {
                   visited.add(str);
                 }
@@ -694,8 +728,13 @@ export class DiagramBuilder {
       string,
       [string, (e: any, diagram: Diagram) => void][]
     >();
+    // Collect rawAttrs from Bloom shapes (for post-render SVG attribute overrides)
+    const rawAttrsByName = new Map<string, Record<string, string>>();
     const penroseShapes = this.shapes.map((s) => {
       const penroseShape = toPenroseShape(s);
+      if (s.rawAttrs && Object.keys(s.rawAttrs).length > 0) {
+        rawAttrsByName.set(s.name, s.rawAttrs);
+      }
       if (this.interactiveOnlyShapes.has(s)) {
         interactiveOnlyShapes.add(penroseShape);
       }
@@ -723,6 +762,8 @@ export class DiagramBuilder {
       namedInputs: new Map(this.namedInputs),
       pinnedInputs: new Set(this.pinnedInputs),
       draggingConstraints: new Map(dragNamesAndConstrs),
+      rawSvgDefs: [...this.rawSvgDefs],
+      rawAttrsByName,
       inputIdxsByPath: this.getTranslatedInputIdxsByPath(),
       lassoStrength: this.lassoStrength,
       sharedInputs: new Set(this.externalInputs),
@@ -919,4 +960,23 @@ export class DiagramBuilder {
       },
     }));
   };
+}
+
+// Module-level active builder context for the JSX runtime.
+// _activeBuilder is set when a DiagramBuilder is constructed and within forall callbacks,
+// so that the JSX factory can call builder methods without explicit builder reference.
+let _activeBuilder: DiagramBuilder | null = null;
+
+/**
+ * Get the currently active DiagramBuilder (used by the JSX runtime).
+ */
+export function getActiveBuilder(): DiagramBuilder | null {
+  return _activeBuilder;
+}
+
+/**
+ * Set the currently active DiagramBuilder (used by the JSX runtime and advanced users).
+ */
+export function setActiveBuilder(b: DiagramBuilder | null): void {
+  _activeBuilder = b;
 }

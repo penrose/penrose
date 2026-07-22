@@ -28,6 +28,7 @@ import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
 import {
   Color,
+  RawSvgElement,
   Shape,
   ShapeProps,
   ShapeType,
@@ -353,6 +354,53 @@ export const mathjaxInitWithHandler = () => {
   };
 
   return { convert, handler };
+};
+
+/**
+ * Recursively create and append SVG DOM elements from a RawSvgElement tree.
+ */
+const appendRawSvgElement = (
+  parent: Element,
+  raw: RawSvgElement,
+): void => {
+  const el = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    raw.tag,
+  );
+  for (const [key, val] of Object.entries(raw.attrs)) {
+    el.setAttribute(key, val);
+  }
+  for (const child of raw.children) {
+    appendRawSvgElement(el, child);
+  }
+  parent.appendChild(el);
+};
+
+/**
+ * Append (or prepend) a list of RawSvgElements to the given SVG element.
+ * @param svg The target SVG element
+ * @param defs The list of raw SVG elements to inject
+ * @param prepend If true, insert before the first child; otherwise append
+ */
+export const appendRawSvgElements = (
+  svg: SVGSVGElement,
+  defs: RawSvgElement[],
+  prepend = false,
+): void => {
+  for (const def of defs) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", def.tag);
+    for (const [key, val] of Object.entries(def.attrs)) {
+      el.setAttribute(key, val);
+    }
+    for (const child of def.children) {
+      appendRawSvgElement(el, child);
+    }
+    if (prepend && svg.firstChild) {
+      svg.insertBefore(el, svg.firstChild);
+    } else {
+      svg.appendChild(el);
+    }
+  }
 };
 
 export const setNoFillIfTransparent = (shape: SVGElement) => {
