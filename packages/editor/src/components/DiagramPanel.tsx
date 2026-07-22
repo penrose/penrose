@@ -147,12 +147,6 @@ export default function DiagramPanel() {
     // get history of the current step sequence
     const stepSequenceInfo = pollResult.value.get(stepSequenceId);
     if (!stepSequenceInfo) {
-      setDiagram((diagram) => ({
-        ...diagram,
-        error: runtimeError(
-          `Invalid step sequence id ${stepSequenceId} for diagram`,
-        ),
-      }));
       setComputeLayoutRunning(false);
       return;
     }
