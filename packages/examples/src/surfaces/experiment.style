@@ -1,0 +1,94 @@
+canvas {
+   width = 500
+   height = 500
+}
+
+global {
+
+   scalar y = ?
+    vec2 c1p1 = (?, ?)
+    vec2 c1p2 = (?, ?)
+    vec2 c1p3 = (?, ?)
+    vec2 c1p4 = (?, ?)
+    vec2 c1p5 = (?, ?)
+    vec2 c1p6 = (?, ?)
+    vec2 c1p7 = (?, ?)
+    vec2 c1p8 = (?, ?)
+    vec2 c1p9 = (?, ?)
+
+    vec2 c2p1 = (?, ?)
+    vec2 c2p2 = (?, ?)
+    vec2 c2p3 = (?, ?)
+    vec2 c2p4 = (?, ?)
+    vec2 c2p5 = (?, ?)
+    vec2 c2p6 = (?, ?)
+    vec2 c2p7 = (?, ?)
+    vec2 c2p8 = (?, ?)
+    vec2 c2p9 = (?, ?)
+
+   ensure c2p5[1] - c1p5[1] > 100
+
+    vec2 p0 = (?, ?)
+    vec2 pn = (?, ?)
+
+    ensure p0[0] - pn[0] > 150
+
+    ptsSurf = [p0, c1p1, c1p2, c1p3, c1p4, c1p5, c1p6, c1p7, c1p8, c1p9, pn, c2p9, c2p8, c2p7, c2p6, c2p5, c2p4, c2p3, c2p2, c2p1]
+
+    scalar c = 0.7
+    ptsFront = [p0, c * c1p1 + (1 - c) * c2p1, c * c1p2 + (1 - c) * c2p2, c * c1p3 + (1 - c) * c2p3, c * c1p4 + (1 - c) * c2p4, c * c1p5 + (1 - c) * c2p5, c * c1p6 + (1 - c) * c2p6, c * c1p7 + (1 - c) * c2p7, c * c1p8 + (1 - c) * c2p8, c * c1p9 + (1 - c) * c2p9, pn]
+    ptsBack = [p0, (1 - c) * c1p1 + c * c2p1, (1 - c) * c1p2 + c * c2p2, (1 - c) * c1p3 + c * c2p3, (1 - c) * c1p4 + c * c2p4, (1 - c) * c1p5 + c * c2p5, (1 - c) * c1p6 + c * c2p6, (1 - c) * c1p7 + c * c2p7, (1 - c) * c1p8 + c * c2p8, (1 - c) * c1p9 + c * c2p9, pn]
+
+   shape surface = Path {
+      d: interpolatingSpline( "closed", ptsSurf, 0.18 )
+      strokeColor: #000000ff
+      strokeWidth: 2
+      strokeLinejoin: "round"
+      fillColor: #c2e5fbff
+   }
+
+   scalar sy = 60
+   scalar sx = -10
+   scalar ss = 0.6
+  ptsShadow = [(p0[0] - sx, ss * p0[1] - sy), (c1p1[0] - sx, ss * c1p1[1] - sy), (c1p2[0] - sx, ss * c1p2[1] - sy), (c1p3[0] - sx, ss * c1p3[1] - sy), (c1p4[0] - sx, ss * c1p4[1] - sy), (c1p5[0] - sx, ss * c1p5[1] - sy), (c1p6[0] - sx, ss * c1p6[1] - sy), (c1p7[0] - sx, ss * c1p7[1] - sy), (c1p8[0] - sx, ss * c1p8[1] - sy), (c1p9[0] - sx, ss * c1p9[1] - sy), (pn[0] - sx, ss * pn[1] - sy), (c2p9[0] - sx, ss * c2p9[1] - sy), (c2p8[0] - sx, ss * c2p8[1] - sy), (c2p7[0] - sx, ss * c2p7[1] - sy), (c2p6[0] - sx, ss * c2p6[1] - sy), (c2p5[0] - sx, ss * c2p5[1] - sy), (c2p4[0] - sx, ss * c2p4[1] - sy), (c2p3[0], ss * c2p3[1] - sy), (c2p2[0] - sx, ss * c2p2[1] - sy), (c2p1[0] - sx, ss * c2p1[1] - sy)]
+
+   shape shadow = Path {
+      d: interpolatingSpline( "closed", ptsShadow, 0.18 )
+      strokeColor: #000000ff
+      strokeWidth: 0
+      strokeLinejoin: "round"
+      fillColor: #3b584359
+      style: "filter:blur(10px);"
+   }
+   shadow below surface
+
+   shape shine = Circle {
+      center: centerOfMass(ptsSurf) + (-70, 20)
+      r: 20
+      strokeWidth: 0
+      strokeLinejoin: "round"
+      fillColor: #ffffffe1
+      style: "filter:blur(17px);"
+   }
+   shine above surface
+
+   shape contourFront = Path {
+      d: interpolatingSpline( "open", ptsFront, 0.18 )
+      strokeColor: #000000ff
+      strokeWidth: 1.5
+      strokeLinejoin: "round"
+   }
+   shape contourBack = Path {
+      d: interpolatingSpline( "open", ptsBack, 0.18 )
+      strokeColor: #588363ff
+      strokeWidth: 1.5
+      strokeStyle: "dashed"
+      strokeLinejoin: "round"
+   }
+   contourFront above surface
+   contourBack above surface
+
+    ensure isEquilateral(ptsSurf, true)
+    encourage perimeter(ptsSurf, true) == 800
+    encourage elasticEnergy(ptsSurf, true) == 3000
+}
