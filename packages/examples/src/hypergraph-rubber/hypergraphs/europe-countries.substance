@@ -1,0 +1,270 @@
+-- Countries
+
+Node CZ  -- Czechia
+Node DE  -- Germany
+Node FR  -- France
+Node IT  -- Italy
+Node ES  -- Spain
+Node NL  -- Netherlands
+Node BE  -- Belgium
+Node AT  -- Austria
+Node PL  -- Poland
+Node HU  -- Hungary
+Node SE  -- Sweden
+Node DK  -- Denmark
+Node FI  -- Finland
+Node PT  -- Portugal
+Node LU  -- Luxembourg
+Node IE  -- Ireland
+Node UK  -- United Kingdom
+Node NO  -- Norway
+Node IS  -- Iceland
+Node LI  -- Liechtenstein
+Node CH  -- Switzerland
+Node EE  -- Estonia
+Node LV  -- Latvia
+Node LT  -- Lithuania
+
+-- Labels
+
+Label CZ "🇨🇿"
+Label DE "🇩🇪"
+Label FR "🇫🇷"
+Label IT "🇮🇹"
+Label ES "🇪🇸"
+Label NL "🇳🇱"
+Label BE "🇧🇪"
+Label AT "🇦🇹"
+Label PL "🇵🇱"
+Label HU "🇭🇺"
+Label SE "🇸🇪"
+Label DK "🇩🇰"
+Label FI "🇫🇮"
+Label PT "🇵🇹"
+Label LU "🇱🇺"
+Label IE "🇮🇪"
+Label UK "🇬🇧"
+Label NO "🇳🇴"
+Label IS "🇮🇸"
+Label LI "🇱🇮"
+Label CH "🇨🇭"
+Label EE "🇪🇪"
+Label LV "🇱🇻"
+Label LT "🇱🇹"
+
+-- Zones
+
+Hyperedge SCH -- Schengen Area
+
+isIn(CZ, SCH)
+isIn(DE, SCH)
+isIn(FR, SCH)
+isIn(IT, SCH)
+isIn(ES, SCH)
+isIn(NL, SCH)
+isIn(BE, SCH)
+isIn(AT, SCH)
+isIn(PL, SCH)
+isIn(HU, SCH)
+isIn(SE, SCH)
+isIn(DK, SCH)
+isIn(FI, SCH)
+isIn(PT, SCH)
+isIn(LU, SCH)
+isIn(EE, SCH)
+isIn(LV, SCH)
+isIn(LT, SCH)
+isIn(NO, SCH)
+isIn(IS, SCH)
+isIn(LI, SCH)
+isIn(CH, SCH)
+notIn(UK, SCH)
+notIn(IE, SCH)
+
+Hyperedge EEA -- European Economic Area
+
+isIn(CZ, EEA)
+isIn(DE, EEA)
+isIn(FR, EEA)
+isIn(IT, EEA)
+isIn(ES, EEA)
+isIn(NL, EEA)
+isIn(BE, EEA)
+isIn(AT, EEA)
+isIn(PL, EEA)
+isIn(HU, EEA)
+isIn(SE, EEA)
+isIn(DK, EEA)
+isIn(FI, EEA)
+isIn(PT, EEA)
+isIn(LU, EEA)
+isIn(IE, EEA)
+isIn(EE, EEA)
+isIn(LV, EEA)
+isIn(LT, EEA)
+isIn(NO, EEA)
+isIn(IS, EEA)
+isIn(LI, EEA)
+notIn(UK, EEA)
+notIn(CH, EEA)
+
+Hyperedge EU -- European Union
+
+isIn(CZ, EU)
+isIn(DE, EU)
+isIn(FR, EU)
+isIn(IT, EU)
+isIn(ES, EU)
+isIn(NL, EU)
+isIn(BE, EU)
+isIn(AT, EU)
+isIn(PL, EU)
+isIn(HU, EU)
+isIn(SE, EU)
+isIn(DK, EU)
+isIn(FI, EU)
+isIn(PT, EU)
+isIn(LU, EU)
+isIn(IE, EU)
+isIn(EE, EU)
+isIn(LV, EU)
+isIn(LT, EU)
+notIn(UK, EU)
+notIn(NO, EU)
+notIn(IS, EU)
+notIn(LI, EU)
+notIn(CH, EU)
+
+Hyperedge EZ -- Eurozone
+
+isIn(FR, EZ)
+isIn(IT, EZ)
+isIn(ES, EZ)
+isIn(NL, EZ)
+isIn(BE, EZ)
+isIn(AT, EZ)
+isIn(FI, EZ)
+isIn(PT, EZ)
+isIn(LU, EZ)
+isIn(EE, EZ)
+isIn(LV, EZ)
+isIn(LT, EZ)
+notIn(CZ, EZ)
+notIn(DE, EZ)
+notIn(PL, EZ)
+notIn(HU, EZ)
+notIn(SE, EZ)
+notIn(DK, EZ)
+notIn(UK, EZ)
+notIn(NO, EZ)
+notIn(IS, EZ)
+notIn(LI, EZ)
+notIn(CH, EZ)
+notIn(IE, EZ)
+
+Hyperedge NATO -- North Atlantic Treaty Organization
+
+isIn(CZ, NATO)
+isIn(DE, NATO)
+isIn(FR, NATO)
+isIn(IT, NATO)
+isIn(ES, NATO)
+isIn(NL, NATO)
+isIn(BE, NATO)
+isIn(AT, NATO)
+isIn(PL, NATO)
+isIn(HU, NATO)
+isIn(SE, NATO)
+isIn(DK, NATO)
+isIn(FI, NATO)
+isIn(PT, NATO)
+isIn(LU, NATO)
+isIn(UK, NATO)
+isIn(NO, NATO)
+isIn(IS, NATO)
+isIn(EE, NATO)
+isIn(LV, NATO)
+isIn(LT, NATO)
+notIn(LI, NATO)
+notIn(CH, NATO)
+notIn(IE, NATO)
+
+Hyperedge V4 -- Visegrád Group
+
+isIn(CZ, V4)
+isIn(PL, V4)
+isIn(HU, V4)
+notIn(FR, V4)
+notIn(IT, V4)
+notIn(ES, V4)
+notIn(NL, V4)
+notIn(BE, V4)
+notIn(AT, V4)
+notIn(SE, V4)
+notIn(DK, V4)
+notIn(FI, V4)
+notIn(PT, V4)
+notIn(LU, V4)
+notIn(UK, V4)
+notIn(NO, V4)
+notIn(IS, V4)
+notIn(LI, V4)
+notIn(CH, V4)
+notIn(IE, V4)
+notIn(EE, V4)
+notIn(LV, V4)
+notIn(LT, V4)
+
+Hyperedge BA -- Baltic Assembly
+
+isIn(EE, BA)
+isIn(LV, BA)
+isIn(LT, BA)
+notIn(CZ, BA)
+notIn(DE, BA)
+notIn(FR, BA)
+notIn(IT, BA)
+notIn(ES, BA)
+notIn(NL, BA)
+notIn(BE, BA)
+notIn(AT, BA)
+notIn(PL, BA)
+notIn(HU, BA)
+notIn(SE, BA)
+notIn(DK, BA)
+notIn(FI, BA)
+notIn(PT, BA)
+notIn(LU, BA)
+notIn(UK, BA)
+notIn(NO, BA)
+notIn(IS, BA)
+notIn(LI, BA)
+notIn(CH, BA)
+notIn(IE, BA)
+
+Hyperedge EFTA -- European Free Trade Association
+
+isIn(IS, EFTA)
+isIn(LI, EFTA)
+isIn(NO, EFTA)
+isIn(CH, EFTA)
+notIn(CZ, EFTA)
+notIn(DE, EFTA)
+notIn(FR, EFTA)
+notIn(IT, EFTA)
+notIn(ES, EFTA)
+notIn(NL, EFTA)
+notIn(BE, EFTA)
+notIn(AT, EFTA)
+notIn(PL, EFTA)
+notIn(HU, EFTA)
+notIn(SE, EFTA)
+notIn(DK, EFTA)
+notIn(FI, EFTA)
+notIn(PT, EFTA)
+notIn(LU, EFTA)
+notIn(IE, EFTA)
+notIn(UK, EFTA)
+notIn(EE, EFTA)
+notIn(LV, EFTA)
+notIn(LT, EFTA)
