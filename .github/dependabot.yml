@@ -1,0 +1,18 @@
+version: 2
+
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+
+    # Keep Dependabot focused on security fixes; routine dependency upgrades are
+    # handled separately by the project.
+    open-pull-requests-limit: 0
+
+    # Combine compatible security fixes so they share one review and CI run.
+    groups:
+      security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"

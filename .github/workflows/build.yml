@@ -147,11 +147,11 @@ jobs:
           required-permission: write
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - if: steps.check.outputs.has-permission
+      - if: steps.check.outputs.has-permission && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         name: Push to target
         working-directory: packages/examples/diagrams/
         run: git push -f origin HEAD
-      - if: github.event_name == 'pull_request' && steps.check.outputs.has-permission
+      - if: github.event_name == 'pull_request' && steps.check.outputs.has-permission && github.event.pull_request.head.repo.full_name == github.repository
         name: Comment on PR
         uses: marocchino/sticky-pull-request-comment@v2
         with:
