@@ -634,7 +634,7 @@ export class DiagramBuilder {
     if (weight) {
       objective = mul(objective, weight);
     }
-    this.constraints.push(objective);
+    this.objectives.push(objective);
   };
 
   /**
