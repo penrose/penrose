@@ -182,7 +182,7 @@
   </text>
   <g>
     <marker
-      id="relative-orientation__`ijk`.orientationArc-endArrowId"
+      id="relative-orientation__registry-SylvanDolphin4902-`ijk`.orientationArc-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -204,7 +204,7 @@
       stroke-width="2"
       stroke-linecap="butt"
       d="M 163.13872194356708 249.6292189466135 A 26.330970949087195 26.330970949087195 0 1 0 136.80775099447987 249.6292189466135"
-      marker-end="url(#relative-orientation__`ijk`.orientationArc-endArrowId)"
+      marker-end="url(#relative-orientation__registry-SylvanDolphin4902-`ijk`.orientationArc-endArrowId)"
     />
     <title>`ijk`.orientationArc</title>
   </g>
@@ -280,7 +280,7 @@
   </text>
   <g>
     <marker
-      id="relative-orientation__`jil`.orientationArc-startArrowId"
+      id="relative-orientation__registry-SylvanDolphin4902-`jil`.orientationArc-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -302,7 +302,7 @@
       stroke-width="2"
       stroke-linecap="butt"
       d="M 256.48254576910153 210.4570136205293 A 24.17971052638469 24.17971052638469 0 1 0 232.3028352427168 210.4570136205293"
-      marker-start="url(#relative-orientation__`jil`.orientationArc-startArrowId)"
+      marker-start="url(#relative-orientation__registry-SylvanDolphin4902-`jil`.orientationArc-startArrowId)"
     />
     <title>`jil`.orientationArc</title>
   </g>

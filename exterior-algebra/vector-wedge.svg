@@ -223,7 +223,7 @@
   </g>
   <g>
     <marker
-      id="vector-wedge__`u`.marker-startArrowId"
+      id="vector-wedge__registry-SnorlaxIbis743-`u`.marker-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -245,7 +245,7 @@
       stroke-width="1.125"
       stroke-linecap="butt"
       d="M 166.9387970059966 54.31107241479599 A 23.557802228414644 23.557802228414644 0 0 0 191.86431144206088 94.29354906970609"
-      marker-start="url(#vector-wedge__`u`.marker-startArrowId)"
+      marker-start="url(#vector-wedge__registry-SnorlaxIbis743-`u`.marker-startArrowId)"
     />
     <title>`u`.marker</title>
   </g>
@@ -295,7 +295,7 @@
   </g>
   <g>
     <marker
-      id="vector-wedge__`v`.marker-startArrowId"
+      id="vector-wedge__registry-SnorlaxIbis743-`v`.marker-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -317,7 +317,7 @@
       stroke-width="1.125"
       stroke-linecap="butt"
       d="M 188.70607312068682 122.40998684722732 A 19.37080969351343 19.37080969351343 0 0 0 154.6236547661444 140.8301232672932"
-      marker-start="url(#vector-wedge__`v`.marker-startArrowId)"
+      marker-start="url(#vector-wedge__registry-SnorlaxIbis743-`v`.marker-startArrowId)"
     />
     <title>`v`.marker</title>
   </g>
