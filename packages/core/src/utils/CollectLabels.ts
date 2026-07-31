@@ -22,7 +22,12 @@ import { FloatV } from "../types/value.js";
 import { Result, err, ok } from "./Error.js";
 import { getAdValueAsString, getValueAsShapeList, unwrap } from "./Util.js";
 
-export const mathjaxInit = (): ((
+// Build the MathJax pipeline once and reuse it for the lifetime of the module.
+let convertSingleton:
+  | ((input: string) => Result<HTMLElement, string>)
+  | undefined;
+
+const createConverter = (): ((
   input: string,
 ) => Result<HTMLElement, string>) => {
   // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
@@ -47,7 +52,7 @@ export const mathjaxInit = (): ((
   const svg = new SVG({ fontCache: "none" });
   const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 
-  const convert = (input: string): Result<HTMLElement, string> => {
+  return (input: string): Result<HTMLElement, string> => {
     // HACK: workaround for newlines. This workaround will force MathJax to always return the same heights regardless of the text content.
     // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
     // if(input) {
@@ -60,7 +65,16 @@ export const mathjaxInit = (): ((
       return err(error.message);
     }
   };
-  return convert;
+};
+
+export const mathjaxInit = (): ((
+  input: string,
+) => Result<HTMLElement, string>) => {
+  // lazily create the singleton so importing this module doesn't require a DOM
+  if (convertSingleton === undefined) {
+    convertSingleton = createConverter();
+  }
+  return convertSingleton;
 };
 
 type Output = {
