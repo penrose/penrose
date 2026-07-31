@@ -34,7 +34,7 @@ export const useSharedInput = (
   optimized = false,
   name?: string,
 ) => {
-  const [val, setVal] = useState(init ?? 0);
+  const [, setVal] = useState(init ?? 0);
   const input = useMemo(
     () => new SharedInput(init, optimized, name),
     [init, optimized, name],
