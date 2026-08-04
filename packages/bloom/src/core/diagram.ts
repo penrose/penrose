@@ -98,9 +98,9 @@ export class Diagram {
   private eventListeners;
   private optimizationLooper = new CallbackLooper("MessageChannel");
   private renderLooper = new CallbackLooper("AnimationFrame");
-  private onOptimizationFinished = (xs: number[]) => {};
-  private onOptimizationStepped = (xs: number[]) => {};
-  private onOptimizationStarted = (xs: number[]) => {};
+  private onOptimizationFinished: (xs: number[]) => void = () => {};
+  private onOptimizationStepped: (xs: number[]) => void = () => {};
+  private onOptimizationStarted: (xs: number[]) => void = () => {};
   private readonly namespace = `bloom-${nextDiagramNamespaceId++}`;
 
   /**
@@ -542,7 +542,7 @@ export class Diagram {
       ({ meta }, i) =>
         meta.init.tag === "Sampled" && !this.manuallyPinnedIndices.has(i),
     );
-    for (const [_, pinnedIndices] of this.tempPinnedForDrag) {
+    for (const pinnedIndices of this.tempPinnedForDrag.values()) {
       for (const [xIdx, yIdx] of pinnedIndices) {
         inputMask[xIdx] = false;
         inputMask[yIdx] = false;

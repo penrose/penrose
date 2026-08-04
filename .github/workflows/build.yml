@@ -201,7 +201,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
       - name: Run all tests
-        run: yarn nx run-many -t test -p core components --verbose
+        run: yarn nx run-many -t test -p core components bloom --verbose
 
   typedocs:
     runs-on: ubuntu-latest

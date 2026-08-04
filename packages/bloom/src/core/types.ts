@@ -68,10 +68,12 @@ export interface Poly extends Drag {
   points: Vec2[];
 }
 
-export interface String {
+export interface StringProps {
   string: string;
   fontSize: string;
 }
+
+export type String = StringProps;
 
 export interface Drag {
   drag: boolean;
@@ -124,7 +126,7 @@ export interface Equation
     Center,
     Rect,
     Rotate,
-    String,
+    StringProps,
     Drag {
   shapeType: ShapeType.Equation;
   ascent: Num;
@@ -177,7 +179,7 @@ export interface Text
     Center,
     Rect,
     Rotate,
-    String,
+    StringProps,
     Drag {
   shapeType: ShapeType.Text;
   visibility: string;
