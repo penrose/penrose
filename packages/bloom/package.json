@@ -27,6 +27,11 @@
           "docs"
         ]
       },
+      "test": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
       "dev": {
         "dependsOn": [
           "^build"
