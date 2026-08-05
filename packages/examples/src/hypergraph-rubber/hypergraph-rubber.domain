@@ -1,0 +1,5 @@
+type Node
+type Hyperedge
+
+predicate isIn(Node, Hyperedge)
+predicate notIn(Node, Hyperedge)
