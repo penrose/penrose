@@ -20,8 +20,6 @@ export default function Renderer(props: RendererProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log("hi");
-
     if (!props.diagram || !canvasRef.current) {
       return;
     }

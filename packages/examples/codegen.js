@@ -95,6 +95,20 @@ for (const [k, v] of Object.entries(registry)) {
       `    get: () => trio(import(${JSON.stringify(`./${k}.trio.js`)})),`,
     );
     if ("gallery" in v) lines.push(`    gallery: ${v.gallery},`);
+  } else if (v.bloom) {
+    lines.push(`    bloom: true,`);
+    lines.push(`    f: async () => {`);
+    lines.push(
+      `      const { buildDiagram } = await import(${JSON.stringify(
+        `./${k}.js`,
+      )});`,
+    );
+    lines.push(`      const diagram = await buildDiagram();`);
+    lines.push(`      while (await diagram.optimizationStep()) {}`);
+    lines.push(`      const { svg } = await diagram.render();`);
+    lines.push(`      diagram.discard();`);
+    lines.push(`      return svg.outerHTML;`);
+    lines.push(`    },`);
   } else {
     lines.push(
       `    f: async () => (await import(${JSON.stringify(
