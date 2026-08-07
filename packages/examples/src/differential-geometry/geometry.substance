@@ -1,0 +1,11 @@
+Curve c
+Ball b
+CurveOnBoundary(c, b)
+
+Point p_i for i in [1, 50]
+PointInside(p_i, c) for i in [1, 50]
+
+Display(c)
+Display(b)
+
+Display(p_i) for i in [1, 50]
