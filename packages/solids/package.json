@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@penrose/core": "^3.3.0",
-    "markdown-it": "^13.0.1",
+    "markdown-it": "^14.2.0",
     "markdown-it-mathjax3": "^4.3.2",
     "solid-js": "^1"
   },
@@ -19,7 +19,7 @@
     "@babel/core": "^7",
     "@babel/preset-typescript": "^7",
     "babel-preset-solid": "^1",
-    "vite": "^5",
+    "vite": "^6",
     "vite-plugin-solid": "^2"
   },
   "scripts": {
