@@ -1,6 +1,16 @@
 name: Release
 on:
   workflow_dispatch:
+    inputs:
+      target:
+        description: What should be published?
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - npm
+          - vscode
   release:
     types:
       - created
@@ -19,16 +29,20 @@ jobs:
       - name: Build all packages
         run: yarn build
       - name: Setup trusted publishing
+        if: github.event_name == 'release' || inputs.target == 'all' || inputs.target == 'npm'
         uses: actions/setup-node@v6
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
           package-manager-cache: false
       - name: Install npm with trusted publishing support
+        if: github.event_name == 'release' || inputs.target == 'all' || inputs.target == 'npm'
         run: npm install --global npm@11.5.1
       - name: Publish npm packages
+        if: github.event_name == 'release' || inputs.target == 'all' || inputs.target == 'npm'
         run: npm publish --workspaces
       - name: Publish VS Code extension
+        if: github.event_name == 'release' || inputs.target == 'all' || inputs.target == 'vscode'
         working-directory: packages/vscode/
         run: npx vsce publish
         env:
