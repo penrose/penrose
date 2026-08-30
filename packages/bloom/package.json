@@ -1,6 +1,11 @@
 {
   "name": "@penrose/bloom",
   "version": "3.3.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/penrose/penrose.git",
+    "directory": "packages/bloom"
+  },
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",

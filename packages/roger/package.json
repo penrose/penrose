@@ -1,6 +1,11 @@
 {
   "name": "@penrose/roger",
   "version": "3.3.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/penrose/penrose.git",
+    "directory": "packages/roger"
+  },
   "description": "",
   "type": "module",
   "main": "dist/index.js",
