@@ -11,8 +11,8 @@
   "devDependencies": {
     "@types/node-fetch": "^2.6.11",
     "prettier": "^3",
-    "vite": "^5",
-    "vitest": "^0.31"
+    "vite": "^6",
+    "vitest": "^3.2"
   },
   "scripts": {
     "build": "rimraf dist && tsc",
