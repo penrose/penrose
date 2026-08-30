@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.3.1](https://github.com/penrose/penrose/compare/v3.3.0...v3.3.1) (2026-08-30)
+
+### :rocket: New Feature
+
+- **bloom:** add subtype selector matching ([#1964](https://github.com/penrose/penrose/issues/1964)) ([14283ce](https://github.com/penrose/penrose/commit/14283ce38fd1811b815c665b906aba04a6cf99b5))
+
+### :bug: Bug Fix
+
+- swapped arguments for contains() call in predicates tutorial ([#1953](https://github.com/penrose/penrose/issues/1953)) ([efedbd1](https://github.com/penrose/penrose/commit/efedbd134dd810c86b67d9403074a20d32bc7c53))
+
 ## [v3.3.0] (2025-09-23)
 
 ### :warning: BREAKING CHANGE

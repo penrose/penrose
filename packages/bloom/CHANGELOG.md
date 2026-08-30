@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.3.1](https://github.com/penrose/penrose/compare/v3.3.0...v3.3.1) (2026-08-30)
+
+### :rocket: New Feature
+
+- **bloom:** add subtype selector matching ([#1964](https://github.com/penrose/penrose/issues/1964)) ([14283ce](https://github.com/penrose/penrose/commit/14283ce38fd1811b815c665b906aba04a6cf99b5))
+
+### :bug: Bug Fix
+
+- **bloom:** import Text shape type in DiagramBuilder ([#1962](https://github.com/penrose/penrose/issues/1962)) ([911cf2f](https://github.com/penrose/penrose/commit/911cf2f0867b933267da1d66265d9247475b3234))
+- **bloom:** register encouraged terms as objectives ([#1970](https://github.com/penrose/penrose/issues/1970)) ([fdefb04](https://github.com/penrose/penrose/commit/fdefb04e84032c4fe03c55536d6c42f0e74867e8))
+- **bloom:** unique SVG namespaces across diagrams ([#1963](https://github.com/penrose/penrose/issues/1963)) ([31641a3](https://github.com/penrose/penrose/commit/31641a3e4192e44accb3f1391104ba2b7d6cf4c1))
+
 ## [v3.3.0] (2025-09-23)
 
 ### :rocket: New Feature

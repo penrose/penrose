@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.3.1](https://github.com/penrose/penrose/compare/v3.3.0...v3.3.1) (2026-08-30)
+
+### :bug: Bug Fix
+
+- **editor:** eliminated memory leaks caused by detached SVG elements, mouse event listeners, and render state pileup during resample/compile ([#1961](https://github.com/penrose/penrose/issues/1961)) ([02b53cf](https://github.com/penrose/penrose/commit/02b53cf1f2716978c4dc93b16aa0fc6e494d69d5))
+- **editor:** suppress InvalidDiagramIDError errors in the editor when repeatedly recompiling a diagram ([#1972](https://github.com/penrose/penrose/issues/1972)) ([cc82ccd](https://github.com/penrose/penrose/commit/cc82ccdf003e22fc7ab28663431cc2043ec2289d))
+
 ## [v3.3.0] (2025-09-23)
 
 ### :warning: BREAKING CHANGE
