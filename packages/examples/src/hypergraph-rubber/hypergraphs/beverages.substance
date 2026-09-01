@@ -1,0 +1,55 @@
+-- Nodes
+
+Node Beer  -- 🍺
+Node Coffee  -- ☕
+Node Tea  -- 🍵
+Node Wine  -- 🍷
+Node Juice  -- 🍹
+Node Soda  -- 🥤
+
+-- Labels
+
+Label Beer "🍺"
+Label Coffee "☕"
+Label Tea "🍵"
+Label Wine "🍷"
+Label Juice "🍹"
+Label Soda "🥤"
+
+-- Hyperedges (Beverage Attributes)
+
+Hyperedge Alcoholic -- Alcoholic Beverages
+
+isIn(Beer, Alcoholic)
+notIn(Coffee, Alcoholic)
+notIn(Tea, Alcoholic)
+isIn(Wine, Alcoholic)
+notIn(Juice, Alcoholic)
+notIn(Soda, Alcoholic)
+
+Hyperedge Caffeinated -- Caffeinated Beverages
+
+notIn(Beer, Caffeinated)
+isIn(Coffee, Caffeinated)
+isIn(Tea, Caffeinated)
+notIn(Wine, Caffeinated)
+notIn(Juice, Caffeinated)
+notIn(Soda, Caffeinated)
+
+Hyperedge ColdDrinks -- Cold Drinks
+
+isIn(Beer, ColdDrinks)
+notIn(Coffee, ColdDrinks)
+notIn(Tea, ColdDrinks)
+isIn(Wine, ColdDrinks)
+isIn(Juice, ColdDrinks)
+isIn(Soda, ColdDrinks)
+
+Hyperedge HotDrinks -- Hot Drinks
+
+notIn(Beer, HotDrinks)
+isIn(Coffee, HotDrinks)
+isIn(Tea, HotDrinks)
+notIn(Wine, HotDrinks)
+notIn(Juice, HotDrinks)
+notIn(Soda, HotDrinks)
