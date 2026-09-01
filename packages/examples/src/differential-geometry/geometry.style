@@ -1,0 +1,129 @@
+canvas {
+  width = 800
+  height = 1000
+}
+
+settings {
+  lineThickness = 3.5
+  sphereRadius = 50
+  curveLength = 1000
+  floorHeight = -100
+  floorSize = 100
+}
+
+colors {
+  floorColor = #bceeceff
+}
+
+camera {
+  -- Camera viewpoint
+  vec3 eye = (200,200,200)
+  vec3 center = (0,0,0)
+  vec3 up = (0,-1,0) -- up is in positive Y direction
+  mat4x4 model = lookAt( eye, center, up )
+
+  -- Camera projection
+  scalar fovy = 40 -- field of view in degrees
+  scalar aspect = canvas.width / canvas.height -- aspect ratio
+  scalar near = 1 -- Z near
+  scalar far = 5 -- Z far
+  mat4x4 proj = perspective( fovy, aspect, near, far )
+
+  -- Viewport
+  list view = [ -canvas.width/2, -canvas.height/2, canvas.width, canvas.height ]
+}
+
+light {
+  -- Light position
+  scalar pointLight = 1 -- set to 0 for a directional light "at infinity"
+  vec4 pos = ( -10, 30, 10, 1 )
+
+  -- Draw a circle at the light location
+  vec2 q = project( (pos[0],pos[1],pos[2]), camera.model, camera.proj, camera.view )
+  shape lightBall = Circle {
+     center: q
+     r: 10
+     fillColor: #ffcc00
+     strokeColor: #ff6600
+     strokeWidth: 2
+  }
+}
+
+global {
+   -- draw one floor for the whole scene
+   vec3 corner1 = ( -settings.floorSize, settings.floorHeight, settings.floorSize )
+   vec3 corner2 = ( settings.floorSize, settings.floorHeight, settings.floorSize )
+   vec3 corner3 = ( settings.floorSize, settings.floorHeight, -settings.floorSize )
+   vec3 corner4 = ( -settings.floorSize, settings.floorHeight, -settings.floorSize )
+
+   list floorPoints = [ corner1, corner2, corner3, corner4 ]
+   list p = projectList( floorPoints, camera.model, camera.proj, camera.view )
+   shape floor = Polygon {
+      points: [ (p[0][0],p[0][1]), (p[1][0],p[1][1]), (p[2][0],p[2][1]), (p[3][0],p[3][1]) ]
+      fillColor: colors.floorColor
+      strokeColor: #bbb
+      strokeWidth: 4.0
+      ensureOnCanvas: false
+   }
+}
+
+forall Point p {
+  p.x = (?, ?, ?)
+}
+
+collect Point p into ps
+where PointInside(p, c)
+foreach Curve c {
+   xs = listof x from ps
+   c.points = xs
+}
+
+forall Curve c {
+
+  c.points2d = projectList( c.points, camera.model, camera.proj, camera.view )
+
+  ensure isEquilateral(c.points, true)
+  ensure perimeter(c.points, true) == settings.curveLength
+  -- encourage maximal(signedArea(c.points2d, true))
+  encourage elasticEnergy(c.points, true) == 0
+}
+
+forall Curve c where Display(c) {
+    shape curve = Path {
+    d: interpolatingSpline( "closed", c.points2d, 0.19 )
+    strokeColor: #210a607b
+    strokeWidth: settings.lineThickness
+    strokeLinejoin: "round"
+    ensureOnCanvas: false
+  }
+}
+
+forall Point p; Ball b where PointInside(p, b) {
+  scalar radius = settings.sphereRadius
+  ensure norm(p.x) < radius
+}
+
+forall Point p; Ball b; Curve c where CurveInside(c, b); PointInside(p, c) {
+  scalar radius = settings.sphereRadius
+  ensure norm(p.x) < radius
+}
+
+forall Point p; Ball b where PointOnBoundary(p, b) {
+  scalar radius = settings.sphereRadius
+  ensure norm(p.x) == radius
+}
+
+forall Point p; Ball b; Curve c where CurveOnBoundary(c, b); PointInside(p, c) {
+  scalar radius = settings.sphereRadius
+  ensure norm(p.x) == radius
+}
+
+forall Point p where Display(p) {
+  vec2 x = project( p.x, camera.model, camera.proj, camera.view )
+  shape p.icon = Circle {
+    r: 4. -- todo: based on distance to camera
+    fillColor: #000
+    center: x
+    ensureOnCanvas: false
+  }
+}
