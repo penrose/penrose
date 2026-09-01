@@ -38,6 +38,8 @@ Recall how you would normally create a diagram of a concept using a pen or penci
 
 - Drawings commonly require explorations and various attempts with colors, sizes, and compositions. The same concept can be visualized in a number of different **styles**.
 
+![Penrose_GetStarted_img](https://github.com/user-attachments/assets/99e5b53d-76fb-4f2b-95ad-7a7551bbc5ef)
+
 ### The process of creating a Penrose diagram is similar to our intuitive process of analog diagramming. 🎉
 
 ![chair in house & vector in linear algebra](/img/tutorial/chair-vector.jpeg)
