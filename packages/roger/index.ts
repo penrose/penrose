@@ -22,7 +22,6 @@ import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
 import * as fs from "fs";
 import { basename, extname, join, resolve } from "path";
-import prettier from "prettier";
 import { InstanceData } from "./types.js";
 import watch from "./watch.js";
 
@@ -82,6 +81,7 @@ const render = async (
   },
   excludeWarnings: string[],
   onStep?: (s: State, i: number) => void,
+  embedProgs = false,
 ): Promise<{
   diagram: string;
   metadata: InstanceData;
@@ -121,8 +121,12 @@ const render = async (
   const convergeEnd = process.hrtime(convergeStart);
   const reactRenderStart = process.hrtime();
 
-  const canvas = (await toSVG(optimizedState, resolvePath, "roger", texLabels))
-    .outerHTML;
+  const svg = await toSVG(optimizedState, resolvePath, "roger", texLabels);
+  if (embedProgs) {
+    embedTrio(svg, domain, substance, style, variation, "");
+  }
+
+  const canvas = svg.outerHTML;
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
@@ -146,7 +150,10 @@ const render = async (
   };
 
   return {
-    diagram: await prettier.format(canvas, { parser: "html" }),
+    diagram: canvas,
+    // await prettier.format(canvas, {
+    //   parser: "html",
+    // }),
     state: optimizedState,
     metadata,
   };
@@ -224,6 +231,80 @@ const orderTrio = (unordered: string[]): string[] => {
   }
 };
 
+/**
+ * Given an SVG, program triple, and version and variation strings,
+ * appends penrose tags to the SVG so the SVG can be reuploaded and edited.
+ *
+ * @param svg
+ * @param dslStr the domain file
+ * @param subStr the substance file
+ * @param styleStr the style file
+ * @param versionStr
+ * @param variationStr
+ */
+const embedTrio = (
+  svg: SVGSVGElement,
+  dslStr: string,
+  subStr: string,
+  styleStr: string,
+  versionStr: string,
+  variationStr: string,
+): void => {
+  // Create custom <penrose> tag to store metadata, or grab it if it already exists
+  const metadataQuery = svg.querySelector("penrose");
+  let metadata: Element;
+
+  if (metadataQuery === null) {
+    metadata = document.createElementNS(
+      "https://penrose.cs.cmu.edu/metadata",
+      "penrose",
+    );
+    // Add the <penrose> metadata tag to the parent <svg> tag
+    svg.appendChild(metadata);
+  } else {
+    metadata = metadataQuery!;
+  }
+
+  // Create <version> tag for penrose version
+  const version = document.createElementNS(
+    "https://penrose.cs.cmu.edu/version",
+    "version",
+  );
+  version.insertAdjacentText("afterbegin", versionStr);
+
+  // Create <variation> tag for variation string
+  const variation = document.createElementNS(
+    "https://penrose.cs.cmu.edu/variation",
+    "variation",
+  );
+  variation.insertAdjacentText("afterbegin", variationStr);
+
+  // Create <sub> tag to store .substance code
+  const substance = document.createElementNS(
+    "https://penrose.cs.cmu.edu/substance",
+    "sub",
+  );
+  substance.insertAdjacentText("afterbegin", subStr);
+
+  // Create <sty> tag to store .style code
+  const style = document.createElementNS(
+    "https://penrose.cs.cmu.edu/style",
+    "sty",
+  );
+  style.insertAdjacentText("afterbegin", styleStr);
+
+  // Create <dsl> tag to store .domain code
+  const dsl = document.createElementNS("https://penrose.cs.cmu.edu/dsl", "dsl");
+  dsl.insertAdjacentText("afterbegin", dslStr);
+
+  // Add these new tags under the <penrose> metadata tag
+  metadata.appendChild(version);
+  metadata.appendChild(variation);
+  metadata.appendChild(substance);
+  metadata.appendChild(style);
+  metadata.appendChild(dsl);
+};
+
 //#region command-line interface
 yargs(hideBin(process.argv))
   .scriptName("roger")
@@ -257,6 +338,11 @@ yargs(hideBin(process.argv))
           alias: "v",
           desc: "Variation for the Penrose diagram",
           type: "string",
+        })
+        .option("embed-trio", {
+          desc: "Embed the trio files in the output SVG so that they can be used to regenerate the diagram",
+          type: "boolean",
+          default: false,
         })
         .option("dump-svgs", {
           desc: "During optimization, dump the intermediate SVGs to the given folder.",
@@ -345,7 +431,9 @@ yargs(hideBin(process.argv))
             );
           }
         },
+        options.embedTrio,
       );
+
       if (options.out) {
         fs.writeFileSync(options.out, diagram);
         console.log(
