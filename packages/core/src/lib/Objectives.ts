@@ -3,6 +3,7 @@ import {
   absVal,
   add,
   addN,
+  cos,
   div,
   ifCond,
   inverse,
@@ -461,7 +462,7 @@ export const objDictGeneral = {
         const cosine = absVal(ops.vdot(ops.vnormalize(l1), ops.vnormalize(l2)));
         // angles that are more than `range` deg from 0 or 180 do not need to be pushed
         return ifCond(
-          lt(cosine, range * (Math.PI / 180)),
+          lt(cosine, cos(mul(range, Math.PI / 180))),
           0,
           mul(strength, cosine),
         );
