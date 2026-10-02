@@ -12,6 +12,7 @@ import {
   getActiveBuilder,
   setActiveBuilder,
   withBuilder,
+  type InteractiveLayoutOptions,
 } from "./builder.js";
 import type { Diagram } from "./diagram.js";
 import { canvas as makeCanvas } from "./utils.js";
@@ -93,7 +94,11 @@ type ParentFields<P extends readonly TypeDeclaration[]> = P extends readonly [
 ]
   ? Omit<EntityOf<H>, typeof entityBrand> & ParentFields<T>
   : object;
-type DeepReadonly<T> = T extends object
+// Semantic references already are immutable nominal objects. Preserve their
+// named types and identities instead of expanding their private brands.
+type DeepReadonly<T> = T extends ProgramEntity | Proposition
+  ? T
+  : T extends object
   ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
   : T;
 export type DeclaredEntity<
@@ -617,10 +622,15 @@ export class ProgramStyleContext<D extends Definitions> {
   };
 }
 
-export interface DiagramProgramOptions<D extends Definitions> {
+export interface FigureRenderOptions {
+  readonly variation?: string;
+  readonly interactive?: boolean | InteractiveLayoutOptions;
+}
+
+export interface DiagramProgramOptions<D extends Definitions>
+  extends FigureRenderOptions {
   readonly sub: SubstanceProgram<D>;
   readonly sty: StyleProgram<D> | readonly StyleProgram<D>[];
-  readonly variation?: string;
   readonly canvas?: Canvas;
 }
 
@@ -662,12 +672,17 @@ export const diagram = async <D extends Definitions>(
     builder = new DiagramBuilder(
       options.canvas ?? declaredCanvases[0] ?? makeCanvas(800, 600),
       options.variation ?? "",
+      options.interactive ? 1000 : 0,
     );
     const context = new ProgramStyleContext(builder, options.sub);
     for (const style of styles) {
       assertSynchronousCallback(style.apply);
       withBuilder(builder, () => style.apply(context));
     }
+    if (options.interactive)
+      builder.interactiveLabels(
+        typeof options.interactive === "object" ? options.interactive : {},
+      );
   } finally {
     setActiveBuilder(previous);
   }

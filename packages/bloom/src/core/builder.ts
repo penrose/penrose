@@ -7,6 +7,7 @@ import {
   Num,
   Shape as PenroseShape,
   Var,
+  add,
   isVar,
   mul,
   sampleShape,
@@ -16,6 +17,7 @@ import {
 } from "@penrose/core";
 import * as constraints from "./constraints.js";
 import { Diagram } from "./diagram.js";
+import * as objectives from "./objectives.js";
 import {
   Circle,
   CircleProps,
@@ -140,6 +142,14 @@ export type InputOpts = {
   init?: number;
   optimized?: boolean;
 };
+
+/** Opt-in layout exploration; mathematical shape coordinates remain unchanged by default. */
+export interface InteractiveLayoutOptions {
+  /** Initial seed-dependent displacement in diagram units. */
+  jitter?: number;
+  /** Maximum displacement from the source layout while dragging. */
+  maxDistance?: number;
+}
 
 /**
  * An input that can be shared between diagrams and get/set from outside the diagram.
@@ -751,6 +761,189 @@ export class DiagramBuilder {
       throw new Error(`No input named ${name}`);
     }
     return this.inputs[idx].handle;
+  };
+
+  /**
+   * Move a fixed-coordinate construction through shared native Bloom inputs.
+   * The handle and companions translate together, preserving their geometry.
+   * Styles can opt into geometric groups; label layouts use the same mechanism.
+   */
+  draggableGroup = (
+    handle: Shape & {
+      center: Vec2;
+      drag: boolean;
+      dragConstraint: DragConstraint;
+    },
+    companions: readonly Shape[] = [],
+    options: InteractiveLayoutOptions = {},
+  ) => {
+    const jitter = options.jitter ?? 4;
+    const maxDistance = options.maxDistance ?? 16;
+    if (
+      !(jitter >= 0 && maxDistance > 0 && maxDistance >= jitter) ||
+      ![jitter, maxDistance].every(Number.isFinite)
+    )
+      throw new Error(
+        "Interactive jitter must be nonnegative and bounded by a positive drag distance",
+      );
+    const original = [...handle.center] as Vec2;
+    if (!original.every((n) => typeof n === "number" && Number.isFinite(n)))
+      throw new Error("A native drag group requires a fixed-coordinate handle");
+    const sampled = (axis: string, pinned: boolean) => {
+      const variable = this.samplingContext.makeInput(
+        {
+          init: {
+            tag: "Sampled",
+            sampler: jitter === 0 ? () => 0 : uniform(-jitter, jitter),
+          },
+          stages: "All",
+        },
+        `${handle.name}.layout.${axis}`,
+      );
+      if (pinned) this.pinnedInputs.add(this.inputs.length - 1);
+      return variable;
+    };
+    const dx = sampled("x", false),
+      dy = sampled("y", false);
+    const targetX = sampled("anchor-x", true),
+      targetY = sampled("anchor-y", true);
+    this.encourage(objectives.equal(dx, targetX), 0.1);
+    this.encourage(objectives.equal(dy, targetY), 0.1);
+    this.ensure(constraints.inRange(dx, -maxDistance, maxDistance));
+    this.ensure(constraints.inRange(dy, -maxDistance, maxDistance));
+    const moved = new Set<Shape>();
+    const translate = (shape: Shape) => {
+      if (moved.has(shape)) return;
+      moved.add(shape);
+      const point = ([x, y]: Vec2): Vec2 => [add(x, dx), add(y, dy)];
+      if ("center" in shape) shape.center = point(shape.center);
+      if ("start" in shape) shape.start = point(shape.start);
+      if ("end" in shape) shape.end = point(shape.end);
+      if ("points" in shape) shape.points = shape.points.map(point);
+      if (shape.shapeType === ShapeType.Path) {
+        shape.d = shape.d.map((command) => ({
+          ...command,
+          contents: command.contents.map((value) =>
+            value.tag === "CoordV"
+              ? { ...value, contents: point(value.contents as Vec2) }
+              : value,
+          ),
+        }));
+      }
+      if (shape.shapeType === ShapeType.Group) {
+        shape.shapes.forEach(translate);
+        if (shape.clipPath) translate(shape.clipPath);
+      }
+    };
+    [handle, ...companions].forEach(translate);
+    handle.drag = true;
+    const [cx, cy] = original as [number, number];
+    handle.dragConstraint = ([x, y]) => [
+      Math.min(cx + maxDistance, Math.max(cx - maxDistance, x)),
+      Math.min(cy + maxDistance, Math.max(cy - maxDistance, y)),
+    ];
+    handle.rawAttrs = {
+      ...handle.rawAttrs,
+      tabindex: "0",
+      role: "button",
+      cursor: "grab",
+      "data-bloom-drag": "true",
+      "aria-label":
+        handle.rawAttrs?.["aria-label"] ??
+        `Drag ${"string" in handle ? handle.string : handle.name}`,
+      "aria-keyshortcuts": "ArrowUp ArrowDown ArrowLeft ArrowRight",
+    };
+    this.addEventListener(
+      handle,
+      "keydown",
+      (event: KeyboardEvent, diagram) => {
+        const direction: Record<string, [number, number]> = {
+          ArrowLeft: [-1, 0],
+          ArrowRight: [1, 0],
+          ArrowUp: [0, 1],
+          ArrowDown: [0, -1],
+        };
+        if (!direction[event.key]) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const distance = event.shiftKey ? 8 : 2;
+        const currentX = diagram.getInput(`${handle.name}.layout.x`);
+        const currentY = diagram.getInput(`${handle.name}.layout.y`);
+        const [tx, ty] = handle.dragConstraint(
+          [
+            cx + currentX + distance * direction[event.key][0],
+            cy + currentY + distance * direction[event.key][1],
+          ],
+          diagram,
+        );
+        diagram.beginDrag(handle.name);
+        diagram.translate(handle.name, tx - cx - currentX, ty - cy - currentY);
+        diagram.endDrag(handle.name);
+      },
+    );
+    return { dx, dy };
+  };
+
+  /** Add seed-dependent label layouts, retaining exact mathematical geometry. */
+  interactiveLabels = (options: InteractiveLayoutOptions = {}) => {
+    const all: Shape[] = [];
+    const seen = new Set<Shape>();
+    const collect = (shape: Shape) => {
+      if (seen.has(shape)) return;
+      seen.add(shape);
+      all.push(shape);
+      if (shape.shapeType === ShapeType.Group) shape.shapes.forEach(collect);
+    };
+    this.shapes.forEach(collect);
+    const labels = all.filter(
+      (shape): shape is Equation | Text =>
+        (shape.shapeType === ShapeType.Equation ||
+          shape.shapeType === ShapeType.Text) &&
+        !shape.drag &&
+        shape.center.every((n) => typeof n === "number") &&
+        !/^(?:[()[\]{}]|\\(?:smile|frown))$/.test(shape.string),
+    );
+    const points = all.filter(
+      (shape): shape is Circle =>
+        shape.shapeType === ShapeType.Circle &&
+        typeof shape.r === "number" &&
+        shape.r > 0 &&
+        shape.r <= 6,
+    );
+    for (const label of labels) {
+      const knockouts = all.filter(
+        (shape): shape is Rectangle =>
+          shape.shapeType === ShapeType.Rectangle &&
+          shape.center[0] === label.center[0] &&
+          shape.center[1] === label.center[1] &&
+          typeof shape.height === "number" &&
+          shape.height <= 80 &&
+          typeof shape.width === "number" &&
+          shape.width <= this.canvas.width / 2 &&
+          shape.fillColor.every((n) => n === 1) &&
+          shape.strokeWidth === 0,
+      );
+      this.draggableGroup(label, knockouts, options);
+      if (options.jitter !== 0) {
+        label.ensureOnCanvas = true;
+        knockouts.forEach((shape) => {
+          shape.ensureOnCanvas = true;
+        });
+        for (const point of points)
+          this.ensure(constraints.disjoint(label, point, 1));
+      } else {
+        // The canonical composition may deliberately align type beyond the
+        // drawing's bounds. Native handles must not reflow it on first mount.
+        label.ensureOnCanvas = false;
+        knockouts.forEach((shape) => {
+          shape.ensureOnCanvas = false;
+        });
+      }
+    }
+    if (options.jitter !== 0)
+      for (let i = 0; i < labels.length; i++)
+        for (let j = i + 1; j < labels.length; j++)
+          this.ensure(constraints.disjoint(labels[i], labels[j], 1));
   };
 
   /**

@@ -1,6 +1,7 @@
 import {
   Canvas,
   collectLabels,
+  collectVars,
   compileCompGraph,
   finalStage,
   genGradient,
@@ -10,6 +11,7 @@ import {
   insertPending,
   isOptimized,
   makeTranslateOnMouseDown,
+  mapShape,
   mul,
   nextStage,
   Num,
@@ -112,6 +114,7 @@ export class Diagram {
   private onOptimizationFinished: (xs: number[]) => void = () => {};
   private onOptimizationStepped: (xs: number[]) => void = () => {};
   private onOptimizationStarted: (xs: number[]) => void = () => {};
+  private discarded = false;
   private readonly namespace = `bloom-${nextDiagramNamespaceId++}`;
 
   /**
@@ -205,6 +208,7 @@ export class Diagram {
    * (i.e. when optimization converges or fails)
    */
   optimizationStep = async () => {
+    if (this.discarded) return false;
     try {
       let i = 0;
       const steppedState = step(this.state, {
@@ -270,10 +274,11 @@ export class Diagram {
       elem.setAttribute("pointer-events", "painted");
       if (this.draggingConstraints.has(name)) {
         // get rid of tooltip
-        elem.insertBefore(
-          document.createElementNS("http://www.w3.org/2000/svg", "title"),
-          elem.firstChild,
+        // Keep the rendered child structure intact for subsequent frame updates.
+        const title = Array.from(elem.children).find(
+          (child) => child.localName === "title",
         );
+        if (title) title.textContent = "";
         let lastDx = 0;
         let lastDy = 0;
         const translateFn = makeTranslateOnMouseDown(
@@ -317,13 +322,34 @@ export class Diagram {
   };
 
   private copyAttrs = (src: Element, dest: Element) => {
+    if (
+      src.children.length !== dest.children.length ||
+      Array.from(src.children).some(
+        (child, index) => child.localName !== dest.children[index].localName,
+      )
+    ) {
+      // Math labels may regenerate their nested SVG tree. Preserve listeners on
+      // the shape's outer element while replacing the changed label contents.
+      dest.replaceChildren(
+        ...Array.from(src.childNodes, (child) => child.cloneNode(true)),
+      );
+    }
     for (let i = 0; i < src.children.length; i++) {
       this.copyAttrs(src.children[i], dest.children[i]);
     }
 
     for (let i = 0; i < src.attributes.length; i++) {
       const attr = src.attributes[i];
-      dest.setAttribute(attr.name, attr.value);
+      if (attr.name === "xmlns" || attr.name.startsWith("xmlns:")) {
+        const xmlns = "http://www.w3.org/2000/xmlns/";
+        if (dest.getAttributeNode(attr.name)?.namespaceURI !== xmlns)
+          dest.removeAttribute(attr.name);
+        dest.setAttributeNS(xmlns, attr.name, attr.value);
+      } else if (attr.namespaceURI) {
+        dest.setAttributeNS(attr.namespaceURI, attr.name, attr.value);
+      } else {
+        dest.setAttribute(attr.name, attr.value);
+      }
     }
   };
 
@@ -347,12 +373,14 @@ export class Diagram {
     };
 
     const renderLoop = async () => {
+      if (this.discarded) return false;
       if (svg === null || nameElemMap === null || draggingRef === null) {
         const {
           svg: newSvg,
           nameElemMap: newNameElemMap,
           draggingRef: newDraggingRef,
         } = await this.initialRender();
+        if (this.discarded) return false;
 
         svg = newSvg;
         nameElemMap = newNameElemMap;
@@ -399,6 +427,7 @@ export class Diagram {
   };
 
   endDrag = (name: string) => {
+    if (this.lassoEnabled) this.setAndEnableLasso();
     this.tempPinnedForDrag.delete(name);
     this.applyPins(this.state);
   };
@@ -552,6 +581,11 @@ export class Diagram {
   };
 
   discard = () => {
+    if (this.discarded) return;
+    this.discarded = true;
+    if (this.optimizationLooper.isRunning()) this.optimizationLooper.stop();
+    if (this.renderLooper.isRunning()) this.renderLooper.stop();
+    this.onInteraction = () => {};
     for (const input of this.sharedInputs) {
       input.unregister(this);
     }
@@ -631,13 +665,24 @@ export class Diagram {
     ]);
 
     if (data.lassoStrength !== 0) {
+      const expressions = [...objectives, ...constraints];
+      for (const shape of data.shapes)
+        mapShape((value) => {
+          expressions.push(value);
+          return value;
+        }, shape);
+      const reachable = collectVars(expressions);
+      const half = data.inputs.length / 2;
+      const active = data.inputs
+        .slice(0, half)
+        .flatMap((input, i) => (reachable.has(input.handle) ? [i] : []));
       // add lasso term, disabled by default
       objectives.push(
         mul(
           data.lassoStrength,
           ops.vdist(
-            data.inputs.slice(0, data.inputs.length / 2).map((i) => i.handle),
-            data.inputs.slice(data.inputs.length / 2).map((i) => i.handle),
+            active.map((i) => data.inputs[i].handle),
+            active.map((i) => data.inputs[half + i].handle),
           ),
         ),
       );
