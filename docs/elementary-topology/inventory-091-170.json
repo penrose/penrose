@@ -1,0 +1,603 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "review": {
+    "pdfPageRange": [91, 170],
+    "method": "Sequential visual review of all 80 supplied pages in rendered contact sheets, followed by individual full-page review of every figure-bearing page; OCR used only for supporting mathematical context and in-text references. Printed page labels are taken from the visually verified source audit.",
+    "status": "available-page-visual-pass-complete",
+    "limits": [
+      "Missing printed pages in this span have not been reviewed.",
+      "Mathematical descriptions remain subject to full notation checking during reproduction.",
+      "Figure crops and implementation links are pending.",
+      "Suggested domains are provisional classifications, not established library modules."
+    ]
+  },
+  "counts": {
+    "numberedFiguresPresent": 25,
+    "unnumberedMathematicalDiagramsPresent": 0,
+    "unnumberedMathematicalTablesPresent": 0,
+    "coverIllustrationsPresent": 0
+  },
+  "noIllustrationPdfPages": [
+    92, 93, 94, 95, 97, 99, 101, 103, 104, 105, 109, 110, 111, 112, 113, 114,
+    115, 116, 117, 118, 120, 121, 123, 124, 125, 126, 127, 128, 129, 130, 131,
+    132, 133, 134, 135, 136, 137, 138, 139, 140, 142, 143, 144, 145, 147, 148,
+    150, 152, 153, 154, 155, 157, 158, 160, 164, 165, 166, 167, 168, 169, 170
+  ],
+  "missingPrintedPagesInSpan": [
+    92, 102, 110, 117, 129, 139, 147, 157, 166, 175
+  ],
+  "unlocatedNumberedFigureLabels": [
+    {
+      "label": "5.8",
+      "status": "numbering-gap candidate; contents unknown",
+      "missingPrintedPageCandidates": [102],
+      "evidence": {
+        "precedingLabel": "5.7",
+        "precedingPdfPage": 100,
+        "precedingPrintedPage": 101,
+        "followingLabel": "5.9",
+        "followingPdfPage": 102,
+        "followingPrintedPage": 104,
+        "visuallyReviewedInterveningPdfPages": [101]
+      },
+      "note": "Printed page 103 is supplied and has no illustration; association with missing printed page 102 is an inference, not an inspected figure."
+    },
+    {
+      "label": "5.13",
+      "status": "referenced but unlocated in supplied pages; contents uninspected",
+      "missingPrintedPageCandidates": [110],
+      "evidence": {
+        "precedingLabel": "5.12",
+        "precedingPdfPage": 107,
+        "precedingPrintedPage": 109,
+        "followingLabel": "5.14",
+        "followingPdfPage": 108,
+        "followingPrintedPage": 111,
+        "inTextReference": {
+          "pdfPage": 107,
+          "printedPage": 109,
+          "context": "The Urysohn lemma proof refers to Fig. 5.13 when defining V = U(q prime) - Cl U(q) as a neighborhood of x_0."
+        }
+      },
+      "note": "The in-text reference confirms the figure label; placement on missing printed page 110 is an inference from pagination and sequence. No panel contents have been reconstructed."
+    },
+    {
+      "label": "8.2",
+      "status": "numbering-gap candidate; contents unknown",
+      "missingPrintedPageCandidates": [166],
+      "evidence": {
+        "precedingLabel": "8.1",
+        "precedingPdfPage": 156,
+        "precedingPrintedPage": 164,
+        "followingLabel": "8.3",
+        "followingPdfPage": 159,
+        "followingPrintedPage": 168,
+        "visuallyReviewedInterveningPdfPages": [157, 158]
+      },
+      "note": "Supplied printed pages 165 and 167 contain no illustration; association with missing printed page 166 is an inference, not an inspected figure."
+    }
+  ],
+  "entries": [
+    {
+      "id": "5.1",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 91,
+        "printedPage": 91,
+        "placement": "middle"
+      },
+      "description": "Two disjoint irregular open regions U and V containing shaded subsets A and B, illustrating separation of subsets.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Subsets A and B lie inside disjoint neighborhoods U and V."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["separation-axioms", "open-neighborhoods"]
+    },
+    {
+      "id": "5.2",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 96,
+        "printedPage": 97,
+        "placement": "lower left"
+      },
+      "description": "A shaded closed subset F lies inside an irregular open region V; a separate small circular neighborhood U contains point x.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Disjoint neighborhoods separate a point from a closed set."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["regular-spaces", "point-closed-set-separation"]
+    },
+    {
+      "id": "5.3",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 96,
+        "printedPage": 97,
+        "placement": "lower right"
+      },
+      "description": "Nested irregular regions and complement shading illustrate the construction V contained in Cl(V), contained in X-W, contained in U.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Neighborhood closure and complementary open region W in the regularity criterion."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["regular-spaces", "closures", "complements"]
+    },
+    {
+      "id": "5.4",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 98,
+        "printedPage": 99,
+        "placement": "lower middle"
+      },
+      "description": "A horizontal real line with marked points, bracketed intervals, and overlapping shaded neighborhoods U and V.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Real-line neighborhoods in the example of a Hausdorff topology that is not regular."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology", "real-analysis"],
+      "concepts": ["separation-axioms", "real-line-neighborhoods"]
+    },
+    {
+      "id": "5.5",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 100,
+        "printedPage": 101,
+        "placement": "upper left"
+      },
+      "description": "An irregular outline labeled X contains a point x and a shaded closed region F.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Original topological space before collapsing the closed subset F."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["identification-spaces", "closed-set-collapse"]
+    },
+    {
+      "id": "5.6",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 100,
+        "printedPage": 101,
+        "placement": "upper right"
+      },
+      "description": "An irregular outline labeled X/R contains the image point represented by F and another equivalence-class point.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Identification space after the closed region F becomes one point."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["identification-spaces", "quotients"]
+    },
+    {
+      "id": "5.7",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 100,
+        "printedPage": 101,
+        "placement": "middle"
+      },
+      "description": "A torus drawn in perspective with an elliptical outer silhouette, central hole, and leaders identifying its two circle factors.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The product C x C is represented as a torus."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["product-spaces", "torus", "regular-spaces"]
+    },
+    {
+      "id": "5.9",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 102,
+        "printedPage": 104,
+        "placement": "upper left"
+      },
+      "description": "Coordinate axes with a shaded upper-right rectangular basic neighborhood whose lower-left corner is the point (x,y).",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Half-open product neighborhood in a regular plane that is not normal."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology", "real-analysis"],
+      "concepts": ["product-topology", "normality-counterexample"]
+    },
+    {
+      "id": "5.10",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 102,
+        "printedPage": 104,
+        "placement": "upper right"
+      },
+      "description": "Coordinate axes, the descending diagonal line Y defined by x+y=0, and a shaded upper-right rectangle meeting Y only at its corner.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A basic neighborhood isolates one point of Y, so its subspace topology is discrete."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology", "real-analysis"],
+      "concepts": ["discrete-subspace", "normality-counterexample"]
+    },
+    {
+      "id": "5.11",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 106,
+        "printedPage": 108,
+        "placement": "upper middle"
+      },
+      "description": "Closed set A is nested inside an open region U(q), its closure, and a larger region U(q prime), while a separate region B lies outside.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Nested neighborhoods used to separate the disjoint closed sets A and B in Urysohn lemma."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["normal-spaces", "Urysohn-lemma", "closures"]
+    },
+    {
+      "id": "5.12",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 107,
+        "printedPage": 109,
+        "placement": "upper middle"
+      },
+      "description": "Several irregular regions form dark-to-light nested bands around A, with leader labels for consecutive dyadic-indexed neighborhoods and a closure.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Insertion of the next dyadic neighborhood between previously constructed closures and open neighborhoods."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["Urysohn-lemma", "nested-neighborhoods", "dyadic-rationals"]
+    },
+    {
+      "id": "5.14",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 108,
+        "printedPage": 111,
+        "placement": "upper middle"
+      },
+      "description": "An arrow links a shaded unit square, whose top and bottom edges are labeled y=1 and y=0, to a shaded irregular image in the coordinate plane.",
+      "panels": [
+        {
+          "id": "source",
+          "description": "The domain [0,1] x [0,1], with its two distinguished horizontal edges."
+        },
+        {
+          "id": "target",
+          "description": "The planar image of an extension of the two boundary paths."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["continuous-extension", "paths", "homotopy"]
+    },
+    {
+      "id": "6.1",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 119,
+        "printedPage": 123,
+        "placement": "lower middle"
+      },
+      "description": "A horizontal interval [a,b] is partitioned by labeled points x_0=a through x_n=b, with bracketed endpoints.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Finite partitions of a closed interval used as a directed set for integration."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["real-analysis", "point-set-topology"],
+      "concepts": ["directed-sets", "nets", "interval-partitions"]
+    },
+    {
+      "id": "6.2",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 122,
+        "printedPage": 126,
+        "placement": "middle"
+      },
+      "description": "Two overlapping oval neighborhoods U and V contain distinct points x and y, and a selected point s(U,V) lies in their intersection.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Neighborhood selections yield a net converging to two points in a non-Hausdorff space."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["nets", "Hausdorff-spaces", "nonunique-limits"]
+    },
+    {
+      "id": "7.1",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 141,
+        "printedPage": 148,
+        "placement": "lower middle"
+      },
+      "description": "Nine shaded metric disks are arranged in a three-by-three array around marked centers; a small inner circle and labels distinguish a closure from the complementary open region V.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Metric neighborhoods of a maximal separated subset, with V the complement of the union of smaller closed neighborhoods."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["metric-spaces", "point-set-topology"],
+      "concepts": ["metric-open-covers", "Lindelof-spaces", "separability"]
+    },
+    {
+      "id": "7.2",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 146,
+        "printedPage": 153,
+        "placement": "upper middle"
+      },
+      "description": "The real interval from 0 to 1 contains a marked interior point u, surrounded by a shaded, bracketed open-cover element U_i.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An open neighborhood extends a finite cover beyond a proposed supremum in the proof of compactness of [0,1]."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["real-analysis", "point-set-topology"],
+      "concepts": ["compactness", "open-covers", "suprema"]
+    },
+    {
+      "id": "7.3",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 149,
+        "printedPage": 156,
+        "placement": "lower middle"
+      },
+      "description": "One cluster of overlapping irregular neighborhoods covers a shaded compact set A; a second, separate cluster has a shaded common neighborhood around the external point x.",
+      "panels": [
+        {
+          "id": "compact-set",
+          "description": "Finitely many open neighborhoods cover the compact set A."
+        },
+        {
+          "id": "external-point",
+          "description": "Intersection of matching neighborhoods gives a neighborhood of x disjoint from A."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["compact-subsets", "Hausdorff-spaces", "finite-subcovers"]
+    },
+    {
+      "id": "7.4",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 151,
+        "printedPage": 159,
+        "placement": "upper left"
+      },
+      "description": "The cylinder I×C has solid boundary ellipses labeled {1}×C and {0}×C. The upper left point x marks the interval fiber I×{x}; 1 and 0 mark the interval endpoints at the right.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The compact cylinder obtained as the product of a circle and [0,1]."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["compactness", "product-spaces", "cylinder"]
+    },
+    {
+      "id": "7.5",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 151,
+        "printedPage": 159,
+        "placement": "upper middle"
+      },
+      "description": "A torus is drawn with its central hole and dashed hidden portions, and leaders label circle fibers from its two product factors.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Compactness of the product of two circles, represented by a torus."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["compactness", "product-spaces", "torus"]
+    },
+    {
+      "id": "7.6",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 151,
+        "printedPage": 159,
+        "placement": "upper right"
+      },
+      "description": "The wireframe cube I×I×I has vertically hatched first-coordinate-zero face {0}×I×I and diagonally hatched third-coordinate-one face I×I×{1}. Vertical stripes continue into a triangle on the top, and a bent leader points left into the first face. The front left vertical edge is marked 0 and 1.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The compact product [0,1]^3 is represented as a cube."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": ["compactness", "product-spaces", "cube"]
+    },
+    {
+      "id": "8.1",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 156,
+        "printedPage": 164,
+        "placement": "middle"
+      },
+      "description": "Coordinate axes pass through a shaded square centered at the origin; a darker irregular bounded set A lies in its upper-right portion, with boundary values plus/minus p labeled.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A bounded subset A of Euclidean space lies inside the closure of a product neighborhood of the origin."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["metric-spaces", "point-set-topology"],
+      "concepts": ["boundedness", "compactness", "product-neighborhoods"]
+    },
+    {
+      "id": "8.3",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 159,
+        "printedPage": 168,
+        "placement": "middle"
+      },
+      "description": "Point x lies at the center of a small shaded disk inside a larger disk, both contained in an irregular open neighborhood U; leaders label N(x,p) and Cl N(x,p/2).",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A compact closed metric neighborhood fits inside any prescribed neighborhood of x."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["metric-spaces", "point-set-topology"],
+      "concepts": ["local-compactness", "metric-balls", "closures"]
+    },
+    {
+      "id": "8.4",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 161,
+        "printedPage": 170,
+        "placement": "upper middle"
+      },
+      "description": "A horizontal real line has an open interval (a,b), the rational point x, an irrational point t, and an overbrace indicating containment in the interior of A.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The interval used to construct an open cover contradicting local compactness of the rational subspace."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["real-analysis", "point-set-topology"],
+      "concepts": ["rational-subspace", "local-compactness", "open-covers"]
+    },
+    {
+      "id": "8.5",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 162,
+        "printedPage": 171,
+        "placement": "middle right"
+      },
+      "description": "An oval ambient space X contains a crosshatched diamond-shaped subspace Y, a small irregular neighborhood around point y, and leaders marking relative and ambient open sets.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Local compactness of Y is related to its being open in its closure."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["point-set-topology"],
+      "concepts": [
+        "locally-compact-subspaces",
+        "relative-topology",
+        "locally-closed-subsets"
+      ]
+    },
+    {
+      "id": "8.6",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 163,
+        "printedPage": 172,
+        "placement": "upper middle"
+      },
+      "description": "An arrow maps a detached point A={-1} and a positive half-line B into a coordinate plot with the point (0,0) and the rapidly oscillating curve y=sin(1/x).",
+      "panels": [
+        {
+          "id": "source",
+          "description": "The locally compact domain {-1} union (0,infinity) in the real line."
+        },
+        {
+          "id": "target",
+          "description": "The image combines (0,0) with the oscillating graph (x,sin(1/x)) for x>0."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "suggestedDomains": ["real-analysis", "point-set-topology"],
+      "concepts": [
+        "continuous-images",
+        "local-compactness-counterexample",
+        "oscillating-graphs"
+      ]
+    }
+  ]
+}

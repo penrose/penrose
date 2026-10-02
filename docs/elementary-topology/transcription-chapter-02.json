@@ -1,0 +1,480 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "chapter": {
+    "number": 2,
+    "title": "Metric Spaces",
+    "printedPageRange": [16, 39]
+  },
+  "review": {
+    "pdfPageRange": [24, 45],
+    "method": "Existing private text extraction checked against each full-page 150 dpi rendered scan. Every mathematical formula and available exercise was visually reviewed. Existing section 2.2 was reviewed against its scans and linked rather than duplicated.",
+    "status": "available-pages-transcribed",
+    "availableChapterPdfPages": [
+      24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41,
+      42, 43, 44
+    ],
+    "visualReviewedPdfPages": [
+      24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41,
+      42, 43, 44, 45
+    ],
+    "limits": [
+      "Printed pages 21, 29, and 38 are absent from the supplied source; no missing prose, section openings, definitions, propositions, or exercises are reconstructed.",
+      "Printed page 39 begins with exercise parts c and d whose number and opening are absent; these are retained without inventing an exercise stem.",
+      "Source citation Proposition 2(c) in section 2.4 and lowercase d(0,A) in Example 20 are retained as printed.",
+      "Running headers and printed page-number footers are excluded from continuous prose and retained in the source page mapping.",
+      "Line wrapping, paragraph indentation, and line-end hyphenation are normalized; source wording and mathematical notation are retained.",
+      "Printed pages 26 and 34 are split at section boundaries across two section pages.",
+      "Figure 2.7 is not present in the supplied scan; it is not reconstructed.",
+      "PDF page 45, printed page 40, is a reviewed next-chapter boundary only."
+    ]
+  },
+  "outputDirectory": "packages/docs-site/docs/elementary-topology/chapter-02",
+  "pages": [
+    {
+      "pdfPage": 24,
+      "printedPage": 16,
+      "path": "metric-space.md",
+      "coverage": "All body text; Chapter 2 and section 2.1 headings, Definition 1 and Examples 1–2.",
+      "anchor": "printed-page-16",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 25,
+      "printedPage": 17,
+      "path": "metric-space.md",
+      "coverage": "All body text; Examples 3–5, three plane metrics, subspaces, function metric, proof parts i–iii.",
+      "anchor": "printed-page-17",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 26,
+      "printedPage": 18,
+      "path": "metric-space.md",
+      "coverage": "All body text; completion of Example 5 proof, Exercises 1–6 with all subparts.",
+      "anchor": "printed-page-18",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 27,
+      "printedPage": 19,
+      "path": "../neighborhoods.md",
+      "coverage": "Existing section 2.2 transcription linked from chapter index; all body text, Definition 2, Example 6, Figures 2.1–2.4.",
+      "transcriptionStatus": "existing-reviewed-page-linked-without-duplication",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 28,
+      "printedPage": 20,
+      "path": "../neighborhoods.md",
+      "coverage": "Existing section 2.2 transcription linked from chapter index; all body text, Example 6 continuation, Example 7, Figures 2.5–2.6, Exercises 1–2.",
+      "transcriptionStatus": "existing-reviewed-page-linked-without-duplication",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 29,
+      "printedPage": 22,
+      "path": "open-sets.md",
+      "coverage": "All available body text including initial proof fragment; Figure 2.8, Propositions 2–3 and Proposition 2 proof.",
+      "anchor": "printed-page-22",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 30,
+      "printedPage": 23,
+      "path": "open-sets.md",
+      "coverage": "All body text; Proposition 3 proof, Example 9, Exercises 1–7 with all subparts.",
+      "anchor": "printed-page-23",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 31,
+      "printedPage": 24,
+      "path": "closed-sets.md",
+      "coverage": "All body text; Definition 4, Examples 10–11, Figure 2.9, Proposition 4 and proof parts a–b.",
+      "anchor": "printed-page-24",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 32,
+      "printedPage": 25,
+      "path": "closed-sets.md",
+      "coverage": "All body text; Proposition 4 proof part c, Proposition 5 and proof, Exercises 1–5 with all subparts.",
+      "anchor": "printed-page-25",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 33,
+      "printedPage": 26,
+      "fragments": [
+        {
+          "path": "closed-sets.md",
+          "anchor": "printed-page-26",
+          "coverage": "Section 2.4 Exercise 6, complete text."
+        },
+        {
+          "path": "convergence-of-sequences.md",
+          "anchor": "printed-page-26",
+          "coverage": "Section 2.5 heading and all body text; Definition 5, Example 12, Figures 2.10–2.11."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 34,
+      "printedPage": 27,
+      "path": "convergence-of-sequences.md",
+      "coverage": "All body text; Example 12 continuation, Example 13, Figures 2.12–2.13, Proposition 6 and beginning of proof.",
+      "anchor": "printed-page-27",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 35,
+      "printedPage": 28,
+      "path": "convergence-of-sequences.md",
+      "coverage": "All body text; Figure 2.14, Proposition 6 proof completion, Proposition 7 and proof, available Exercise 1(a–c).",
+      "anchor": "printed-page-28",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 36,
+      "printedPage": 30,
+      "path": "continuity.md",
+      "coverage": "All available body text; Figure 2.15, Example 14, Proposition 8 and proof.",
+      "anchor": "printed-page-30",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 37,
+      "printedPage": 31,
+      "path": "continuity.md",
+      "coverage": "All body text; Proposition 9 and proof, Example 15 and Figure 2.16, Example 16 beginning.",
+      "anchor": "printed-page-31",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 38,
+      "printedPage": 32,
+      "path": "continuity.md",
+      "coverage": "All body text; Example 16 completion, Proposition 10 and proof, Example 17 beginning.",
+      "anchor": "printed-page-32",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 39,
+      "printedPage": 33,
+      "path": "continuity.md",
+      "coverage": "All body text; Example 17 completion, Exercises 1–8 with all subparts.",
+      "anchor": "printed-page-33",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 40,
+      "printedPage": 34,
+      "fragments": [
+        {
+          "path": "continuity.md",
+          "anchor": "printed-page-34",
+          "coverage": "Section 2.6 Exercises 9(a–b) and 10, complete text."
+        },
+        {
+          "path": "distance-between-sets.md",
+          "anchor": "printed-page-34",
+          "coverage": "Section 2.7 heading and all body text; Definition 7, Example 18 beginning, Figures 2.17–2.18."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 41,
+      "printedPage": 35,
+      "path": "distance-between-sets.md",
+      "coverage": "All body text; Example 18 completion, Propositions 11–12 and proofs, latter proof continuing on next page.",
+      "anchor": "printed-page-35",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 42,
+      "printedPage": 36,
+      "path": "distance-between-sets.md",
+      "coverage": "All body text; Proposition 12 proof completion, Proposition 13 and proof, Figure 2.19, separation properties.",
+      "anchor": "printed-page-36",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 43,
+      "printedPage": 37,
+      "path": "distance-between-sets.md",
+      "coverage": "All body text; Example 19 and Figure 2.20, Definition 8, Example 20, Proposition 14 and proof.",
+      "anchor": "printed-page-37",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 44,
+      "printedPage": 39,
+      "path": "distance-between-sets.md",
+      "coverage": "All available body text; unnumbered exercise continuation parts c–d with missing opening, Exercise 7.",
+      "anchor": "printed-page-39",
+      "formulaReview": "verified against rendered scan"
+    }
+  ],
+  "gaps": [
+    {
+      "printedPage": 21,
+      "before": {
+        "pdfPage": 28,
+        "printedPage": 20
+      },
+      "after": {
+        "pdfPage": 29,
+        "printedPage": 22
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "open-sets.md"],
+      "availableBoundaryEvidence": "Printed page 22 begins inside a proof, with the fragment rho−D(x,w); the opening of section 2.3 is not available."
+    },
+    {
+      "printedPage": 29,
+      "before": {
+        "pdfPage": 35,
+        "printedPage": 28
+      },
+      "after": {
+        "pdfPage": 36,
+        "printedPage": 30
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": [
+        "index.md",
+        "convergence-of-sequences.md",
+        "continuity.md"
+      ],
+      "availableBoundaryEvidence": "Printed page 28 ends at Exercise 1(c); printed page 30 begins with Figure 2.15 and Example 14 and references unavailable Definition 6."
+    },
+    {
+      "printedPage": 38,
+      "before": {
+        "pdfPage": 43,
+        "printedPage": 37
+      },
+      "after": {
+        "pdfPage": 44,
+        "printedPage": 39
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "distance-between-sets.md"],
+      "availableBoundaryEvidence": "Printed page 37 ends with Proposition 14 proof; printed page 39 has only exercise parts c–d with missing opening, followed by Exercise 7. No exercise number is inferred for the initial fragments."
+    }
+  ],
+  "illustrations": [
+    {
+      "id": "2.1",
+      "pdfPage": 27,
+      "printedPage": 19,
+      "path": "../neighborhoods.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=19",
+      "svgPath": "/elementary-topology/figures/figure-2.1.svg"
+    },
+    {
+      "id": "2.2",
+      "pdfPage": 27,
+      "printedPage": 19,
+      "path": "../neighborhoods.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=19",
+      "svgPath": "/elementary-topology/figures/figure-2.2.svg"
+    },
+    {
+      "id": "2.3",
+      "pdfPage": 27,
+      "printedPage": 19,
+      "path": "../neighborhoods.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=19",
+      "svgPath": "/elementary-topology/figures/figure-2.3.svg"
+    },
+    {
+      "id": "2.4",
+      "pdfPage": 27,
+      "printedPage": 19,
+      "path": "../neighborhoods.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=19",
+      "svgPath": "/elementary-topology/figures/figure-2.4.svg"
+    },
+    {
+      "id": "2.5",
+      "pdfPage": 28,
+      "printedPage": 20,
+      "path": "../neighborhoods.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=20",
+      "svgPath": "/elementary-topology/figures/figure-2.5.svg"
+    },
+    {
+      "id": "2.6",
+      "pdfPage": 28,
+      "printedPage": 20,
+      "path": "../neighborhoods.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=20",
+      "svgPath": "/elementary-topology/figures/figure-2.6.svg"
+    },
+    {
+      "id": "2.8",
+      "pdfPage": 29,
+      "printedPage": 22,
+      "path": "open-sets.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=22",
+      "svgPath": "/elementary-topology/figures/figure-2.8.svg"
+    },
+    {
+      "id": "2.9",
+      "pdfPage": 31,
+      "printedPage": 24,
+      "path": "closed-sets.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=24",
+      "svgPath": "/elementary-topology/figures/figure-2.9.svg"
+    },
+    {
+      "id": "2.10",
+      "pdfPage": 33,
+      "printedPage": 26,
+      "path": "convergence-of-sequences.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=26",
+      "svgPath": "/elementary-topology/figures/figure-2.10.svg"
+    },
+    {
+      "id": "2.11",
+      "pdfPage": 33,
+      "printedPage": 26,
+      "path": "convergence-of-sequences.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=26",
+      "svgPath": "/elementary-topology/figures/figure-2.11.svg"
+    },
+    {
+      "id": "2.12",
+      "pdfPage": 34,
+      "printedPage": 27,
+      "path": "convergence-of-sequences.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=27",
+      "svgPath": "/elementary-topology/figures/figure-2.12.svg"
+    },
+    {
+      "id": "2.13",
+      "pdfPage": 34,
+      "printedPage": 27,
+      "path": "convergence-of-sequences.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=27",
+      "svgPath": "/elementary-topology/figures/figure-2.13.svg"
+    },
+    {
+      "id": "2.14",
+      "pdfPage": 35,
+      "printedPage": 28,
+      "path": "convergence-of-sequences.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=28",
+      "svgPath": "/elementary-topology/figures/figure-2.14.svg"
+    },
+    {
+      "id": "2.15",
+      "pdfPage": 36,
+      "printedPage": 30,
+      "path": "continuity.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=30",
+      "svgPath": "/elementary-topology/figures/figure-2.15.svg"
+    },
+    {
+      "id": "2.16",
+      "pdfPage": 37,
+      "printedPage": 31,
+      "path": "continuity.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=31",
+      "svgPath": "/elementary-topology/figures/figure-2.16.svg"
+    },
+    {
+      "id": "2.17",
+      "pdfPage": 40,
+      "printedPage": 34,
+      "path": "distance-between-sets.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=34",
+      "svgPath": "/elementary-topology/figures/figure-2.17.svg"
+    },
+    {
+      "id": "2.18",
+      "pdfPage": 40,
+      "printedPage": 34,
+      "path": "distance-between-sets.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=34",
+      "svgPath": "/elementary-topology/figures/figure-2.18.svg"
+    },
+    {
+      "id": "2.19",
+      "pdfPage": 42,
+      "printedPage": 36,
+      "path": "distance-between-sets.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=36",
+      "svgPath": "/elementary-topology/figures/figure-2.19.svg"
+    },
+    {
+      "id": "2.20",
+      "pdfPage": 43,
+      "printedPage": 37,
+      "path": "distance-between-sets.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=37",
+      "svgPath": "/elementary-topology/figures/figure-2.20.svg"
+    }
+  ],
+  "unlocatedNumberedFigureLabels": ["2.7"],
+  "nextChapterBoundary": {
+    "pdfPage": 45,
+    "printedPage": 40,
+    "chapter": 3,
+    "title": "Topologies",
+    "section": "3.1 The Notion of a Topology",
+    "status": "visually reviewed; not transcribed as Chapter 2"
+  },
+  "validation": {
+    "sourceBodyCoverage": "Every extracted alphabetic OCR word of four or more characters was checked per supplied page against its transcribed body; unmatched tokens were only running headers or visually corrected OCR errors. This supplements full-page visual review.",
+    "sourceFormulaVerification": "Every mathematical expression on PDF pages 24–44 visually checked against 150 dpi scans, including weak/strict inequalities, fractions, function inverse notation, and the hyperbola domain restriction.",
+    "mathRenderer": "KaTeX 0.13.24 via shared docs-site configureMath, with v-pre wrappers preserving mathematical braces in Vue",
+    "mathExpressionCountInNewPages": 1001,
+    "mathValidationStatus": "passed",
+    "vueCompilationStatus": "passed",
+    "browserVisualQa": {
+      "status": "passed",
+      "browser": "Chrome",
+      "pages": [
+        "metric-space",
+        "open-sets",
+        "closed-sets",
+        "convergence-of-sequences",
+        "continuity",
+        "distance-between-sets"
+      ],
+      "checked": [
+        "No KaTeX errors on all six section pages; display formulas fit the reading column.",
+        "All currently implemented public SVGs on the section pages loaded successfully.",
+        "Dark-theme figure contrast corrected with white backgrounds; paired source figures use adjacent panels.",
+        "Source exercise numbering retained across page anchors, including Exercise 6 of section 2.4, Exercises 9–10 of section 2.6, and Exercise 7 after the final fragment.",
+        "Missing pages 21, 29, and 38 remain explicit; all 19 present Chapter 2 figures now use public Penrose SVGs."
+      ],
+      "recovery": "A fresh tab in the same Chrome session recovered a temporary timeout during development-server HMR.",
+      "lateFigureQa": "passed: Figures 2.14–2.16 load with white backgrounds; no math errors."
+    }
+  }
+}

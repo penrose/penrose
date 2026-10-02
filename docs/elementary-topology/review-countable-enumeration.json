@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "id": "unnumbered-countable-union-enumeration",
+  "status": "implemented-and-visually-reviewed",
+  "pdfPage": 19,
+  "printedPage": 10,
+  "sourceBounds": [
+    0.219,
+    0.342,
+    0.616,
+    0.226
+  ],
+  "domainFile": "packages/bloom/src/domains/set-theory.ts",
+  "styleFile": "packages/bloom/src/styles/countable-enumeration.tsx",
+  "substanceFile": "packages/bloom/src/examples/countable-enumeration.ts",
+  "testFile": "packages/bloom/src/styles/countable-enumeration.test.ts",
+  "verification": {
+    "testsPassed": 2,
+    "reuse": "Same style renders 5\u00d76 and3\u00d74 families.",
+    "mathematics": [
+      "First six positions match the source exactly.",
+      "210 generated positions are unique and cover complete diagonals.",
+      "Every rendered traversal segment has a visible arrowhead."
+    ],
+    "visual": "Source PDF19 and final rasterized SVG manually compared; labels, arrows and continuation markers retained."
+  },
+  "limits": [
+    "The displayed finite window denotes part of an infinite array. Enumeration of positions does not automatically identify duplicate values from overlapping sets."
+  ]
+}

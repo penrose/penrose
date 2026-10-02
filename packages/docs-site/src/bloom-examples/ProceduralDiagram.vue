@@ -9,5 +9,7 @@ const ProceduralDiagram = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <ProceduralDiagram />
+  <ClientOnly>
+    <ProceduralDiagram />
+  </ClientOnly>
 </template>

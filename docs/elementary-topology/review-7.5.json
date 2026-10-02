@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "source": {
+    "pdfPage": 151,
+    "printedPage": 159,
+    "pixelBounds": [385, 294, 307, 180],
+    "pagePixels": [1073, 1800],
+    "boundingBox": [
+      0.35880708294501396, 0.16333333333333333, 0.28611369990680335, 0.1
+    ]
+  },
+  "implementation": {
+    "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+    "implementation": "packages/bloom/src/examples/quotient-spaces.ts",
+    "style": "packages/bloom/src/styles/quotient-spaces.tsx",
+    "buildFactory": "buildCompactCircleProductFigure",
+    "substanceFactory": "circleProductSubstance",
+    "substanceArguments": [
+      -1.5707963267948966,
+      {
+        "fixedLabel": "x",
+        "bothFibers": true,
+        "compact": true
+      }
+    ]
+  },
+  "mathematics": "The compact product C×C contains {x}×C and C×{x}. Their shared point is the ordered pair (x,x), distinct from the factor point x; all three memberships are explicit.",
+  "visual": "Source outer ring, central opening, dashed transverse ellipse, narrow front meridian with a dashed back half, both fiber labels and shared point retained. Analytic outer torus silhouette closes sampled contour gaps.",
+  "limitations": [
+    "The source uses schematic projected fiber glyphs: an ellipse and a widened meridian. Their marked intersection is preserved without claiming an exact analytical latitude of the embedded torus.",
+    "The product point is labeled x as in the figure, while its ordered-pair meaning is explicit in the Substance.",
+    "The native 1536-patch surface uses restrained diffuse shading; scanned outlines are regularized."
+  ],
+  "comparison": "tmp/elementary-topology/comparison-7.5.png",
+  "verification": {
+    "focusedTests": 6,
+    "interactiveRegressions": 5,
+    "xmlValidation": "passed",
+    "nativePolygons": 1536,
+    "nativeHandles": 3,
+    "reuse": "The same style renders two distinct fixed circle angles and both the earlier single-fiber and compact paired-fiber Substance programs.",
+    "visualReview": "Full source page and equal-width final comparison inspected. Dashed subpath phase and contour gaps corrected."
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "kind": "original-illustrations",
+  "explanation": "New illustrations of previously unillustrated passages. These are separate from the source-figure inventory and reproduction count.",
+  "illustrations": [
+    {
+      "id": "original-subspace-derived-sets",
+      "title": "Ambient and relative derived sets",
+      "status": "reviewed-original",
+      "pdfPage": 70,
+      "printedPage": 68,
+      "description": "Two panels compare the interior, frontier and closure of the x-axis A=Y in the Euclidean plane X and in its own subspace topology. A disk around p has an off-line witness q, whereas its intersection with Y is a relative neighborhood.",
+      "sourcePassage": {
+        "section": "4.2 Derived Sets in Subspaces",
+        "example": 6,
+        "pdfPages": [
+          70
+        ],
+        "printedPages": [
+          68
+        ],
+        "url": "./chapter-04/derived-sets-in-subspaces#printed-page-68"
+      },
+      "svg": "original-subspace-derived-sets.svg",
+      "implementation": "packages/bloom/src/examples/original-subspaces.ts",
+      "buildFactory": "buildSubspaceDerivedSetsIllustration",
+      "buildArguments": [
+        0,
+        0.5
+      ],
+      "substanceFactory": "subspaceDerivedSetsSubstance",
+      "substanceModule": "packages/bloom/src/examples/original-subspaces.ts",
+      "substanceArguments": [
+        0,
+        0.5
+      ],
+      "substanceLines": [
+        9,
+        74
+      ],
+      "style": "packages/bloom/src/styles/subspaces.tsx",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "interaction": "labels"
+    },
+    {
+      "id": "original-coordinate-slice",
+      "title": "A coordinate-slice embedding",
+      "status": "reviewed-original",
+      "pdfPage": 87,
+      "printedPages": [
+        87,
+        88
+      ],
+      "description": "The coordinate inclusion x maps to (0.75,x), whose image is the subspace {0.75} times R of R squared. The orange vertical slice is distinct from the dashed y-axis, and projection to the second coordinate is the inverse homeomorphism onto the image.",
+      "sourcePassage": {
+        "section": "4.6 Product Spaces",
+        "proposition": 20,
+        "pdfPages": [
+          87,
+          88
+        ],
+        "printedPages": [
+          87,
+          88
+        ],
+        "url": "./chapter-04/product-spaces#printed-page-87"
+      },
+      "svg": "original-coordinate-slice.svg",
+      "implementation": "packages/bloom/src/examples/original-subspaces.ts",
+      "buildFactory": "buildCoordinateSliceIllustration",
+      "buildArguments": [
+        0.75,
+        2
+      ],
+      "substanceFactory": "realLineEmbeddingSubstance",
+      "substanceModule": "packages/bloom/src/examples/product-topology.ts",
+      "substanceArguments": [
+        0.75,
+        2
+      ],
+      "substanceLines": [
+        138,
+        199
+      ],
+      "style": "packages/bloom/src/styles/product-topology.tsx",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "interaction": "labels"
+    }
+  ]
+}

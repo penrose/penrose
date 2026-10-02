@@ -1,0 +1,436 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "chapter": {
+    "number": 6,
+    "title": "Convergence",
+    "printedPageRange": [113, 141]
+  },
+  "review": {
+    "pdfPageRange": [110, 136],
+    "method": "Private text extraction checked against every full-page 150 dpi rendered scan. Every mathematical formula and available exercise was visually reviewed. Fraktur collection symbols and indices in the Zorn lemma proof of Proposition18 were additionally checked at300dpi.",
+    "status": "available-pages-transcribed",
+    "availableChapterPdfPages": [
+      110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124,
+      125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135
+    ],
+    "visualReviewedPdfPages": [
+      110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124,
+      125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136
+    ],
+    "limits": [
+      "Printed pages117,129,and139 are absent. No missing prose, definitions, propositions, corollaries, proofs, examples, exercises, or section openings are reconstructed.",
+      "Printed116 ends within Definition1. Printed118 begins within an example. The missing net definition and properties are not inferred from later references.",
+      "Printed128 ends after one proof direction of Proposition9. Printed130 resumes at Exercise2; the other proof direction, corollary and Exercise1 are unavailable.",
+      "Printed138 ends at Proposition20 statement. Printed140 begins with proof parts b,c,a whose statement is unavailable. Intervening propositions and definition are not reconstructed.",
+      "Source Example11 endpoint sums, its refinement-order direction and upper/lower Riemann terminology are retained. The original footnote about Riemann integrals is retained with a linked source asterisk.",
+      "Source Chapter3 reference before Proposition8, Exercise5(a) topology containing {0} on positive integers, Proposition9 order-preserving inference, Example14 interval (0,1), filter-on-x wording, and Proposition19 incomplete conditional are retained.",
+      "Fraktur filter a is distinct from capital A family of filters in Proposition18; its chain c, basis D, primes, missing prime in one source sentence, and upper-bound wording are retained.",
+      "Running headers and footers are retained in the source map. Line wrapping, paragraph indentation, and line-end hyphenation are normalized. Inline anchors preserve paragraphs crossing page boundaries.",
+      "Printed pages116,119,122,127,130,and136 are split at section boundaries.",
+      "PDF136, printed142, is the reviewed next-chapter boundary only."
+    ]
+  },
+  "outputDirectory": "packages/docs-site/docs/elementary-topology/chapter-06",
+  "pages": [
+    {
+      "pdfPage": 110,
+      "printedPage": 113,
+      "path": "generalized-convergence.md",
+      "anchor": "printed-page-113",
+      "coverage": "All body text; Chapter and section headings, introduction, Proposition1 and full proof.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 111,
+      "printedPage": 114,
+      "path": "generalized-convergence.md",
+      "anchor": "printed-page-114",
+      "coverage": "All body text; Generalization discussion, Example1 function space and neighborhood-system verification through (iv) beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 112,
+      "printedPage": 115,
+      "path": "generalized-convergence.md",
+      "anchor": "printed-page-115",
+      "coverage": "All body text; Example1 completion and all available Exercises1–2 parts a–c.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 113,
+      "printedPage": 116,
+      "fragments": [
+        {
+          "path": "generalized-convergence.md",
+          "anchor": "printed-page-116",
+          "coverage": "All body text of section fragment; Exercise2 parts d–e and Exercises3–5, complete text."
+        },
+        {
+          "path": "nets.md",
+          "anchor": "printed-page-116",
+          "coverage": "All body text of section fragment; Section heading, introductory partial-order discussion, available Definition1 ending within sentence."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 114,
+      "printedPage": 118,
+      "path": "nets.md",
+      "anchor": "printed-page-118",
+      "coverage": "All body text; Available example fragment, powerset and neighborhood directed sets, Example4, Exercises1–3 with Exercise3 beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 115,
+      "printedPage": 119,
+      "fragments": [
+        {
+          "path": "nets.md",
+          "anchor": "printed-page-119",
+          "coverage": "All body text of section fragment; Exercise3 completion and Exercises4–6, all parts."
+        },
+        {
+          "path": "subsequences-and-subnets.md",
+          "anchor": "printed-page-119",
+          "coverage": "All body text of section fragment; Section heading and introduction, Definition2, subnet discussion, Example5 beginning."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 116,
+      "printedPage": 120,
+      "path": "subsequences-and-subnets.md",
+      "anchor": "printed-page-120",
+      "coverage": "All body text; Example5 completion, Examples6–8, fundamental-properties introduction.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 117,
+      "printedPage": 121,
+      "path": "subsequences-and-subnets.md",
+      "anchor": "printed-page-121",
+      "coverage": "All body text; Propositions2–3 and proofs, corollary and proof, Exercises1–2.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 118,
+      "printedPage": 122,
+      "fragments": [
+        {
+          "path": "subsequences-and-subnets.md",
+          "anchor": "printed-page-122",
+          "coverage": "All body text of section fragment; Exercises3–5 with all subparts and hints."
+        },
+        {
+          "path": "convergence-of-nets.md",
+          "anchor": "printed-page-122",
+          "coverage": "All body text of section fragment; Section heading and introduction, Definition3."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 119,
+      "printedPage": 123,
+      "path": "convergence-of-nets.md",
+      "anchor": "printed-page-123",
+      "coverage": "All body text; Examples9–10, application discussion and original footnote, Figure6.1, Example11 beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 120,
+      "printedPage": 124,
+      "path": "convergence-of-nets.md",
+      "anchor": "printed-page-124",
+      "coverage": "All body text; Example11 completion, mesh and both endpoint-sum formulas, Proposition4 and proof.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 121,
+      "printedPage": 125,
+      "path": "convergence-of-nets.md",
+      "anchor": "printed-page-125",
+      "coverage": "All body text; Propositions5–7 and complete supplied proofs, generalized-convergence discussion.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 122,
+      "printedPage": 126,
+      "path": "convergence-of-nets.md",
+      "anchor": "printed-page-126",
+      "coverage": "All body text; Unique-limit introduction, Proposition8 and full proof, Figure6.2, Example12.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 123,
+      "printedPage": 127,
+      "fragments": [
+        {
+          "path": "convergence-of-nets.md",
+          "anchor": "printed-page-127",
+          "coverage": "All body text of section fragment; Exercises1–8 with all subparts."
+        },
+        {
+          "path": "limit-points.md",
+          "anchor": "printed-page-127",
+          "coverage": "All body text of section fragment; Section heading, Definition4 and limit-point discussion."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 124,
+      "printedPage": 128,
+      "path": "limit-points.md",
+      "anchor": "printed-page-128",
+      "coverage": "All body text; Example13, Proposition9 and all available proof direction.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 125,
+      "printedPage": 130,
+      "fragments": [
+        {
+          "path": "limit-points.md",
+          "anchor": "printed-page-130",
+          "coverage": "All body text of section fragment; Exercises2–7 with all subparts; Exercise1 is unavailable."
+        },
+        {
+          "path": "continuity-and-convergence.md",
+          "anchor": "printed-page-130",
+          "coverage": "All body text of section fragment; Section heading and introduction, Proposition10 and proof beginning."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 126,
+      "printedPage": 131,
+      "path": "continuity-and-convergence.md",
+      "anchor": "printed-page-131",
+      "coverage": "All body text; Proposition10 proof completion, Proposition11 and proof, Proposition12 and proof beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 127,
+      "printedPage": 132,
+      "path": "continuity-and-convergence.md",
+      "anchor": "printed-page-132",
+      "coverage": "All body text; Proposition12 proof completion, subspace-convergence discussion, Example14, Proposition13 and supplied proof, Exercises1–7.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 128,
+      "printedPage": 133,
+      "path": "filters.md",
+      "anchor": "printed-page-133",
+      "coverage": "All body text; Section heading and introduction, Definition5, Example15 and neighborhood-filter discussion beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 129,
+      "printedPage": 134,
+      "path": "filters.md",
+      "anchor": "printed-page-134",
+      "coverage": "All body text; Neighborhood-filter discussion completion, Examples16–17, Proposition14 and supplied proof, net/filter association discussion beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 130,
+      "printedPage": 135,
+      "path": "filters.md",
+      "anchor": "printed-page-135",
+      "coverage": "All body text; Association discussion completion, construction of a net based on a filter, Propositions15–16 and full proofs.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 131,
+      "printedPage": 136,
+      "fragments": [
+        {
+          "path": "filters.md",
+          "anchor": "printed-page-136",
+          "coverage": "All body text of section fragment; Finer-filter discussion and Exercises1–10, all subparts."
+        },
+        {
+          "path": "ultranets-and-ultrafilters.md",
+          "anchor": "printed-page-136",
+          "coverage": "All body text of section fragment; Section heading and introduction, Definition6."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 132,
+      "printedPage": 137,
+      "path": "ultranets-and-ultrafilters.md",
+      "anchor": "printed-page-137",
+      "coverage": "All body text; Example18, Proposition17 and proof beginning, all complementary-set formulas.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 133,
+      "printedPage": 138,
+      "path": "ultranets-and-ultrafilters.md",
+      "anchor": "printed-page-138",
+      "coverage": "All body text; Proposition17 proof completion, Propositions18–19 and supplied proofs, Proposition20 statement.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 134,
+      "printedPage": 140,
+      "path": "ultranets-and-ultrafilters.md",
+      "anchor": "printed-page-140",
+      "coverage": "All body text; Available proof parts b,c,a in printed order, Exercises1–4 with all subparts.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 135,
+      "printedPage": 141,
+      "path": "ultranets-and-ultrafilters.md",
+      "anchor": "printed-page-141",
+      "coverage": "All body text; Exercises5–7 with all subparts; all available chapter-ending text.",
+      "formulaReview": "verified against rendered scan"
+    }
+  ],
+  "gaps": [
+    {
+      "printedPage": 117,
+      "before": {
+        "pdfPage": 113,
+        "printedPage": 116
+      },
+      "after": {
+        "pdfPage": 114,
+        "printedPage": 118
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "nets.md"],
+      "availableBoundaryEvidence": "Printed116 ends within Definition1; printed118 begins Y≤W(W⊂Y), within an example about P(X). Later references to Example3 and residual/cofinal properties survive."
+    },
+    {
+      "printedPage": 129,
+      "before": {
+        "pdfPage": 124,
+        "printedPage": 128
+      },
+      "after": {
+        "pdfPage": 125,
+        "printedPage": 130
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "limit-points.md"],
+      "availableBoundaryEvidence": "Printed128 supplies one direction of Proposition9 proof; printed130 starts at Exercise2, referring to an unavailable corollary."
+    },
+    {
+      "printedPage": 139,
+      "before": {
+        "pdfPage": 133,
+        "printedPage": 138
+      },
+      "after": {
+        "pdfPage": 134,
+        "printedPage": 140
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "ultranets-and-ultrafilters.md"],
+      "availableBoundaryEvidence": "Printed138 ends with Proposition20 statement; printed140 begins Proof parts b,c,a. Later exercises refer to Propositions21/22."
+    }
+  ],
+  "illustrations": [
+    {
+      "id": "6.1",
+      "pdfPage": 119,
+      "printedPage": 123,
+      "path": "convergence-of-nets.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=123",
+      "publicSvgPath": "/elementary-topology/figures/figure-6.1.svg"
+    },
+    {
+      "id": "6.2",
+      "pdfPage": 122,
+      "printedPage": 126,
+      "path": "convergence-of-nets.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=126",
+      "publicSvgPath": "/elementary-topology/figures/figure-6.2.svg"
+    }
+  ],
+  "nextChapterBoundary": {
+    "pdfPage": 136,
+    "printedPage": 142,
+    "chapter": 7,
+    "title": "Covering Properties",
+    "section": "7.1 Open Covers and Refinements",
+    "status": "visually reviewed; not transcribed as Chapter6"
+  },
+  "validation": {
+    "sourceBodyCoverage": "Every extracted alphabetic OCR word of four or more characters was checked per supplied page against its transcribed body; unmatched tokens were only running headers or visually corrected OCR errors. This supplements full-page visual review.",
+    "sourceFormulaVerification": "All mathematical expressions on PDF110–135 visually checked, including weak partial-order inequalities, residual/cofinal indices, function-space neighborhoods, endpoint sums, quotient bars, product coordinate superscripts, Fraktur filter/family symbols and complementary-set formulas.",
+    "mathRenderer": "KaTeX 0.13.24 via shared docs-site configureMath, with v-pre wrappers preserving mathematical braces in Vue",
+    "mathExpressionCountInNewPages": 1847,
+    "mathValidationStatus": "passed",
+    "vueCompilationStatus": "passed",
+    "browserVisualQa": {
+      "status": "passed-root-review",
+      "browser": "Codex in-app browser",
+      "pages": [
+        "generalized-convergence",
+        "nets",
+        "subsequences-and-subnets",
+        "convergence-of-nets",
+        "limit-points",
+        "continuity-and-convergence",
+        "filters",
+        "ultranets-and-ultrafilters"
+      ],
+      "checked": [
+        "generalized-convergence",
+        "nets",
+        "subsequences-and-subnets",
+        "convergence-of-nets",
+        "limit-points",
+        "continuity-and-convergence",
+        "filters",
+        "ultranets-and-ultrafilters"
+      ],
+      "method": "All section routes loaded in the production in-app browser. Checked chapter headings, exercises, rendered KaTeX, native SVG images and document width. Representative screenshots inspected; the large 5.7 SVG completed loading and was inspected in its prose context.",
+      "mathErrors": 0,
+      "documentOverflow": false
+    }
+  },
+  "generalizabilityCandidates": [
+    {
+      "section": "6.1",
+      "printedPage": 115,
+      "pdfPage": 112,
+      "passage": "Example1",
+      "concept": "Contrast finite-coordinate neighborhoods with the countable union of zero sets to explain failure of sequential closure."
+    },
+    {
+      "section": "6.3",
+      "printedPage": 120,
+      "pdfPage": 116,
+      "passage": "Example7",
+      "concept": "Compare an order-preserving noncofinal map with a cofinal non-order-preserving map using directed-set arrows."
+    },
+    {
+      "section": "6.5",
+      "printedPage": 128,
+      "pdfPage": 124,
+      "passage": "Example13",
+      "concept": "Alternating sequence with two limit points and two convergent subsequences, beyond the chapter’s two original figures."
+    },
+    {
+      "section": "6.7",
+      "printedPage": 134,
+      "pdfPage": 129,
+      "passage": "Example17",
+      "concept": "A sequence/net generates a filter from its tails; reuse point-set regions and index-order notation."
+    }
+  ]
+}

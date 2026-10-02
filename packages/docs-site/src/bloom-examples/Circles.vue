@@ -9,5 +9,7 @@ const Circles = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <Circles />
+  <ClientOnly>
+    <Circles />
+  </ClientOnly>
 </template>

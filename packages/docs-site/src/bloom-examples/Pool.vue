@@ -9,5 +9,7 @@ const Pool = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <Pool />
+  <ClientOnly>
+    <Pool />
+  </ClientOnly>
 </template>

@@ -1,0 +1,3192 @@
+{
+  "schemaVersion": 1,
+  "source": "ElementaryTopologyGemignani.pdf",
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "availableSourceInventoryComplete": true,
+  "inventoryComplete": false,
+  "sourceIncomplete": true,
+  "figures": [
+    {
+      "id": "cover-rosette",
+      "kind": "cover-illustration",
+      "pdfPage": 1,
+      "printedPage": null,
+      "description": "Rosette of curves inside a circular outline on the front cover.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Rosette of curves inside a circular outline on the front cover."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "unnumbered-countable-union-enumeration",
+      "kind": "unnumbered-mathematical-diagram",
+      "pdfPage": 19,
+      "printedPage": 10,
+      "description": "Array of elements of countably many countable sets, with arrows tracing a diagonal enumeration.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Array of elements of countably many countable sets, with arrows tracing a diagonal enumeration."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "set-theory",
+      "implementation": "packages/bloom/src/examples/countable-enumeration.ts",
+      "style": "packages/bloom/src/styles/countable-enumeration.tsx",
+      "svg": "figure-unnumbered-countable-union-enumeration.svg",
+      "sourceBox": [
+        0.219,
+        0.342,
+        0.616,
+        0.226
+      ],
+      "review": {
+        "record": "review-countable-enumeration.json",
+        "mathematics": "zigzag prefix agrees with the source; each positive integer pair visited once",
+        "visual": "SVG raster inspected beside source PDF19 at150dpi; five rows, six columns, continuation dots and every arrow retained",
+        "adaptation": "clean vector lettering and regular grid spacing",
+        "limits": [
+          "The displayed finite window denotes part of an infinite array. Enumeration of positions does not automatically identify duplicate values from overlapping sets."
+        ]
+      },
+      "buildFactory": "buildCountableEnumerationFigure",
+      "domainModule": "packages/bloom/src/domains/set-theory.ts",
+      "substanceFactory": "countableFamilyEnumeration",
+      "substanceLines": [
+        8,
+        27
+      ]
+    },
+    {
+      "id": "unnumbered-cantor-diagonal-table",
+      "kind": "unnumbered-mathematical-table",
+      "pdfPage": 20,
+      "printedPage": 11,
+      "description": "Indexed decimal expansions used in the diagonal argument for uncountability.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Indexed decimal expansions used in the diagonal argument for uncountability."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "unnumbered-four-element-group-table",
+      "kind": "unnumbered-mathematical-table",
+      "pdfPage": 22,
+      "printedPage": 14,
+      "description": "Operation table for the four-element group in Example 10.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Operation table for the four-element group in Example 10."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "2.1",
+      "kind": "numbered-figure",
+      "pdfPage": 27,
+      "printedPage": 19,
+      "description": "Circular neighborhood of the origin for the Pythagorean metric.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Circular neighborhood of the origin for the Pythagorean metric."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/metric-neighborhoods.ts",
+      "style": "packages/bloom/src/styles/metric-neighborhoods.tsx",
+      "svg": "figure-2.1.svg",
+      "sourceBox": [
+        0.075,
+        0.075,
+        0.4,
+        0.233
+      ],
+      "review": {
+        "mathematics": "checked against source prose and figure",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange interior; original geometry and labels retained",
+        "limits": []
+      },
+      "buildFactory": "buildMetricNeighborhoodFigure",
+      "buildArguments": [
+        "euclidean"
+      ],
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "unitNeighborhood",
+      "substanceLines": [
+        19,
+        25
+      ]
+    },
+    {
+      "id": "2.2",
+      "kind": "numbered-figure",
+      "pdfPage": 27,
+      "printedPage": 19,
+      "description": "Diamond-shaped neighborhood of the origin for the sum metric.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Diamond-shaped neighborhood of the origin for the sum metric."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/metric-neighborhoods.ts",
+      "style": "packages/bloom/src/styles/metric-neighborhoods.tsx",
+      "svg": "figure-2.2.svg",
+      "sourceBox": [
+        0.53,
+        0.075,
+        0.4,
+        0.233
+      ],
+      "review": {
+        "mathematics": "checked against source prose and figure",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange interior; original geometry and labels retained",
+        "limits": []
+      },
+      "buildFactory": "buildMetricNeighborhoodFigure",
+      "buildArguments": [
+        "taxicab"
+      ],
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "unitNeighborhood",
+      "substanceLines": [
+        19,
+        25
+      ]
+    },
+    {
+      "id": "2.3",
+      "kind": "numbered-figure",
+      "pdfPage": 27,
+      "printedPage": 19,
+      "description": "Singleton neighborhood of the origin for the discrete metric.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Singleton neighborhood of the origin for the discrete metric."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/metric-neighborhoods.ts",
+      "style": "packages/bloom/src/styles/metric-neighborhoods.tsx",
+      "svg": "figure-2.3.svg",
+      "sourceBox": [
+        0.095,
+        0.695,
+        0.38,
+        0.205
+      ],
+      "review": {
+        "mathematics": "checked against source prose and figure",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange interior; original geometry and labels retained",
+        "limits": []
+      },
+      "buildFactory": "buildMetricNeighborhoodFigure",
+      "buildArguments": [
+        "discrete"
+      ],
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "unitNeighborhood",
+      "substanceLines": [
+        19,
+        25
+      ]
+    },
+    {
+      "id": "2.4",
+      "kind": "numbered-figure",
+      "pdfPage": 27,
+      "printedPage": 19,
+      "description": "Square neighborhood of the origin for the maximum metric.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Square neighborhood of the origin for the maximum metric."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/metric-neighborhoods.ts",
+      "style": "packages/bloom/src/styles/metric-neighborhoods.tsx",
+      "svg": "figure-2.4.svg",
+      "sourceBox": [
+        0.54,
+        0.695,
+        0.39,
+        0.207
+      ],
+      "review": {
+        "mathematics": "checked against source prose and figure",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange interior; original geometry and labels retained",
+        "limits": []
+      },
+      "buildFactory": "buildMetricNeighborhoodFigure",
+      "buildArguments": [
+        "supremum"
+      ],
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "unitNeighborhood",
+      "substanceLines": [
+        19,
+        25
+      ]
+    },
+    {
+      "id": "2.5",
+      "kind": "numbered-figure",
+      "pdfPage": 28,
+      "printedPage": 20,
+      "description": "Concentric Euclidean circles of radii ρ and ρ/√2 with the taxicab ρ-neighborhood between them.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Concentric Euclidean circles of radii ρ and ρ/√2 with the taxicab ρ-neighborhood between them."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/metric-comparison.ts",
+      "style": "packages/bloom/src/styles/metric-comparison.tsx",
+      "svg": "figure-2.5.svg",
+      "sourceBox": [
+        0.049,
+        0.075,
+        0.525,
+        0.3
+      ],
+      "review": {
+        "mathematics": "checked against source prose and figure",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange interior; original geometry and labels retained",
+        "limits": []
+      },
+      "buildFactory": "buildMetricComparisonFigure",
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "concentricMetricNeighborhoods",
+      "substanceLines": [
+        10,
+        54
+      ]
+    },
+    {
+      "id": "2.6",
+      "kind": "numbered-figure",
+      "pdfPage": 28,
+      "printedPage": 20,
+      "description": "Band around a function graph depicting a neighborhood in the function-space supremum metric.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Band around a function graph depicting a neighborhood in the function-space supremum metric."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/function-neighborhoods.ts",
+      "style": "packages/bloom/src/styles/function-neighborhoods.tsx",
+      "svg": "figure-2.6.svg",
+      "sourceBox": [
+        0.565,
+        0.109,
+        0.429,
+        0.269
+      ],
+      "review": {
+        "mathematics": "checked against source prose and figure",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange interior; original geometry and labels retained",
+        "limits": [
+          "The source gives no function formula; a configurable representative graph preserves the collar geometry and layout."
+        ]
+      },
+      "buildFactory": "buildFunctionNeighborhoodFigure",
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "uniformFunctionNeighborhood",
+      "substanceLines": [
+        10,
+        36
+      ]
+    },
+    {
+      "id": "2.8",
+      "kind": "numbered-figure",
+      "pdfPage": 29,
+      "printedPage": 22,
+      "description": "Smaller neighborhood about w contained in the neighborhood about x, with q = p - D(x,w).",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Smaller neighborhood about w contained in the neighborhood about x, with q = p - D(x,w)."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/neighborhood-inclusion.ts",
+      "style": "packages/bloom/src/styles/neighborhood-inclusion.tsx",
+      "svg": "figure-2.8.svg",
+      "sourceBox": [
+        0.272966,
+        0.074485,
+        0.43832,
+        0.24168
+      ],
+      "review": {
+        "record": "review-2.8-2.11.json",
+        "mathematics": "checked against source prose and mathematical tests",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange shading and clean vector lettering",
+        "limits": [
+          "The source illustrates a theorem about an arbitrary metric space with Euclidean-looking balls. This concrete figure uses a Euclidean plane realization; it does not numerically prove the general triangle inequality.",
+          "The scan's hand-drawn circle, brace waviness, and exact hatch phase are replaced with analytic vector geometry."
+        ]
+      },
+      "buildFactory": "buildNeighborhoodInclusionFigure",
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "openBallInteriorNeighborhood",
+      "substanceLines": [
+        11,
+        42
+      ]
+    },
+    {
+      "id": "2.9",
+      "kind": "numbered-figure",
+      "pdfPage": 31,
+      "printedPage": 24,
+      "description": "Neighborhood used to show the complement of the closed real interval is open.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Neighborhood used to show the complement of the closed real interval is open."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/closed-interval.ts",
+      "style": "packages/bloom/src/styles/closed-interval.tsx",
+      "svg": "figure-2.9.svg",
+      "sourceBox": [
+        0.301837,
+        0.180666,
+        0.43832,
+        0.083994
+      ],
+      "review": {
+        "record": "review-2.8-2.11.json",
+        "mathematics": "checked against source prose and mathematical tests",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange shading and clean vector lettering",
+        "limits": [
+          "The source's handwritten curly brace and dense hatching are regularized as vectors. The open interval and closed bracket meet visually at 0, as in the scan."
+        ]
+      },
+      "buildFactory": "buildClosedIntervalFigure",
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "closedIntervalComplementNeighborhood",
+      "substanceLines": [
+        11,
+        39
+      ]
+    },
+    {
+      "id": "2.10",
+      "kind": "numbered-figure",
+      "pdfPage": 33,
+      "printedPage": 26,
+      "description": "Sequence points eventually inside a neighborhood of their limit.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Sequence points eventually inside a neighborhood of their limit."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/sequence-convergence.ts",
+      "style": "packages/bloom/src/styles/sequence-convergence.tsx",
+      "svg": "figure-2.10.svg",
+      "sourceBox": [
+        0.055118,
+        0.713154,
+        0.433071,
+        0.227417
+      ],
+      "review": {
+        "record": "review-2.8-2.11.json",
+        "mathematics": "checked against source prose and mathematical tests",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange shading and clean vector lettering",
+        "limits": [
+          "The source gives no formula for this schematic sequence. Default plotted positions are a faithful representative rather than a recovered formula.",
+          "A finite rendered prefix cannot establish an infinite convergence claim; ConvergesTo and TailInNeighborhood are explicit Substance assertions.",
+          "The circular display is a Euclidean realization of the generic metric-space illustration."
+        ]
+      },
+      "buildFactory": "buildSequenceConvergenceFigure",
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "convergentSequenceNeighborhood",
+      "substanceLines": [
+        12,
+        40
+      ]
+    },
+    {
+      "id": "2.11",
+      "kind": "numbered-figure",
+      "pdfPage": 33,
+      "printedPage": 26,
+      "description": "Coordinate-plane sequence approaching (1,0), with neighborhoods for the compared metrics.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Coordinate-plane sequence approaching (1,0), with neighborhoods for the compared metrics."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/sequence-convergence.ts",
+      "style": "packages/bloom/src/styles/sequence-convergence.tsx",
+      "svg": "figure-2.11.svg",
+      "sourceBox": [
+        0.509186,
+        0.734548,
+        0.456693,
+        0.186212
+      ],
+      "review": {
+        "record": "review-2.8-2.11.json",
+        "mathematics": "checked against source prose and mathematical tests",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange shading and clean vector lettering",
+        "limits": [
+          "The scanned hand drawing places its first terms schematically and does not maintain exact 1/n spacing. This reconstruction uses exact coordinates, so vertical spacing and the total aspect ratio differ from the scan.",
+          "The scan specifies no numerical neighborhood radius. The selected 0.45 radius preserves the source's qualitative placement of the first three labeled terms.",
+          "The discrete metric is discussed in adjacent prose but has no drawn neighborhood in this figure; no extra discrete panel is invented."
+        ]
+      },
+      "buildFactory": "buildSequenceMetricComparisonFigure",
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "reciprocalSequenceNeighborhoods",
+      "substanceLines": [
+        43,
+        80
+      ]
+    },
+    {
+      "id": "2.12",
+      "kind": "numbered-figure",
+      "pdfPage": 34,
+      "printedPage": 27,
+      "description": "Family of graphs y = x^n on the unit interval.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Family of graphs y = x^n on the unit interval."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/function-sequences.ts",
+      "style": "packages/bloom/src/styles/function-sequences.tsx",
+      "svg": "figure-2.12.svg",
+      "sourceBox": [
+        0.03,
+        0.064,
+        0.42,
+        0.246
+      ],
+      "review": {
+        "record": "review-2.12-2.13.json",
+        "mathematics": "checked against source prose and mathematical tests",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange shading and clean vector lettering",
+        "limits": [
+          "The source labels exponents 1,2,3 and draws further unlabelled terms. Default exponents 5,8,13 for those illustrative curves are a style-independent presentation choice, not additional source claims.",
+          "Analytic sampling regularizes hand-drawn curves."
+        ]
+      },
+      "buildFactory": "buildPowerFunctionSequenceFigure",
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "powerFunctionSequence",
+      "substanceLines": [
+        11,
+        59
+      ]
+    },
+    {
+      "id": "2.13",
+      "kind": "numbered-figure",
+      "pdfPage": 34,
+      "printedPage": 27,
+      "description": "The same function sequence compared with a band about the proposed limit graph.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The same function sequence compared with a band about the proposed limit graph."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/function-sequences.ts",
+      "style": "packages/bloom/src/styles/function-sequences.tsx",
+      "svg": "figure-2.13.svg",
+      "sourceBox": [
+        0.486,
+        0.064,
+        0.44,
+        0.246
+      ],
+      "review": {
+        "record": "review-2.12-2.13.json",
+        "mathematics": "checked against source prose and mathematical tests",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange shading and clean vector lettering",
+        "limits": [
+          "Hatching and pale orange fill depict the collar; the strict inequalities belong to the domain semantics, not hatch pixels.",
+          "The source uses a schematic representative term. The default term has exponent 2."
+        ]
+      },
+      "buildFactory": "buildPowerSequenceLimitFigure",
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "powerFunctionSequence",
+      "substanceLines": [
+        11,
+        59
+      ]
+    },
+    {
+      "id": "2.14",
+      "kind": "numbered-figure",
+      "pdfPage": 35,
+      "printedPage": 28,
+      "description": "Separated neighborhoods about two proposed limits of a sequence.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Separated neighborhoods about two proposed limits of a sequence."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/limit-uniqueness.ts",
+      "style": "packages/bloom/src/styles/limit-uniqueness.tsx",
+      "svg": "figure-2.14.svg",
+      "sourceBox": [
+        0.318898,
+        0.096672,
+        0.437008,
+        0.199683
+      ],
+      "review": {
+        "record": "review-2.14-2.16.json",
+        "mathematics": "source and focused tests checked",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange region fills and clean lettering",
+        "limits": [
+          "The proof concerns arbitrary metric spaces; its circular picture is instantiated as a Euclidean geometric realization.",
+          "The source does not specify the sequence's formula. Its finite illustrated markers and guide are style-owned schematic positions.",
+          "The contact marker shows a boundary location and is not asserted to belong to either open neighborhood."
+        ]
+      },
+      "buildFactory": "buildLimitUniquenessFigure",
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "distinctProposedLimitNeighborhoods",
+      "substanceLines": [
+        11,
+        40
+      ]
+    },
+    {
+      "id": "2.15",
+      "kind": "numbered-figure",
+      "pdfPage": 36,
+      "printedPage": 30,
+      "description": "A function between spaces with source and target neighborhoods.",
+      "panels": [
+        {
+          "id": "source",
+          "description": "Space X with a neighborhood about x."
+        },
+        {
+          "id": "target",
+          "description": "Space Y with the image of the source neighborhood about f(x)."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/metric-continuity.ts",
+      "style": "packages/bloom/src/styles/metric-continuity.tsx",
+      "svg": "figure-2.15.svg",
+      "sourceBox": [
+        0.165354,
+        0.082409,
+        0.733596,
+        0.189382
+      ],
+      "review": {
+        "record": "review-2.14-2.16.json",
+        "mathematics": "source and focused tests checked",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange region fills and clean lettering",
+        "limits": [
+          "The drawing is generic and gives no numerical function or metric. MapsNeighborhoodInto is a declared mathematical witness, not a numerical proof of continuity or its universal quantifiers.",
+          "The scan's hand contour and hatch noise are approximated by smooth vectors and consistent subdued orange shading."
+        ]
+      },
+      "buildFactory": "buildMetricContinuityFigure",
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "continuousMapNeighborhoods",
+      "substanceLines": [
+        10,
+        49
+      ]
+    },
+    {
+      "id": "2.16",
+      "kind": "numbered-figure",
+      "pdfPage": 37,
+      "printedPage": 31,
+      "description": "Rectangular neighborhood in the parameter plane for the continuity example.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Rectangular neighborhood in the parameter plane for the continuity example."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "metric-spaces",
+      "implementation": "packages/examples/src/elementary-topology/projection-preimage.ts",
+      "style": "packages/bloom/src/styles/projection-preimage.tsx",
+      "svg": "figure-2.16.svg",
+      "sourceBox": [
+        0.26378,
+        0.698891,
+        0.433071,
+        0.18542
+      ],
+      "review": {
+        "record": "review-2.14-2.16.json",
+        "mathematics": "source and focused tests checked",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange region fills and clean lettering",
+        "limits": [
+          "The original and reconstruction show finite visible portions of an infinite strip. The clip height belongs only to Style.",
+          "The book uses filled coordinate markers at the strip edges despite the strict inequality; these are retained as axis annotations."
+        ]
+      },
+      "buildFactory": "buildProjectionPreimageFigure",
+      "domainModule": "packages/bloom/src/domains/metric-spaces.ts",
+      "substanceFactory": "coordinateProjectionNeighborhood",
+      "substanceLines": [
+        10,
+        40
+      ]
+    },
+    {
+      "id": "2.17",
+      "kind": "numbered-figure",
+      "pdfPage": 40,
+      "printedPage": 34,
+      "description": "An open disk and a point on its boundary, showing zero set distance without membership.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An open disk and a point on its boundary, showing zero set distance without membership."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/point-set-topology.ts",
+      "style": "packages/bloom/src/styles/point-set-topology.tsx",
+      "svg": "figure-2.17.svg",
+      "sourceBox": [
+        0.075031,
+        0.72734,
+        0.429274,
+        0.202823
+      ],
+      "review": {
+        "record": "review-2.17-2.20.json",
+        "mathematics": "checked against source prose and mathematical tests",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange shading and clean vector lettering",
+        "limits": [
+          "Irregular contours are hand-tuned cubic curves, not exact traces of scan pixels.",
+          "Clean equation lettering differs from the heavier scanned typeface.",
+          "A finite drawing of a neighborhood union is illustrative and does not enumerate every ball.",
+          "The reciprocal graph is displayed in a finite window; its mathematical substance denotes the entire closed set.",
+          "The current reciprocal comparison style supports the positive-coefficient first/third-quadrant case and an x-axis comparison; other affine lines or negative coefficients require another style policy."
+        ]
+      },
+      "buildFactory": "buildOpenDiskBoundaryFigure",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceFactory": "openDiskBoundarySubstance",
+      "substanceLines": [
+        12,
+        35
+      ]
+    },
+    {
+      "id": "2.18",
+      "kind": "numbered-figure",
+      "pdfPage": 40,
+      "printedPage": 34,
+      "description": "Neighborhoods separating a point from a closed set.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Neighborhoods separating a point from a closed set."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/point-set-topology.ts",
+      "style": "packages/bloom/src/styles/point-set-topology.tsx",
+      "svg": "figure-2.18.svg",
+      "sourceBox": [
+        0.528905,
+        0.769688,
+        0.432964,
+        0.141902
+      ],
+      "review": {
+        "record": "review-2.17-2.20.json",
+        "mathematics": "checked against source prose and mathematical tests",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange shading and clean vector lettering",
+        "limits": [
+          "Irregular contours are hand-tuned cubic curves, not exact traces of scan pixels.",
+          "Clean equation lettering differs from the heavier scanned typeface.",
+          "A finite drawing of a neighborhood union is illustrative and does not enumerate every ball.",
+          "The reciprocal graph is displayed in a finite window; its mathematical substance denotes the entire closed set.",
+          "The current reciprocal comparison style supports the positive-coefficient first/third-quadrant case and an x-axis comparison; other affine lines or negative coefficients require another style policy."
+        ]
+      },
+      "buildFactory": "buildPointClosedSeparationFigure",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceFactory": "pointClosedSetSeparationSubstance",
+      "substanceLines": [
+        38,
+        56
+      ]
+    },
+    {
+      "id": "2.19",
+      "kind": "numbered-figure",
+      "pdfPage": 42,
+      "printedPage": 36,
+      "description": "Neighborhood unions separating two disjoint closed sets.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Neighborhood unions separating two disjoint closed sets."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/point-set-topology.ts",
+      "style": "packages/bloom/src/styles/point-set-topology.tsx",
+      "svg": "figure-2.19.svg",
+      "sourceBox": [
+        0.198032,
+        0.372214,
+        0.567036,
+        0.179049
+      ],
+      "review": {
+        "record": "review-2.17-2.20.json",
+        "mathematics": "checked against source prose and mathematical tests",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange shading and clean vector lettering",
+        "limits": [
+          "Irregular contours are hand-tuned cubic curves, not exact traces of scan pixels.",
+          "Clean equation lettering differs from the heavier scanned typeface.",
+          "A finite drawing of a neighborhood union is illustrative and does not enumerate every ball.",
+          "The reciprocal graph is displayed in a finite window; its mathematical substance denotes the entire closed set.",
+          "The current reciprocal comparison style supports the positive-coefficient first/third-quadrant case and an x-axis comparison; other affine lines or negative coefficients require another style policy."
+        ]
+      },
+      "buildFactory": "buildClosedSetsSeparationFigure",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceFactory": "closedSetsSeparationSubstance",
+      "substanceLines": [
+        59,
+        81
+      ]
+    },
+    {
+      "id": "2.20",
+      "kind": "numbered-figure",
+      "pdfPage": 43,
+      "printedPage": 37,
+      "description": "Hyperbola y = 1/x and the x-axis as disjoint closed sets with zero distance.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Hyperbola y = 1/x and the x-axis as disjoint closed sets with zero distance."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/point-set-topology.ts",
+      "style": "packages/bloom/src/styles/point-set-topology.tsx",
+      "svg": "figure-2.20.svg",
+      "sourceBox": [
+        0.512915,
+        0.079495,
+        0.428044,
+        0.259287
+      ],
+      "review": {
+        "record": "review-2.17-2.20.json",
+        "mathematics": "checked against source prose and mathematical tests",
+        "visual": "rendered SVG inspected beside source page",
+        "adaptation": "consistent pale orange shading and clean vector lettering",
+        "limits": [
+          "Irregular contours are hand-tuned cubic curves, not exact traces of scan pixels.",
+          "Clean equation lettering differs from the heavier scanned typeface.",
+          "A finite drawing of a neighborhood union is illustrative and does not enumerate every ball.",
+          "The reciprocal graph is displayed in a finite window; its mathematical substance denotes the entire closed set.",
+          "The current reciprocal comparison style supports the positive-coefficient first/third-quadrant case and an x-axis comparison; other affine lines or negative coefficients require another style policy."
+        ]
+      },
+      "buildFactory": "buildReciprocalXAxisFigure",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceFactory": "reciprocalXAxisSubstance",
+      "substanceLines": [
+        84,
+        95
+      ]
+    },
+    {
+      "id": "3.1",
+      "kind": "numbered-figure",
+      "pdfPage": 52,
+      "printedPage": 47,
+      "description": "An open interval as the intersection of two open half-lines.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An open interval as the intersection of two open half-lines."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/topology-bases.ts",
+      "style": "packages/bloom/src/styles/topology-bases.tsx",
+      "svg": "figure-3.1.svg",
+      "sourceBox": [
+        0.27027,
+        0.114243,
+        0.464373,
+        0.052671
+      ],
+      "buildFactory": "buildIntervalSubbasisFigure",
+      "review": {
+        "record": "review-3.1-3.5.json",
+        "mathematics": "source and real mathematical/rendering checks passed",
+        "visual": "source and rendered SVG manually compared side by side",
+        "adaptation": "consistent pale orange fills and vector lettering",
+        "limits": [
+          "Printed pages 50,52,63 are absent from the supplied PDF. No unavailable text or figure content is reconstructed by guesswork.",
+          "This batch demonstrates Euclidean-plane and usual-real-line derived sets; it does not claim those formulas hold in arbitrary topologies.",
+          "The source’s heavier scanned letters and hatch ink differ from clean MathJax type and the consistent lighter orange drawing treatment.",
+          "Finite windows show representative rays, half-planes, and neighborhood chains; the mathematical substance denotes the underlying unbounded sets and topology families."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceFactory": "intervalSubbasisSubstance",
+      "substanceLines": [
+        12,
+        51
+      ]
+    },
+    {
+      "id": "3.2",
+      "kind": "numbered-figure",
+      "pdfPage": 52,
+      "printedPage": 47,
+      "description": "An open square neighborhood for the maximum metric D3, shown as the intersection of four open coordinate half-planes.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An open square neighborhood for the maximum metric D3, shown as the intersection of four open coordinate half-planes."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/topology-bases.ts",
+      "style": "packages/bloom/src/styles/topology-bases.tsx",
+      "svg": "figure-3.2.svg",
+      "sourceBox": [
+        0.302211,
+        0.474036,
+        0.434889,
+        0.204748
+      ],
+      "buildFactory": "buildHalfPlaneSquareFigure",
+      "review": {
+        "record": "review-3.1-3.5.json",
+        "mathematics": "source and real mathematical/rendering checks passed",
+        "visual": "source and rendered SVG manually compared side by side",
+        "adaptation": "consistent pale orange fills and vector lettering",
+        "limits": [
+          "Printed pages 50,52,63 are absent from the supplied PDF. No unavailable text or figure content is reconstructed by guesswork.",
+          "This batch demonstrates Euclidean-plane and usual-real-line derived sets; it does not claim those formulas hold in arbitrary topologies.",
+          "The source’s heavier scanned letters and hatch ink differ from clean MathJax type and the consistent lighter orange drawing treatment.",
+          "Finite windows show representative rays, half-planes, and neighborhood chains; the mathematical substance denotes the underlying unbounded sets and topology families."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceFactory": "halfPlaneSquareSubstance",
+      "substanceLines": [
+        54,
+        86
+      ]
+    },
+    {
+      "id": "3.3",
+      "kind": "numbered-figure",
+      "pdfPage": 57,
+      "printedPage": 54,
+      "description": "A small circular neighborhood inside a triangle neighborhood inside a larger circular neighborhood about a common point, comparing triangle and Euclidean neighborhood bases.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A small circular neighborhood inside a triangle neighborhood inside a larger circular neighborhood about a common point, comparing triangle and Euclidean neighborhood bases."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/topology-bases.ts",
+      "style": "packages/bloom/src/styles/topology-bases.tsx",
+      "svg": "figure-3.3.svg",
+      "sourceBox": [
+        0.360394,
+        0.521545,
+        0.284133,
+        0.172363
+      ],
+      "buildFactory": "buildTriangleDiskBasisFigure",
+      "review": {
+        "record": "review-3.1-3.5.json",
+        "mathematics": "source and real mathematical/rendering checks passed",
+        "visual": "source and rendered SVG manually compared side by side",
+        "adaptation": "consistent pale orange fills and vector lettering",
+        "limits": [
+          "Printed pages 50,52,63 are absent from the supplied PDF. No unavailable text or figure content is reconstructed by guesswork.",
+          "This batch demonstrates Euclidean-plane and usual-real-line derived sets; it does not claim those formulas hold in arbitrary topologies.",
+          "The source’s heavier scanned letters and hatch ink differ from clean MathJax type and the consistent lighter orange drawing treatment.",
+          "Finite windows show representative rays, half-planes, and neighborhood chains; the mathematical substance denotes the underlying unbounded sets and topology families."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceFactory": "triangleDiskBasisSubstance",
+      "substanceLines": [
+        89,
+        131
+      ]
+    },
+    {
+      "id": "3.4",
+      "kind": "numbered-figure",
+      "pdfPage": 59,
+      "printedPage": 56,
+      "description": "An open disk and its interior, closure, frontier, and exterior in the coordinate plane.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An open disk and its interior, closure, frontier, and exterior in the coordinate plane."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/derived-sets.ts",
+      "style": "packages/bloom/src/styles/derived-sets.tsx",
+      "svg": "figure-3.4.svg",
+      "sourceBox": [
+        0.298893,
+        0.231798,
+        0.439114,
+        0.248886
+      ],
+      "buildFactory": "buildDiskDerivedSetsFigure",
+      "review": {
+        "record": "review-3.1-3.5.json",
+        "mathematics": "source and real mathematical/rendering checks passed",
+        "visual": "source and rendered SVG manually compared side by side",
+        "adaptation": "consistent pale orange fills and vector lettering",
+        "limits": [
+          "Printed pages 50,52,63 are absent from the supplied PDF. No unavailable text or figure content is reconstructed by guesswork.",
+          "This batch demonstrates Euclidean-plane and usual-real-line derived sets; it does not claim those formulas hold in arbitrary topologies.",
+          "The source’s heavier scanned letters and hatch ink differ from clean MathJax type and the consistent lighter orange drawing treatment.",
+          "Finite windows show representative rays, half-planes, and neighborhood chains; the mathematical substance denotes the underlying unbounded sets and topology families."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceFactory": "openDiskDerivedSubstance",
+      "substanceLines": [
+        14,
+        40
+      ]
+    },
+    {
+      "id": "3.5",
+      "kind": "numbered-figure",
+      "pdfPage": 64,
+      "printedPage": 61,
+      "description": "A=(0,1] on a single real number line, with interior A°=(0,1), closure Cl A=[0,1], and two exterior rays; accompanying prose also identifies Fr A={0,1} and A′=[0,1].",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A=(0,1] on a single real number line, with interior A°=(0,1), closure Cl A=[0,1], and two exterior rays; accompanying prose also identifies Fr A={0,1} and A′=[0,1]."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/derived-sets.ts",
+      "style": "packages/bloom/src/styles/derived-sets.tsx",
+      "svg": "figure-3.5.svg",
+      "sourceBox": [
+        0.04428,
+        0.845468,
+        0.751538,
+        0.073551
+      ],
+      "buildFactory": "buildIntervalDerivedSetsFigure",
+      "review": {
+        "record": "review-3.1-3.5.json",
+        "mathematics": "source and real mathematical/rendering checks passed",
+        "visual": "source and rendered SVG manually compared side by side",
+        "adaptation": "consistent pale orange fills and vector lettering",
+        "limits": [
+          "Printed pages 50,52,63 are absent from the supplied PDF. No unavailable text or figure content is reconstructed by guesswork.",
+          "This batch demonstrates Euclidean-plane and usual-real-line derived sets; it does not claim those formulas hold in arbitrary topologies.",
+          "The source’s heavier scanned letters and hatch ink differ from clean MathJax type and the consistent lighter orange drawing treatment.",
+          "Finite windows show representative rays, half-planes, and neighborhood chains; the mathematical substance denotes the underlying unbounded sets and topology families."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceFactory": "intervalDerivedSubstance",
+      "substanceLines": [
+        43,
+        82
+      ]
+    },
+    {
+      "id": "4.1",
+      "kind": "numbered-figure",
+      "pdfPage": 77,
+      "printedPage": 76,
+      "description": "Central projection between two segments from P, with x and j_P(x) marked.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Central projection between two segments from P, with x and j_P(x) marked."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/examples/src/elementary-topology/topological-projections.ts",
+      "style": "packages/bloom/src/styles/topological-projections.tsx",
+      "svg": "figure-4.1.svg",
+      "sourceBox": [
+        0.094488,
+        0.062599,
+        0.406824,
+        0.166403
+      ],
+      "buildFactory": "buildSegmentProjectionFigure",
+      "substanceFactory": "segmentCentralProjection",
+      "review": {
+        "record": "review-4.1-4.3.json",
+        "mathematics": "Book definitions and real analytic/rendering checks passed",
+        "visual": "Source crop and Penrose raster manually compared side by side",
+        "adaptation": "Clean vectors and shared subdued orange regions",
+        "limits": [
+          "The original Example 12's exact hypotheses and proof are unavailable in the supplied scan. The source graphic is recreated and the chosen realization is independently checked; absent prose is not attributed to the book.",
+          "Coordinates approximate the scanned construction. The source's line and print noise are replaced with clean vectors."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceLines": [
+        12,
+        54
+      ]
+    },
+    {
+      "id": "4.2",
+      "kind": "numbered-figure",
+      "pdfPage": 77,
+      "printedPage": 76,
+      "description": "Radial correspondence between a triangle boundary and a circle.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Radial correspondence between a triangle boundary and a circle."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/examples/src/elementary-topology/topological-projections.ts",
+      "style": "packages/bloom/src/styles/topological-projections.tsx",
+      "svg": "figure-4.2.svg",
+      "sourceBox": [
+        0.565617,
+        0.068146,
+        0.353018,
+        0.181458
+      ],
+      "buildFactory": "buildTriangleCircleFigure",
+      "substanceFactory": "triangleCircleRadialProjection",
+      "review": {
+        "record": "review-4.1-4.3.json",
+        "mathematics": "Book definitions and real analytic/rendering checks passed",
+        "visual": "Source crop and Penrose raster manually compared side by side",
+        "adaptation": "Clean vectors and shared subdued orange regions",
+        "limits": [
+          "The source's prose and displayed marker direction differ. The graphic preserves x and j(x) exactly; the DSL records both inverse homeomorphisms rather than silently swapping the labels.",
+          "The original triangle and circular trace are hand drawn; smooth analytic boundaries approximate their geometry."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceLines": [
+        57,
+        98
+      ]
+    },
+    {
+      "id": "4.3",
+      "kind": "numbered-figure",
+      "pdfPage": 82,
+      "printedPage": 81,
+      "description": "Identification of the two endpoints of a closed interval to obtain a circle.",
+      "panels": [
+        {
+          "id": "a",
+          "description": "Closed interval with its endpoints marked for identification.",
+          "sourceBox": [
+            0.641732,
+            0.375594,
+            0.299213,
+            0.038827
+          ]
+        },
+        {
+          "id": "b",
+          "description": "Circle with the identified endpoint class marked.",
+          "sourceBox": [
+            0.669291,
+            0.435816,
+            0.257218,
+            0.190174
+          ]
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/examples/src/elementary-topology/endpoint-identification.ts",
+      "style": "packages/bloom/src/styles/endpoint-identification.tsx",
+      "svg": "figure-4.3.svg",
+      "sourceBox": [
+        0.641732,
+        0.375594,
+        0.299213,
+        0.250396
+      ],
+      "buildFactory": "buildEndpointIdentificationFigure",
+      "substanceFactory": "intervalEndpointIdentification",
+      "review": {
+        "record": "review-4.1-4.3.json",
+        "mathematics": "Book definitions and real analytic/rendering checks passed",
+        "visual": "Source crop and Penrose raster manually compared side by side",
+        "adaptation": "Clean vectors and shared subdued orange regions",
+        "limits": [
+          "Only two representative quotient classes are drawn; the full equivalence relation and quotient are declared mathematically.",
+          "Ellipse sizes and orange hatching are style-owned visual highlights for single quotient points and are not additional members or neighborhoods.",
+          "The source's irregular endpoint parentheses and hatch strokes are approximated by elliptic highlights and analytic hatch chords."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceLines": [
+        12,
+        103
+      ]
+    },
+    {
+      "id": "4.4",
+      "kind": "numbered-figure",
+      "pdfPage": 84,
+      "printedPage": 83,
+      "description": "Both complete opposite rectangle edges collapsed together to one equivalence class.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Both complete opposite rectangle edges collapsed together to one equivalence class."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/identification-sources.ts",
+      "style": "packages/bloom/src/styles/identification-sources.tsx",
+      "svg": "figure-4.4.svg",
+      "sourceBox": [
+        0.051,
+        0.482,
+        0.32,
+        0.13
+      ],
+      "buildFactory": "buildOppositeEdgesCollapseFigure",
+      "substanceFactory": "oppositeEdgesCollapseSubstance",
+      "review": {
+        "record": "review-4.4-4.7.json",
+        "mathematics": "The union of both complete opposite edges is collapsed into one class; interior points remain singletons.",
+        "visual": "Rectangle aspect, A/B/C/D corners and full diagonal hatching retained; no invented pointwise edge gluing.",
+        "adaptation": "Clean vector lettering and consistent pale orange hatching",
+        "limits": [
+          "Original scan noise and heavier hatching are replaced by clean vectors and the shared subdued orange fill."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceLines": [
+        8,
+        56
+      ]
+    },
+    {
+      "id": "4.5",
+      "kind": "numbered-figure",
+      "pdfPage": 84,
+      "printedPage": 83,
+      "description": "Partition problem on a disk with antipodal boundary identification and interior singleton classes.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Partition problem on a disk with antipodal boundary identification and interior singleton classes."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/identification-sources.ts",
+      "style": "packages/bloom/src/styles/identification-sources.tsx",
+      "svg": "figure-4.5.svg",
+      "sourceBox": [
+        0.56,
+        0.475,
+        0.225,
+        0.135
+      ],
+      "buildFactory": "buildAntipodalDiskFigure",
+      "substanceFactory": "antipodalDiskSubstance",
+      "review": {
+        "record": "review-4.4-4.7.json",
+        "mathematics": "Antipodal boundary pairs are identified; every interior point has a singleton class.",
+        "visual": "Circular outline, complete hatching and sole center dot retained; no additional arrows or boundary markers.",
+        "adaptation": "Clean vector lettering and consistent pale orange hatching",
+        "limits": [
+          "Original scan noise and heavier hatching are replaced by clean vectors and the shared subdued orange fill."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceLines": [
+        59,
+        79
+      ],
+      "interaction": "construction"
+    },
+    {
+      "id": "4.6",
+      "kind": "numbered-figure",
+      "pdfPage": 84,
+      "printedPage": 83,
+      "description": "Hatched coordinate plane accompanying the literal integer-difference-locus caption.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Hatched coordinate plane accompanying the literal integer-difference-locus caption."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/identification-sources.ts",
+      "style": "packages/bloom/src/styles/identification-sources.tsx",
+      "svg": "figure-4.6.svg",
+      "sourceBox": [
+        0.039,
+        0.696,
+        0.325,
+        0.141
+      ],
+      "buildFactory": "buildIntegerDifferencePlaneFigure",
+      "substanceFactory": "integerDifferencePlaneSubstance",
+      "review": {
+        "record": "review-4.4-4.7.json",
+        "mathematics": "The literal caption denotes the single integer-difference locus. It does not form a partition of the plane, so no repaired quotient is asserted.",
+        "visual": "Hatched ambient coordinate window, x/y axes, origin and R² retained; no invented parallel lines.",
+        "adaptation": "Clean vector lettering and consistent pale orange hatching",
+        "limits": [
+          "Figure 4.6 caption appears mathematically incomplete: {{(x,y)|x=y+m, where m is an integer}} names one subset rather than a partition. The supplied wording and graphic are preserved; no missing parameter or equivalence relation is silently introduced."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceLines": [
+        82,
+        93
+      ]
+    },
+    {
+      "id": "4.7",
+      "kind": "numbered-figure",
+      "pdfPage": 84,
+      "printedPage": 83,
+      "description": "Partition problem on a plane region with its whole boundary identified.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Partition problem on a plane region with its whole boundary identified."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/identification-sources.ts",
+      "style": "packages/bloom/src/styles/identification-sources.tsx",
+      "svg": "figure-4.7.svg",
+      "sourceBox": [
+        0.521,
+        0.693,
+        0.321,
+        0.133
+      ],
+      "buildFactory": "buildPolygonBoundaryCollapseFigure",
+      "substanceFactory": "polygonBoundaryCollapseSubstance",
+      "review": {
+        "record": "review-4.4-4.7.json",
+        "mathematics": "The entire polygon boundary is collapsed to one equivalence class; other points remain singletons.",
+        "visual": "Five-sided region, source proportions, full diagonal hatching and C label retained.",
+        "adaptation": "Clean vector lettering and consistent pale orange hatching",
+        "limits": [
+          "Original scan noise and heavier hatching are replaced by clean vectors and the shared subdued orange fill."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceLines": [
+        96,
+        117
+      ]
+    },
+    {
+      "id": "4.8",
+      "kind": "numbered-figure",
+      "pdfPage": 86,
+      "printedPage": 86,
+      "description": "One vertical product subbasis strip (a,b)×R, with coordinate intercepts.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "One vertical product subbasis strip (a,b)×R, with coordinate intercepts."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/product-topology.ts",
+      "style": "packages/bloom/src/styles/product-topology.tsx",
+      "svg": "figure-4.8.svg",
+      "sourceBox": [
+        0.089791,
+        0.526003,
+        0.426814,
+        0.132244
+      ],
+      "buildFactory": "buildProductStripFigure",
+      "substanceFactory": "productStripSubstance",
+      "review": {
+        "record": "review-4.8-4.10.json",
+        "mathematics": "Book definitions and real analytic/rendering checks passed",
+        "visual": "Source crop and Penrose raster manually compared side by side",
+        "adaptation": "Clean vectors and shared subdued orange regions",
+        "limits": [
+          "Printed page 85 is absent from the supplied source, within the general product-space definition/proposition discussion. This batch relies on the available Example 18, Proposition 19, Proposition 20 continuation, and Example 19; no missing page is reconstructed.",
+          "Binary products are explicitly represented here. A countable or arbitrary indexed-product vocabulary is not claimed complete by this batch.",
+          "Finite plotting windows show the unbounded strips and embedding lines without asserting that the sets are bounded.",
+          "Clean MathJax type and lighter hatch strokes differ from the scanned book’s heavier ink."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceLines": [
+        14,
+        57
+      ]
+    },
+    {
+      "id": "4.9",
+      "kind": "numbered-figure",
+      "pdfPage": 86,
+      "printedPage": 86,
+      "description": "Intersecting vertical and horizontal product subbasis strips with darker product rectangle.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Intersecting vertical and horizontal product subbasis strips with darker product rectangle."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/product-topology.ts",
+      "style": "packages/bloom/src/styles/product-topology.tsx",
+      "svg": "figure-4.9.svg",
+      "sourceBox": [
+        0.551046,
+        0.441308,
+        0.432964,
+        0.220654
+      ],
+      "buildFactory": "buildProductRectangleFigure",
+      "substanceFactory": "productRectangleSubstance",
+      "review": {
+        "record": "review-4.8-4.10.json",
+        "mathematics": "Book definitions and real analytic/rendering checks passed",
+        "visual": "Source crop and Penrose raster manually compared side by side",
+        "adaptation": "Clean vectors and shared subdued orange regions",
+        "limits": [
+          "Printed page 85 is absent from the supplied source, within the general product-space definition/proposition discussion. This batch relies on the available Example 18, Proposition 19, Proposition 20 continuation, and Example 19; no missing page is reconstructed.",
+          "Binary products are explicitly represented here. A countable or arbitrary indexed-product vocabulary is not claimed complete by this batch.",
+          "Finite plotting windows show the unbounded strips and embedding lines without asserting that the sets are bounded.",
+          "Clean MathJax type and lighter hatch strokes differ from the scanned book’s heavier ink."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceLines": [
+        60,
+        135
+      ]
+    },
+    {
+      "id": "4.10",
+      "kind": "numbered-figure",
+      "pdfPage": 88,
+      "printedPage": 88,
+      "description": "Embedding of the real line as the x-axis, with x mapped to (x,0).",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Embedding of the real line as the x-axis, with x mapped to (x,0)."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "implementation": "packages/bloom/src/examples/product-topology.ts",
+      "style": "packages/bloom/src/styles/product-topology.tsx",
+      "svg": "figure-4.10.svg",
+      "sourceBox": [
+        0.350554,
+        0.441308,
+        0.359164,
+        0.13373
+      ],
+      "buildFactory": "buildRealLineEmbeddingFigure",
+      "substanceFactory": "realLineEmbeddingSubstance",
+      "review": {
+        "record": "review-4.8-4.10.json",
+        "mathematics": "Book definitions and real analytic/rendering checks passed",
+        "visual": "Source crop and Penrose raster manually compared side by side",
+        "adaptation": "Clean vectors and shared subdued orange regions",
+        "limits": [
+          "Printed page 85 is absent from the supplied source, within the general product-space definition/proposition discussion. This batch relies on the available Example 18, Proposition 19, Proposition 20 continuation, and Example 19; no missing page is reconstructed.",
+          "Binary products are explicitly represented here. A countable or arbitrary indexed-product vocabulary is not claimed complete by this batch.",
+          "Finite plotting windows show the unbounded strips and embedding lines without asserting that the sets are bounded.",
+          "Clean MathJax type and lighter hatch strokes differ from the scanned book’s heavier ink."
+        ]
+      },
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "substanceLines": [
+        138,
+        199
+      ]
+    },
+    {
+      "id": "5.1",
+      "kind": "numbered-figure",
+      "pdfPage": 91,
+      "printedPage": 91,
+      "description": "Two disjoint irregular open regions U and V containing shaded subsets A and B, illustrating separation of subsets.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Subsets A and B lie inside disjoint neighborhoods U and V."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/examples/src/elementary-topology/separation-axioms.ts",
+      "style": "packages/bloom/src/styles/separation-axioms.tsx",
+      "svg": "figure-5.1.svg",
+      "buildFactory": "buildSetSeparationFigure",
+      "substanceFactory": "disjointSetNeighborhoods",
+      "sourceBox": [
+        0.246719,
+        0.559429,
+        0.448819,
+        0.12916
+      ],
+      "review": {
+        "record": "review-5.1-5.4.json",
+        "mathematics": "Book definitions and constructive/rendering checks passed",
+        "visual": "Source crop and Penrose raster manually compared",
+        "adaptation": "Shared pale orange fill, hatching and clean vector type",
+        "limits": [
+          "The introductory picture supplies a chosen witness, rather than a proof of a universal separation axiom.",
+          "Smooth vector contours approximate the scan; gray hatching is retained with consistent pale orange fill."
+        ]
+      },
+      "substanceLines": [
+        14,
+        33
+      ]
+    },
+    {
+      "id": "5.2",
+      "kind": "numbered-figure",
+      "pdfPage": 96,
+      "printedPage": 97,
+      "description": "A shaded closed subset F lies inside an irregular open region V; a separate small circular neighborhood U contains point x.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Disjoint neighborhoods separate a point from a closed set."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/examples/src/elementary-topology/separation-axioms.ts",
+      "style": "packages/bloom/src/styles/separation-axioms.tsx",
+      "svg": "figure-5.2.svg",
+      "buildFactory": "buildTopologicalPointSeparationFigure",
+      "substanceFactory": "topologicalPointClosedSeparation",
+      "sourceBox": [
+        0.073491,
+        0.728209,
+        0.389764,
+        0.141046
+      ],
+      "review": {
+        "record": "review-5.1-5.4.json",
+        "mathematics": "Book definitions and constructive/rendering checks passed",
+        "visual": "Source crop and Penrose raster manually compared",
+        "adaptation": "Shared pale orange fill, hatching and clean vector type",
+        "limits": [
+          "This is a declared generic witness in a T3 space, not a numeric metric-space construction.",
+          "The point neighborhood follows the original irregular outline rather than asserting that it is a metric ball."
+        ]
+      },
+      "substanceLines": [
+        36,
+        59
+      ]
+    },
+    {
+      "id": "5.3",
+      "kind": "numbered-figure",
+      "pdfPage": 96,
+      "printedPage": 97,
+      "description": "Nested irregular regions and complement shading illustrate the construction V contained in Cl(V), contained in X-W, contained in U.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Neighborhood closure and complementary open region W in the regularity criterion."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/examples/src/elementary-topology/separation-axioms.ts",
+      "style": "packages/bloom/src/styles/separation-axioms.tsx",
+      "svg": "figure-5.3.svg",
+      "buildFactory": "buildClosureNeighborhoodFigure",
+      "substanceFactory": "nestedClosureNeighborhoods",
+      "sourceBox": [
+        0.519685,
+        0.72504,
+        0.345144,
+        0.157686
+      ],
+      "review": {
+        "record": "review-5.1-5.4.json",
+        "mathematics": "Book definitions and constructive/rendering checks passed",
+        "visual": "Source crop and Penrose raster manually compared",
+        "adaptation": "Shared pale orange fill, hatching and clean vector type",
+        "limits": [
+          "The outer finite contour is a schematic viewport of generic W; no boundedness of the ambient space or its complement is asserted.",
+          "The source does not separately draw Cl V. Its mathematical inclusion is declared while preserving the visible V label."
+        ]
+      },
+      "substanceLines": [
+        62,
+        99
+      ]
+    },
+    {
+      "id": "5.4",
+      "kind": "numbered-figure",
+      "pdfPage": 98,
+      "printedPage": 99,
+      "description": "A horizontal real line with marked points, bracketed intervals, and overlapping shaded neighborhoods U and V.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Real-line neighborhoods in the example of a Hausdorff topology that is not regular."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/examples/src/elementary-topology/separation-axioms.ts",
+      "style": "packages/bloom/src/styles/separation-axioms.tsx",
+      "svg": "figure-5.4.svg",
+      "buildFactory": "buildDeletedReciprocalFigure",
+      "substanceFactory": "deletedReciprocalCounterexample",
+      "sourceBox": [
+        0.266404,
+        0.595087,
+        0.437008,
+        0.055468
+      ],
+      "review": {
+        "record": "review-5.1-5.4.json",
+        "mathematics": "Book definitions and constructive/rendering checks passed",
+        "visual": "Source crop and Penrose raster manually compared",
+        "adaptation": "Shared pale orange fill, hatching and clean vector type",
+        "limits": [
+          "Only one representative component of the arbitrary U is shown, as in the source. Its ellipse does not assert that all of U is a bounded interval.",
+          "Dark reciprocal markers annotate points of F that are excluded from V; they do not assert membership in the hatched neighborhood.",
+          "The infinite set descriptor is mathematical. Numeric helpers use finite JavaScript coordinates and safe integer indices and reject unrepresentable witnesses.",
+          "The original sequence spacing is schematic. The monotone chart preserves order and neighborhood membership without claiming equal display distances for numerical differences."
+        ]
+      },
+      "substanceLines": [
+        106,
+        181
+      ]
+    },
+    {
+      "id": "5.5",
+      "kind": "numbered-figure",
+      "pdfPage": 100,
+      "printedPage": 101,
+      "description": "An irregular outline labeled X contains a point x and a shaded closed region F.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Original topological space before collapsing the closed subset F."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/bloom/src/examples/quotient-spaces.ts",
+      "style": "packages/bloom/src/styles/quotient-spaces.tsx",
+      "buildFactory": "buildClosedSubsetSourceFigure",
+      "substanceFactory": "closedSubsetQuotientSubstance",
+      "svg": "figure-5.5.svg",
+      "sourceBox": [
+        0.18635170603674542,
+        0.08161648177496038,
+        0.1889763779527559,
+        0.1664025356576862
+      ],
+      "review": {
+        "record": "review-5.5-5.7.json",
+        "mathematics": "F is closed in regular X; the source point x lies outside F. All complete quotient facts are shared with Figure5.6.",
+        "visual": "Retains the nonconvex ambient outline, source x position, hatched closed F and X label.",
+        "adaptation": "Consistent pale orange closed-subset fill and clean vectors",
+        "limits": [
+          "Freeform ambient outlines in Figures5.5/5.6 are schematic Style geometry, not coordinates or metric assumptions on the abstract spaces.",
+          "No universal theorem is inferred automatically by the DSL. The source Proposition6 and Example11 are represented with their stated topology relations."
+        ]
+      },
+      "substanceLines": [
+        10,
+        51
+      ]
+    },
+    {
+      "id": "5.6",
+      "kind": "numbered-figure",
+      "pdfPage": 100,
+      "printedPage": 101,
+      "description": "An irregular outline labeled X/R contains the image point represented by F and another equivalence-class point.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Identification space after the closed region F becomes one point."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/bloom/src/examples/quotient-spaces.ts",
+      "style": "packages/bloom/src/styles/quotient-spaces.tsx",
+      "buildFactory": "buildClosedSubsetQuotientFigure",
+      "substanceFactory": "closedSubsetQuotientSubstance",
+      "svg": "figure-5.6.svg",
+      "sourceBox": [
+        0.6404199475065617,
+        0.09429477020602219,
+        0.16272965879265092,
+        0.15213946117274169
+      ],
+      "review": {
+        "record": "review-5.5-5.7.json",
+        "mathematics": "The collapse relation makes F one quotient class and the outside point x a singleton. IdentificationTopology and the Proposition6 Hausdorff conclusion are declared.",
+        "visual": "Retains the narrower quotient outline, two image points, {x}=bar{x}, F and X/R labels.",
+        "adaptation": "Consistent pale orange closed-subset fill and clean vectors",
+        "limits": [
+          "Freeform ambient outlines in Figures5.5/5.6 are schematic Style geometry, not coordinates or metric assumptions on the abstract spaces.",
+          "No universal theorem is inferred automatically by the DSL. The source Proposition6 and Example11 are represented with their stated topology relations."
+        ]
+      },
+      "substanceLines": [
+        10,
+        51
+      ]
+    },
+    {
+      "id": "5.7",
+      "kind": "numbered-figure",
+      "pdfPage": 100,
+      "printedPage": 101,
+      "description": "A perspective torus C×C with distinguished circle fiber y×C and fixed point y.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A perspective torus C×C with distinguished circle fiber y×C and fixed point y."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/bloom/src/examples/quotient-spaces.ts",
+      "style": "packages/bloom/src/styles/quotient-spaces.tsx",
+      "buildFactory": "buildCircleProductFigure",
+      "substanceFactory": "circleProductSubstance",
+      "svg": "figure-5.7.svg",
+      "sourceBox": [
+        0.31758530183727035,
+        0.5309033280507132,
+        0.29658792650918636,
+        0.11568938193343899
+      ],
+      "review": {
+        "record": "review-5.5-5.7.json",
+        "mathematics": "C×C has the product topology on a regular circle C. The marked fiber is {y}×C, using the same circle and SingletonOf relation.",
+        "visual": "Retains torus silhouette, central hole, narrow marked fiber with solid/dashed visibility, y, y×C and C×C labels.",
+        "adaptation": "Consistent orange depth shading and legible fiber oval",
+        "limits": [
+          "The torus uses an orthographic native polygon mesh with outward normals, depth ordering and visible silhouettes. Smooth shading and a faint patch grid are consistent additions for this three-dimensional source figure.",
+          "The nearly edge-on fiber is widened to a narrow oval to preserve the source drawing and keep the circle legible; its minimum display width is Style data and does not change ProductOf or membership facts.",
+          "No universal theorem is inferred automatically by the DSL. The source Proposition6 and Example11 are represented with their stated topology relations."
+        ]
+      },
+      "substanceLines": [
+        54,
+        111
+      ]
+    },
+    {
+      "id": "5.9",
+      "kind": "numbered-figure",
+      "pdfPage": 102,
+      "printedPage": 104,
+      "description": "Coordinate axes with a shaded upper-right rectangular basic neighborhood whose lower-left corner is the point (x,y).",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Half-open product neighborhood in a regular plane that is not normal."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/examples/src/elementary-topology/lower-limit-topology.ts",
+      "style": "packages/bloom/src/styles/lower-limit-topology.tsx",
+      "svg": "figure-5.9.svg",
+      "sourceBox": [
+        0.070866,
+        0.088748,
+        0.426509,
+        0.167195
+      ],
+      "buildFactory": "buildLowerLimitNeighborhoodFigure",
+      "substanceFactory": "lowerLimitBasicNeighborhood",
+      "review": {
+        "record": "review-5.9-5.14.json",
+        "mathematics": "Example 14 (continued from supplied printed page 103): the product of the lower-limit topology from Chapter 3 Example 11 has clopen basic rectangles [x,a) times [y,b). Each rectangle equals its closure; the plane is regular, although it is not normal.",
+        "visual": "A hatched rectangle above and left of the origin, with solid included left/bottom edges and the source round half-open marks at the opposite corners. Original x, y, (0,0) and southwest (x,y) labels are retained; only the southwest corner is marked.",
+        "adaptation": "Shared subdued orange fills, native hatching and vector lettering",
+        "limits": [
+          "The finite diagram illustrates a typical neighborhood, rather than proving the universal separation properties.",
+          "Upper/right hatch limits represent excluded boundaries; no solid top/right outline is introduced."
+        ]
+      },
+      "substanceLines": [
+        84,
+        84
+      ]
+    },
+    {
+      "id": "5.10",
+      "kind": "numbered-figure",
+      "pdfPage": 102,
+      "printedPage": 104,
+      "description": "Coordinate axes, the descending diagonal line Y defined by x+y=0, and a shaded upper-right rectangle meeting Y only at its corner.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A basic neighborhood isolates one point of Y, so its subspace topology is discrete."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/examples/src/elementary-topology/lower-limit-topology.ts",
+      "style": "packages/bloom/src/styles/lower-limit-topology.tsx",
+      "svg": "figure-5.10.svg",
+      "sourceBox": [
+        0.528871,
+        0.075277,
+        0.434383,
+        0.190967
+      ],
+      "buildFactory": "buildLowerLimitDiagonalFigure",
+      "substanceFactory": "lowerLimitDiagonalSingleton",
+      "review": {
+        "record": "review-5.9-5.14.json",
+        "mathematics": "The same example takes Y={(x,y):x+y=0}. A northeast basic neighborhood at a point of Y meets Y only at that point, so the induced subspace topology is discrete; Y is closed in the product plane. The following nonnormality discussion in the book explicitly omits a rigorous proof.",
+        "visual": "The downward antidiagonal Y passes through the origin and the included southwest rectangle corner. Same clopen rectangle policy as 5.9, with the source Y label and no extra point dot or corner label.",
+        "adaptation": "Shared subdued orange fills, native hatching and vector lettering",
+        "limits": [
+          "The pictured singleton explains discreteness, not the subsequent universal nonnormality argument.",
+          "Nonnormality is a named mathematical property of the specified lower-limit product, not inferred from finite drawing overlap."
+        ]
+      },
+      "substanceLines": [
+        86,
+        86
+      ]
+    },
+    {
+      "id": "5.11",
+      "kind": "numbered-figure",
+      "pdfPage": 106,
+      "printedPage": 108,
+      "description": "Closed set A is nested inside an open region U(q), its closure, and a larger region U(q prime), while a separate region B lies outside.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Nested neighborhoods used to separate the disjoint closed sets A and B in Urysohn lemma."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/examples/src/elementary-topology/dyadic-neighborhoods.ts",
+      "style": "packages/bloom/src/styles/dyadic-neighborhoods.tsx",
+      "svg": "figure-5.11.svg",
+      "sourceBox": [
+        0.555118,
+        0.201268,
+        0.417323,
+        0.175119
+      ],
+      "buildFactory": "buildDyadicSeparationFigure",
+      "substanceFactory": "dyadicSeparatedClosedSets",
+      "review": {
+        "record": "review-5.9-5.14.json",
+        "mathematics": "Urysohn lemma construction in a T4 space: disjoint nonempty closed A,B and dyadic indexed open sets satisfy A subset U(q), B disjoint U(q), and Cl U(q) subset U(q prime) for q<q prime.",
+        "visual": "Separate small B at lower left; small A lies inside the U(q)/Cl U(q) contour and the outer U(q prime) contour. The original unfilled outlines and A, B, U(q), Cl U(q), U(q prime) labels are retained; no hatching is added to this source outline figure.",
+        "adaptation": "Shared subdued orange fills, native hatching and vector lettering",
+        "limits": [
+          "The two shown neighborhoods form a finite excerpt of the infinite dyadic construction.",
+          "U(q) and its closure share the visible source outline; their mathematical entities and closure fact remain distinct."
+        ]
+      },
+      "substanceLines": [
+        12,
+        61
+      ]
+    },
+    {
+      "id": "5.12",
+      "kind": "numbered-figure",
+      "pdfPage": 107,
+      "printedPage": 109,
+      "description": "Several irregular regions form dark-to-light nested bands around A, with leader labels for consecutive dyadic-indexed neighborhoods and a closure.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Insertion of the next dyadic neighborhood between previously constructed closures and open neighborhoods."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/examples/src/elementary-topology/dyadic-neighborhoods.ts",
+      "style": "packages/bloom/src/styles/dyadic-neighborhoods.tsx",
+      "svg": "figure-5.12.svg",
+      "sourceBox": [
+        0.244094,
+        0.24168,
+        0.452756,
+        0.232171
+      ],
+      "buildFactory": "buildDyadicRefinementFigure",
+      "substanceFactory": "dyadicRefinementNeighborhoods",
+      "review": {
+        "record": "review-5.9-5.14.json",
+        "mathematics": "Inductive insertion of U(n/2^(k+1)) between the already defined neighboring dyadic neighborhoods for odd n. The prose explicitly gives Cl U((n-1)/2^(k+1)) subset U(n/2^(k+1)) subset Cl U(n/2^(k+1)) subset U((n+1)/2^(k+1)).",
+        "visual": "Three irregular nested hatch regions, source diagonal/vertical/cross hatch distinctions, central closed A and its white label knockout. Three original fractional U labels and leader lines. Fraction label size was adjusted after actual rendering to keep all labels within the source framing.",
+        "adaptation": "Shared subdued orange fills, native hatching and vector lettering",
+        "limits": [
+          "Hatch density is lighter than the scan and uses the consistent pale orange palette; the three source hatch modes remain distinguishable.",
+          "The finite displayed step is not a formal proof of the infinite Urysohn family."
+        ]
+      },
+      "substanceLines": [
+        64,
+        133
+      ]
+    },
+    {
+      "id": "5.14",
+      "kind": "numbered-figure",
+      "pdfPage": 108,
+      "printedPage": 111,
+      "description": "An arrow links a shaded unit square, whose top and bottom edges are labeled y=1 and y=0, to a shaded irregular image in the coordinate plane.",
+      "panels": [
+        {
+          "id": "source",
+          "description": "The domain [0,1] x [0,1], with its two distinguished horizontal edges."
+        },
+        {
+          "id": "target",
+          "description": "The planar image of an extension of the two boundary paths."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/examples/src/elementary-topology/path-extensions.ts",
+      "style": "packages/bloom/src/styles/path-extensions.tsx",
+      "svg": "figure-5.14.svg",
+      "sourceBox": [
+        0.317585,
+        0.08954,
+        0.442257,
+        0.156894
+      ],
+      "buildFactory": "buildBoundaryPathExtensionFigure",
+      "substanceFactory": "boundaryPathExtension",
+      "review": {
+        "record": "review-5.9-5.14.json",
+        "mathematics": "Example 17: A is the union of the two horizontal closed edges in I times I. A continuous f:A to R squared has a continuous extension F across the normal square. Thus any two paths in R squared are freely homotopic; no endpoint-fixing condition is stated.",
+        "visual": "A hatched unit square labeled by the original top/bottom edge set notation, an unlabelled arrow, and a warped hatched image patch beside coordinate axes. Top/bottom paths are sampled as native curves; the two connecting sides and interior deformation form a continuous illustrative extension.",
+        "adaptation": "Shared subdued orange fills, native hatching and vector lettering",
+        "limits": [
+          "The book supplies generic curves without analytic formulas. The cubic path samplers and continuous t(1-t) interior deformation are Style realizations, not formulas attributed to the source.",
+          "Caller samplers can represent other continuous paths; finite sampled contours are schematic, and filling arbitrary folded map images is not claimed.",
+          "There are no imposed equal endpoints or fixed-endpoint homotopy claims."
+        ]
+      },
+      "substanceLines": [
+        10,
+        79
+      ]
+    },
+    {
+      "id": "6.1",
+      "kind": "numbered-figure",
+      "pdfPage": 119,
+      "printedPage": 123,
+      "description": "A horizontal interval [a,b] is partitioned by labeled points x_0=a through x_n=b, with bracketed endpoints.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Finite partitions of a closed interval used as a directed set for integration."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "style": "packages/bloom/src/styles/convergence.tsx",
+      "implementation": "packages/bloom/src/examples/convergence.ts",
+      "buildFactory": "buildIntervalPartitionFigure",
+      "substanceFactory": "intervalPartitionSubstance",
+      "svg": "figure-6.1.svg",
+      "sourceBox": [
+        0.29279811097992914,
+        0.7064285714285714,
+        0.42502951593860683,
+        0.055
+      ],
+      "review": {
+        "record": "review-6.1-6.2.json",
+        "mathematics": "A finite strictly increasing partition x0=a<…<xn=b belongs to the family of all partitions of [a,b]. The source places finer partitions first in its order; that convention is retained explicitly.",
+        "visual": "Bracketed endpoints, dashed line continuations, x1/x2/x3/x(n−1) point marks, a=x0 and b=xn above, and a gray three-dot ellipsis retain the source arrangement.",
+        "adaptation": "Vector lettering and consistent pale orange neighborhood fills",
+        "limits": [
+          "The default Substance supplies one explicit finite partition; the ellipsis hides actual intermediate indices and does not assert a finite representation of the entire directed family.",
+          "Clean vector type and strokes replace scanned lettering; the source-defined partition order is not silently reversed."
+        ]
+      },
+      "substanceLines": [
+        13,
+        35
+      ]
+    },
+    {
+      "id": "6.2",
+      "kind": "numbered-figure",
+      "pdfPage": 122,
+      "printedPage": 126,
+      "description": "Two overlapping oval neighborhoods U and V contain distinct points x and y, and a selected point s(U,V) lies in their intersection.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Neighborhood selections yield a net converging to two points in a non-Hausdorff space."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "style": "packages/bloom/src/styles/convergence.tsx",
+      "implementation": "packages/bloom/src/examples/convergence.ts",
+      "buildFactory": "buildNonHausdorffNetFigure",
+      "substanceFactory": "nonHausdorffSelectionNetSubstance",
+      "svg": "figure-6.2.svg",
+      "sourceBox": [
+        0.29279811097992914,
+        0.6514285714285715,
+        0.44037780401416765,
+        0.12785714285714286
+      ],
+      "review": {
+        "record": "review-6.1-6.2.json",
+        "mathematics": "For distinct unseparable x,y in a non-T2 space, the directed product of their neighborhood systems indexes a selector choosing s(U,V) in every U∩V; its net converges to both x and y. The drawn value is one witness distinct from this all-neighborhood hypothesis.",
+        "visual": "Overlapping unequal oval neighborhoods U,V, three point marks x/y/s(U,V), and the opening in U at the selected-value label match the source. Pale orange transparency distinguishes the neighborhoods and overlap.",
+        "adaptation": "Vector lettering and consistent pale orange neighborhood fills",
+        "limits": [
+          "Neighborhood outlines are a schematic view; the Substance assigns no Euclidean metric or plane coordinates to X.",
+          "The all-neighborhood selection property is declared as a mathematical hypothesis, not inferred from the one depicted value."
+        ]
+      },
+      "substanceLines": [
+        38,
+        90
+      ]
+    },
+    {
+      "id": "7.1",
+      "kind": "numbered-figure",
+      "pdfPage": 141,
+      "printedPage": 148,
+      "description": "Nine shaded metric disks are arranged in a three-by-three array around marked centers; a small inner circle and labels distinguish a closure from the complementary open region V.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Metric neighborhoods of a maximal separated subset, with V the complement of the union of smaller closed neighborhoods."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/examples/src/elementary-topology/covering-properties.ts",
+      "style": "packages/bloom/src/styles/covering-properties.tsx",
+      "svg": "figure-7.1.svg",
+      "sourceBox": [
+        0.397638,
+        0.691759,
+        0.287402,
+        0.16878
+      ],
+      "buildFactory": "buildSeparatedMetricCoverFigure",
+      "substanceFactory": "separatedMetricCover",
+      "review": {
+        "record": "review-7.1-7.3.json",
+        "mathematics": "Proposition 5, Lindelof implies separable in a metric space. Its argument starts on supplied printed 148 and continues on supplied printed 149: take a maximal subset E with D(a,b)>=p for distinct a,b, let V be the complement of the union of Cl N(a,p/4), and cover X by V and all N(a,p/2). Each center forces its own covering half-ball to remain, so Lindelof makes E countable.",
+        "visual": "The original three-by-three array of hatched closed quarter-ball representations with nine black center marks. Original V, Cl N(a,p/4) and central a labels. No additional outer half-ball outlines are introduced.",
+        "adaptation": "Consistent pale orange hatching and vector labels",
+        "limits": [
+          "The displayed grid is a finite schematic prefix of generic E and does not assert that E is finite or a lattice.",
+          "The scan does not use one numerical metric scale for both center spacing and p/4 disk radii. Pixel positions stay in Style and do not become mathematical distances.",
+          "The circles illustrate closures of generic metric neighborhoods; they do not assert that closures equal closed metric balls in every metric space."
+        ]
+      },
+      "substanceLines": [
+        14,
+        58
+      ]
+    },
+    {
+      "id": "7.2",
+      "kind": "numbered-figure",
+      "pdfPage": 146,
+      "printedPage": 153,
+      "description": "The real interval from 0 to 1 contains a marked interior point u, surrounded by a shaded, bracketed open-cover element U_i.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An open neighborhood extends a finite cover beyond a proposed supremum in the proof of compactness of [0,1]."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/examples/src/elementary-topology/covering-properties.ts",
+      "style": "packages/bloom/src/styles/covering-properties.tsx",
+      "svg": "figure-7.2.svg",
+      "sourceBox": [
+        0.262467,
+        0.077655,
+        0.444882,
+        0.049921
+      ],
+      "buildFactory": "buildFiniteCoverReachFigure",
+      "substanceFactory": "finiteCoverSupremumWitness",
+      "review": {
+        "record": "review-7.1-7.3.json",
+        "mathematics": "Proposition 7, Case 1 of compactness of [0,1]: T contains the x whose [0,x) have a finite subcover. Assuming interior proposed supremum u belongs to T, add a cover element U_i prime containing u. Openness then extends finite cover reach beyond u, contradicting the upper-bound hypothesis. The definition and Case 1 begin on supplied printed 152.",
+        "visual": "Original real axis with marked 0, u and 1, one hatched open interval around u and its round open-end marks. Original U_i prime and u labels; the mathematical extension witness v is kept invisible, matching the original graphic.",
+        "adaptation": "Consistent pale orange hatching and vector labels",
+        "limits": [
+          "This is the illustrated Case 1; the source Case 2 and full compactness proof remain in the supplied prose.",
+          "The chosen numeric interval is a valid realization of the generic cover member, not a specific interval supplied by the book."
+        ]
+      },
+      "substanceLines": [
+        61,
+        141
+      ]
+    },
+    {
+      "id": "7.3",
+      "kind": "numbered-figure",
+      "pdfPage": 149,
+      "printedPage": 156,
+      "description": "One cluster of overlapping irregular neighborhoods covers a shaded compact set A; a second, separate cluster has a shaded common neighborhood around the external point x.",
+      "panels": [
+        {
+          "id": "compact-set",
+          "description": "Finitely many open neighborhoods cover the compact set A."
+        },
+        {
+          "id": "external-point",
+          "description": "Intersection of matching neighborhoods gives a neighborhood of x disjoint from A."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/examples/src/elementary-topology/covering-properties.ts",
+      "style": "packages/bloom/src/styles/covering-properties.tsx",
+      "svg": "figure-7.3.svg",
+      "sourceBox": [
+        0.192913,
+        0.744057,
+        0.627297,
+        0.156894
+      ],
+      "buildFactory": "buildCompactHausdorffFigure",
+      "substanceFactory": "compactSubsetHausdorffSeparation",
+      "review": {
+        "record": "review-7.1-7.3.json",
+        "mathematics": "Proposition 11 and its supplied proof opening state that a compact subset A of a T2 space is closed. The outside x must have a neighborhood avoiding A. The printed continuation page 157 is missing. The visible graphic names paired V_y and U_y neighborhoods, their cover union V and the intersection U.",
+        "visual": "Two source panels retained within one framed native SVG: overlapping neighborhoods around hatched compact A, and a separate common neighborhood around the marked outside x. Original A, V, V_y1, V_yn, y1, yn, U, U_y1, U_yn and x labels and their white knockouts. The two named cover neighborhoods use crossing hatching. Four nested native clip masks produce a true common hatch intersection of the depicted outside neighborhood contours.",
+        "adaptation": "Consistent pale orange hatching and vector labels",
+        "limits": [
+          "Smooth contours approximate the scanned irregular boundaries. Hatch density is lighter, with the consistent subdued orange fill.",
+          "The finite family and n labels are schematic: six chosen witnesses illustrate the compact subcover, and the right panel shows representative neighborhood contours rather than asserting the count of distinct sets from line loops.",
+          "The unseen proof continuation has not been reconstructed as book prose."
+        ]
+      },
+      "substanceLines": [
+        144,
+        196
+      ]
+    },
+    {
+      "id": "7.4",
+      "kind": "numbered-figure",
+      "pdfPage": 151,
+      "printedPage": 159,
+      "description": "A compact cylinder I×C with boundary circles {0}×C and {1}×C, a side fiber I×{x}, and marked endpoint coordinates.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The compact cylinder obtained as the product of a circle and [0,1]."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/bloom/src/examples/product-surfaces.ts",
+      "style": "packages/bloom/src/styles/product-surfaces.tsx",
+      "svg": "figure-7.4.svg",
+      "sourceBox": [
+        0.058758,
+        0.0846,
+        0.221729,
+        0.179775
+      ],
+      "buildFactory": "buildCompactCylinderFigure",
+      "substanceFactory": "compactCylinderSubstance",
+      "review": {
+        "record": "review-7.4-7.6.json",
+        "mathematics": "The graphic uses the factor order I×C, matching its boundary-fiber labels; the preceding prose also names the homeomorphic product C×I. The top and bottom fibers are {1}×C and {0}×C, and the marked side fiber is I×{x}. Both factor topologies and the product topology are declared compact; fibers are compact subsets of the product. The representative x is checked against the circle equation; native render tests verify its projected point lies exactly on the upper ellipse.",
+        "visual": "One cylinder panel, full solid top and bottom ellipses, upright side edges and all five source labels are preserved. The two upper marked points, right endpoint numerals and left interval-fiber label follow the source composition. Only the lateral surface receives restrained orange shading; the endpoint openings stay white. The source intentionally exposes the full lower ellipse. The view preserves this wireframe occlusion convention, rather than hiding its far arc.",
+        "adaptation": "Consistent restrained orange shading and vector lettering.",
+        "limits": [
+          "The scanned contours are slightly irregular; the native ellipses are exact."
+        ]
+      },
+      "substanceLines": [
+        7,
+        65
+      ]
+    },
+    {
+      "id": "7.5",
+      "kind": "numbered-figure",
+      "pdfPage": 151,
+      "printedPage": 159,
+      "description": "A compact torus C×C with the fibers C×{x} and {x}×C, dashed transverse circle, narrow meridian and their shared marked point x.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Compactness of the product of two circles, represented by a torus."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/bloom/src/examples/quotient-spaces.ts",
+      "style": "packages/bloom/src/styles/quotient-spaces.tsx",
+      "svg": "figure-7.5.svg",
+      "sourceBox": [
+        0.35880708294501396,
+        0.16333333333333333,
+        0.28611369990680335,
+        0.1
+      ],
+      "buildFactory": "buildCompactCircleProductFigure",
+      "substanceFactory": "circleProductSubstance",
+      "substanceArguments": [
+        -1.5707963267948966,
+        {
+          "fixedLabel": "x",
+          "bothFibers": true,
+          "compact": true
+        }
+      ],
+      "review": {
+        "record": "review-7.5.json",
+        "mathematics": "The compact product C×C contains {x}×C and C×{x}. Their shared point is the ordered pair (x,x), distinct from the factor point x; all three memberships are explicit.",
+        "visual": "Source outer ring, central opening, dashed transverse ellipse, narrow front meridian with a dashed back half, both fiber labels and shared point retained. Analytic outer torus silhouette closes sampled contour gaps.",
+        "adaptation": "Consistent restrained orange surface shading and vector lettering.",
+        "limits": [
+          "The source uses schematic projected fiber glyphs: an ellipse and a widened meridian. Their marked intersection is preserved without claiming an exact analytical latitude of the embedded torus.",
+          "The product point is labeled x as in the figure, while its ordered-pair meaning is explicit in the Substance.",
+          "The native 1536-patch surface uses restrained diffuse shading; scanned outlines are regularized."
+        ]
+      },
+      "substanceLines": [
+        54,
+        111
+      ]
+    },
+    {
+      "id": "7.6",
+      "kind": "numbered-figure",
+      "pdfPage": 151,
+      "printedPage": 159,
+      "description": "The compact cube I³ has its first-coordinate-zero and third-coordinate-one faces hatched, with a left-pointing bent leader and closed endpoints 0 and 1.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The compact product [0,1]^3 is represented as a cube."
+        }
+      ],
+      "status": "reviewed",
+      "domain": "point-set-topology",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "implementation": "packages/bloom/src/examples/product-surfaces.ts",
+      "style": "packages/bloom/src/styles/product-surfaces.tsx",
+      "svg": "figure-7.6.svg",
+      "sourceBox": [
+        0.711752,
+        0.099141,
+        0.249446,
+        0.162591
+      ],
+      "buildFactory": "buildCompactCubeFigure",
+      "substanceFactory": "compactCubeSubstance",
+      "review": {
+        "record": "review-7.4-7.6.json",
+        "mathematics": "The cube is the iterated product (I×I)×I; its topology is the iterated product of compact interval topologies. The marked left face fixes the first coordinate to zero: {0}×I×I. The marked top face fixes the third coordinate to one: I×I×{1}. Both faces are asserted compact subsets of the cube, and the lower/upper endpoint singletons preserve the closed interval boundaries.",
+        "visual": "One cube panel with all twelve solid wireframe edges and its original oblique projection is preserved. The left face has dense vertical hatching; the top has diagonal hatching and the source’s additional vertical crosshatching near its back vertex. The bent leader points left into the first-coordinate-zero face, matching the source arrow direction. Both face labels have white knockouts; the 0 and 1 numerals remain at the front left vertical edge. Pale orange fill is confined to the two marked faces.",
+        "adaptation": "Consistent restrained orange shading and vector lettering.",
+        "limits": [
+          "The source uses slightly nonparallel scanned edges; the view uses an affine oblique projection.",
+          "Annotation dragging changes layout while the compact product and boundary-face geometry stay fixed."
+        ]
+      },
+      "substanceLines": [
+        68,
+        121
+      ]
+    },
+    {
+      "id": "8.1",
+      "kind": "numbered-figure",
+      "pdfPage": 156,
+      "printedPage": 164,
+      "description": "Coordinate axes pass through a shaded square centered at the origin; a darker irregular bounded set A lies in its upper-right portion, with boundary values plus/minus p labeled.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A bounded subset A of Euclidean space lies inside the closure of a product neighborhood of the origin."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "8.3",
+      "kind": "numbered-figure",
+      "pdfPage": 159,
+      "printedPage": 168,
+      "description": "Point x lies at the center of a small shaded disk inside a larger disk, both contained in an irregular open neighborhood U; leaders label N(x,p) and Cl N(x,p/2).",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A compact closed metric neighborhood fits inside any prescribed neighborhood of x."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "8.4",
+      "kind": "numbered-figure",
+      "pdfPage": 161,
+      "printedPage": 170,
+      "description": "A horizontal real line has an open interval (a,b), the rational point x, an irrational point t, and an overbrace indicating containment in the interior of A.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The interval used to construct an open cover contradicting local compactness of the rational subspace."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "8.5",
+      "kind": "numbered-figure",
+      "pdfPage": 162,
+      "printedPage": 171,
+      "description": "An oval ambient space X contains a crosshatched diamond-shaped subspace Y, a small irregular neighborhood around point y, and leaders marking relative and ambient open sets.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Local compactness of Y is related to its being open in its closure."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "8.6",
+      "kind": "numbered-figure",
+      "pdfPage": 163,
+      "printedPage": 172,
+      "description": "An arrow maps a detached point A={-1} and a positive half-line B into a coordinate plot with the point (0,0) and the rapidly oscillating curve y=sin(1/x).",
+      "panels": [
+        {
+          "id": "source",
+          "description": "The locally compact domain {-1} union (0,infinity) in the real line."
+        },
+        {
+          "id": "target",
+          "description": "The image combines (0,0) with the oscillating graph (x,sin(1/x)) for x>0."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "9.1",
+      "kind": "numbered-figure",
+      "pdfPage": 173,
+      "printedPage": 184,
+      "description": "The interval [0,1] with two purported separating open sets U and V, a point a, and a neighborhood about a crossing the proposed split.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The interval [0,1] with two purported separating open sets U and V, a point a, and a neighborhood about a crossing the proposed split."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "9.2",
+      "kind": "numbered-figure",
+      "pdfPage": 177,
+      "printedPage": 188,
+      "description": "Coordinate axes with points Q, Q prime, Q double prime, and an excluded point P; a two-segment polygonal route avoids P.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Coordinate axes with points Q, Q prime, Q double prime, and an excluded point P; a two-segment polygonal route avoids P."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "9.3",
+      "kind": "numbered-figure",
+      "pdfPage": 178,
+      "printedPage": 189,
+      "description": "An irregular region W containing a polygonal path from x=x0 to y=xn, with several intermediate vertices labeled.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An irregular region W containing a polygonal path from x=x0 to y=xn, with several intermediate vertices labeled."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "9.4",
+      "kind": "numbered-figure",
+      "pdfPage": 178,
+      "printedPage": 189,
+      "description": "The graph of sin(1/x) for positive x, shown with rapidly accumulating oscillations beside the vertical axis and the origin.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The graph of sin(1/x) for positive x, shown with rapidly accumulating oscillations beside the vertical axis and the origin."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "9.5",
+      "kind": "numbered-figure",
+      "pdfPage": 179,
+      "printedPage": 190,
+      "description": "A wireframe cube containing a straight segment joining two interior points, illustrating a convex set.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A wireframe cube containing a straight segment joining two interior points, illustrating a convex set."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "9.6",
+      "kind": "numbered-figure",
+      "pdfPage": 179,
+      "printedPage": 190,
+      "description": "An irregular open region U containing a polygonal route from x to y and a small rectangular neighborhood V about y, with a short continuation toward z.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An irregular open region U containing a polygonal route from x to y and a small rectangular neighborhood V about y, with a short continuation toward z."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "9.7",
+      "kind": "numbered-figure",
+      "pdfPage": 181,
+      "printedPage": 193,
+      "description": "Two shaded unit disks S and T on coordinate axes, centered at (0,0) and (2,0); their circular boundaries touch at (1,0).",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Two shaded unit disks S and T on coordinate axes, centered at (0,0) and (2,0); their circular boundaries touch at (1,0)."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "9.8",
+      "kind": "numbered-figure",
+      "pdfPage": 182,
+      "printedPage": 194,
+      "description": "A spiral approaching a limiting circular boundary, shown beside the discussion of a connected spiral together with its closure.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A spiral approaching a limiting circular boundary, shown beside the discussion of a connected spiral together with its closure."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "9.9",
+      "kind": "numbered-figure",
+      "pdfPage": 182,
+      "printedPage": 194,
+      "description": "Coordinate axes with horizontal and vertical slices A1 and A2 and a small product rectangle W1 times W2 around (x0,y0).",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Coordinate axes with horizontal and vertical slices A1 and A2 and a small product rectangle W1 times W2 around (x0,y0)."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "9.11",
+      "kind": "numbered-figure",
+      "pdfPage": 190,
+      "printedPage": 203,
+      "description": "Nested concentric circles between two horizontal lines through (0,1) and (0,-1), on coordinate axes; a connected example with distinct components.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Nested concentric circles between two horizontal lines through (0,1) and (0,-1), on coordinate axes; a connected example with distinct components."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "9.12",
+      "kind": "numbered-figure",
+      "pdfPage": 190,
+      "printedPage": 203,
+      "description": "Two separated inner regions U and V and surrounding regions G and H inside a common outer region, with labeled points a and b.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Two separated inner regions U and V and surrounding regions G and H inside a common outer region, with labeled points a and b."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "10.1",
+      "kind": "numbered-figure",
+      "pdfPage": 201,
+      "printedPage": 215,
+      "description": "A bounded number-line interval with midpoint a1 and a collection of sequence points, used in a bisection argument.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A bounded number-line interval with midpoint a1 and a collection of sequence points, used in a bisection argument."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "10.2",
+      "kind": "numbered-figure",
+      "pdfPage": 201,
+      "printedPage": 215,
+      "description": "Number-line intervals with successive endpoints a1,a2 and b1,b2 and sequence points, illustrating nested interval bisection.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Number-line intervals with successive endpoints a1,a2 and b1,b2 and sequence points, illustrating nested interval bisection."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "10.3",
+      "kind": "numbered-figure",
+      "pdfPage": 204,
+      "printedPage": 219,
+      "description": "A unit circle A on coordinate axes, its horizontal diameter marked d(A)=2 and endpoints (-1,0),(1,0).",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A unit circle A on coordinate axes, its horizontal diameter marked d(A)=2 and endpoints (-1,0),(1,0)."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "10.4",
+      "kind": "numbered-figure",
+      "pdfPage": 204,
+      "printedPage": 219,
+      "description": "A shaded rectangle B on coordinate axes with a diagonal marked d(B)=sqrt(20), illustrating the diameter of a planar set.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A shaded rectangle B on coordinate axes with a diagonal marked d(B)=sqrt(20), illustrating the diameter of a planar set."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "10.5",
+      "kind": "numbered-figure",
+      "pdfPage": 209,
+      "printedPage": 224,
+      "description": "Nested circular neighborhoods and closed balls with centers and radii labeled, lying inside a larger circular region in the Baire category proof.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Nested circular neighborhoods and closed balls with centers and radii labeled, lying inside a larger circular region in the Baire category proof."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "10.6",
+      "kind": "numbered-figure",
+      "pdfPage": 210,
+      "printedPage": 225,
+      "description": "A large circular region T, an overlapping irregular open region Ui, a small shaded neighborhood, and labeled points used in the dense-intersection argument.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A large circular region T, an overlapping irregular open region Ui, a small shaded neighborhood, and labeled points used in the dense-intersection argument."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.1",
+      "kind": "numbered-figure",
+      "pdfPage": 217,
+      "printedPage": 233,
+      "description": "A shaded unit disk Y on coordinate axes, centered at (0,0).",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A shaded unit disk Y on coordinate axes, centered at (0,0)."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.2",
+      "kind": "numbered-figure",
+      "pdfPage": 217,
+      "printedPage": 233,
+      "description": "The unit disk with a darker concentric contracted image and radial point labels, illustrating a contraction toward the origin.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The unit disk with a darker concentric contracted image and radial point labels, illustrating a contraction toward the origin."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.3",
+      "kind": "numbered-figure",
+      "pdfPage": 218,
+      "printedPage": 234,
+      "description": "A cone with several horizontal circular cross sections shrinking from Y at height 1 to a single point at height 0, with contraction labels.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A cone with several horizontal circular cross sections shrinking from Y at height 1 to a single point at height 0, with contraction labels."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.4",
+      "kind": "numbered-figure",
+      "pdfPage": 218,
+      "printedPage": 234,
+      "description": "A cylinder X times [0,1] mapped by H to a region Y containing the images of its horizontal slices.",
+      "panels": [
+        {
+          "id": "domain",
+          "description": "Cylinder with slices X times {0}, X times {r}, and X times {1}."
+        },
+        {
+          "id": "image",
+          "description": "Irregular target Y with curves labeled by the corresponding homotopy slice images."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.5",
+      "kind": "numbered-figure",
+      "pdfPage": 220,
+      "printedPage": 236,
+      "description": "A cylinder of parameter slices mapped to concentric contracting disk images in a coordinate plane.",
+      "panels": [
+        {
+          "id": "domain",
+          "description": "Cylinder Y times [0,1], with end disks shaded and intermediate slices."
+        },
+        {
+          "id": "image",
+          "description": "Concentric disk boundaries and radial arrows converging toward the origin."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.6",
+      "kind": "numbered-figure",
+      "pdfPage": 220,
+      "printedPage": 236,
+      "description": "Many curved paths between two fixed endpoints, surrounding an interior point P and labeled as members of a homotopy family.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Many curved paths between two fixed endpoints, surrounding an interior point P and labeled as members of a homotopy family."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.7",
+      "kind": "numbered-figure",
+      "pdfPage": 222,
+      "printedPage": 238,
+      "description": "A sliced cylinder and its target image, used to depict a homotopy assembled from consecutive homotopies.",
+      "panels": [
+        {
+          "id": "domain",
+          "description": "Cylinder X times [0,1] with marked horizontal slices."
+        },
+        {
+          "id": "image",
+          "description": "Irregular target Y with top, middle, and bottom image curves labeled f(X), h(X), and g(X)."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.8",
+      "kind": "numbered-figure",
+      "pdfPage": 222,
+      "printedPage": 238,
+      "description": "The two end disks of a cylinder mapped separately by f and g into a target Y, introducing the extension formulation of a homotopy.",
+      "panels": [
+        {
+          "id": "domain",
+          "description": "Cylinder X times [0,1] with its top and bottom disks shaded."
+        },
+        {
+          "id": "image",
+          "description": "Irregular target Y, reached by separate arrows f and g from the end disks."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.9",
+      "kind": "numbered-figure",
+      "pdfPage": 224,
+      "printedPage": 241,
+      "description": "An irregular loop alpha inside a region Y, with the common initial and final point marked y0.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An irregular loop alpha inside a region Y, with the common initial and final point marked y0."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.10",
+      "kind": "numbered-figure",
+      "pdfPage": 224,
+      "printedPage": 241,
+      "description": "A shaded unit parameter square mapped to a shaded band between two based loops in Y.",
+      "panels": [
+        {
+          "id": "parameters",
+          "description": "Unit square [0,1] times [0,1], shaded and labeled with parameter coordinates."
+        },
+        {
+          "id": "loop-family",
+          "description": "Shaded homotopy band between based loops in an irregular region Y, sharing y0."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.11",
+      "kind": "numbered-figure",
+      "pdfPage": 225,
+      "printedPage": 242,
+      "description": "A unit parameter square with labeled edge paths and a horizontal division, giving a picture of a homotopy between concatenated loops.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A unit parameter square with labeled edge paths and a horizontal division, giving a picture of a homotopy between concatenated loops."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.12",
+      "kind": "numbered-figure",
+      "pdfPage": 227,
+      "printedPage": 244,
+      "description": "A rectangular parameter domain whose two slanting internal boundaries change the relative widths of regions labeled by three paths, illustrating associativity.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A rectangular parameter domain whose two slanting internal boundaries change the relative widths of regions labeled by three paths, illustrating associativity."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.13",
+      "kind": "numbered-figure",
+      "pdfPage": 228,
+      "printedPage": 245,
+      "description": "A square parameter diagram with a slanted separator and regions labeled by a loop and a constant path; one of the identity homotopy exercises.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A square parameter diagram with a slanted separator and regions labeled by a loop and a constant path; one of the identity homotopy exercises."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.14",
+      "kind": "numbered-figure",
+      "pdfPage": 228,
+      "printedPage": 245,
+      "description": "A second square parameter diagram with a slanted separator and loop/constant-path regions; the companion identity homotopy exercise.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A second square parameter diagram with a slanted separator and loop/constant-path regions; the companion identity homotopy exercise."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.15",
+      "kind": "numbered-figure",
+      "pdfPage": 229,
+      "printedPage": 246,
+      "description": "Two circular based loops showing a path and the same path traversed in the opposite direction.",
+      "panels": [
+        {
+          "id": "forward",
+          "description": "A circular loop alpha based at y0, with its traversal direction indicated."
+        },
+        {
+          "id": "reverse",
+          "description": "The same circular loop with reversed traversal, labeled alpha inverse."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.19",
+      "kind": "numbered-figure",
+      "pdfPage": 231,
+      "printedPage": 249,
+      "description": "A sphere drawn with several curved loops passing near or through a marked base point P, illustrating contraction of a loop on the sphere.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A sphere drawn with several curved loops passing near or through a marked base point P, illustrating contraction of a loop on the sphere."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.20",
+      "kind": "numbered-figure",
+      "pdfPage": 233,
+      "printedPage": 251,
+      "description": "A torus with a marked base point y0 and two distinguished loop generators a and b.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A torus with a marked base point y0 and two distinguished loop generators a and b."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.21",
+      "kind": "numbered-figure",
+      "pdfPage": 234,
+      "printedPage": 252,
+      "description": "A circle with an attached line segment, a loop arrow, a junction point, and a path j along the segment to a second base point.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A circle with an attached line segment, a loop arrow, a junction point, and a path j along the segment to a second base point."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.23",
+      "kind": "numbered-figure",
+      "pdfPage": 237,
+      "printedPage": 256,
+      "description": "A shaded contractible space X and a singleton Y, connected by arrows f and g illustrating homotopy equivalence.",
+      "panels": [
+        {
+          "id": "space",
+          "description": "An irregular shaded space X containing its contraction point x0."
+        },
+        {
+          "id": "point",
+          "description": "The one-point space Y with incoming and outgoing maps."
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11.24",
+      "kind": "numbered-figure",
+      "pdfPage": 239,
+      "printedPage": 259,
+      "description": "Eleven separate diagram items for classifying homotopy types: seven capital letters, an animal, a house, the numeral 8, and the group 108.",
+      "panels": [
+        {
+          "id": "A",
+          "description": "Capital letter A"
+        },
+        {
+          "id": "B",
+          "description": "Capital letter B"
+        },
+        {
+          "id": "C",
+          "description": "Capital letter C"
+        },
+        {
+          "id": "D",
+          "description": "Capital letter D"
+        },
+        {
+          "id": "E",
+          "description": "Capital letter E"
+        },
+        {
+          "id": "R",
+          "description": "Capital letter R"
+        },
+        {
+          "id": "T",
+          "description": "Capital letter T"
+        },
+        {
+          "id": "animal",
+          "description": "A line drawing of a four-legged animal"
+        },
+        {
+          "id": "house",
+          "description": "A line drawing of a house"
+        },
+        {
+          "id": "8",
+          "description": "The numeral 8"
+        },
+        {
+          "id": "108",
+          "description": "The separate numerals 1, 0, and 8 arranged as 108"
+        }
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "unnumbered-symbol-index",
+      "kind": "unnumbered-mathematical-table",
+      "pdfPage": 245,
+      "printedPage": 265,
+      "description": "Two-column index of mathematical symbols with reference page numbers, providing the book notation lookup.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Notation lookup in two columns, with symbols and page references."
+        }
+      ],
+      "status": "pending"
+    }
+  ],
+  "unlocatedNumberedFigures": [
+    {
+      "label": "2.7",
+      "status": "numbering-gap candidate; contents unknown",
+      "missingPrintedPageCandidates": [
+        21
+      ],
+      "evidence": {
+        "precedingLabel": "2.6",
+        "precedingPdfPage": 28,
+        "followingLabel": "2.8",
+        "followingPdfPage": 29
+      },
+      "note": "This association is an inference from the numbered sequence and pagination gap, not an inspected figure."
+    },
+    {
+      "label": "5.8",
+      "status": "numbering-gap candidate; contents unknown",
+      "missingPrintedPageCandidates": [
+        102
+      ],
+      "evidence": {
+        "precedingLabel": "5.7",
+        "precedingPdfPage": 100,
+        "precedingPrintedPage": 101,
+        "followingLabel": "5.9",
+        "followingPdfPage": 102,
+        "followingPrintedPage": 104,
+        "visuallyReviewedInterveningPdfPages": [
+          101
+        ]
+      },
+      "note": "Printed page 103 is supplied and has no illustration; association with missing printed page 102 is an inference, not an inspected figure."
+    },
+    {
+      "label": "5.13",
+      "status": "referenced but unlocated in supplied pages; contents uninspected",
+      "missingPrintedPageCandidates": [
+        110
+      ],
+      "evidence": {
+        "precedingLabel": "5.12",
+        "precedingPdfPage": 107,
+        "precedingPrintedPage": 109,
+        "followingLabel": "5.14",
+        "followingPdfPage": 108,
+        "followingPrintedPage": 111,
+        "inTextReference": {
+          "pdfPage": 107,
+          "printedPage": 109,
+          "context": "The Urysohn lemma proof refers to Fig. 5.13 when defining V = U(q prime) - Cl U(q) as a neighborhood of x_0."
+        }
+      },
+      "note": "The in-text reference confirms the figure label; placement on missing printed page 110 is an inference from pagination and sequence. No panel contents have been reconstructed."
+    },
+    {
+      "label": "8.2",
+      "status": "numbering-gap candidate; contents unknown",
+      "missingPrintedPageCandidates": [
+        166
+      ],
+      "evidence": {
+        "precedingLabel": "8.1",
+        "precedingPdfPage": 156,
+        "precedingPrintedPage": 164,
+        "followingLabel": "8.3",
+        "followingPdfPage": 159,
+        "followingPrintedPage": 168,
+        "visuallyReviewedInterveningPdfPages": [
+          157,
+          158
+        ]
+      },
+      "note": "Supplied printed pages 165 and 167 contain no illustration; association with missing printed page 166 is an inference, not an inspected figure."
+    },
+    {
+      "label": "9.10",
+      "status": "numbering-gap candidate; absent figure contents unverified",
+      "missingPrintedPageCandidates": [
+        199
+      ],
+      "evidence": {
+        "precedingLabel": "9.9",
+        "precedingPdfPage": 182,
+        "followingLabel": "9.11",
+        "followingPdfPage": 190,
+        "explicitReferencePdfPages": [
+          186
+        ]
+      },
+      "note": "The supplied page at printed 198 references Figure 9.10; printed 199 is missing. This page association is an inference, not an inspected figure."
+    },
+    {
+      "label": "11.16",
+      "status": "numbering-gap candidate; absent figure contents unverified",
+      "missingPrintedPageCandidates": [
+        248
+      ],
+      "evidence": {
+        "precedingLabel": "11.15",
+        "precedingPdfPage": 229,
+        "followingLabel": "11.19",
+        "followingPdfPage": 231
+      },
+      "note": "Printed 248 is missing between the verified surrounding captions. Figure 11.18 is explicitly referenced on printed 249; no absent panel contents were reconstructed."
+    },
+    {
+      "label": "11.17",
+      "status": "numbering-gap candidate; absent figure contents unverified",
+      "missingPrintedPageCandidates": [
+        248
+      ],
+      "evidence": {
+        "precedingLabel": "11.15",
+        "precedingPdfPage": 229,
+        "followingLabel": "11.19",
+        "followingPdfPage": 231
+      },
+      "note": "Printed 248 is missing between the verified surrounding captions. Figure 11.18 is explicitly referenced on printed 249; no absent panel contents were reconstructed."
+    },
+    {
+      "label": "11.18",
+      "status": "numbering-gap candidate; absent figure contents unverified",
+      "missingPrintedPageCandidates": [
+        248
+      ],
+      "evidence": {
+        "precedingLabel": "11.15",
+        "precedingPdfPage": 229,
+        "followingLabel": "11.19",
+        "followingPdfPage": 231,
+        "explicitReferencePdfPages": [
+          231
+        ]
+      },
+      "note": "Printed 248 is missing between the verified surrounding captions. Figure 11.18 is explicitly referenced on printed 249; no absent panel contents were reconstructed."
+    },
+    {
+      "label": "11.22",
+      "status": "numbering-gap candidate; absent figure contents unverified",
+      "missingPrintedPageCandidates": [
+        253
+      ],
+      "evidence": {
+        "precedingLabel": "11.21",
+        "precedingPdfPage": 234,
+        "followingLabel": "11.23",
+        "followingPdfPage": 237
+      },
+      "note": "Printed 253 is missing between the surrounding captions; the page association is an inference, not an inspected figure."
+    }
+  ]
+}

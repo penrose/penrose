@@ -11,5 +11,7 @@ const CirclePackingEqual = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <CirclePackingEqual />
+  <ClientOnly>
+    <CirclePackingEqual />
+  </ClientOnly>
 </template>

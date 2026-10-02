@@ -9,5 +9,7 @@ const HelloDiagram = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <HelloDiagram />
+  <ClientOnly>
+    <HelloDiagram />
+  </ClientOnly>
 </template>

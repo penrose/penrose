@@ -9,5 +9,7 @@ const Rays = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <Rays />
+  <ClientOnly>
+    <Rays />
+  </ClientOnly>
 </template>

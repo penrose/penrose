@@ -64,6 +64,7 @@
     "@penrose/components": "^3.3.1",
     "@penrose/examples": "^3.3.1",
     "@types/prismjs": "^1.26.4",
+    "katex": "^0.13.0",
     "markdown-it": "^13.0.1",
     "markdown-it-katex": "^2.0.3",
     "prismjs": "^1.29.0",

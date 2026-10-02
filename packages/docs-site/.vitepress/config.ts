@@ -1,9 +1,9 @@
 import { compDict, constrDict, describeType, objDict } from "@penrose/core";
-import markdownItKatex from "markdown-it-katex";
 import { defineConfig } from "vitepress";
 import domainGrammar from "../../vscode/syntaxes/domain.tmGrammar.json";
 import styleGrammar from "../../vscode/syntaxes/style.tmGrammar.json";
 import substanceGrammar from "../../vscode/syntaxes/substance.tmGrammar.json";
+import { configureMath } from "./math.mjs";
 
 const styleLang = {
   name: "style",
@@ -160,20 +160,11 @@ export default defineConfig({
   ignoreDeadLinks: true,
   outDir: "build",
 
-  head: [
-    ["link", { rel: "icon", href: "/img/logo.svg" }],
-    [
-      "link",
-      {
-        rel: "stylesheet",
-        href: "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css",
-      },
-    ],
-  ],
+  head: [["link", { rel: "icon", href: "/img/logo.svg" }]],
 
   markdown: {
     config: (md) => {
-      md.use(markdownItKatex);
+      configureMath(md);
     },
     languages: [styleLang, domainLang, substanceLang],
   },
@@ -255,6 +246,244 @@ export default defineConfig({
     ],
 
     sidebar: {
+      "/docs/elementary-topology": [
+        {
+          text: "Elementary Topology",
+          items: [
+            { text: "Book index", link: "/docs/elementary-topology/" },
+            { text: "Book reader", link: "/docs/elementary-topology/reader" },
+            {
+              text: "1 · Preliminaries",
+              link: "/docs/elementary-topology/chapter-01/",
+              items: [
+                {
+                  text: "Sets and Functions",
+                  link: "/docs/elementary-topology/chapter-01/sets-and-functions",
+                },
+                {
+                  text: "Orderings; Equivalence Relations",
+                  link: "/docs/elementary-topology/chapter-01/orderings-equivalence-relations",
+                },
+                {
+                  text: "Cardinality",
+                  link: "/docs/elementary-topology/chapter-01/cardinality",
+                },
+                {
+                  text: "Groups",
+                  link: "/docs/elementary-topology/chapter-01/groups",
+                },
+              ],
+            },
+            {
+              text: "2 · Metric Spaces",
+              link: "/docs/elementary-topology/chapter-02/",
+              items: [
+                {
+                  text: "The Notion of a Metric Space",
+                  link: "/docs/elementary-topology/chapter-02/metric-space",
+                },
+                {
+                  text: "Neighborhoods",
+                  link: "/docs/elementary-topology/neighborhoods",
+                },
+                {
+                  text: "Open Sets",
+                  link: "/docs/elementary-topology/chapter-02/open-sets",
+                },
+                {
+                  text: "Closed Sets",
+                  link: "/docs/elementary-topology/chapter-02/closed-sets",
+                },
+                {
+                  text: "Convergence of Sequences",
+                  link: "/docs/elementary-topology/chapter-02/convergence-of-sequences",
+                },
+                {
+                  text: "Continuity",
+                  link: "/docs/elementary-topology/chapter-02/continuity",
+                },
+                {
+                  text: "Distance Between Two Sets",
+                  link: "/docs/elementary-topology/chapter-02/distance-between-sets",
+                },
+              ],
+            },
+            {
+              text: "3 · Topologies",
+              link: "/docs/elementary-topology/chapter-03/",
+              items: [
+                {
+                  text: "The Notion of a Topology",
+                  link: "/docs/elementary-topology/chapter-03/topology",
+                },
+                {
+                  text: "Bases and Subbases",
+                  link: "/docs/elementary-topology/chapter-03/bases-and-subbases",
+                },
+                {
+                  text: "Open Neighborhood Systems",
+                  link: "/docs/elementary-topology/chapter-03/open-neighborhood-systems",
+                },
+                {
+                  text: "Finer and Coarser Topologies",
+                  link: "/docs/elementary-topology/chapter-03/finer-and-coarser-topologies",
+                },
+                {
+                  text: "Derived Sets",
+                  link: "/docs/elementary-topology/chapter-03/derived-sets",
+                },
+                {
+                  text: "More About Topologically Derived Sets",
+                  link: "/docs/elementary-topology/chapter-03/topologically-derived-sets",
+                },
+              ],
+            },
+            {
+              text: "4 · Derived Topological Spaces. Continuity",
+              link: "/docs/elementary-topology/chapter-04/",
+              items: [
+                {
+                  text: "Subspaces",
+                  link: "/docs/elementary-topology/chapter-04/subspaces",
+                },
+                {
+                  text: "Derived Sets in Subspaces",
+                  link: "/docs/elementary-topology/chapter-04/derived-sets-in-subspaces",
+                },
+                {
+                  text: "Continuity",
+                  link: "/docs/elementary-topology/chapter-04/continuity",
+                },
+                {
+                  text: "Homeomorphisms",
+                  link: "/docs/elementary-topology/chapter-04/homeomorphisms",
+                },
+                {
+                  text: "Identification Spaces",
+                  link: "/docs/elementary-topology/chapter-04/identification-spaces",
+                },
+                {
+                  text: "Product Spaces",
+                  link: "/docs/elementary-topology/chapter-04/product-spaces",
+                },
+              ],
+            },
+            {
+              text: "5 · The Separation Axioms",
+              link: "/docs/elementary-topology/chapter-05/",
+              items: [
+                {
+                  text: "T₀- and T₁-Spaces",
+                  link: "/docs/elementary-topology/chapter-05/t0-and-t1-spaces",
+                },
+                {
+                  text: "T₂-Spaces",
+                  link: "/docs/elementary-topology/chapter-05/t2-spaces",
+                },
+                {
+                  text: "T₃- and Regular Spaces",
+                  link: "/docs/elementary-topology/chapter-05/t3-and-regular-spaces",
+                },
+                {
+                  text: "T₄- and Normal Spaces",
+                  link: "/docs/elementary-topology/chapter-05/t4-and-normal-spaces",
+                },
+                {
+                  text: "Normality and the Extension of Functions",
+                  link: "/docs/elementary-topology/chapter-05/normality-and-extension",
+                },
+              ],
+            },
+            {
+              text: "6 · Convergence",
+              link: "/docs/elementary-topology/chapter-06/",
+              items: [
+                {
+                  text: "Generalized Convergence",
+                  link: "/docs/elementary-topology/chapter-06/generalized-convergence",
+                },
+                {
+                  text: "Nets",
+                  link: "/docs/elementary-topology/chapter-06/nets",
+                },
+                {
+                  text: "Subsequences and Subnets",
+                  link: "/docs/elementary-topology/chapter-06/subsequences-and-subnets",
+                },
+                {
+                  text: "Convergence of Nets",
+                  link: "/docs/elementary-topology/chapter-06/convergence-of-nets",
+                },
+                {
+                  text: "Limit Points",
+                  link: "/docs/elementary-topology/chapter-06/limit-points",
+                },
+                {
+                  text: "Continuity and Convergence",
+                  link: "/docs/elementary-topology/chapter-06/continuity-and-convergence",
+                },
+                {
+                  text: "Filters",
+                  link: "/docs/elementary-topology/chapter-06/filters",
+                },
+                {
+                  text: "Ultranets and Ultrafilters",
+                  link: "/docs/elementary-topology/chapter-06/ultranets-and-ultrafilters",
+                },
+              ],
+            },
+            {
+              text: "7 · Covering Properties",
+              link: "/docs/elementary-topology/chapter-07/",
+              items: [
+                {
+                  text: "Open Covers and Refinements",
+                  link: "/docs/elementary-topology/chapter-07/open-covers-and-refinements",
+                },
+                {
+                  text: "Countability Properties",
+                  link: "/docs/elementary-topology/chapter-07/countability-properties",
+                },
+                {
+                  text: "Compactness",
+                  link: "/docs/elementary-topology/chapter-07/compactness",
+                },
+                {
+                  text: "Derived Spaces and Compactness",
+                  link: "/docs/elementary-topology/chapter-07/derived-spaces-and-compactness",
+                },
+              ],
+            },
+            {
+              text: "8 · More About Compactness",
+              link: "/docs/elementary-topology/chapter-08/",
+              items: [
+                {
+                  text: "Compactness in Euclidean Space",
+                  link: "/docs/elementary-topology/chapter-08/compactness-in-euclidean-space",
+                },
+                {
+                  text: "Local Compactness",
+                  link: "/docs/elementary-topology/chapter-08/local-compactness",
+                },
+                {
+                  text: "Compactifications",
+                  link: "/docs/elementary-topology/chapter-08/compactifications",
+                },
+                {
+                  text: "Sequential and Countable Compactness",
+                  link: "/docs/elementary-topology/chapter-08/sequential-and-countable-compactness",
+                },
+              ],
+            },
+            { text: "Reusable TSX API", link: "/docs/elementary-topology/api" },
+            {
+              text: "Further Illustrations",
+              link: "/docs/elementary-topology/further-illustrations",
+            },
+          ],
+        },
+      ],
       "/docs/tutorial": [
         {
           text: "Tutorial",

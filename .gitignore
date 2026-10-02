@@ -11,3 +11,7 @@
 /target/
 dist/
 node_modules/
+
+# Local textbook source extraction and visual review material.
+/tmp/elementary-topology/
+/packages/docs-site/public/elementary-topology/source/

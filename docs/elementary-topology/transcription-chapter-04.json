@@ -1,0 +1,442 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "chapter": {
+    "number": 4,
+    "title": "Derived Topological Spaces. Continuity",
+    "printedPageRange": [64, 90]
+  },
+  "review": {
+    "pdfPageRange": [66, 91],
+    "method": "Private text extraction checked against every full-page 150 dpi rendered scan. Every mathematical formula and available exercise was visually reviewed; the partition captions of Figures 4.4–4.7 were additionally checked at 300 dpi.",
+    "status": "available-pages-transcribed",
+    "availableChapterPdfPages": [
+      66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
+      84, 85, 86, 87, 88, 89, 90
+    ],
+    "visualReviewedPdfPages": [
+      66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
+      84, 85, 86, 87, 88, 89, 90, 91
+    ],
+    "limits": [
+      "Printed pages 75 and 85 are absent. No missing prose, section openings, definitions, propositions, proofs, examples, or exercises are reconstructed.",
+      "Section 4.4 title comes from its running header; its opening, Definition 4, and Example 12 are unavailable, while Figures 4.1–4.2 survive on printed page 76.",
+      "Printed page 84 ends within Definition 6; printed page 86 starts with an unavailable statement ending. These fragments are explicitly separated by the missing-page notice.",
+      "Source spelling “equivalance,” the printed indexing in Proposition 19, the formula q_1^−1(U)=p_1(U′) in Proposition 20, and the induced-map formula in Example 15 are retained as printed rather than silently corrected.",
+      "Handwritten marks over Z in Proposition 14 composition formula are not treated as source prose; the underlying printed codomain is retained.",
+      "Running headers and footers are retained in the source map. Line wrapping, paragraph indentation, and line-end hyphenation are normalized. Inline anchors preserve paragraphs crossing page boundaries.",
+      "Printed pages 67, 79, and 84 are split at section boundaries.",
+      "PDF page 91, printed page 91, is the reviewed next-chapter boundary only."
+    ]
+  },
+  "outputDirectory": "packages/docs-site/docs/elementary-topology/chapter-04",
+  "pages": [
+    {
+      "pdfPage": 66,
+      "printedPage": 64,
+      "path": "subspaces.md",
+      "anchor": "printed-page-64",
+      "coverage": "All body text; Chapter and section headings, introduction, Definition 1, Proposition 1 and proof parts i–iii beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 67,
+      "printedPage": 65,
+      "path": "subspaces.md",
+      "anchor": "printed-page-65",
+      "coverage": "All body text; Proposition 1 proof completion, Definition 2, Examples 1–3, Proposition 2.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 68,
+      "printedPage": 66,
+      "path": "subspaces.md",
+      "anchor": "printed-page-66",
+      "coverage": "All body text; Proposition 2 proof, Exercises 1–7 with all subparts.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 69,
+      "printedPage": 67,
+      "fragments": [
+        {
+          "path": "subspaces.md",
+          "anchor": "printed-page-67",
+          "coverage": "All body text of section fragment; Exercise 8, complete text."
+        },
+        {
+          "path": "derived-sets-in-subspaces.md",
+          "anchor": "printed-page-67",
+          "coverage": "All body text of section fragment; Section heading and introduction, Examples 4–5, Proposition 3 and proof beginning."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 70,
+      "printedPage": 68,
+      "path": "derived-sets-in-subspaces.md",
+      "anchor": "printed-page-68",
+      "coverage": "All body text; Proposition 3 proof completion, Proposition 4 and proof, Example 6, Proposition 5 beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 71,
+      "printedPage": 69,
+      "path": "derived-sets-in-subspaces.md",
+      "anchor": "printed-page-69",
+      "coverage": "All body text; Proposition 5 proof, Exercises 1–7 with all subparts.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 72,
+      "printedPage": 70,
+      "path": "continuity.md",
+      "anchor": "printed-page-70",
+      "coverage": "All body text; Section heading and introduction, Definition 3, Examples 7–8, Proposition 6.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 73,
+      "printedPage": 71,
+      "path": "continuity.md",
+      "anchor": "printed-page-71",
+      "coverage": "All body text; Proposition 6 proof, Proposition 7 with proof and corollary, Example 9 beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 74,
+      "printedPage": 72,
+      "path": "continuity.md",
+      "anchor": "printed-page-72",
+      "coverage": "All body text; Example 9 completion, Propositions 8–10 with supplied proofs, subspace-continuity introduction.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 75,
+      "printedPage": 73,
+      "path": "continuity.md",
+      "anchor": "printed-page-73",
+      "coverage": "All body text; Proposition 11 and proof, Example 10 including both piecewise functions, two questions leading to Proposition 12.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 76,
+      "printedPage": 74,
+      "path": "continuity.md",
+      "anchor": "printed-page-74",
+      "coverage": "All body text; Proposition 12 and supplied proof, Example 11, Exercises 1–5.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 77,
+      "printedPage": 76,
+      "path": "homeomorphisms.md",
+      "anchor": "printed-page-76",
+      "coverage": "All body text; Figures 4.1–4.2, Example 13, Proposition 13 and proof parts a–c.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 78,
+      "printedPage": 77,
+      "path": "homeomorphisms.md",
+      "anchor": "printed-page-77",
+      "coverage": "All body text; Proposition 13 proof completion; full discussion of topological equivalence and geometry.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 79,
+      "printedPage": 78,
+      "path": "homeomorphisms.md",
+      "anchor": "printed-page-78",
+      "coverage": "All body text; Propositions 14–15 and supplied proof; Exercises 1–2 with all hints and subparts.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 80,
+      "printedPage": 79,
+      "fragments": [
+        {
+          "path": "homeomorphisms.md",
+          "anchor": "printed-page-79",
+          "coverage": "All body text of section fragment; Exercises 3–5 with all subparts and hints."
+        },
+        {
+          "path": "identification-spaces.md",
+          "anchor": "printed-page-79",
+          "coverage": "All body text of section fragment; Section heading and introduction."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 81,
+      "printedPage": 80,
+      "path": "identification-spaces.md",
+      "anchor": "printed-page-80",
+      "coverage": "All body text; Opening continuation, Definition 5, Proposition 16 and proof, Proposition 17.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 82,
+      "printedPage": 81,
+      "path": "identification-spaces.md",
+      "anchor": "printed-page-81",
+      "coverage": "All body text; Proposition 17 proof, quotient interpretation, Example 14 and Figure 4.3, Example 15 beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 83,
+      "printedPage": 82,
+      "path": "identification-spaces.md",
+      "anchor": "printed-page-82",
+      "coverage": "All body text; Example 15 proof, quotient-group analogy, full supplied structural discussion.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 84,
+      "printedPage": 83,
+      "path": "identification-spaces.md",
+      "anchor": "printed-page-83",
+      "coverage": "All body text; Structural discussion continuation, Exercises 1–3, Figures 4.4–4.7 and all four mathematical partition captions.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 85,
+      "printedPage": 84,
+      "fragments": [
+        {
+          "path": "identification-spaces.md",
+          "anchor": "printed-page-84",
+          "coverage": "All body text of section fragment; Exercises 4–5, complete text."
+        },
+        {
+          "path": "product-spaces.md",
+          "anchor": "printed-page-84",
+          "coverage": "All body text of section fragment; Section heading and introduction, available Definition 6 ending within sentence."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 86,
+      "printedPage": 86,
+      "path": "product-spaces.md",
+      "anchor": "printed-page-86",
+      "coverage": "All body text; Available statement ending and proof, Examples 17–18, Figures 4.8–4.9.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 87,
+      "printedPage": 87,
+      "path": "product-spaces.md",
+      "anchor": "printed-page-87",
+      "coverage": "All body text; Example 18 continuation, Proposition 19 with proof and corollary, Proposition 20 and proof beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 88,
+      "printedPage": 88,
+      "path": "product-spaces.md",
+      "anchor": "printed-page-88",
+      "coverage": "All body text; Proposition 20 proof completion, Example 19 and Figure 4.10, Proposition 21 and proof beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 89,
+      "printedPage": 89,
+      "path": "product-spaces.md",
+      "anchor": "printed-page-89",
+      "coverage": "All body text; Proposition 21 proof completion and discussion, Example 20, Exercises 1–8.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 90,
+      "printedPage": 90,
+      "path": "product-spaces.md",
+      "anchor": "printed-page-90",
+      "coverage": "All body text; Exercise 8 continuation and Exercise 9; all available chapter-ending text.",
+      "formulaReview": "verified against rendered scan"
+    }
+  ],
+  "gaps": [
+    {
+      "printedPage": 75,
+      "before": {
+        "pdfPage": 76,
+        "printedPage": 74
+      },
+      "after": {
+        "pdfPage": 77,
+        "printedPage": 76
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "continuity.md", "homeomorphisms.md"],
+      "availableBoundaryEvidence": "Printed page 74 ends at section 4.3 Exercise 5; page 76 has Figures 4.1–4.2, section label 4.4 and Example 13 referring to unavailable Example 12."
+    },
+    {
+      "printedPage": 85,
+      "before": {
+        "pdfPage": 85,
+        "printedPage": 84
+      },
+      "after": {
+        "pdfPage": 86,
+        "printedPage": 86
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "product-spaces.md"],
+      "availableBoundaryEvidence": "Printed page 84 ends within Definition 6; printed page 86 begins “is continuous. Moreover...” followed by a proof. The missing statement and intervening definitions/examples are not inferred."
+    }
+  ],
+  "illustrations": [
+    {
+      "id": "4.1",
+      "pdfPage": 77,
+      "printedPage": 76,
+      "path": "homeomorphisms.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=76",
+      "svgPath": "/elementary-topology/figures/figure-4.1.svg"
+    },
+    {
+      "id": "4.2",
+      "pdfPage": 77,
+      "printedPage": 76,
+      "path": "homeomorphisms.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=76",
+      "svgPath": "/elementary-topology/figures/figure-4.2.svg"
+    },
+    {
+      "id": "4.3",
+      "pdfPage": 82,
+      "printedPage": 81,
+      "path": "identification-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=81",
+      "svgPath": "/elementary-topology/figures/figure-4.3.svg"
+    },
+    {
+      "id": "4.4",
+      "pdfPage": 84,
+      "printedPage": 83,
+      "path": "identification-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=83",
+      "svgPath": "/elementary-topology/figures/figure-4.4.svg"
+    },
+    {
+      "id": "4.5",
+      "pdfPage": 84,
+      "printedPage": 83,
+      "path": "identification-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=83",
+      "svgPath": "/elementary-topology/figures/figure-4.5.svg"
+    },
+    {
+      "id": "4.6",
+      "pdfPage": 84,
+      "printedPage": 83,
+      "path": "identification-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=83",
+      "svgPath": "/elementary-topology/figures/figure-4.6.svg"
+    },
+    {
+      "id": "4.7",
+      "pdfPage": 84,
+      "printedPage": 83,
+      "path": "identification-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=83",
+      "svgPath": "/elementary-topology/figures/figure-4.7.svg"
+    },
+    {
+      "id": "4.8",
+      "pdfPage": 86,
+      "printedPage": 86,
+      "path": "product-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=86",
+      "svgPath": "/elementary-topology/figures/figure-4.8.svg"
+    },
+    {
+      "id": "4.9",
+      "pdfPage": 86,
+      "printedPage": 86,
+      "path": "product-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=86",
+      "svgPath": "/elementary-topology/figures/figure-4.9.svg"
+    },
+    {
+      "id": "4.10",
+      "pdfPage": 88,
+      "printedPage": 88,
+      "path": "product-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=88",
+      "svgPath": "/elementary-topology/figures/figure-4.10.svg"
+    }
+  ],
+  "nextChapterBoundary": {
+    "pdfPage": 91,
+    "printedPage": 91,
+    "chapter": 5,
+    "title": "The Separation Axioms",
+    "section": "5.1 T_0- and T_1-Spaces",
+    "status": "visually reviewed; not transcribed as Chapter 4"
+  },
+  "validation": {
+    "sourceBodyCoverage": "Every extracted alphabetic OCR word of four or more characters was checked per supplied page against its transcribed body; unmatched tokens were only running headers or visually corrected OCR errors. This supplements full-page visual review.",
+    "sourceFormulaVerification": "All mathematical expressions on PDF pages 66–90 visually checked, including restricted metrics, subspace-derived sets, inverse images, piecewise functions, equivalence-class and induced-mapping bars, four partition captions, Cartesian product notation, and coordinate subscripts.",
+    "mathRenderer": "KaTeX 0.13.24 via shared docs-site configureMath, with v-pre wrappers preserving mathematical braces in Vue",
+    "mathExpressionCountInNewPages": 1504,
+    "mathValidationStatus": "passed",
+    "vueCompilationStatus": "passed",
+    "browserVisualQa": {
+      "status": "passed",
+      "browser": "Chrome",
+      "pages": [
+        "subspaces",
+        "derived-sets-in-subspaces",
+        "continuity",
+        "homeomorphisms",
+        "identification-spaces",
+        "product-spaces"
+      ],
+      "checked": [
+        "No KaTeX errors on all six section pages; display formulas fit the reading column.",
+        "Exercise numbering retained across source anchors: section 4.1 ends at Exercise 8, section 4.4 continues at Exercise 3, section 4.5 retains Exercises 3–5, and section 4.6 has one list of nine exercises.",
+        "Missing pages 75 and 85 remain explicit; native source fragments are retained without invented continuation.",
+        "All ten present figures load successfully from public Penrose SVGs, with white backgrounds preserving contrast in the dark theme; source projection and strip figures remain paired.",
+        "Larger Cartesian product notation and caption partitions render correctly."
+      ]
+    }
+  },
+  "generalizabilityCandidates": [
+    {
+      "section": "4.1",
+      "printedPage": 66,
+      "pdfPage": 68,
+      "passage": "Exercise 3",
+      "concept": "A basis for a subspace formed by intersecting each ambient basis element with the subspace."
+    },
+    {
+      "section": "4.2",
+      "printedPage": 68,
+      "pdfPage": 70,
+      "passage": "Example 6",
+      "concept": "The x-axis as a subspace: compare interior and frontier in the plane with those in the subspace."
+    },
+    {
+      "section": "4.6",
+      "printedPage": 87,
+      "pdfPage": 87,
+      "passage": "Proposition 20",
+      "concept": "Embed a component space as a coordinate slice by fixing the other coordinates, beyond the existing real-line instance."
+    }
+  ]
+}

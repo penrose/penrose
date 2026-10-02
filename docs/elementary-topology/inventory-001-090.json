@@ -1,0 +1,746 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "review": {
+    "pdfPageRange": [1, 90],
+    "method": "Sequential visual review of every supplied page, including covers, diagrams without captions, tables, and exercise figures; OCR used only as supporting context.",
+    "status": "available-page-visual-pass-complete",
+    "limits": [
+      "Missing printed pages in this span have not been reviewed.",
+      "Mathematical descriptions remain subject to full notation checking during reproduction.",
+      "Figure crops and implementation links are pending.",
+      "Mathematical tables are tracked separately pending website representation decisions."
+    ]
+  },
+  "counts": {
+    "numberedFiguresPresent": 34,
+    "unnumberedMathematicalDiagramsPresent": 1,
+    "unnumberedMathematicalTablesPresent": 2,
+    "coverIllustrationsPresent": 1
+  },
+  "noIllustrationPdfPages": [
+    2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21, 23, 24, 25,
+    26, 30, 32, 38, 39, 41, 44, 45, 46, 47, 48, 49, 50, 51, 53, 54, 55, 56, 58,
+    60, 61, 62, 63, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 78, 79, 80,
+    81, 83, 85, 87, 89, 90
+  ],
+  "missingPrintedPagesInSpan": [4, 13, 21, 29, 38, 50, 52, 63, 75, 85],
+  "unlocatedNumberedFigureLabels": [
+    {
+      "label": "2.7",
+      "status": "numbering-gap candidate; contents unknown",
+      "missingPrintedPageCandidates": [21],
+      "evidence": {
+        "precedingLabel": "2.6",
+        "precedingPdfPage": 28,
+        "followingLabel": "2.8",
+        "followingPdfPage": 29
+      },
+      "note": "This association is an inference from the numbered sequence and pagination gap, not an inspected figure."
+    }
+  ],
+  "entries": [
+    {
+      "id": "cover-rosette",
+      "kind": "cover-illustration",
+      "source": {
+        "pdfPage": 1,
+        "printedPage": null,
+        "placement": "lower half"
+      },
+      "description": "Rosette of curves inside a circular outline on the front cover.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Rosette of curves inside a circular outline on the front cover."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "scopeDecision": "tracked separately from numbered figures"
+    },
+    {
+      "id": "unnumbered-countable-union-enumeration",
+      "kind": "unnumbered-mathematical-diagram",
+      "source": {
+        "pdfPage": 19,
+        "printedPage": 10,
+        "placement": "center"
+      },
+      "description": "Array of elements of countably many countable sets, with arrows tracing a diagonal enumeration.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Array of elements of countably many countable sets, with arrows tracing a diagonal enumeration."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "scopeDecision": "tracked separately from numbered figures"
+    },
+    {
+      "id": "unnumbered-cantor-diagonal-table",
+      "kind": "unnumbered-mathematical-table",
+      "source": {
+        "pdfPage": 20,
+        "printedPage": 11,
+        "placement": "lower middle"
+      },
+      "description": "Indexed decimal expansions used in the diagonal argument for uncountability.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Indexed decimal expansions used in the diagonal argument for uncountability."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "scopeDecision": "tracked separately from numbered figures"
+    },
+    {
+      "id": "unnumbered-four-element-group-table",
+      "kind": "unnumbered-mathematical-table",
+      "source": {
+        "pdfPage": 22,
+        "printedPage": 14,
+        "placement": "upper middle"
+      },
+      "description": "Operation table for the four-element group in Example 10.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Operation table for the four-element group in Example 10."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "scopeDecision": "tracked separately from numbered figures"
+    },
+    {
+      "id": "2.1",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 27,
+        "printedPage": 19,
+        "placement": "upper left"
+      },
+      "description": "Circular neighborhood of the origin for the Pythagorean metric.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Circular neighborhood of the origin for the Pythagorean metric."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.2",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 27,
+        "printedPage": 19,
+        "placement": "upper right"
+      },
+      "description": "Diamond-shaped neighborhood of the origin for the sum metric.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Diamond-shaped neighborhood of the origin for the sum metric."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.3",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 27,
+        "printedPage": 19,
+        "placement": "lower left"
+      },
+      "description": "Singleton neighborhood of the origin for the discrete metric.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Singleton neighborhood of the origin for the discrete metric."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.4",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 27,
+        "printedPage": 19,
+        "placement": "lower right"
+      },
+      "description": "Square neighborhood of the origin for the maximum metric.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Square neighborhood of the origin for the maximum metric."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.5",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 28,
+        "printedPage": 20,
+        "placement": "upper left"
+      },
+      "description": "Concentric Euclidean circles of radii ρ and ρ/√2 with the taxicab ρ-neighborhood between them.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Concentric Euclidean circles of radii ρ and ρ/√2 with the taxicab ρ-neighborhood between them."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.6",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 28,
+        "printedPage": 20,
+        "placement": "upper right"
+      },
+      "description": "Band around a function graph depicting a neighborhood in the function-space supremum metric.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Band around a function graph depicting a neighborhood in the function-space supremum metric."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.8",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 29,
+        "printedPage": 22,
+        "placement": "upper middle"
+      },
+      "description": "Smaller neighborhood about w contained in the neighborhood about x, with q = p - D(x,w).",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Smaller neighborhood about w contained in the neighborhood about x, with q = p - D(x,w)."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.9",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 31,
+        "printedPage": 24,
+        "placement": "upper middle"
+      },
+      "description": "Neighborhood used to show the complement of the closed real interval is open.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Neighborhood used to show the complement of the closed real interval is open."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.10",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 33,
+        "printedPage": 26,
+        "placement": "lower left"
+      },
+      "description": "Sequence points eventually inside a neighborhood of their limit.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Sequence points eventually inside a neighborhood of their limit."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.11",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 33,
+        "printedPage": 26,
+        "placement": "lower right"
+      },
+      "description": "Coordinate-plane sequence approaching (1,0), with neighborhoods for the compared metrics.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Coordinate-plane sequence approaching (1,0), with neighborhoods for the compared metrics."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.12",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 34,
+        "printedPage": 27,
+        "placement": "upper left"
+      },
+      "description": "Family of graphs y = x^n on the unit interval.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Family of graphs y = x^n on the unit interval."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.13",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 34,
+        "printedPage": 27,
+        "placement": "upper right"
+      },
+      "description": "The same function sequence compared with a band about the proposed limit graph.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The same function sequence compared with a band about the proposed limit graph."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.14",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 35,
+        "printedPage": 28,
+        "placement": "upper middle"
+      },
+      "description": "Separated neighborhoods about two proposed limits of a sequence.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Separated neighborhoods about two proposed limits of a sequence."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.15",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 36,
+        "printedPage": 30,
+        "placement": "upper half"
+      },
+      "description": "A function between spaces with source and target neighborhoods.",
+      "panels": [
+        {
+          "id": "source",
+          "description": "Space X with a neighborhood about x."
+        },
+        {
+          "id": "target",
+          "description": "Space Y with the image of the source neighborhood about f(x)."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.16",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 37,
+        "printedPage": 31,
+        "placement": "lower middle"
+      },
+      "description": "Rectangular neighborhood in the parameter plane for the continuity example.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Rectangular neighborhood in the parameter plane for the continuity example."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.17",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 40,
+        "printedPage": 34,
+        "placement": "lower left"
+      },
+      "description": "An open disk and a point on its boundary, showing zero set distance without membership.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An open disk and a point on its boundary, showing zero set distance without membership."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.18",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 40,
+        "printedPage": 34,
+        "placement": "lower right"
+      },
+      "description": "Neighborhoods separating a point from a closed set.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Neighborhoods separating a point from a closed set."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.19",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 42,
+        "printedPage": 36,
+        "placement": "middle"
+      },
+      "description": "Neighborhood unions separating two disjoint closed sets.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Neighborhood unions separating two disjoint closed sets."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "2.20",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 43,
+        "printedPage": 37,
+        "placement": "upper right"
+      },
+      "description": "Hyperbola y = 1/x and the x-axis as disjoint closed sets with zero distance.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Hyperbola y = 1/x and the x-axis as disjoint closed sets with zero distance."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "3.1",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 52,
+        "printedPage": 47,
+        "placement": "upper middle"
+      },
+      "description": "An open interval as the intersection of two open half-lines.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An open interval as the intersection of two open half-lines."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "3.2",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 52,
+        "printedPage": 47,
+        "placement": "middle"
+      },
+      "description": "An open square neighborhood for the maximum metric D3, shown as the intersection of four open coordinate half-planes.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An open square neighborhood for the maximum metric D3, shown as the intersection of four open coordinate half-planes."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "contextReview": "Description checked against the 160 dpi source page and surrounding prose during Chapter 3 implementation."
+    },
+    {
+      "id": "3.3",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 57,
+        "printedPage": 54,
+        "placement": "middle"
+      },
+      "description": "A small circular neighborhood inside a triangle neighborhood inside a larger circular neighborhood about a common point, comparing triangle and Euclidean neighborhood bases.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A small circular neighborhood inside a triangle neighborhood inside a larger circular neighborhood about a common point, comparing triangle and Euclidean neighborhood bases."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "contextReview": "Description checked against the 160 dpi source page and surrounding prose during Chapter 3 implementation."
+    },
+    {
+      "id": "3.4",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 59,
+        "printedPage": 56,
+        "placement": "upper middle"
+      },
+      "description": "An open disk and its interior, closure, frontier, and exterior in the coordinate plane.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "An open disk and its interior, closure, frontier, and exterior in the coordinate plane."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "3.5",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 64,
+        "printedPage": 61,
+        "placement": "lower middle"
+      },
+      "description": "A=(0,1] on a single real number line, with interior A°=(0,1), closure Cl A=[0,1], and two exterior rays; accompanying prose also identifies Fr A={0,1} and A′=[0,1].",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A=(0,1] on a single real number line, with interior A°=(0,1), closure Cl A=[0,1], and two exterior rays; accompanying prose also identifies Fr A={0,1} and A′=[0,1]."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "contextReview": "Description checked against the 160 dpi source page and surrounding prose during Chapter 3 implementation."
+    },
+    {
+      "id": "4.1",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 77,
+        "printedPage": 76,
+        "placement": "upper left"
+      },
+      "description": "Triangle construction partitioned into two indicated line segments.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Triangle construction partitioned into two indicated line segments."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "contextReview": "Supporting discussion begins on missing printed page 75; mathematical interpretation requires that page."
+    },
+    {
+      "id": "4.2",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 77,
+        "printedPage": 76,
+        "placement": "upper right"
+      },
+      "description": "Radial correspondence between a triangle boundary and a circle.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Radial correspondence between a triangle boundary and a circle."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "4.3",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 82,
+        "printedPage": 81,
+        "placement": "middle right"
+      },
+      "description": "Identification of the two endpoints of a closed interval to obtain a circle.",
+      "panels": [
+        {
+          "id": "a",
+          "description": "Closed interval with its endpoints marked for identification."
+        },
+        {
+          "id": "b",
+          "description": "Circle with the identified endpoint class marked."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "4.4",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 84,
+        "printedPage": 83,
+        "placement": "middle left"
+      },
+      "description": "Partition problem on a square with marked opposing edges.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Partition problem on a square with marked opposing edges."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "4.5",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 84,
+        "printedPage": 83,
+        "placement": "middle right"
+      },
+      "description": "Partition problem on a disk with antipodal boundary identification and interior singleton classes.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Partition problem on a disk with antipodal boundary identification and interior singleton classes."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "4.6",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 84,
+        "printedPage": 83,
+        "placement": "lower left"
+      },
+      "description": "Partition problem in the coordinate plane.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Partition problem in the coordinate plane."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "4.7",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 84,
+        "printedPage": 83,
+        "placement": "lower right"
+      },
+      "description": "Partition problem on a plane region with its whole boundary identified.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Partition problem on a plane region with its whole boundary identified."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    },
+    {
+      "id": "4.8",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 86,
+        "printedPage": 86,
+        "placement": "middle left"
+      },
+      "description": "A vertical unbounded subbasis strip (a,b)×R, obtained as the first coordinate projection inverse image of an open interval; open boundary intercepts (a,0) and (b,0) lie on the x-axis.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "A vertical unbounded subbasis strip (a,b)×R, obtained as the first coordinate projection inverse image of an open interval; open boundary intercepts (a,0) and (b,0) lie on the x-axis."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "contextReview": "Description checked against the 160 dpi source page and Example 18/proposition 19 during product-topology implementation."
+    },
+    {
+      "id": "4.9",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 86,
+        "printedPage": 86,
+        "placement": "middle right"
+      },
+      "description": "The vertical subbasis strip (a,b)×R intersects the horizontal subbasis strip R×(c,d), producing the darker open product rectangle (a,b)×(c,d), with all four boundary intercepts labeled.",
+      "panels": [
+        {
+          "id": "main",
+          "description": "The vertical subbasis strip (a,b)×R intersects the horizontal subbasis strip R×(c,d), producing the darker open product rectangle (a,b)×(c,d), with all four boundary intercepts labeled."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending",
+      "contextReview": "Description checked against the 160 dpi source page and Example 18/proposition 19 during product-topology implementation."
+    },
+    {
+      "id": "4.10",
+      "kind": "numbered-figure",
+      "source": {
+        "pdfPage": 88,
+        "printedPage": 88,
+        "placement": "middle"
+      },
+      "description": "Embedding of the real line as the x-axis, with x mapped to (x,0).",
+      "panels": [
+        {
+          "id": "main",
+          "description": "Embedding of the real line as the x-axis, with x mapped to (x,0)."
+        }
+      ],
+      "visualReview": "present in rendered scan",
+      "reproductionStatus": "pending"
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "edition": "Elementary Topology, Michael C. Gemignani, Second Edition",
+    "sourceImageDimensions": [762, 1262],
+    "visualReview": "Full supplied PDF pages141,142,146 and149 visually inspected. Adjacent mathematical prose was consulted on PDF140,145,147,148 and150; all three native SVGs were inspected beside source crops.",
+    "boundsConvention": "sourceBounds is normalized [x,y,width,height] against the full PDF page, including graphic and labels while excluding prose and captions."
+  },
+  "implementation": {
+    "domain": "point-set-topology",
+    "domainFile": "packages/bloom/src/domains/point-set-topology.ts",
+    "semantics": "Reusable open-cover/subfamily, compactness, Lindelof, separated-subset/ball-family, Hausdorff-pair and finite-cover reach declarations. Substance snapshots store mathematical facts with no shape or pixel data.",
+    "styleReuse": "Three covering-property policies share topologyDrawing, native equations, vector hatch policy and colors. Compact intersections use nested native masks, and the separated-set display remains independent of metric data.",
+    "graphics": "Native Penrose circle/line/path/equation/group shapes; no raster wrappers.",
+    "interactive": "All build factories accept final optional FigureRenderOptions and forward variation/interactive after canonical defaults."
+  },
+  "verification": {
+    "focusedTestFile": "packages/examples/src/elementary-topology/covering-properties.test.ts",
+    "testsPassed": 9,
+    "publicBloomDeclarationEmit": "passed (full packages/bloom yarn tsc --pretty false)",
+    "exampleLeafTypecheckAndEmit": "passed",
+    "domainRuntimeImport": "passed after covering declaration exports",
+    "scopedBloomESLint": "passed",
+    "formatting": "Prettier applied",
+    "visualReview": "All three optimized SVGs rasterized on white backgrounds and inspected beside source crops. The source u dot and selected cross hatches were restored after comparison.",
+    "scope": "Strict metric ball separation, finite-cover extension arithmetic, contradiction hypotheses, generic compactness premises, finite pair/cover relations and actual rendered contour membership are checked. Universal proofs and pixel identity are not claimed."
+  },
+  "figures": [
+    {
+      "id": "7.1",
+      "pdfPage": 141,
+      "printedPage": 148,
+      "pixelBounds": [303, 873, 219, 213],
+      "panels": 1,
+      "style": "separatedCoverStyle",
+      "substance": "separatedMetricCover",
+      "build": "buildSeparatedMetricCoverFigure",
+      "sourceContext": "Proposition 5, Lindelof implies separable in a metric space. Its argument starts on supplied printed 148 and continues on supplied printed 149: take a maximal subset E with D(a,b)>=p for distinct a,b, let V be the complement of the union of Cl N(a,p/4), and cover X by V and all N(a,p/2). Each center forces its own covering half-ball to remain, so Lindelof makes E countable.",
+      "geometry": [
+        "The original three-by-three array of hatched closed quarter-ball representations with nine black center marks.",
+        "Original V, Cl N(a,p/4) and central a labels. No additional outer half-ball outlines are introduced."
+      ],
+      "facts": [
+        "Generic MaximalSeparatedSubset with positive separation p, SeparatedIn(E,X,tau), Lindelof(tau) and the Countable(E) conclusion.",
+        "MetricBallFamily radii p/4 and p/2; ClosuresOfFamily for quarter balls; UnionOf(K,closedQuarterFamily), ClosedIn(K,tau), and ComplementOf(V,K,X).",
+        "The open cover contains V and the complete half-ball family. IndispensableCenteredCover records the reason every center requires its own half-ball."
+      ],
+      "checks": [
+        "Numeric radii reject nonpositive, nonfinite and underflowed data. Strict half-balls at separation p cannot overlap, including the tangent midpoint.",
+        "The immutable snapshot has no finite point array or coordinate points for E.",
+        "Actual native SVG has nine illustrative disk fills and nine point markers; no added half-ball outlines or raster images."
+      ],
+      "limits": [
+        "The displayed grid is a finite schematic prefix of generic E and does not assert that E is finite or a lattice.",
+        "The scan does not use one numerical metric scale for both center spacing and p/4 disk radii. Pixel positions stay in Style and do not become mathematical distances.",
+        "The circles illustrate closures of generic metric neighborhoods; they do not assert that closures equal closed metric balls in every metric space."
+      ],
+      "sourceBounds": [0.397638, 0.691759, 0.287402, 0.16878],
+      "defaultCanvas": [219, 213],
+      "styleFile": "packages/bloom/src/styles/covering-properties.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/covering-properties.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-7.1.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-7.1.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-7.1-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-7.1-comparison.png"
+    },
+    {
+      "id": "7.2",
+      "pdfPage": 146,
+      "printedPage": 153,
+      "pixelBounds": [200, 98, 339, 63],
+      "panels": 1,
+      "style": "finiteCoverReachStyle",
+      "substance": "finiteCoverSupremumWitness",
+      "build": "buildFiniteCoverReachFigure",
+      "sourceContext": "Proposition 7, Case 1 of compactness of [0,1]: T contains the x whose [0,x) have a finite subcover. Assuming interior proposed supremum u belongs to T, add a cover element U_i prime containing u. Openness then extends finite cover reach beyond u, contradicting the upper-bound hypothesis. The definition and Case 1 begin on supplied printed 152.",
+      "geometry": [
+        "Original real axis with marked 0, u and 1, one hatched open interval around u and its round open-end marks.",
+        "Original U_i prime and u labels; the mathematical extension witness v is kept invisible, matching the original graphic."
+      ],
+      "facts": [
+        "OpenCoverOf(original,[0,1],tau_R), FiniteCoverReachOf(T,original,[0,1]) and AssumedSupremumOf(u,T).",
+        "Default u=0.55 and chosen witness interval (0.40,0.72), with a genuine finite prefix covering [0,u).",
+        "The enlarged finite subfamily covers [0,v], where v=(u+min(b,1))/2>u, and Member(v,T) supplies the contradiction witness."
+      ],
+      "checks": [
+        "For several interior u and local intervals the computed v is strictly larger, inside the witness interval and inside [0,1].",
+        "Invalid boundary u and intervals not containing u are rejected.",
+        "Both finite subcover relations and the proposed supremum hypothesis are retained; no true SupremumOf assertion is made.",
+        "Actual SVG retains all three source point dots, the open interval marks and no visible v annotation."
+      ],
+      "limits": [
+        "This is the illustrated Case 1; the source Case 2 and full compactness proof remain in the supplied prose.",
+        "The chosen numeric interval is a valid realization of the generic cover member, not a specific interval supplied by the book."
+      ],
+      "sourceBounds": [0.262467, 0.077655, 0.444882, 0.049921],
+      "defaultCanvas": [339, 63],
+      "styleFile": "packages/bloom/src/styles/covering-properties.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/covering-properties.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-7.2.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-7.2.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-7.2-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-7.2-comparison.png"
+    },
+    {
+      "id": "7.3",
+      "pdfPage": 149,
+      "printedPage": 156,
+      "pixelBounds": [147, 939, 478, 198],
+      "panels": 2,
+      "style": "compactHausdorffStyle",
+      "substance": "compactSubsetHausdorffSeparation",
+      "build": "buildCompactHausdorffFigure",
+      "sourceContext": "Proposition 11 and its supplied proof opening state that a compact subset A of a T2 space is closed. The outside x must have a neighborhood avoiding A. The printed continuation page 157 is missing. The visible graphic names paired V_y and U_y neighborhoods, their cover union V and the intersection U.",
+      "geometry": [
+        "Two source panels retained within one framed native SVG: overlapping neighborhoods around hatched compact A, and a separate common neighborhood around the marked outside x.",
+        "Original A, V, V_y1, V_yn, y1, yn, U, U_y1, U_yn and x labels and their white knockouts.",
+        "The two named cover neighborhoods use crossing hatching. Four nested native clip masks produce a true common hatch intersection of the depicted outside neighborhood contours."
+      ],
+      "facts": [
+        "CompactIn(A,tau) and T2(tau), with A initially a generic Set rather than a ClosedSet, avoiding the conclusion as a premise.",
+        "Six illustrative HausdorffNeighborhoodPair witnesses, a finite open subcover of A and the matched finite outside-neighborhood family.",
+        "FiniteIntersectionOf(U,outsideFamily), UnionOf(V,finiteCover), Member(x,U), Subset(A,V) and Disjoint(U,V)."
+      ],
+      "checks": [
+        "Every paired U,V is open, contains its named point and is disjoint; every selected V belongs to the finite cover, and every U contains the final intersection.",
+        "The style rejects incomplete Hausdorff witness programs.",
+        "Actual rendered cubic contours contain their named selected y points and contain x in every depicted outside neighborhood.",
+        "Native nested clipping, three point markers, original labels and absence of image elements are checked."
+      ],
+      "missingProse": "Printed page 157 is absent from the supplied PDF. The union/intersection construction in this Substance program is the standard consequence of the supplied proposition and named diagram, not a transcription of the missing proof wording.",
+      "limits": [
+        "Smooth contours approximate the scanned irregular boundaries. Hatch density is lighter, with the consistent subdued orange fill.",
+        "The finite family and n labels are schematic: six chosen witnesses illustrate the compact subcover, and the right panel shows representative neighborhood contours rather than asserting the count of distinct sets from line loops.",
+        "The unseen proof continuation has not been reconstructed as book prose."
+      ],
+      "sourceBounds": [0.192913, 0.744057, 0.627297, 0.156894],
+      "defaultCanvas": [478, 198],
+      "styleFile": "packages/bloom/src/styles/covering-properties.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/covering-properties.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-7.3.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-7.3.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-7.3-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-7.3-comparison.png"
+    }
+  ],
+  "missingSourceNotes": [
+    {
+      "printedPage": 157,
+      "status": "missing supplied proof continuation",
+      "context": "Proposition 11 about compact subsets of Hausdorff spaces",
+      "note": "The supplied page156 contains the proposition, figure7.3 and proof opening; page158 resumes at a later proof. No missing prose is presented as a transcription."
+    }
+  ]
+}

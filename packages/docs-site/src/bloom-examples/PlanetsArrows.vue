@@ -11,5 +11,7 @@ const PlanetsArrows = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <PlanetsArrows />
+  <ClientOnly>
+    <PlanetsArrows />
+  </ClientOnly>
 </template>

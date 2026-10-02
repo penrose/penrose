@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "edition": "Elementary Topology, Michael C. Gemignani, Second Edition",
+    "sourceImageDimensions": [762, 1262],
+    "visualReview": "Full supplied PDF pages 91, 96, 97 and 98 inspected, including Definition 4, Proposition 4 and Example 10. Native SVG figures were inspected beside cropped source graphics.",
+    "boundsConvention": "sourceBounds is normalized [x,y,width,height] against the full page. Pixel rectangles include all figure labels and graphics and exclude captions/prose."
+  },
+  "implementation": {
+    "domain": "point-set-topology",
+    "domainFile": "packages/bloom/src/domains/point-set-topology.ts",
+    "semantics": "Immutable shape-free Substance snapshots describe relative openness/closedness, the author's separation axioms, chosen neighborhood witnesses and the infinite deleted-reciprocal topology.",
+    "styleReuse": "separationAxiomStyle handles both generic set pairs and point/closed-set pairs. closureNeighborhoodStyle and deletedReciprocalStyle share topologyDrawing and the same label/palette policy. Each policy renders one construction per assembly.",
+    "graphics": "Native Penrose PathData, clipped vector hatch groups, circles, lines and equations; no raster wrappers.",
+    "interactive": "All four factory functions accept FigureRenderOptions and spread it last. Canonical defaults retain fixed seeds and static source geometry; optional native label interaction is supported."
+  },
+  "verification": {
+    "focusedTestFile": "packages/examples/src/elementary-topology/separation-axioms.test.ts",
+    "testsPassed": 11,
+    "publicBloomDeclarationEmit": "passed (full packages/bloom yarn tsc --pretty false)",
+    "exampleLeafTypecheckAndEmit": "passed",
+    "scopedBloomESLint": "passed",
+    "formatting": "Prettier applied to new source and test files",
+    "visualReview": "All four final SVGs optimized and rendered, rasterized on white backgrounds and compared side by side with source crops. Default canvas framing now matches each inspected source rectangle.",
+    "scope": "Mathematical relations, constructive numeric overlap invariants, native path-hole rendering and actual optional interactive factory support are checked. Formal universal proofs and pixel-level equivalence are not claimed."
+  },
+  "figures": [
+    {
+      "id": "5.1",
+      "pdfPage": 91,
+      "printedPage": 91,
+      "pixelBounds": [188, 706, 342, 163],
+      "panels": 1,
+      "style": "separationAxiomStyle",
+      "substance": "disjointSetNeighborhoods",
+      "build": "buildSetSeparationFigure",
+      "defaultCanvas": [342, 163],
+      "sourceContext": "Chapter 5 introduction: disjoint subsets A,B of a specified type can be contained in disjoint subsets U,V, generally open. This graphic is generic and does not state that A or B are closed.",
+      "geometry": [
+        "Two disjoint irregular open supersets U and V, with hatched A and B in their respective interiors.",
+        "The original A,B,U,V labels and unequal blob proportions are retained. No point markers or extra arrows are added."
+      ],
+      "facts": [
+        "A and B are generic Set objects; neither is assigned ClosedSet.",
+        "SetSeparation(A,B,U,V,tau), Subset(A,U), Subset(B,V), Disjoint(A,B), Disjoint(U,V), and relative OpenIn facts.",
+        "All contour coordinates and hatching remain Style data."
+      ],
+      "checks": [
+        "The generic snapshot contains no ClosedSet objects.",
+        "The two inclusion and disjointness witnesses are present.",
+        "One reusable policy renders both native regions without image elements.",
+        "Optional factory interaction registers four native draggable labels."
+      ],
+      "limits": [
+        "The introductory picture supplies a chosen witness, rather than a proof of a universal separation axiom.",
+        "Smooth vector contours approximate the scan; gray hatching is retained with consistent pale orange fill."
+      ],
+      "sourceBounds": [0.246719, 0.559429, 0.448819, 0.12916],
+      "styleFile": "packages/bloom/src/styles/separation-axioms.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/separation-axioms.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-5.1.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-5.1.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-5.1-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-5.1-comparison.png"
+    },
+    {
+      "id": "5.2",
+      "pdfPage": 96,
+      "printedPage": 97,
+      "pixelBounds": [56, 919, 297, 178],
+      "panels": 1,
+      "style": "separationAxiomStyle",
+      "substance": "topologicalPointClosedSeparation",
+      "build": "buildTopologicalPointSeparationFigure",
+      "defaultCanvas": [297, 178],
+      "sourceContext": "Definition 4: the author's T3 separates an outside point x from a closed F by disjoint open U,V with x in U and F contained in V. In this edition Regular additionally requires T1.",
+      "geometry": [
+        "Left irregular V encloses hatched closed F; the small separate neighborhood U encloses the marked x.",
+        "Original F,V,U,x labels and panel proportions are retained; no metric radius or coordinate data is introduced."
+      ],
+      "facts": [
+        "T3(tau) is declared without T1(tau) or Regular(tau).",
+        "PointClosedSetSeparation(x,F,U,V,tau), ClosedIn(F,tau), Outside(x,F), NeighborhoodOf(U,x), Member(x,U), Subset(F,V), Disjoint(U,V).",
+        "Generic Point x has no drawing coordinates."
+      ],
+      "checks": [
+        "The snapshot explicitly retains the author's distinction between T3 and Regular.",
+        "Relative closedness, containment and disjointness are checked before drawing.",
+        "The same separationAxiomStyle renders the set-pair and point/closed-set constructions."
+      ],
+      "limits": [
+        "This is a declared generic witness in a T3 space, not a numeric metric-space construction.",
+        "The point neighborhood follows the original irregular outline rather than asserting that it is a metric ball."
+      ],
+      "sourceBounds": [0.073491, 0.728209, 0.389764, 0.141046],
+      "styleFile": "packages/bloom/src/styles/separation-axioms.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/separation-axioms.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-5.2.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-5.2.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-5.2-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-5.2-comparison.png"
+    },
+    {
+      "id": "5.3",
+      "pdfPage": 96,
+      "printedPage": 97,
+      "pixelBounds": [396, 915, 263, 199],
+      "panels": 1,
+      "style": "closureNeighborhoodStyle",
+      "substance": "nestedClosureNeighborhoods",
+      "build": "buildClosureNeighborhoodFigure",
+      "defaultCanvas": [263, 199],
+      "sourceContext": "Proposition 4 and its proof are on supplied printed page 98 (PDF 97): for x in U, separate x from X−U using V and W, then V⊆Cl V⊆X−W⊆U. The graphic appears on the preceding printed page 97.",
+      "geometry": [
+        "An irregular hatched W surrounds an unfilled X−W hole; a smaller hatched V with marked x lies inside the hole.",
+        "Original X−U, W, X−W, U, V and x labels are retained. No extra Cl V label or outline is added.",
+        "Oppositely oriented native path subloops make X−W a true geometric hole in both the fill and hatch mask."
+      ],
+      "facts": [
+        "NeighborhoodClosureWithin(V,ClV,U,x,tau), NeighborhoodOf(U,x), NeighborhoodOf(V,x), ClosureOf(ClV,V,tau).",
+        "ComplementOf(X−U,U,X), ComplementOf(X−W,W,X).",
+        "Subset(V,ClV), Subset(ClV,X−W), Subset(X−W,U), Subset(X−U,W), and Disjoint(V,W)."
+      ],
+      "checks": [
+        "The full proof inclusion chain and complement identities are present.",
+        "Actual SVG retains two path subloops for W and its complement hole.",
+        "The finite shape does not invent metric coordinates for x or the generic sets."
+      ],
+      "limits": [
+        "The outer finite contour is a schematic viewport of generic W; no boundedness of the ambient space or its complement is asserted.",
+        "The source does not separately draw Cl V. Its mathematical inclusion is declared while preserving the visible V label."
+      ],
+      "sourceBounds": [0.519685, 0.72504, 0.345144, 0.157686],
+      "styleFile": "packages/bloom/src/styles/separation-axioms.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/separation-axioms.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-5.3.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-5.3.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-5.3-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-5.3-comparison.png"
+    },
+    {
+      "id": "5.4",
+      "pdfPage": 98,
+      "printedPage": 99,
+      "pixelBounds": [203, 751, 333, 70],
+      "panels": 1,
+      "style": "deletedReciprocalStyle",
+      "substance": "deletedReciprocalCounterexample",
+      "build": "buildDeletedReciprocalFigure",
+      "defaultCanvas": [333, 70],
+      "sourceContext": "Example 10: nonzero real points have usual interval neighborhoods; zero has neighborhoods (−p,p) minus F={1/n:n positive integer}. F is closed in this topology, zero lies outside it, and every open U containing F intersects any such neighborhood V of zero. Thus the space is T2 but not the author's T3.",
+      "geometry": [
+        "Original horizontal axis with 0, the long hatched V interval marker, one representative U component, and reciprocal term annotations.",
+        "The source has three marked terms beyond V and does not give a numerical axis scale. A continuous monotone piecewise linear style chart preserves this order, symmetric mathematical V, and the source's visibly asymmetric placement of 0.",
+        "Default mathematical p=0.27, local term 1/6, and arbitrary local openness radius epsilon=0.018. The style draws 32 representative reciprocal terms and the annotated zero."
+      ],
+      "facts": [
+        "DeletedReciprocalTopology and ReciprocalSequenceSet store the infinite mathematical rule through a coefficient, not an array of visible terms.",
+        "Relative ClosedIn(F,tau), T2(tau), NotT3(tau), Outside(0,F), and UnseparablePointClosedSet(0,F,tau).",
+        "V is the whole (−p,p)\\F. U is an arbitrary declared open superset of F, with one guaranteed OpenIntervalNeighborhood I about 1/6 and Subset(I,U).",
+        "The chosen real z=(1/6)−min(epsilon/2,((1/6)−(1/7))/2) is asserted in I,U,V and outside F via IntersectionWitness."
+      ],
+      "checks": [
+        "Zero is included; strict interval boundaries and 300 named reciprocal terms are excluded from V.",
+        "For local epsilon values from 10^-8 through 10, the computed witness remains between adjacent reciprocal terms and inside both open sets.",
+        "The style verifies the numeric overlap and source-coordinate order before drawing.",
+        "Actual SVG renders vector bands and a finite prefix with no image wrappers."
+      ],
+      "limits": [
+        "Only one representative component of the arbitrary U is shown, as in the source. Its ellipse does not assert that all of U is a bounded interval.",
+        "Dark reciprocal markers annotate points of F that are excluded from V; they do not assert membership in the hatched neighborhood.",
+        "The infinite set descriptor is mathematical. Numeric helpers use finite JavaScript coordinates and safe integer indices and reject unrepresentable witnesses.",
+        "The original sequence spacing is schematic. The monotone chart preserves order and neighborhood membership without claiming equal display distances for numerical differences."
+      ],
+      "sourceBounds": [0.266404, 0.595087, 0.437008, 0.055468],
+      "styleFile": "packages/bloom/src/styles/separation-axioms.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/separation-axioms.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-5.4.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-5.4.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-5.4-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-5.4-comparison.png"
+    }
+  ],
+  "missingSourceNotes": []
+}

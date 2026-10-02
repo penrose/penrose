@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "sourceBook": "Michael C. Gemignani, Elementary Topology, Second Edition, Addison-Wesley",
+  "status": "implemented-and-manually-compared; final-book-fidelity-review-pending",
+  "privateInputPolicy": "The supplied PDF, page renders, crops, and side-by-side source comparisons remain local private inputs. This report records provenance and rectangle coordinates rather than source images or the full PDF.",
+  "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+  "styleModule": "packages/bloom/src/styles/product-topology.tsx",
+  "substanceModule": "packages/bloom/src/examples/product-topology.ts",
+  "testModule": "packages/bloom/src/styles/product-topology.test.ts",
+  "vocabulary": {
+    "types": [
+      "RealLine",
+      "RealPoint",
+      "ProductSet",
+      "OpenProductSet",
+      "Subspace",
+      "CoordinateProjection",
+      "EmbeddingMap",
+      "CoordinateEmbedding"
+    ],
+    "predicates": [
+      "ProductOf",
+      "ProductTopologyOf",
+      "ProjectionOf",
+      "InverseImageOf",
+      "ImageOf",
+      "EmbeddingInto",
+      "SubspaceTopologyOf",
+      "CorestrictionOf"
+    ],
+    "reused": [
+      "OpenInterval, Basis, Subbasis, finite families/intersections, topology and directed subset vocabulary",
+      "Existing MapBetween, MapsTo, ContinuousMap, Homeomorphism, and InverseMaps",
+      "Native TSX hatch polygons and typed style views",
+      "Metric-space Euclidean planeDistance for coordinate embedding verification"
+    ],
+    "meaning": "Products and inverse images are shape-free mathematical relationships. Coordinate indices, interval endpoints, fixed embedding coordinates, and representative point coordinates are mathematical data. The style owns the finite plotting window, hatch directions, axes, color, glyphs, and label placement."
+  },
+  "reuseVerification": [
+    "One productNeighborhoodStyle renders both a projection subbasis strip and the two-strip basis intersection.",
+    "The same product style renders distinct interval-bound substances.",
+    "coordinateEmbeddingStyle renders the source horizontal inclusion x↦(x,0) and a distinct vertical inclusion x↦(0.25,x).",
+    "Native hatch polygons are reused with the preceding basis and derived-set styles."
+  ],
+  "verification": {
+    "focusedTests": {
+      "productBatchPassed": 3,
+      "productBatchFailed": 0,
+      "includingEarlierPointSetTopologyPassed": 13,
+      "mockedRendering": false
+    },
+    "typecheck": "Bloom declaration emit passed with product/subspace declarations and compile-time checks for product factors and coordinate projection indices.",
+    "lint": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "rendering": "The three canonical substances were built through diagram(), stepped through the real optimizer interface, serialized as SVG with XMLSerializer, parsed back without XML errors, rasterized with rsvg-convert, and manually compared with inspected 160 dpi source crops on white.",
+    "geometryPolicy": "Mathematical coordinate geometry and source composition determine the plotted shapes. This batch does not introduce free optimization variables. Finite strips depict unbounded mathematical inverse images.",
+    "preview": "tmp/elementary-topology/review/figures-4.8-4.10-side-by-side.png"
+  },
+  "sourceRectangleMethod": "Graphic and labels, excluding caption and prose. Rectangles were isolated on inspected 160 dpi page renders, tightened to dark ink with a 2 pixel margin, and divided by full rendered page dimensions. Coordinates are top-left x,y,width,height in [0,1].",
+  "inventoryCorrections": [
+    "4.8 depicts one vertical unbounded subbasis strip (a,b)×R, not a bounded rectangular basis neighborhood.",
+    "4.9 depicts two intersecting unbounded subbasis strips and their darker product rectangle, not multiple rectangular neighborhoods."
+  ],
+  "sourceLimitations": [
+    "Printed page 85 is absent from the supplied source, within the general product-space definition/proposition discussion. This batch relies on the available Example 18, Proposition 19, Proposition 20 continuation, and Example 19; no missing page is reconstructed.",
+    "Binary products are explicitly represented here. A countable or arbitrary indexed-product vocabulary is not claimed complete by this batch.",
+    "Finite plotting windows show the unbounded strips and embedding lines without asserting that the sets are bounded.",
+    "Clean MathJax type and lighter hatch strokes differ from the scanned book’s heavier ink."
+  ],
+  "figures": [
+    {
+      "id": "4.8",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 86,
+        "printedPage": 86,
+        "boundingBox": [0.089791, 0.526003, 0.426814, 0.132244],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels160dpi": [73, 708, 347, 178],
+        "pagePixels160dpi": [813, 1346],
+        "context": "Example 18, section 4.6: a typical subbasis member of the product topology on R×R."
+      },
+      "implementation": {
+        "substanceFactory": "productStripSubstance",
+        "styleFactory": "productNeighborhoodStyle",
+        "buildFactory": "buildProductStripFigure",
+        "canvas": [370, 200]
+      },
+      "mathematics": [
+        "For the first coordinate projection p₁:R²→R, p₁⁻¹((a,b))=(a,b)×R. Boundary intercepts (a,0),(b,0) are outside the open strip.",
+        "ProductOf and InverseImageOf preserve factor order and the projection coordinate. The strip belongs to a product-topology subbasis."
+      ],
+      "checks": [
+        "Membership is strict at both x endpoints and independent of y, including a sample y=-1000.",
+        "Actual SVG contains one native hatch clip, the two boundary dots, source interval-product notation and both intercept labels.",
+        "The same style also renders endpoints 0.5 and 1.5 with the expected plotted coordinates."
+      ],
+      "visualReview": {
+        "status": "manual source comparison complete; final-book-fidelity review pending",
+        "observations": [
+          "Preserves the vertical strip, both coordinate axes, x/y/R labels, white product-label knockout, two boundary dots, and intercept labels.",
+          "The source does not display endpoint parentheses in this panel; only its dots and labels are retained."
+        ],
+        "privatePreview": "tmp/elementary-topology/review/figure-4.8-side-by-side.png"
+      },
+      "privateSvg": "tmp/elementary-topology/rendered/figure-4.8.svg"
+    },
+    {
+      "id": "4.9",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 86,
+        "printedPage": 86,
+        "boundingBox": [0.551046, 0.441308, 0.432964, 0.220654],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels160dpi": [448, 594, 352, 297],
+        "pagePixels160dpi": [813, 1346],
+        "context": "Example 18 and Proposition 19, section 4.6: finite intersections of product subbasis elements give the basis."
+      },
+      "implementation": {
+        "substanceFactory": "productRectangleSubstance",
+        "styleFactory": "productNeighborhoodStyle",
+        "buildFactory": "buildProductRectangleFigure",
+        "canvas": [365, 305]
+      },
+      "mathematics": [
+        "(a,b)×(c,d)=((a,b)×R)∩(R×(c,d)), with all four interval endpoints excluded.",
+        "A finite family contains the two projection inverse images. FiniteIntersectionOf and directed Subset facts connect the rectangle to both strips; the rectangle belongs to a product basis. ProductTopologyOf and EqualTopologies record the surrounding topology comparison."
+      ],
+      "checks": [
+        "Strict mathematical product membership excludes all four boundary sides and includes an interior point.",
+        "Rendered rectangle bounds equal the vertical strip’s x bounds and horizontal strip’s y bounds exactly.",
+        "Actual SVG contains two native hatch clips, four intercept dots, all product labels, and all four intercept labels.",
+        "The shared style renders a distinct rectangle (1,2)×(0.75,1.5) with verified displayed bounds."
+      ],
+      "visualReview": {
+        "status": "manual source comparison complete; final-book-fidelity review pending",
+        "observations": [
+          "Preserves intersecting strips with opposed hatch directions, a darker central product rectangle, axes, interval boundary delimiters, and four intercept labels.",
+          "(0,d) was moved upward after comparison to avoid collision with the product-rectangle label; (a,0),(b,0) remain above the x-axis as in the source."
+        ],
+        "privatePreview": "tmp/elementary-topology/review/figure-4.9-side-by-side.png"
+      },
+      "privateSvg": "tmp/elementary-topology/rendered/figure-4.9.svg"
+    },
+    {
+      "id": "4.10",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 88,
+        "printedPage": 88,
+        "boundingBox": [0.350554, 0.441308, 0.359164, 0.13373],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels160dpi": [285, 594, 292, 180],
+        "pagePixels160dpi": [813, 1346],
+        "context": "Example 19 following Proposition 20, section 4.6: R embeds as a coordinate subspace of R²."
+      },
+      "implementation": {
+        "substanceFactory": "realLineEmbeddingSubstance",
+        "styleFactory": "coordinateEmbeddingStyle",
+        "buildFactory": "buildRealLineEmbeddingFigure",
+        "canvas": [310, 205]
+      },
+      "mathematics": [
+        "q:R→R² is x↦(x,0); its image is the subspace Y=R×{0}. The corestriction q:R→Y is a homeomorphism, whose inverse is the first coordinate projection restricted to Y.",
+        "The mathematical embedding is separate from its corestriction, so Homeomorphism is asserted onto the image subspace rather than onto all of R²."
+      ],
+      "checks": [
+        "For both coordinate choices, 101 sample real inputs satisfy pᵢ(q(x))=x and the other coordinate is fixed.",
+        "Euclidean distance between q(x) and q(x+1) is exactly 1 within numerical tolerance.",
+        "Actual SVG places the representative mapped point on the image line and retains x↦(x,0); only the transverse axis is dashed.",
+        "A separate substance with varying second coordinate renders x↦(0.25,x), with verified native SVG marker coordinates."
+      ],
+      "visualReview": {
+        "status": "manual source comparison complete; final-book-fidelity review pending",
+        "observations": [
+          "Preserves one solid horizontal image line, dashed vertical ambient axis, x/y labels, representative point, and x↦(x,0) label.",
+          "The plotted point uses representative mathematical coordinate x=1, with symbolic label x; the reusable coordinate-embedding helper defines the map for every real input."
+        ],
+        "privatePreview": "tmp/elementary-topology/review/figure-4.10-side-by-side.png"
+      },
+      "privateSvg": "tmp/elementary-topology/rendered/figure-4.10.svg"
+    }
+  ]
+}

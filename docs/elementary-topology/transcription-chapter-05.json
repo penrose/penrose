@@ -1,0 +1,458 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "chapter": {
+    "number": 5,
+    "title": "The Separation Axioms",
+    "printedPageRange": [91, 112]
+  },
+  "review": {
+    "pdfPageRange": [91, 110],
+    "method": "Private text extraction checked against every full-page 150 dpi rendered scan. Every mathematical formula and available exercise was visually reviewed. Handwritten point labels in Proposition 2 were additionally checked at 300 dpi.",
+    "status": "available-pages-transcribed",
+    "availableChapterPdfPages": [
+      91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106,
+      107, 108, 109
+    ],
+    "visualReviewedPdfPages": [
+      91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106,
+      107, 108, 109, 110
+    ],
+    "limits": [
+      "Printed pages 92, 102, and 110 are absent. No missing prose, definitions, propositions, corollaries, proofs, examples, exercises, or section openings are reconstructed.",
+      "Printed page 93 begins with the available end of a paragraph. Proposition 1, its corollary, and unavailable examples are not reconstructed.",
+      "Section 5.4 title comes from its running header; the opening and definition are unavailable on missing printed page 102.",
+      "Printed page 109 ends within Proposition 10 proof. Printed page 111 begins with a proof fragment after missing page 110; Proposition 11 and its corollary are unavailable.",
+      "Two handwritten point labels in Proposition 2 obscure their underlying printed glyphs. The visible annotated reading z and y is retained and expressly disclosed; the obscured glyphs are not inferred.",
+      "Source spelling neighborhod in Example 8, use of X in Example 10 and Example 13, f(0)=0 in Proposition 10 proof, and Exercise 4 wording about binary rationals are retained.",
+      "Figure 5.8 has not been located. Figure 5.13 has an explicit in-text reference on PDF107/printed109 but no located captioned illustration.",
+      "Running headers and footers are retained in the source map. Line wrapping, paragraph indentation, and line-end hyphenation are normalized. Inline anchors preserve paragraphs crossing page boundaries.",
+      "Printed pages 95, 97, and 106 are split at section boundaries.",
+      "PDF page 110, printed page 113, is the reviewed next-chapter boundary only."
+    ]
+  },
+  "outputDirectory": "packages/docs-site/docs/elementary-topology/chapter-05",
+  "pages": [
+    {
+      "pdfPage": 91,
+      "printedPage": 91,
+      "path": "t0-and-t1-spaces.md",
+      "anchor": "printed-page-91",
+      "coverage": "All body text; Chapter and section headings, introduction, Figure 5.1, Definition 1.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 92,
+      "printedPage": 93,
+      "path": "t0-and-t1-spaces.md",
+      "anchor": "printed-page-93",
+      "coverage": "All body text; Available paragraph beginning, Definition 2, Proposition 2 and its proof, corollary, Examples 3–4 beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 93,
+      "printedPage": 94,
+      "path": "t0-and-t1-spaces.md",
+      "anchor": "printed-page-94",
+      "coverage": "All body text; Example 4 completion, separation-axiom comparison, Exercises 1–8 with every subpart.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 94,
+      "printedPage": 95,
+      "fragments": [
+        {
+          "path": "t0-and-t1-spaces.md",
+          "anchor": "printed-page-95",
+          "coverage": "All body text of section fragment; Exercises 9–10, complete text."
+        },
+        {
+          "path": "t2-spaces.md",
+          "anchor": "printed-page-95",
+          "coverage": "All body text of section fragment; Section heading and introduction, Definition 3, Examples 5–6, Proposition 3 and proof beginning."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 95,
+      "printedPage": 96,
+      "path": "t2-spaces.md",
+      "anchor": "printed-page-96",
+      "coverage": "All body text; Proposition 3 proof completion, Example 7, Exercises 1–2.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 96,
+      "printedPage": 97,
+      "fragments": [
+        {
+          "path": "t2-spaces.md",
+          "anchor": "printed-page-97",
+          "coverage": "All body text of section fragment; Exercises 3–8 with every subpart."
+        },
+        {
+          "path": "t3-and-regular-spaces.md",
+          "anchor": "printed-page-97",
+          "coverage": "All body text of section fragment; Section heading, Definition 4 and author convention discussion, Figures 5.2–5.3, criterion introduction."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 97,
+      "printedPage": 98,
+      "path": "t3-and-regular-spaces.md",
+      "anchor": "printed-page-98",
+      "coverage": "All body text; Proposition 4 and proof, Examples 8–9, introduction to the nonregular Hausdorff example.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 98,
+      "printedPage": 99,
+      "path": "t3-and-regular-spaces.md",
+      "anchor": "printed-page-99",
+      "coverage": "All body text; Example 10 and Figure 5.4, Proposition 5 with parts a–b and proof beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 99,
+      "printedPage": 100,
+      "path": "t3-and-regular-spaces.md",
+      "anchor": "printed-page-100",
+      "coverage": "All body text; Proposition 5 proof completion, identification discussion, Proposition 6 and proof beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 100,
+      "printedPage": 101,
+      "path": "t3-and-regular-spaces.md",
+      "anchor": "printed-page-101",
+      "coverage": "All body text; Figures 5.5–5.7, Proposition 6 proof completion, Example 11, all available Exercise 1.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 101,
+      "printedPage": 103,
+      "path": "t4-and-normal-spaces.md",
+      "anchor": "printed-page-103",
+      "coverage": "All body text; Available Example 12, discrete-topology discussion, Proposition 7 and proof, normal-space discussion, Example 13 beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 102,
+      "printedPage": 104,
+      "path": "t4-and-normal-spaces.md",
+      "anchor": "printed-page-104",
+      "coverage": "All body text; Figures 5.9–5.10 and complete available continuation of Example 13.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 103,
+      "printedPage": 105,
+      "path": "t4-and-normal-spaces.md",
+      "anchor": "printed-page-105",
+      "coverage": "All body text; Propositions 8–9 and proofs, Exercises 1–6 with Exercise 6 beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 104,
+      "printedPage": 106,
+      "fragments": [
+        {
+          "path": "t4-and-normal-spaces.md",
+          "anchor": "printed-page-106",
+          "coverage": "All body text of section fragment; Exercise 6 completion and Exercises 7–9."
+        },
+        {
+          "path": "normality-and-extension.md",
+          "anchor": "printed-page-106",
+          "coverage": "All body text of section fragment; Section heading and introduction, Examples 14–15 with Example 15 beginning."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 105,
+      "printedPage": 107,
+      "path": "normality-and-extension.md",
+      "anchor": "printed-page-107",
+      "coverage": "All body text; Example 15 completion, extension-property discussion, Proposition 10 and surrounding discussion, proof beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 106,
+      "printedPage": 108,
+      "path": "normality-and-extension.md",
+      "anchor": "printed-page-108",
+      "coverage": "All body text; Proposition 10 proof continuation, Figure 5.11, all dyadic set construction conditions, fractional formulas, and induction steps.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 107,
+      "printedPage": 109,
+      "path": "normality-and-extension.md",
+      "anchor": "printed-page-109",
+      "coverage": "All body text; Proposition 10 proof continuation and Figure 5.12, definition of f, continuity argument, reference to unlocated Figure 5.13, available unfinished final sentence.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 108,
+      "printedPage": 111,
+      "path": "normality-and-extension.md",
+      "anchor": "printed-page-111",
+      "coverage": "All body text; Figure 5.14, available proof fragment, Examples 16–17, Exercise 1 beginning.",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 109,
+      "printedPage": 112,
+      "path": "normality-and-extension.md",
+      "anchor": "printed-page-112",
+      "coverage": "All body text; Exercise 1 completion and Exercises 2–5 with every subpart; all available chapter-ending text.",
+      "formulaReview": "verified against rendered scan"
+    }
+  ],
+  "gaps": [
+    {
+      "printedPage": 92,
+      "before": {
+        "pdfPage": 91,
+        "printedPage": 91
+      },
+      "after": {
+        "pdfPage": 92,
+        "printedPage": 93
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "t0-and-t1-spaces.md"],
+      "availableBoundaryEvidence": "Printed91 ends after Definition1. Printed93 begins within a paragraph before Definition2; references to Proposition1 and Example1 survive in later exercises."
+    },
+    {
+      "printedPage": 102,
+      "before": {
+        "pdfPage": 100,
+        "printedPage": 101
+      },
+      "after": {
+        "pdfPage": 101,
+        "printedPage": 103
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": [
+        "index.md",
+        "t3-and-regular-spaces.md",
+        "t4-and-normal-spaces.md"
+      ],
+      "availableBoundaryEvidence": "Printed101 ends with section5.3 Exercise1. Printed103 has running section5.4 and starts with Example12; Exercise6 of5.3 and section5.4 opening are referenced but unavailable."
+    },
+    {
+      "printedPage": 110,
+      "before": {
+        "pdfPage": 107,
+        "printedPage": 109
+      },
+      "after": {
+        "pdfPage": 108,
+        "printedPage": 111
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "normality-and-extension.md"],
+      "availableBoundaryEvidence": "Printed109 ends mid-sentence in Proposition10 proof. Printed111 begins with a proof whose statement is unavailable; later text refers to Proposition11 and its corollary."
+    }
+  ],
+  "illustrations": [
+    {
+      "id": "5.1",
+      "pdfPage": 91,
+      "printedPage": 91,
+      "path": "t0-and-t1-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=91",
+      "svgPath": "/elementary-topology/figures/figure-5.1.svg",
+      "publicSvgPath": "/elementary-topology/figures/figure-5.1.svg"
+    },
+    {
+      "id": "5.2",
+      "pdfPage": 96,
+      "printedPage": 97,
+      "path": "t3-and-regular-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=97",
+      "svgPath": "/elementary-topology/figures/figure-5.2.svg",
+      "publicSvgPath": "/elementary-topology/figures/figure-5.2.svg"
+    },
+    {
+      "id": "5.3",
+      "pdfPage": 96,
+      "printedPage": 97,
+      "path": "t3-and-regular-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=97",
+      "svgPath": "/elementary-topology/figures/figure-5.3.svg",
+      "publicSvgPath": "/elementary-topology/figures/figure-5.3.svg"
+    },
+    {
+      "id": "5.4",
+      "pdfPage": 98,
+      "printedPage": 99,
+      "path": "t3-and-regular-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=99",
+      "svgPath": "/elementary-topology/figures/figure-5.4.svg",
+      "publicSvgPath": "/elementary-topology/figures/figure-5.4.svg"
+    },
+    {
+      "id": "5.5",
+      "pdfPage": 100,
+      "printedPage": 101,
+      "path": "t3-and-regular-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=101",
+      "svgPath": "/elementary-topology/figures/figure-5.5.svg",
+      "publicSvgPath": "/elementary-topology/figures/figure-5.5.svg"
+    },
+    {
+      "id": "5.6",
+      "pdfPage": 100,
+      "printedPage": 101,
+      "path": "t3-and-regular-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=101",
+      "svgPath": "/elementary-topology/figures/figure-5.6.svg",
+      "publicSvgPath": "/elementary-topology/figures/figure-5.6.svg"
+    },
+    {
+      "id": "5.7",
+      "pdfPage": 100,
+      "printedPage": 101,
+      "path": "t3-and-regular-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=101",
+      "svgPath": "/elementary-topology/figures/figure-5.7.svg",
+      "publicSvgPath": "/elementary-topology/figures/figure-5.7.svg"
+    },
+    {
+      "id": "5.9",
+      "pdfPage": 102,
+      "printedPage": 104,
+      "path": "t4-and-normal-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=104",
+      "publicSvgPath": "/elementary-topology/figures/figure-5.9.svg"
+    },
+    {
+      "id": "5.10",
+      "pdfPage": 102,
+      "printedPage": 104,
+      "path": "t4-and-normal-spaces.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=104",
+      "publicSvgPath": "/elementary-topology/figures/figure-5.10.svg"
+    },
+    {
+      "id": "5.11",
+      "pdfPage": 106,
+      "printedPage": 108,
+      "path": "normality-and-extension.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=108",
+      "publicSvgPath": "/elementary-topology/figures/figure-5.11.svg"
+    },
+    {
+      "id": "5.12",
+      "pdfPage": 107,
+      "printedPage": 109,
+      "path": "normality-and-extension.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=109",
+      "publicSvgPath": "/elementary-topology/figures/figure-5.12.svg"
+    },
+    {
+      "id": "5.14",
+      "pdfPage": 108,
+      "printedPage": 111,
+      "path": "normality-and-extension.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=111",
+      "publicSvgPath": "/elementary-topology/figures/figure-5.14.svg"
+    }
+  ],
+  "unlocatedNumberedFigureLabels": [
+    {
+      "id": "5.8",
+      "status": "unlocated-in-supplied-scan",
+      "evidence": "Figure5.7 is present on printed101 and Figures5.9/5.10 on printed104; printed102 is missing. No missing figure has been reconstructed."
+    },
+    {
+      "id": "5.13",
+      "status": "unlocated-in-supplied-scan",
+      "inTextReference": {
+        "pdfPage": 107,
+        "printedPage": 109,
+        "text": "Then (Fig. 5.13) V = U(q′) − Cl U(q) is a neighborhood of x₀"
+      },
+      "evidence": "Direct in-text reference visually verified on printed109; no captioned Figure5.13 located in the supplied pages."
+    }
+  ],
+  "nextChapterBoundary": {
+    "pdfPage": 110,
+    "printedPage": 113,
+    "chapter": 6,
+    "title": "Convergence",
+    "section": "6.1 The Need for a Generalized Notion of Convergence",
+    "status": "visually reviewed; not transcribed as Chapter5"
+  },
+  "validation": {
+    "sourceBodyCoverage": "Every extracted alphabetic OCR word of four or more characters was checked per supplied page against its transcribed body; unmatched tokens were only running headers or visually corrected OCR errors. This supplements full-page visual review.",
+    "sourceFormulaVerification": "All mathematical expressions on PDF91–109 visually checked, including separation axioms, quotient classes, product notation, set closures, dyadic fractions and induction indices, endpoint weak inequalities, function inverse images and extension formulas.",
+    "mathRenderer": "KaTeX 0.13.24 via shared docs-site configureMath, with v-pre wrappers preserving mathematical braces in Vue",
+    "mathExpressionCountInNewPages": 1214,
+    "mathValidationStatus": "passed",
+    "vueCompilationStatus": "passed",
+    "browserVisualQa": {
+      "status": "passed-root-review",
+      "browser": "Codex in-app browser",
+      "pages": [
+        "t0-and-t1-spaces",
+        "t2-spaces",
+        "t3-and-regular-spaces",
+        "t4-and-normal-spaces",
+        "normality-and-extension"
+      ],
+      "checked": [
+        "t0-and-t1-spaces",
+        "t2-spaces",
+        "t3-and-regular-spaces",
+        "t4-and-normal-spaces",
+        "normality-and-extension"
+      ],
+      "method": "All section routes loaded in the production in-app browser. Checked chapter headings, exercises, rendered KaTeX, native SVG images and document width. Representative screenshots inspected; the large 5.7 SVG completed loading and was inspected in its prose context.",
+      "mathErrors": 0,
+      "documentOverflow": false
+    }
+  },
+  "generalizabilityCandidates": [
+    {
+      "section": "5.1",
+      "printedPage": 94,
+      "pdfPage": 93,
+      "passage": "Exercise3",
+      "concept": "Collapse zero pseudometric-distance equivalence classes to a metric quotient, showing several points before and after identification."
+    },
+    {
+      "section": "5.5",
+      "printedPage": 106,
+      "pdfPage": 104,
+      "passage": "Example15",
+      "concept": "An endpoint identity on the interval cannot extend continuously to the discrete two-point codomain; illustrate the inverse-image separation obstruction."
+    },
+    {
+      "section": "5.5",
+      "printedPage": 111,
+      "pdfPage": 108,
+      "passage": "Example16",
+      "concept": "A continuous extension of a bijection from integers to the integer lattice, demonstrating a previously unillustrated passage."
+    }
+  ]
+}

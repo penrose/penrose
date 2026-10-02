@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "edition": "Elementary Topology, Michael C. Gemignani, Second Edition",
+    "visualReview": "Full supplied pages 35–37 inspected as detailed page PNGs, and the beginning of the uniqueness proof read from page 34. No content from absent printed page 29 was reconstructed.",
+    "sourceImageDimensions": [762, 1262],
+    "boundsConvention": "sourceBounds is normalized [x,y,width,height] against the full source page. Inspected detail-image pixel rectangles include graphics and their labels, excluding caption and prose."
+  },
+  "implementation": {
+    "domain": "metric-spaces",
+    "domainFile": "packages/bloom/src/domains/metric-spaces.ts",
+    "semantics": "Shape-free immutable Substance snapshots, explicit mathematical relations, synchronous eager TSX styles, fresh assembly.",
+    "graphics": "All figures are native Penrose optimized shapes and typed PathData; no raster image wrappers.",
+    "appearance": "Consistent subdued orange regions, gray hatching, black mathematical labels and gray axes."
+  },
+  "verification": {
+    "focusedTestFile": "packages/examples/src/elementary-topology/continuity-topology.test.ts",
+    "testsPassed": 8,
+    "publicBloomDeclarationEmit": "passed with the public entry point and source JSX runtime in a focused temporary configuration; unrelated in-flight example imports excluded",
+    "exampleLeafTypecheckAndEmit": "passed",
+    "scopedBloomESLint": "passed",
+    "visualReview": "All three rendered SVGs were rasterized on white backgrounds and inspected against the supplied figure pages. Figure 2.15 framing was adjusted to retain the complete blob outlines.",
+    "scope": "Mathematical relationships and actual SVG lowering are checked; pixel-level equivalence is not claimed."
+  },
+  "figures": [
+    {
+      "id": "2.14",
+      "pdfPage": 35,
+      "printedPage": 28,
+      "pixelBounds": [243, 122, 333, 252],
+      "style": "limitUniquenessStyle",
+      "styleFile": "packages/bloom/src/styles/limit-uniqueness.tsx",
+      "substance": "distinctProposedLimitNeighborhoods",
+      "build": "buildLimitUniquenessFigure",
+      "exampleFile": "packages/examples/src/elementary-topology/limit-uniqueness.ts",
+      "sourceContext": "Proposition 6 and its proof on supplied printed pages 27–28: assume y≠y′ and both are proposed limits of the same sequence; set ρ=D(y,y′)/2. The neighborhoods are disjoint, contradicting eventual membership in both.",
+      "geometry": [
+        "Two equally sized hatched open balls touch at the midpoint between y′ (lower left) and y (upper right).",
+        "A dashed center-to-center distance guide carries the label ½D(y,y′).",
+        "The source's s_1, s_2 and s_n sequence markers and dashed approach toward y′ are retained as schematic drawing data.",
+        "Default proposed coordinates y′=(-1,-0.4), y=(1,0.4), with both radii equal to half their Euclidean distance."
+      ],
+      "facts": [
+        "ProposedLimitOf(sequence,y,plane) and ProposedLimitOf(sequence,y′,plane); no actual ConvergesTo assertions.",
+        "SequenceInPlane, DistinctMetricPoints, PointInSpace.",
+        "NeighborhoodAt and InSpace for each ball; DisjointNeighborhoods(left,right)."
+      ],
+      "defaultCanvas": [370, 285],
+      "checks": [
+        "The shared tangent point is excluded from both strict open neighborhoods.",
+        "Sampled points strictly inside one ball lie outside the other.",
+        "The factory rejects equal proposed limits.",
+        "Substance inspection confirms two proposed limits and zero actual convergence facts.",
+        "Actual SVG renders tangent circles, dashed separation and the schematic sequence."
+      ],
+      "limits": [
+        "The proof concerns arbitrary metric spaces; its circular picture is instantiated as a Euclidean geometric realization.",
+        "The source does not specify the sequence's formula. Its finite illustrated markers and guide are style-owned schematic positions.",
+        "The contact marker shows a boundary location and is not asserted to belong to either open neighborhood."
+      ],
+      "panels": 1,
+      "sourceBounds": [0.318898, 0.096672, 0.437008, 0.199683],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-2.14.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-2.14.png"
+    },
+    {
+      "id": "2.15",
+      "pdfPage": 36,
+      "printedPage": 30,
+      "pixelBounds": [126, 104, 559, 239],
+      "style": "metricContinuityStyle",
+      "styleFile": "packages/bloom/src/styles/metric-continuity.tsx",
+      "substance": "continuousMapNeighborhoods",
+      "build": "buildMetricContinuityFigure",
+      "exampleFile": "packages/examples/src/elementary-topology/metric-continuity.ts",
+      "sourceContext": "The supplied figure and Proposition 8 proof illustrate f(N(a,q))⊆N(f(a),ρ), with x in the source neighborhood and f(x) inside the target one. Source spaces are X,D and Y,D′. The preceding Definition 6 is on missing printed page 29 and has not been reconstructed.",
+      "geometry": [
+        "Two source-shaped irregular blobs labeled X and Y, each enclosing a circular hatched neighborhood.",
+        "Original labels a, x, f(a), f(x), q and ρ are retained; no extra mapping arrow is added.",
+        "Cubic vector outlines approximate the source contours. The source and target circles have independent schematic display scales (60 and 51 pixels)."
+      ],
+      "facts": [
+        "Generic MetricSpace, SpacePoint, SpaceNeighborhood and MetricMap objects carry mathematical meaning without drawing coordinates.",
+        "MapBetweenSpaces(f,X,Y), ContinuousAt(f,a), MapsPoint(f,a,f(a)), MapsPoint(f,x,f(x)).",
+        "Neighborhood centers and space ownership are explicit.",
+        "InsideSpaceNeighborhood(x,sourceBall), InsideSpaceNeighborhood(f(x),targetBall), MapsNeighborhoodInto(f,sourceBall,targetBall)."
+      ],
+      "defaultCanvas": [570, 260],
+      "checks": [
+        "Substance points have no drawing coordinates or blob data.",
+        "Source and target metrics retain D and D′.",
+        "Center mapping, space ownership, continuity and the chosen image inclusion are required before drawing.",
+        "Incomplete continuity relations and nonpositive chosen radii are rejected.",
+        "Actual SVG renders two closed cubic blobs, two circular neighborhoods and four point markers."
+      ],
+      "limits": [
+        "The drawing is generic and gives no numerical function or metric. MapsNeighborhoodInto is a declared mathematical witness, not a numerical proof of continuity or its universal quantifiers.",
+        "The scan's hand contour and hatch noise are approximated by smooth vectors and consistent subdued orange shading."
+      ],
+      "panels": 1,
+      "sourceBounds": [0.165354, 0.082409, 0.733596, 0.189382],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-2.15.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-2.15.png"
+    },
+    {
+      "id": "2.16",
+      "pdfPage": 37,
+      "printedPage": 31,
+      "pixelBounds": [201, 882, 330, 234],
+      "style": "projectionPreimageStyle",
+      "styleFile": "packages/bloom/src/styles/projection-preimage.tsx",
+      "substance": "coordinateProjectionNeighborhood",
+      "build": "buildProjectionPreimageFigure",
+      "exampleFile": "packages/examples/src/elementary-topology/projection-preimage.ts",
+      "sourceContext": "Example 15: f:R²→R, f(x,y)=x, with Euclidean domain and absolute-value target. The inverse image of N(a,ρ) is {(x,y):a−ρ<x<a+ρ}, an open subset of R².",
+      "geometry": [
+        "A vertically hatched strip to the right of the y-axis, crossing the x-axis.",
+        "Source labels y, x, (a−ρ,0), (a+ρ,0) and f⁻¹(N(a,ρ)) are retained.",
+        "Boundary markers are coordinate annotations. No membership assertion is made for them.",
+        "Default a=2, ρ=1; the view clips the infinite strip to 202 pixels of visible height and adds no top or bottom boundary stroke."
+      ],
+      "facts": [
+        "CoordinateProjection(f,{coordinate:0}), ProjectionBetween(f,EuclideanPlane,absoluteValueLine).",
+        "LineNeighborhood centered at a with radius ρ and line/center ownership relations.",
+        "VerticalOpenStrip has only center and halfWidth; it has no y bounds or height.",
+        "StripInPlane and ProjectionInverseImage(strip,f,ball)."
+      ],
+      "defaultCanvas": [350, 270],
+      "checks": [
+        "Strict x inequality excludes a−ρ and a+ρ.",
+        "Membership is unchanged for y values from −10^100 to 10^100.",
+        "Factory rejects nonpositive radii; the style checks projection coordinate, metrics, neighborhood center and matching strip width.",
+        "Changing visible clip height from 180 to 240 leaves the same mathematical Substance object unchanged.",
+        "Actual SVG renders the finite hatch viewport, axes, boundary coordinate markers and inverse-image label."
+      ],
+      "limits": [
+        "The original and reconstruction show finite visible portions of an infinite strip. The clip height belongs only to Style.",
+        "The book uses filled coordinate markers at the strip edges despite the strict inequality; these are retained as axis annotations."
+      ],
+      "panels": 1,
+      "sourceBounds": [0.26378, 0.698891, 0.433071, 0.18542],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-2.16.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-2.16.png"
+    }
+  ],
+  "missingSourceNotes": [
+    "Printed page 29 is absent from the supplied scan. Its prose and Definition 6 have not been reconstructed."
+  ]
+}

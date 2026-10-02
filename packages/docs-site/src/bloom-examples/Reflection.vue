@@ -9,5 +9,7 @@ const Reflection = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <Reflection />
+  <ClientOnly>
+    <Reflection />
+  </ClientOnly>
 </template>
