@@ -45,7 +45,11 @@ const label = computed(() =>
     : props.figure.title ?? props.figure.description,
 );
 const dragTarget = computed(() =>
-  props.figure.interaction === "construction"
+  props.figure.interaction === "table"
+    ? "the table"
+    : props.figure.interaction === "objects"
+    ? "the marked objects"
+    : props.figure.interaction === "construction"
     ? "the region"
     : props.figure.interaction === "mixed"
     ? "labels or the marked region"
@@ -278,6 +282,12 @@ onBeforeUnmount(() => observer?.disconnect());
         ><code>{{ displayedCode }}</code></pre>
       </template>
       <p v-if="copyStatus" role="status">{{ copyStatus }}</p>
+      <details v-if="figure.sourceCorrection" class="source-notation-note">
+        <summary>Source notation note</summary>
+        <p>{{ figure.sourceCorrection.source }}</p>
+        <p>{{ figure.sourceCorrection.mathematicalProgram }}</p>
+        <p>{{ figure.sourceCorrection.visibleFigure }}</p>
+      </details>
     </details>
   </section>
 </template>
@@ -290,6 +300,8 @@ onBeforeUnmount(() => observer?.disconnect());
   background: white;
 }
 .figure-canvas.embedded {
+  position: absolute;
+  inset: 0;
   height: 100%;
 }
 .static-figure {

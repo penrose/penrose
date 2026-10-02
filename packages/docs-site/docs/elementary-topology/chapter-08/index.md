@@ -16,4 +16,4 @@ Source wording, mathematical notation, exercises, references, and figure numbers
 - [8.3 Compactifications](./compactifications)
 - [8.4 Sequential and Countable Compactness](./sequential-and-countable-compactness)
 
-The supplied pages contain five captioned figures: 8.1 and 8.3–8.6. Their section pages link to the source while Penrose reproductions are prepared. Figure 8.2 has not been located in the available scan. The [source reader](../reader) preserves the available printed-page context.
+The supplied pages contain five captioned figures: 8.1 and 8.3–8.6. Their section pages include the reviewed Penrose reproductions and link to the interactive source reader. Figure 8.2 has not been located in the available scan. The [source reader](../reader) preserves the available printed-page context.

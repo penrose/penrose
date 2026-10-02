@@ -68,8 +68,7 @@ const replacements = computed(() =>
 );
 const pending = computed(() =>
   figures.filter(
-    (figure) =>
-      figure.pdfPage === pdfPage.value && figure.status !== "reviewed",
+    (figure) => figure.pdfPage === pdfPage.value && figure.status === "pending",
   ),
 );
 const missingBefore = computed(() => {
@@ -117,12 +116,20 @@ const turnWithKeyboard = (event: KeyboardEvent) => {
     move(event.key === "ArrowLeft" ? -1 : 1);
   }
 };
-const placement = (box: number[]) => ({
-  left: `${box[0] * 100}%`,
-  top: `${box[1] * 100}%`,
-  width: `${box[2] * 100}%`,
-  height: `${box[3] * 100}%`,
-});
+const placement = (figure: BookFigure) => {
+  const box = figure.sourceBox!;
+  return {
+    left: `${box[0] * 100}%`,
+    top: `${box[1] * 100}%`,
+    width: `${box[2] * 100}%`,
+    height: `${box[3] * 100}%`,
+    clipPath: figure.sourceClip
+      ? `polygon(${figure.sourceClip
+          .map(([x, y]) => `${x * 100}% ${y * 100}%`)
+          .join(",")})`
+      : undefined,
+  };
+};
 
 onMounted(async () => {
   try {
@@ -226,7 +233,7 @@ onMounted(async () => {
           v-for="figure in replacements"
           :key="figure.id"
           class="replacement"
-          :style="placement(figure.sourceBox!)"
+          :style="placement(figure)"
           :id="figureTarget(figure.id)"
         >
           <img
@@ -315,6 +322,10 @@ onMounted(async () => {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+.replacement > img {
+  position: absolute;
+  inset: 0;
 }
 .page-status,
 .source-gap {

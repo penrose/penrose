@@ -253,6 +253,24 @@ export default defineConfig({
             { text: "Book index", link: "/docs/elementary-topology/" },
             { text: "Book reader", link: "/docs/elementary-topology/reader" },
             {
+              text: "Front Matter",
+              link: "/docs/elementary-topology/front-matter/",
+              items: [
+                {
+                  text: "Title and Dedication",
+                  link: "/docs/elementary-topology/front-matter/publication-and-dedication",
+                },
+                {
+                  text: "Preface",
+                  link: "/docs/elementary-topology/front-matter/preface",
+                },
+                {
+                  text: "Contents",
+                  link: "/docs/elementary-topology/front-matter/contents",
+                },
+              ],
+            },
+            {
               text: "1 · Preliminaries",
               link: "/docs/elementary-topology/chapter-01/",
               items: [
@@ -473,6 +491,98 @@ export default defineConfig({
                 {
                   text: "Sequential and Countable Compactness",
                   link: "/docs/elementary-topology/chapter-08/sequential-and-countable-compactness",
+                },
+              ],
+            },
+            {
+              text: "9 · Connectedness",
+              link: "/docs/elementary-topology/chapter-09/",
+              items: [
+                {
+                  text: "The Notion of Connectedness",
+                  link: "/docs/elementary-topology/chapter-09/notion-of-connectedness",
+                },
+                {
+                  text: "Further Tests for Connectedness",
+                  link: "/docs/elementary-topology/chapter-09/further-tests-for-connectedness",
+                },
+                {
+                  text: "Connectedness and Derived Spaces",
+                  link: "/docs/elementary-topology/chapter-09/connectedness-and-derived-spaces",
+                },
+                {
+                  text: "Components. Local Connectedness",
+                  link: "/docs/elementary-topology/chapter-09/components-and-local-connectedness",
+                },
+                {
+                  text: "Connectedness and Compact T₂-Spaces",
+                  link: "/docs/elementary-topology/chapter-09/connectedness-and-compact-t2-spaces",
+                },
+              ],
+            },
+            {
+              text: "10 · Metrizability. Complete Metric Spaces",
+              link: "/docs/elementary-topology/chapter-10/",
+              items: [
+                {
+                  text: "Metrizable Spaces",
+                  link: "/docs/elementary-topology/chapter-10/metrizable-spaces",
+                },
+                {
+                  text: "Cauchy Sequences",
+                  link: "/docs/elementary-topology/chapter-10/cauchy-sequences",
+                },
+                {
+                  text: "Complete Metric Spaces",
+                  link: "/docs/elementary-topology/chapter-10/complete-metric-spaces",
+                },
+                {
+                  text: "Baire Category Theorem",
+                  link: "/docs/elementary-topology/chapter-10/baire-category-theorem",
+                },
+                {
+                  text: "Paracompactness. Complete Regularity",
+                  link: "/docs/elementary-topology/chapter-10/paracompactness-and-complete-regularity",
+                },
+              ],
+            },
+            {
+              text: "11 · Introduction to Homotopy Theory",
+              link: "/docs/elementary-topology/chapter-11/",
+              items: [
+                {
+                  text: "Homotopic Functions",
+                  link: "/docs/elementary-topology/chapter-11/homotopic-functions",
+                },
+                {
+                  text: "Loops",
+                  link: "/docs/elementary-topology/chapter-11/loops",
+                },
+                {
+                  text: "The Fundamental Group",
+                  link: "/docs/elementary-topology/chapter-11/fundamental-group",
+                },
+                {
+                  text: "The Fundamental Group and Continuous Functions",
+                  link: "/docs/elementary-topology/chapter-11/fundamental-group-and-continuous-functions",
+                },
+              ],
+            },
+            {
+              text: "Appendix and Indexes",
+              link: "/docs/elementary-topology/back-matter/",
+              items: [
+                {
+                  text: "Appendix on Infinite Products",
+                  link: "/docs/elementary-topology/back-matter/appendix-on-infinite-products",
+                },
+                {
+                  text: "Index of Symbols",
+                  link: "/docs/elementary-topology/back-matter/index-of-symbols",
+                },
+                {
+                  text: "Index",
+                  link: "/docs/elementary-topology/back-matter/subject-index",
                 },
               ],
             },

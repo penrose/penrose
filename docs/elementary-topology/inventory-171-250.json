@@ -2,10 +2,7 @@
   "schemaVersion": 1,
   "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
   "review": {
-    "pdfPageRange": [
-      171,
-      250
-    ],
+    "pdfPageRange": [171, 250],
     "method": "Sequential visual review of every supplied page on rendered contact sheets; every figure-bearing page and the symbol-index table then inspected individually. OCR used only to cross-check explicit references, never as a replacement for visual review.",
     "status": "available-page-visual-pass-complete",
     "limits": [
@@ -24,98 +21,32 @@
     "coverIllustrationsPresent": 0
   },
   "noIllustrationPdfPages": [
-    171,
-    172,
-    174,
-    175,
-    176,
-    180,
-    183,
-    184,
-    185,
-    186,
-    187,
-    188,
-    189,
-    191,
-    192,
-    193,
-    194,
-    195,
-    196,
-    197,
-    198,
-    199,
-    200,
-    202,
-    203,
-    205,
-    206,
-    207,
-    208,
-    211,
-    212,
-    213,
-    214,
-    215,
-    216,
-    219,
-    221,
-    223,
-    226,
-    230,
-    232,
-    235,
-    236,
-    238,
-    240,
-    241,
-    242,
-    243,
-    244,
-    246,
-    247,
-    248,
-    249,
-    250
+    171, 172, 174, 175, 176, 180, 183, 184, 185, 186, 187, 188, 189, 191, 192,
+    193, 194, 195, 196, 197, 198, 199, 200, 202, 203, 205, 206, 207, 208, 211,
+    212, 213, 214, 215, 216, 219, 221, 223, 226, 230, 232, 235, 236, 238, 240,
+    241, 242, 243, 244, 246, 247, 248, 249, 250
   ],
   "missingPrintedPagesInSpan": [
-    183,
-    191,
-    199,
-    211,
-    217,
-    229,
-    239,
-    248,
-    253,
-    258,
-    266
+    183, 191, 199, 211, 217, 229, 239, 248, 253, 258, 266
   ],
   "unlocatedNumberedFigureLabels": [
     {
       "label": "9.10",
       "status": "numbering-gap candidate; absent figure contents unverified",
-      "missingPrintedPageCandidates": [
-        199
-      ],
+      "missingPrintedPageCandidates": [199],
       "evidence": {
         "precedingLabel": "9.9",
         "precedingPdfPage": 182,
         "followingLabel": "9.11",
         "followingPdfPage": 190,
-        "explicitReferencePdfPages": [
-          186
-        ]
+        "explicitReferencePdfPages": [186]
       },
       "note": "The supplied page at printed 198 references Figure 9.10; printed 199 is missing. This page association is an inference, not an inspected figure."
     },
     {
       "label": "11.16",
       "status": "numbering-gap candidate; absent figure contents unverified",
-      "missingPrintedPageCandidates": [
-        248
-      ],
+      "missingPrintedPageCandidates": [248],
       "evidence": {
         "precedingLabel": "11.15",
         "precedingPdfPage": 229,
@@ -127,9 +58,7 @@
     {
       "label": "11.17",
       "status": "numbering-gap candidate; absent figure contents unverified",
-      "missingPrintedPageCandidates": [
-        248
-      ],
+      "missingPrintedPageCandidates": [248],
       "evidence": {
         "precedingLabel": "11.15",
         "precedingPdfPage": 229,
@@ -141,26 +70,20 @@
     {
       "label": "11.18",
       "status": "numbering-gap candidate; absent figure contents unverified",
-      "missingPrintedPageCandidates": [
-        248
-      ],
+      "missingPrintedPageCandidates": [248],
       "evidence": {
         "precedingLabel": "11.15",
         "precedingPdfPage": 229,
         "followingLabel": "11.19",
         "followingPdfPage": 231,
-        "explicitReferencePdfPages": [
-          231
-        ]
+        "explicitReferencePdfPages": [231]
       },
       "note": "Printed 248 is missing between the verified surrounding captions. Figure 11.18 is explicitly referenced on printed 249; no absent panel contents were reconstructed."
     },
     {
       "label": "11.22",
       "status": "numbering-gap candidate; absent figure contents unverified",
-      "missingPrintedPageCandidates": [
-        253
-      ],
+      "missingPrintedPageCandidates": [253],
       "evidence": {
         "precedingLabel": "11.21",
         "precedingPdfPage": 234,
@@ -179,18 +102,15 @@
         "printedPage": 184,
         "placement": "middle"
       },
-      "description": "The interval [0,1] with two purported separating open sets U and V, a point a, and a neighborhood about a crossing the proposed split.",
+      "description": "Contradiction-proof interval [0,1] with hypothesized separating sets U/V and a∈U; an open neighborhood of a contains the closed witness [a−ρ/2,a+ρ/2], whose right endpoint exceeds the supposed supremum a.",
       "panels": [
         {
           "id": "main",
-          "description": "The interval [0,1] with two purported separating open sets U and V, a point a, and a neighborhood about a crossing the proposed split."
+          "description": "Contradiction-proof interval [0,1] with hypothesized separating sets U/V and a∈U; an open neighborhood of a contains the closed witness [a−ρ/2,a+ρ/2], whose right endpoint exceeds the supposed supremum a."
         }
       ],
-      "domainCandidates": [
-        "connectedness",
-        "intervals"
-      ],
-      "visualReview": "present in rendered scan; figure-bearing page individually inspected",
+      "domainCandidates": ["connectedness", "intervals"],
+      "visualReview": "Full source page, graphic crop and surrounding supplied prose checked during reproduction; see review-9.1-9.4.json.",
       "reproductionStatus": "pending"
     },
     {
@@ -201,11 +121,11 @@
         "printedPage": 188,
         "placement": "middle"
       },
-      "description": "Coordinate axes with points Q, Q prime, Q double prime, and an excluded point P; a two-segment polygonal route avoids P.",
+      "description": "Coordinate axes and Q,Q′,Q″,P; the two closed segments QQ″∪Q″Q′ avoid the removed point P and share Q″.",
       "panels": [
         {
           "id": "main",
-          "description": "Coordinate axes with points Q, Q prime, Q double prime, and an excluded point P; a two-segment polygonal route avoids P."
+          "description": "Coordinate axes and Q,Q′,Q″,P; the two closed segments QQ″∪Q″Q′ avoid the removed point P and share Q″."
         }
       ],
       "domainCandidates": [
@@ -213,7 +133,7 @@
         "euclidean-spaces",
         "polygonal-paths"
       ],
-      "visualReview": "present in rendered scan; figure-bearing page individually inspected",
+      "visualReview": "Full source page, graphic crop and surrounding supplied prose checked during reproduction; see review-9.1-9.4.json.",
       "reproductionStatus": "pending"
     },
     {
@@ -224,18 +144,15 @@
         "printedPage": 189,
         "placement": "middle left"
       },
-      "description": "An irregular region W containing a polygonal path from x=x0 to y=xn, with several intermediate vertices labeled.",
+      "description": "A seven-vertex polygonal path inside W, labeled x₀=x,x₁,x₂,x₃,xₙ=y with two additional unlabeled intermediate vertices and downward leaders at both endpoints.",
       "panels": [
         {
           "id": "main",
-          "description": "An irregular region W containing a polygonal path from x=x0 to y=xn, with several intermediate vertices labeled."
+          "description": "A seven-vertex polygonal path inside W, labeled x₀=x,x₁,x₂,x₃,xₙ=y with two additional unlabeled intermediate vertices and downward leaders at both endpoints."
         }
       ],
-      "domainCandidates": [
-        "connectedness",
-        "polygonal-paths"
-      ],
-      "visualReview": "present in rendered scan; figure-bearing page individually inspected",
+      "domainCandidates": ["connectedness", "polygonal-paths"],
+      "visualReview": "Full source page, graphic crop and surrounding supplied prose checked during reproduction; see review-9.1-9.4.json.",
       "reproductionStatus": "pending"
     },
     {
@@ -246,18 +163,15 @@
         "printedPage": 189,
         "placement": "middle right"
       },
-      "description": "The graph of sin(1/x) for positive x, shown with rapidly accumulating oscillations beside the vertical axis and the origin.",
+      "description": "Y={(x,sin(1/x)):x>0}∪{(0,0)}, a connected subspace that is not path connected; the graphic includes the origin alone at x=0 and two horizontal extrema guides.",
       "panels": [
         {
           "id": "main",
-          "description": "The graph of sin(1/x) for positive x, shown with rapidly accumulating oscillations beside the vertical axis and the origin."
+          "description": "Y={(x,sin(1/x)):x>0}∪{(0,0)}, a connected subspace that is not path connected; the graphic includes the origin alone at x=0 and two horizontal extrema guides."
         }
       ],
-      "domainCandidates": [
-        "connectedness",
-        "function-graphs"
-      ],
-      "visualReview": "present in rendered scan; figure-bearing page individually inspected",
+      "domainCandidates": ["connectedness", "function-graphs"],
+      "visualReview": "Full source page, graphic crop and surrounding supplied prose checked during reproduction; see review-9.1-9.4.json.",
       "reproductionStatus": "pending"
     },
     {
@@ -298,11 +212,7 @@
           "description": "An irregular open region U containing a polygonal route from x to y and a small rectangular neighborhood V about y, with a short continuation toward z."
         }
       ],
-      "domainCandidates": [
-        "connectedness",
-        "polygonal-paths",
-        "neighborhoods"
-      ],
+      "domainCandidates": ["connectedness", "polygonal-paths", "neighborhoods"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -344,11 +254,7 @@
           "description": "A spiral approaching a limiting circular boundary, shown beside the discussion of a connected spiral together with its closure."
         }
       ],
-      "domainCandidates": [
-        "connectedness",
-        "curves",
-        "closures"
-      ],
+      "domainCandidates": ["connectedness", "curves", "closures"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -367,11 +273,7 @@
           "description": "Coordinate axes with horizontal and vertical slices A1 and A2 and a small product rectangle W1 times W2 around (x0,y0)."
         }
       ],
-      "domainCandidates": [
-        "connectedness",
-        "product-spaces",
-        "neighborhoods"
-      ],
+      "domainCandidates": ["connectedness", "product-spaces", "neighborhoods"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -390,11 +292,7 @@
           "description": "Nested concentric circles between two horizontal lines through (0,1) and (0,-1), on coordinate axes; a connected example with distinct components."
         }
       ],
-      "domainCandidates": [
-        "connectedness",
-        "components",
-        "euclidean-spaces"
-      ],
+      "domainCandidates": ["connectedness", "components", "euclidean-spaces"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -413,11 +311,7 @@
           "description": "Two separated inner regions U and V and surrounding regions G and H inside a common outer region, with labeled points a and b."
         }
       ],
-      "domainCandidates": [
-        "connectedness",
-        "compactness",
-        "set-relations"
-      ],
+      "domainCandidates": ["connectedness", "compactness", "set-relations"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -436,11 +330,7 @@
           "description": "A bounded number-line interval with midpoint a1 and a collection of sequence points, used in a bisection argument."
         }
       ],
-      "domainCandidates": [
-        "metric-spaces",
-        "sequences",
-        "intervals"
-      ],
+      "domainCandidates": ["metric-spaces", "sequences", "intervals"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -459,11 +349,7 @@
           "description": "Number-line intervals with successive endpoints a1,a2 and b1,b2 and sequence points, illustrating nested interval bisection."
         }
       ],
-      "domainCandidates": [
-        "metric-spaces",
-        "sequences",
-        "intervals"
-      ],
+      "domainCandidates": ["metric-spaces", "sequences", "intervals"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -482,11 +368,7 @@
           "description": "A unit circle A on coordinate axes, its horizontal diameter marked d(A)=2 and endpoints (-1,0),(1,0)."
         }
       ],
-      "domainCandidates": [
-        "metric-spaces",
-        "diameter",
-        "euclidean-spaces"
-      ],
+      "domainCandidates": ["metric-spaces", "diameter", "euclidean-spaces"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -505,11 +387,7 @@
           "description": "A shaded rectangle B on coordinate axes with a diagonal marked d(B)=sqrt(20), illustrating the diameter of a planar set."
         }
       ],
-      "domainCandidates": [
-        "metric-spaces",
-        "diameter",
-        "euclidean-spaces"
-      ],
+      "domainCandidates": ["metric-spaces", "diameter", "euclidean-spaces"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -528,11 +406,7 @@
           "description": "Nested circular neighborhoods and closed balls with centers and radii labeled, lying inside a larger circular region in the Baire category proof."
         }
       ],
-      "domainCandidates": [
-        "metric-spaces",
-        "neighborhoods",
-        "baire-category"
-      ],
+      "domainCandidates": ["metric-spaces", "neighborhoods", "baire-category"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -551,11 +425,7 @@
           "description": "A large circular region T, an overlapping irregular open region Ui, a small shaded neighborhood, and labeled points used in the dense-intersection argument."
         }
       ],
-      "domainCandidates": [
-        "metric-spaces",
-        "neighborhoods",
-        "baire-category"
-      ],
+      "domainCandidates": ["metric-spaces", "neighborhoods", "baire-category"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -567,19 +437,15 @@
         "printedPage": 233,
         "placement": "middle left"
       },
-      "description": "A shaded unit disk Y on coordinate axes, centered at (0,0).",
+      "description": "The closed unit disk Y={(x,y):x²+y²≤1} on coordinate axes, with dense diagonal hatching and origin/Y labels.",
       "panels": [
         {
           "id": "main",
-          "description": "A shaded unit disk Y on coordinate axes, centered at (0,0)."
+          "description": "The closed unit disk Y={(x,y):x²+y²≤1} on coordinate axes, with dense diagonal hatching and origin/Y labels."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "contractibility",
-        "euclidean-spaces"
-      ],
-      "visualReview": "present in rendered scan; figure-bearing page individually inspected",
+      "domainCandidates": ["homotopy", "contractibility", "euclidean-spaces"],
+      "visualReview": "Full source pages, graphic crops and surrounding prose checked during reproduction; see review-11.1-11.4.json.",
       "reproductionStatus": "pending"
     },
     {
@@ -590,19 +456,15 @@
         "printedPage": 233,
         "placement": "middle right"
       },
-      "description": "The unit disk with a darker concentric contracted image and radial point labels, illustrating a contraction toward the origin.",
+      "description": "The unit disk and its concentric half-radius image under j_{1/2}; marked p=(x,y), j_{1/2}(p), origin and radius endpoint labels.",
       "panels": [
         {
           "id": "main",
-          "description": "The unit disk with a darker concentric contracted image and radial point labels, illustrating a contraction toward the origin."
+          "description": "The unit disk and its concentric half-radius image under j_{1/2}; marked p=(x,y), j_{1/2}(p), origin and radius endpoint labels."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "contractibility",
-        "euclidean-spaces"
-      ],
-      "visualReview": "present in rendered scan; figure-bearing page individually inspected",
+      "domainCandidates": ["homotopy", "contractibility", "euclidean-spaces"],
+      "visualReview": "Full source pages, graphic crops and surrounding prose checked during reproduction; see review-11.1-11.4.json.",
       "reproductionStatus": "pending"
     },
     {
@@ -613,11 +475,11 @@
         "printedPage": 234,
         "placement": "upper left"
       },
-      "description": "A cone with several horizontal circular cross sections shrinking from Y at height 1 to a single point at height 0, with contraction labels.",
+      "description": "A cone display of radial disk images: three hatched circular sections, two marked centers, a bent lower-center leader, and time/radius labels1,r,0 shrinking to the origin.",
       "panels": [
         {
           "id": "main",
-          "description": "A cone with several horizontal circular cross sections shrinking from Y at height 1 to a single point at height 0, with contraction labels."
+          "description": "A cone display of radial disk images: three hatched circular sections, two marked centers, a bent lower-center leader, and time/radius labels1,r,0 shrinking to the origin."
         }
       ],
       "domainCandidates": [
@@ -626,7 +488,7 @@
         "products",
         "surfaces"
       ],
-      "visualReview": "present in rendered scan; figure-bearing page individually inspected",
+      "visualReview": "Full source pages, graphic crops and surrounding prose checked during reproduction; see review-11.1-11.4.json.",
       "reproductionStatus": "pending"
     },
     {
@@ -637,22 +499,19 @@
         "printedPage": 234,
         "placement": "upper right"
       },
-      "description": "A cylinder X times [0,1] mapped by H to a region Y containing the images of its horizontal slices.",
+      "description": "A cylinder X×[0,1] with endpoint/intermediate fibers mapped by H to named images in Y; upper image reads f(x), intermediate H(X×{r}), lower g(X).",
       "panels": [
         {
           "id": "domain",
-          "description": "Cylinder with slices X times {0}, X times {r}, and X times {1}."
+          "description": "A cylinder X×[0,1] with endpoint/intermediate fibers mapped by H to named images in Y; upper image reads f(x), intermediate H(X×{r}), lower g(X)."
         },
         {
           "id": "image",
           "description": "Irregular target Y with curves labeled by the corresponding homotopy slice images."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "product-spaces"
-      ],
-      "visualReview": "present in rendered scan; figure-bearing page individually inspected",
+      "domainCandidates": ["homotopy", "product-spaces"],
+      "visualReview": "Full source pages, graphic crops and surrounding prose checked during reproduction; see review-11.1-11.4.json.",
       "reproductionStatus": "pending"
     },
     {
@@ -663,7 +522,7 @@
         "printedPage": 236,
         "placement": "upper"
       },
-      "description": "A cylinder of parameter slices mapped to concentric contracting disk images in a coordinate plane.",
+      "description": "A disk identity contracts to the origin at1/2 and slides to the constant horizontal point at0; graphic contains a Y×[0,0] domain typo and nonmonotone3/4 slice placement, preserved visibly and documented separately from coherent mathematical fibers.",
       "panels": [
         {
           "id": "domain",
@@ -674,11 +533,7 @@
           "description": "Concentric disk boundaries and radial arrows converging toward the origin."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "contractibility",
-        "product-spaces"
-      ],
+      "domainCandidates": ["homotopy", "contractibility", "product-spaces"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -690,18 +545,14 @@
         "printedPage": 236,
         "placement": "lower right"
       },
-      "description": "Many curved paths between two fixed endpoints, surrounding an interior point P and labeled as members of a homotopy family.",
+      "description": "A family of fixed-endpoint arcs in the plane encloses P; deleting P obstructs homotopy relative to the common endpoints (not unrestricted homotopy).",
       "panels": [
         {
           "id": "main",
           "description": "Many curved paths between two fixed endpoints, surrounding an interior point P and labeled as members of a homotopy family."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "paths",
-        "punctured-spaces"
-      ],
+      "domainCandidates": ["homotopy", "paths", "punctured-spaces"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -713,7 +564,7 @@
         "printedPage": 238,
         "placement": "upper"
       },
-      "description": "A sliced cylinder and its target image, used to depict a homotopy assembled from consecutive homotopies.",
+      "description": "Pasting f~g and g~k at the middle cylinder slice; source lower legend erroneously uses H(X×{1}) for k despite its parameter0.",
       "panels": [
         {
           "id": "domain",
@@ -724,10 +575,7 @@
           "description": "Irregular target Y with top, middle, and bottom image curves labeled f(X), h(X), and g(X)."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "product-spaces"
-      ],
+      "domainCandidates": ["homotopy", "product-spaces"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -739,7 +587,7 @@
         "printedPage": 238,
         "placement": "lower"
       },
-      "description": "The two end disks of a cylinder mapped separately by f and g into a target Y, introducing the extension formulation of a homotopy.",
+      "description": "A continuous extension from the two closed endpoint fibers to the cylinder, with upper f and lower g arrows; nearby prose reverses the graphic endpoint convention.",
       "panels": [
         {
           "id": "domain",
@@ -750,11 +598,7 @@
           "description": "Irregular target Y, reached by separate arrows f and g from the end disks."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "product-spaces",
-        "extension-problems"
-      ],
+      "domainCandidates": ["homotopy", "product-spaces", "extension-problems"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -766,17 +610,14 @@
         "printedPage": 241,
         "placement": "upper left"
       },
-      "description": "An irregular loop alpha inside a region Y, with the common initial and final point marked y0.",
+      "description": "The continuous map a:[0,1]→Y has a(0)=a(1)=y0; a loop can have self-intersections. The basepoint belongs to Y and names the loop space/fundamental group; Substance contains no drawing geometry.",
       "panels": [
         {
           "id": "main",
           "description": "An irregular loop alpha inside a region Y, with the common initial and final point marked y0."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "based-loops"
-      ],
+      "domainCandidates": ["homotopy", "based-loops"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -788,7 +629,7 @@
         "printedPage": 241,
         "placement": "upper right"
       },
-      "description": "A shaded unit parameter square mapped to a shaded band between two based loops in Y.",
+      "description": "H fixes the two interval endpoints at y0 for every parameter; its top/bottom/intermediate slices are based loops a1,a0,ar. The mathematical family is linear interpolation of two finite Fourier plane loops, with coefficients chosen to follow the scan contours; endpoints agree exactly as real functions, up to floating arithmetic in evaluation. Native path samples evaluate the actual loop parameterizations, rather than drawing an unrelated filled band.",
       "panels": [
         {
           "id": "parameters",
@@ -799,10 +640,7 @@
           "description": "Shaded homotopy band between based loops in an irregular region Y, sharing y0."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "based-loops"
-      ],
+      "domainCandidates": ["homotopy", "based-loops"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -814,18 +652,14 @@
         "printedPage": 242,
         "placement": "lower right"
       },
-      "description": "A unit parameter square with labeled edge paths and a horizontal division, giving a picture of a homotopy between concatenated loops.",
+      "description": "Two loops a1/a3 are homotopic relative to y0; concatenating either with the same a2 gives a relative homotopy H′. The actual second-half map is a2(2r−1), with a2 held fixed at all homotopy times; the common basepoint glues the two half intervals. Homotopy-class products are explicitly related in the fundamental group.",
       "panels": [
         {
           "id": "main",
           "description": "A unit parameter square with labeled edge paths and a horizontal division, giving a picture of a homotopy between concatenated loops."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "based-loops",
-        "parameter-domains"
-      ],
+      "domainCandidates": ["homotopy", "based-loops", "parameter-domains"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -837,18 +671,14 @@
         "printedPage": 244,
         "placement": "middle right"
       },
-      "description": "A rectangular parameter domain whose two slanting internal boundaries change the relative widths of regions labeled by three paths, illustrating associativity.",
+      "description": "Moving boundaries are r=(1+s)/4 and r=(2+s)/4; the three durations are(1+s)/4,1/4,(2−s)/4. At source top s=0, the path is(a1#a2)#a3; at source bottom s=1 it is a1#(a2#a3). Both nested class products are equal in the fundamental group; boundary seams all map to the same basepoint.",
       "panels": [
         {
           "id": "main",
           "description": "A rectangular parameter domain whose two slanting internal boundaries change the relative widths of regions labeled by three paths, illustrating associativity."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "based-loops",
-        "parameter-domains"
-      ],
+      "domainCandidates": ["homotopy", "based-loops", "parameter-domains"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -860,18 +690,14 @@
         "printedPage": 245,
         "placement": "middle left"
       },
-      "description": "A square parameter diagram with a slanted separator and regions labeled by a loop and a constant path; one of the identity homotopy exercises.",
+      "description": "a1#k at homotopy time1 is homotopic relative to y0 to a1 at0. The nonconstant interval length is1−s/2; the terminal constant interval shrinks continuously to zero length. The constant-loop class is the group identity; the product class equals the a1 class.",
       "panels": [
         {
           "id": "main",
           "description": "A square parameter diagram with a slanted separator and regions labeled by a loop and a constant path; one of the identity homotopy exercises."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "based-loops",
-        "parameter-domains"
-      ],
+      "domainCandidates": ["homotopy", "based-loops", "parameter-domains"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -883,18 +709,14 @@
         "printedPage": 245,
         "placement": "middle right"
       },
-      "description": "A second square parameter diagram with a slanted separator and loop/constant-path regions; the companion identity homotopy exercise.",
+      "description": "k#a1 at time1 is homotopic relative to y0 to a1 at0. The initial constant interval length is s/2; the remaining interval evaluates a1((r−s/2)/(1−s/2)).",
       "panels": [
         {
           "id": "main",
           "description": "A second square parameter diagram with a slanted separator and loop/constant-path regions; the companion identity homotopy exercise."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "based-loops",
-        "parameter-domains"
-      ],
+      "domainCandidates": ["homotopy", "based-loops", "parameter-domains"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -906,7 +728,7 @@
         "printedPage": 246,
         "placement": "upper middle"
       },
-      "description": "Two circular based loops showing a path and the same path traversed in the opposite direction.",
+      "description": "a1^−1(r)=a1(1−r) preserves the same image and basepoint while reversing traversal orientation. The native circle images correspond to the unit-radius finite Fourier loop; the inverse class is explicitly related to the original in its fundamental group.",
       "panels": [
         {
           "id": "forward",
@@ -917,11 +739,7 @@
           "description": "The same circular loop with reversed traversal, labeled alpha inverse."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "based-loops",
-        "fundamental-groups"
-      ],
+      "domainCandidates": ["homotopy", "based-loops", "fundamental-groups"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -940,11 +758,7 @@
           "description": "A sphere drawn with several curved loops passing near or through a marked base point P, illustrating contraction of a loop on the sphere."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "fundamental-groups",
-        "surfaces"
-      ],
+      "domainCandidates": ["homotopy", "fundamental-groups", "surfaces"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -963,11 +777,7 @@
           "description": "A torus with a marked base point y0 and two distinguished loop generators a and b."
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "fundamental-groups",
-        "surfaces"
-      ],
+      "domainCandidates": ["homotopy", "fundamental-groups", "surfaces"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -1077,11 +887,7 @@
           "description": "The separate numerals 1, 0, and 8 arranged as 108"
         }
       ],
-      "domainCandidates": [
-        "homotopy",
-        "homotopy-equivalence",
-        "graphs"
-      ],
+      "domainCandidates": ["homotopy", "homotopy-equivalence", "graphs"],
       "visualReview": "present in rendered scan; figure-bearing page individually inspected",
       "reproductionStatus": "pending"
     },
@@ -1100,9 +906,7 @@
           "description": "Notation lookup in two columns, with symbols and page references."
         }
       ],
-      "domainCandidates": [
-        "notation-reference"
-      ],
+      "domainCandidates": ["notation-reference"],
       "visualReview": "present in rendered scan; page individually inspected",
       "reproductionStatus": "pending",
       "scopeDecision": "Reference apparatus; tracked separately from illustrative mathematical diagrams and pending website representation decision."

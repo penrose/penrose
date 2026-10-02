@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "kind": "original-illustrations",
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "pdfPages": [207, 208],
+    "printedPages": [222, 223],
+    "section": "10.3",
+    "exercise": 5,
+    "originalSourceFigure": false
+  },
+  "implementation": {
+    "domain": "point-set-topology",
+    "style": "packages/bloom/src/styles/contraction-iterates.tsx",
+    "example": "packages/bloom/src/examples/contraction-iterates.ts",
+    "mathematics": "For an affine map f(x)=ax+b, |a|<1, the unique fixed point is b/(1-a), and s_n-z=a^n(y-z). Therefore |s_n-z|=|a|^n|y-z| and |s_n-s_m| is at most the sum of the two errors. All values are mathematical data in Substance; both complete R, its Euclidean metric and the fixed point are explicit.",
+    "programs": [
+      {
+        "slope": 0.5,
+        "intercept": 1,
+        "initial": -2,
+        "steps": 8
+      },
+      {
+        "slope": -0.6,
+        "intercept": 0.8,
+        "initial": 3,
+        "steps": 8
+      }
+    ],
+    "reuse": "One parameterized Substance factory and one Style render both monotone and alternating sequences. A zero-slope constant map is verified as a third independent native-render case."
+  },
+  "verification": {
+    "tests": 2,
+    "testFile": "packages/bloom/src/styles/contraction-iterates.test.ts",
+    "native": "All three programs converge through native Penrose optimization, with XML-valid SVG and annotation dragging.",
+    "typecheck": "Full Bloom declaration emit passed.",
+    "lint": "Scoped ESLint passed.",
+    "visual": "Both white-background full-resolution native previews inspected; alternating fixed-point and initial labels moved clear of the cobweb."
+  },
+  "limits": [
+    "These diagrams illustrate the complete real-line case of the exercise; they do not reconstruct a source figure or assert fixed-point existence in incomplete spaces.",
+    "The eight rendered steps do not enumerate the infinite sequence. The algebraic all-n identity establishes the error behavior, with ordinary floating-point evaluation in the helper.",
+    "The error chart rescales its vertical range by the initial error, so it shows relative geometric decay rather than a shared absolute vertical scale with the cobweb."
+  ]
+}

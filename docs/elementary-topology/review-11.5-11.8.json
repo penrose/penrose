@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "sourceBook": "Michael C. Gemignani, Elementary Topology, Second Edition",
+  "status": "implemented-and-visually-reviewed",
+  "privateInputPolicy": "Supplied PDF, full-page scans, crops and private comparisons remain local inputs; only provenance and graphic rectangles are recorded.",
+  "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+  "styleModule": "packages/bloom/src/styles/homotopy-constructions.tsx",
+  "substanceModule": "packages/bloom/src/examples/homotopy-constructions.ts",
+  "testModule": "packages/bloom/src/styles/homotopy-constructions.test.ts",
+  "reuseVerification": [
+    "Contract-and-slide, fixed-endpoint arc and pasted homotopy styles each optimize distinct parameterized mathematical Substances using the same Style instance.",
+    "Native homotopyCylinderView and homotopyFamilyStyle support ordinary domain fibers, optional abstract boundaries, endpoint hatching, image leaders and adjustable view dimensions; defaults of reviewed 11.1–4 remain unchanged.",
+    "Closed disks, intervals, products, continuous maps, ImageOf, CorestrictionOf, ExtensionOf and UnionOf are reused. Coarse homotopy and relative-homotopy predicates remain independent of shape data.",
+    "Mathematical parabolic arcs are converted exactly to native cubic Path coordinates by reusable ParabolicArcView; no raw SVG/image wrappers are used."
+  ],
+  "verification": {
+    "focusedTests": 4,
+    "relatedHomotopyRegressionTests": 4,
+    "failures": 0,
+    "mockedRendering": false,
+    "nativeRendering": "Static, exact canonical interactive and sampled factories all converge and emit XML-valid SVG.",
+    "nativeDragHandles": {
+      "11.5": 11,
+      "11.6": 5,
+      "11.7": 9,
+      "11.8": 6
+    },
+    "canonicalInteraction": "Initial label offsets remain within 1e-8 of zero; actual native translation by (3,1) preserves all construction paths, lines, circles, ellipses and polygons.",
+    "mathematicalChecks": "Endpoint values, breakpoint continuity, exact quadratic-to-cubic agreement at five samples, shared arc endpoints, relative puncture obstruction, matching pasted endpoint maps, time rescaling and two-fiber closed extension domain are checked.",
+    "typecheck": "Full Bloom declaration emit passed.",
+    "lintWarnings": 0,
+    "rootVisualReview": "Passed: parent inspected all four equal-width source/native comparisons and the documented mathematical corrections.",
+    "rootReaderReview": "Passed in production: all four native SVGs have positive visible dimensions on printed pages 236 and 238; captions and prose remain intact. Source notation notes and actual Substance are readable. Printed page 236 also inspected at a phone breakpoint."
+  },
+  "figures": [
+    {
+      "id": "11.5",
+      "panelCount": 2,
+      "source": {
+        "pdfPage": 220,
+        "printedPage": 236,
+        "boundingBox": [0.232877, 0.087015, 0.609062, 0.178715],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [221, 130, 578, 267],
+        "pagePixels180dpi": [949, 1494]
+      },
+      "implementation": {
+        "substanceFactory": "contractAndSlideSubstance",
+        "styleFactory": "contractAndSlideStyle",
+        "buildFactory": "buildContractAndSlideFigure",
+        "canvas": [374, 176]
+      },
+      "mathematics": [
+        "Identity at time1 contracts continuously to the center at1/2, then slides continuously to the horizontal constant point (1/2,0) at time0.",
+        "The source unit disk and its positive-radius radial images are closed; constant images are singleton sets. Actual product fibers use Y×[0,1] and the correct mathematical slice parameters."
+      ],
+      "visualFidelity": [
+        "Four source cylinder slices, endpoint hatching, slice markers, axis-aligned concentric images, three marked points and all eleven labels are preserved.",
+        "The source cylinder places the label3/4 below1/2; this exceptional source layout is isolated in Style and does not alter the actual mathematical parameters."
+      ],
+      "sourceCorrection": {
+        "source": "The graphic labels the domain Y × [0,0], places 3/4 below 1/2, and shows the horizontal constant point (1/2,0). Printed page 235 describes the vertical point (0,1/2) and a differently oriented piecewise family; page 236 reverses its endpoint claim.",
+        "mathematicalProgram": "Uses the coherent family matching the picture: H(p,r) = (1 − 2r)(1/2,0) for r ≤ 1/2 and (2r − 1)p for r ≥ 1/2. Its domain is Y × [0,1], with the identity at 1 and the constant at 0.",
+        "visibleFigure": "Preserves the supplied labels. The erroneous domain text and nonmonotone cylinder order are explicit overrides in Style."
+      },
+      "comparison": "Full supplied pages220/222 and graphic-only crops inspected beside final native SVGs at equal width; private comparison files remain local.",
+      "limitations": [
+        "Smooth exact circles/ellipses, schematic abstract contours and exact parabolic arcs replace the small irregularities of the hand-drawn scan."
+      ]
+    },
+    {
+      "id": "11.6",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 220,
+        "printedPage": 236,
+        "boundingBox": [0.573235, 0.620482, 0.402529, 0.181392],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [544, 927, 382, 271],
+        "pagePixels180dpi": [949, 1494]
+      },
+      "implementation": {
+        "substanceFactory": "fixedEndpointArcsSubstance",
+        "styleFactory": "fixedEndpointArcsStyle",
+        "buildFactory": "buildFixedEndpointArcsFigure",
+        "canvas": [166, 132]
+      },
+      "mathematics": [
+        "Two injective parabolic arcs have the same endpoints and enclose the removed point P. Linear interpolation through their normal displacements is a homotopy relative to the closed endpoint pair{0,1} in the plane.",
+        "After corestricting both arcs to the punctured plane, they are not homotopic relative to those endpoints. This is not an assertion of nonhomotopy when endpoints may move."
+      ],
+      "visualFidelity": [
+        "Shared left/lower and right/upper endpoints, the interior P, the visible family of arcs, upper/lower image labels and the upper endpoint leader preserve source incidence and composition."
+      ],
+      "sourceCorrection": {
+        "source": "The prose says the two functions are not homotopic after removing P without explicitly retaining their common endpoints.",
+        "mathematicalProgram": "Asserts the obstruction for homotopies relative to {0,1}. Unrestricted paths from the contractible interval into the connected punctured plane are homotopic.",
+        "visibleFigure": "Preserves the source labels and fixed-endpoint illustration."
+      },
+      "comparison": "Full supplied pages220/222 and graphic-only crops inspected beside final native SVGs at equal width; private comparison files remain local.",
+      "limitations": [
+        "Smooth exact circles/ellipses, schematic abstract contours and exact parabolic arcs replace the small irregularities of the hand-drawn scan."
+      ]
+    },
+    {
+      "id": "11.7",
+      "panelCount": 2,
+      "source": {
+        "pdfPage": 222,
+        "printedPage": 238,
+        "boundingBox": [0.28286, 0.055407, 0.592008, 0.182243],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [269, 83, 563, 273],
+        "pagePixels180dpi": [951, 1498]
+      },
+      "implementation": {
+        "substanceFactory": "pastedHomotopySubstance",
+        "styleFactory": "pastedHomotopyStyle",
+        "buildFactory": "buildPastedHomotopyFigure",
+        "canvas": [360, 182]
+      },
+      "mathematics": [
+        "H1 runs from g at0 to f at1; H2 runs from k at0 to g at1. Rescaled pasting on the two closed half intervals gives H from k at0 to f at1, agreeing at the common g slice.",
+        "Each domain fiber is an explicit product with its singleton parameter; ImageOf gives f(X),g(X),k(X) as subsets of Y."
+      ],
+      "visualFidelity": [
+        "Abstract cylinder boundary, three domain slices, dashed hidden arcs, rightward central H arrow, target image band, three image leaders and nine labels follow the source."
+      ],
+      "sourceCorrection": {
+        "source": "The bottom legend reads k(X) = H(X × {1}), although the bottom cylinder parameter is 0.",
+        "mathematicalProgram": "Uses time 0 for the actual k slice and ImageOf relation.",
+        "visibleFigure": "Retains the time 1 legend as an explicit imageLabelOverride in Style."
+      },
+      "comparison": "Full supplied pages220/222 and graphic-only crops inspected beside final native SVGs at equal width; private comparison files remain local.",
+      "limitations": [
+        "Smooth exact circles/ellipses, schematic abstract contours and exact parabolic arcs replace the small irregularities of the hand-drawn scan."
+      ]
+    },
+    {
+      "id": "11.8",
+      "panelCount": 2,
+      "source": {
+        "pdfPage": 222,
+        "printedPage": 238,
+        "boundingBox": [0.327024, 0.520694, 0.435331, 0.159546],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [311, 780, 414, 239],
+        "pagePixels180dpi": [951, 1498]
+      },
+      "implementation": {
+        "substanceFactory": "endpointExtensionSubstance",
+        "styleFactory": "endpointExtensionStyle",
+        "buildFactory": "buildEndpointExtensionFigure",
+        "canvas": [244, 146]
+      },
+      "mathematics": [
+        "The endpoint boundary is exactly the union X×{0}∪X×{1}, a closed subset of the product domain.",
+        "Its continuous map h agrees with g on the lower fiber and f on the upper fiber, and H is a continuous extension to X×[0,1]."
+      ],
+      "visualFidelity": [
+        "Both hatched endpoint fibers, the source upper and lower fiber labels, f/g arrows, target contour and image band are preserved with restrained orange on the hatch disks."
+      ],
+      "sourceCorrection": {
+        "source": "The nearby prose writes h(x,0) = f(x) and h(x,1) = g(x), opposite both Definition 1 and the graphic, which places the f arrow at 1 and g arrow at 0.",
+        "mathematicalProgram": "Uses the graphic convention h(x,1) = f(x) and h(x,0) = g(x), with a valid ExtensionOf relation.",
+        "visibleFigure": "Preserves the visible graphic labels."
+      },
+      "comparison": "Full supplied pages220/222 and graphic-only crops inspected beside final native SVGs at equal width; private comparison files remain local.",
+      "limitations": [
+        "Smooth exact circles/ellipses, schematic abstract contours and exact parabolic arcs replace the small irregularities of the hand-drawn scan."
+      ]
+    }
+  ]
+}

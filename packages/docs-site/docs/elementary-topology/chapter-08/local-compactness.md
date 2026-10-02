@@ -10,9 +10,10 @@ title: Local Compactness — Elementary Topology
 
 There are times when a topological space possesses some property “locally” which it does not have taken as a whole. For example, a second countable space has a countable basis for its topology. A space $X,\tau$ may not be second countable, but could still have the property that there is an open neighborhood system for $\tau$ such that for any $x\in X$, $\mathfrak{N}_x$ is countable; we called such a space _first countable_. In a sense, a first countable space is a space which is locally second countable. Similarly, a space may not be compact, but still have the property that each point is contained in each member of an “appropriate” family of compact sets.
 
-::: info Figure 8.3 — Penrose reproduction pending
-[View Figure 8.3 on its source page](../reader?page=168).
-:::
+<figure class="book-figure">
+<img src="/elementary-topology/figures/figure-8.3.svg" alt="Point x lies at the center of a small shaded disk inside a larger disk, both contained in an irregular open neighborhood U; leaders label N(x,p) and Cl N(x,p/2)." />
+<figcaption>Figure 8.3. <a href="/docs/elementary-topology/reader?page=168">View the interactive figure and its Substance program.</a></figcaption>
+</figure>
 
 **Example 3.** Let $R^2$ be the coordinate plane with the Pythagorean metric topology. Then $R^2$ is not compact, since it is not bounded (Proposition 2). If $x\in R^2$ and $U$ is any neighborhood of $x$, then there is $p>0$ such that $N(x,p)\subset U$. Then
 
@@ -74,9 +75,10 @@ _Proof._ $X$ is a compact neighborhood of any $x\in X$.
 
 <!-- Source: PDF161, printed170. -->
 
-::: info Figure 8.4 — Penrose reproduction pending
-[View Figure 8.4 on its source page](../reader?page=170).
-:::
+<figure class="book-figure">
+<img src="/elementary-topology/figures/figure-8.4.svg" alt="A horizontal real line has an open interval (a,b), the rational point x, an irrational point t, and an overbrace indicating containment in the interior of A." />
+<figcaption>Figure 8.4. <a href="/docs/elementary-topology/reader?page=170">View the interactive figure and its Substance program.</a></figcaption>
+</figure>
 
 **Example 5.** Let $Q$ be the subspace of rational numbers in the space $R$ of real numbers with the absolute value topology. Then $Q$ is not locally compact. Let $x\in Q$ and suppose $A$ is a compact subset of $Q$ such that $x\in A^\circ$ (Fig. 8.4). Then $A$ contains infinitely many elements of $Q$. There is $(a,b)\subset R$ such that $x\in(a,b)\cap Q\subset A^\circ$. Choose an irrational number $t\in(a,b)$. We will now construct an open cover of $A$ which has no finite subcover. For each $q\in A$, set
 
@@ -124,9 +126,10 @@ $$
 (V\cap W)\cap Y=W\cap(Y\cap V)\ne\phi.
 $$
 
-::: info Figure 8.5 — Penrose reproduction pending
-[View Figure 8.5 on its source page](../reader?page=171).
-:::
+<figure class="book-figure">
+<img src="/elementary-topology/figures/figure-8.5.svg" alt="An oval ambient space X contains a crosshatched diamond-shaped subspace Y, a small irregular neighborhood around point y, and leaders marking relative and ambient open sets." />
+<figcaption>Figure 8.5. <a href="/docs/elementary-topology/reader?page=171">View the interactive figure and its Substance program.</a></figcaption>
+</figure>
 
 But then every neighborhood of $z$ meets $Y\cap V$ as well; hence
 
@@ -144,9 +147,10 @@ We now investigate the behavior of locally compact spaces with regard to continu
 
 <!-- Source: PDF163, printed172. -->
 
-::: info Figure 8.6 — Penrose reproduction pending
-[View Figure 8.6 on its source page](../reader?page=172).
-:::
+<figure class="book-figure">
+<img src="/elementary-topology/figures/figure-8.6.svg" alt="An arrow maps a detached point A={-1} and a positive half-line B into a coordinate plot with the point (0,0) and the rapidly oscillating curve y=sin(1/x)." />
+<figcaption>Figure 8.6. <a href="/docs/elementary-topology/reader?page=172">View the interactive figure and its Substance program.</a></figcaption>
+</figure>
 
 **Example 6.** Let $A=\{-1\}$ and $B=\{x\mid0<x\}$ (Fig. 8.6). Let $X=A\cup B$ be given the absolute value topology. Then $X$ is the intersection of a closed subset of $R$, the usual space of real numbers, with an open subset of $R$ [for example, $X=(\{-1\}\cup\{x\mid0<x\})\cap(R-\{0\})$]; hence $X$ is locally compact. Define a function $f$ from $X$ into $R^2$ (with the Pythagorean topology) by
 

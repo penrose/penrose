@@ -20,6 +20,8 @@ fills form a consistent visual vocabulary.
 
 ## Transcribed sections
 
+- [Front matter](./front-matter/) — title, publication, dedication, preface and original contents.
+
 - [1 Preliminaries](./chapter-01/) — sets and functions, orderings and equivalence
   relations, cardinality, and groups; all supplied chapter text and exercises.
 - [2 Metric Spaces](./chapter-02/) — metrics, neighborhoods, open and closed sets,
@@ -37,6 +39,11 @@ fills form a consistent visual vocabulary.
 
 - [8 More About Compactness](./chapter-08/) — Euclidean compactness, local compactness,
   compactifications, and sequential and countable compactness; all supplied chapter text.
+
+- [9 Connectedness](./chapter-09/) — connectedness, components and local connectedness; all supplied chapter text.
+- [10 Metrizability. Complete Metric Spaces](./chapter-10/) — metrization, Cauchy sequences, completeness, Baire category and paracompactness; all supplied chapter text.
+- [11 Introduction to Homotopy Theory](./chapter-11/) — homotopies, loops and the fundamental group; all supplied chapter text.
+- [Appendix and indexes](./back-matter/) — infinite products, the symbol index and the subject index.
 
 ## Coverage
 

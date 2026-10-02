@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "edition": "Elementary Topology, Michael C. Gemignani, Second Edition",
+    "sourceImageDimensions": [762, 1262],
+    "visualReview": "Full supplied PDF156,159,161,162,163 visually inspected at detail resolution. Adjacent prose on PDF155,157 and160 consulted. All five optimized SVGs inspected beside source crops; their normalized boxes exclude captions and prose.",
+    "boundsConvention": "sourceBounds is normalized [x,y,width,height] against the full PDF page, including graphic and labels."
+  },
+  "implementation": {
+    "domain": "point-set-topology",
+    "domainFile": "packages/bloom/src/domains/point-set-topology.ts",
+    "semantics": "Coarse boundedness, compact neighborhood, local compactness, locally closed subspace, irrational-cut cover and sine-image declarations. Substance snapshots have no shapes or pixel data.",
+    "styleReuse": "Shared topologyDrawing, reverseRegionHatches and OscillatingSineGraphView/sampleSineCurve. Native curve component is also reused by Chapter 9.",
+    "graphics": "Penrose path/circle/ellipse/line/equation/group shapes and native clipping, without raster wrappers.",
+    "interactive": "All five build factories accept final FigureRenderOptions and spread variation/interactive last."
+  },
+  "verification": {
+    "focusedTestFile": "packages/examples/src/elementary-topology/local-compactness.test.ts",
+    "testsPassed": 14,
+    "publicBloomDeclarationEmit": "passed (latest full emit includes repaired metric-completeness subtype)",
+    "exampleLeafTypecheckAndEmit": "passed",
+    "domainRuntimeImport": "passed after domain additions and relative-subtype exports",
+    "scopedBloomESLint": "passed",
+    "formatting": "Prettier applied",
+    "visualReview": "Five optimized native SVGs rasterized on white and inspected beside source crops; bounded-set outline, complementary hatches, source knockouts and dense sine strokes refined.",
+    "scope": "Mathematical hypotheses, actual rendered point containment, finite irrational-cut cover witnesses, sine-map domain/image, phase resolution and missing ambient accumulation points are checked. Formal universal proof and pixel identity are not claimed.",
+    "rootVisualReview": "Passed: parent inspected all five source/SVG comparison images at equal width."
+  },
+  "figures": [
+    {
+      "id": "8.1",
+      "pdfPage": 156,
+      "printedPage": 164,
+      "pixelBounds": [233, 694, 350, 208],
+      "defaultCanvas": [350, 208],
+      "panels": 1,
+      "style": "boundedSetStyle",
+      "substance": "closedBoundedSet",
+      "build": "buildClosedBoundedSetFigure",
+      "sourceContext": "Section 8.1 Proposition 2 and proof: the product topology agrees with the sup-norm metric. Bounded A lies in N'(bar0,p); its closure is the product of compact intervals [-p,p]. A closed bounded subset is therefore compact.",
+      "geometry": [
+        "Four black boundary points, coordinate axes, original coordinate labels and zero label inside the hatched closed sup-norm box.",
+        "The source irregular closed A lies strictly inside the open box. Its darker crossing hatches and A knockout are retained; only the consistent subdued orange fill is added."
+      ],
+      "facts": [
+        "BoundedBy(A,N'), Subset(A,N'), ClosedIn(A,tau), CompactIn(A,tau), ClosureOf(box,N',tau), ProductOf(box,[-p,p],[-p,p]) and CompactIn(box,tau).",
+        "The box has mathematical bounds [-p,-p,p,p]. The diagram uses the source's unequal horizontal and vertical display units; pixel aspect does not change the sup-norm neighborhood."
+      ],
+      "checks": [
+        "Positive finite radius validation and immutable product bounds; the factual product, closure and compactness statements are checked.",
+        "Native box, irregular set, clipped crossing hatches, four coordinate boundary dots and equation labels render without image elements."
+      ],
+      "limits": [
+        "The generic A contour is a style realization of an arbitrary closed bounded subset, not pixel data stored in Substance.",
+        "The printed graphic labels Cl N(bar0,p), omitting the prime used in the surrounding proof. That source label is preserved; the bounding neighborhood remains N' semantically.",
+        "Smooth vector boundaries and lighter hatches approximate the scan."
+      ],
+      "sourceBounds": [0.305774, 0.549921, 0.459318, 0.164818],
+      "styleFile": "packages/bloom/src/styles/bounded-sets.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/bounded-sets.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-8.1.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-8.1.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-8.1-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-8.1-comparison.png"
+    },
+    {
+      "id": "8.3",
+      "pdfPage": 159,
+      "printedPage": 168,
+      "pixelBounds": [237, 583, 294, 246],
+      "defaultCanvas": [294, 246],
+      "panels": 1,
+      "style": "compactNeighborhoodStyle",
+      "substance": "euclideanCompactNeighborhood",
+      "build": "buildCompactNeighborhoodFigure",
+      "sourceContext": "Section 8.2 Example 3 and Definition 2 on adjacent printed 169: R^2 is noncompact but locally compact. For arbitrary x and U choose N(x,p) inside U. N(x,p/2) is the interior of the compact closed half-radius disk.",
+      "geometry": [
+        "Original irregular outer U, round N(x,p), central hatched closed half-radius disk, x dot, closure label and short arrow.",
+        "The full-radius outline and half-radius hatch use the exact ratio 2:1; no extra outline is added around the hatched disk."
+      ],
+      "facts": [
+        "NotCompact(tau_D), LocallyCompact(tau_D), CompactNeighborhoodWithin(x,U,N(x,p/2),Cl N(x,p/2),tau_D).",
+        "NeighborhoodOf facts, concentric centers and the strict half-radius disk containment chain; InteriorOf, ClosureOf, ClosedIn and CompactIn for the closed disk."
+      ],
+      "checks": [
+        "Several boundary samples of the compact disk are strictly inside the outer open disk.",
+        "Actual rendered circles retain the radius ratio and common center, and contain the rendered x dot."
+      ],
+      "limits": [
+        "The arbitrary U is represented by a smooth style contour. Its generic mathematical identity does not acquire a metric radius.",
+        "The source's nearly round handwritten contours become exact circles and smooth cubic boundaries."
+      ],
+      "sourceBounds": [0.311024, 0.461965, 0.385827, 0.194929],
+      "styleFile": "packages/bloom/src/styles/local-compactness.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/local-compactness.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-8.3.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-8.3.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-8.3-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-8.3-comparison.png"
+    },
+    {
+      "id": "8.4",
+      "pdfPage": 161,
+      "printedPage": 170,
+      "pixelBounds": [211, 111, 351, 106],
+      "defaultCanvas": [351, 106],
+      "panels": 1,
+      "style": "rationalNeighborhoodStyle",
+      "substance": "rationalNoncompactNeighborhood",
+      "build": "buildRationalNeighborhoodFigure",
+      "sourceContext": "Section 8.2 Example 5: assume a compact rational subset A with x in its relative interior. Choose (a,b) intersect Q inside A interior and irrational t in (a,b). The rays U(q) to the side of q away from t form an open cover of A with no finite subcover.",
+      "geometry": [
+        "Original real axis, the two sizes of open parentheses, the interior brace, and direct A interior, a, x, t and b labels.",
+        "No extra ray family or shading is introduced into this originally unshaded interval graphic."
+      ],
+      "facts": [
+        "AssumedCompactIn(A,tau_Q), not CompactIn; A interior and the interval-relative intersection are named separately.",
+        "RationalSubspace Q, induced tau_Q, rational dyadic realization x=5/16, and exact IrrationalPoint expression sqrt2/2 with a separate approximation.",
+        "IrrationalInInterval(t,(a,b)), Outside(t,Q), RationalRayCoverAt, OpenCoverOf, HasNoFiniteSubcover and NotLocallyCompact(tau_Q)."
+      ],
+      "checks": [
+        "The snapshot retains assumed compactness only, with the irrational point outside Q and a genuine rational x inside the relative interval.",
+        "For representative finite sets of ray bases, rationalRayGapWitness produces an exact dyadic rational strictly in the remaining gap and in no selected ray."
+      ],
+      "limits": [
+        "The chosen x and t are valid representative values; the source does not specify particular rationals or an irrational expression.",
+        "The generic assumed interior is not claimed to be the full ambient interval indicated by its schematic outer parentheses.",
+        "The finite arithmetic helper validates cover-gap constructions at machine precision; it does not enumerate the infinite rational cover or replace the source argument."
+      ],
+      "sourceBounds": [0.276903, 0.087956, 0.46063, 0.083994],
+      "styleFile": "packages/bloom/src/styles/local-compactness.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/local-compactness.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-8.4.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-8.4.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-8.4-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-8.4-comparison.png"
+    },
+    {
+      "id": "8.5",
+      "pdfPage": 162,
+      "printedPage": 171,
+      "pixelBounds": [495, 632, 239, 218],
+      "defaultCanvas": [239, 218],
+      "panels": 1,
+      "style": "locallyClosedSubspaceStyle",
+      "substance": "locallyClosedSubspace",
+      "build": "buildLocallyClosedSubspaceFigure",
+      "sourceContext": "Section 8.2 Proposition 8 and proof: a subspace Y of locally compact Hausdorff X is locally compact exactly when locally closed. Choose relative U'=Y intersect V with compact relative closure, which is also closed in X; this leads to Y open in Cl_X Y and Y=U intersect Cl_X Y.",
+      "geometry": [
+        "Original ambient round X, hatched removed diamond X-Y, smaller V hatch in the opposite direction, their darker overlap, y mark and original Y, X, V and U' labels/leaders.",
+        "U' is the part of V lying in Y. Its annotation introduces no extra boundary or extra global U contour."
+      ],
+      "facts": [
+        "LocallyCompact(tau_X), T2(tau_X), LocallyCompact(tau_Y), SubspaceTopologyOf and LocallyClosedIn(Y,X,tau_X).",
+        "IntersectionOf(U',Y,V), relative OpenIn(U',tau_Y), ambient OpenIn(V,tau_X), compact relative closure with the same entity closed in the ambient topology.",
+        "One ClosedSubspace represents Cl_X Y; OpenSubspace Y is OpenIn(Y,tau_ClY), with no OpenIn(Y,tau_X) assertion. Y equals the intersection of an ambient open set U and Cl_X Y."
+      ],
+      "checks": [
+        "The snapshot distinguishes relative and ambient topologies while retaining the identity of the closure set.",
+        "Actual rendered y lies inside V and above the diamond's highest point, hence outside X-Y. Native reversed hatch clipping and equation labels render successfully."
+      ],
+      "limits": [
+        "The generic diamond is a style illustration of the complement; an outlined cartoon does not add a closedness premise for X-Y.",
+        "Only the original local sketch is shown; the global open U and closure of Y remain mathematical entities without invented visible contours.",
+        "The ambient source contour is reproduced as a nearly circular ellipse."
+      ],
+      "sourceBounds": [0.649606, 0.500792, 0.313648, 0.172742],
+      "styleFile": "packages/bloom/src/styles/local-compactness.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/local-compactness.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-8.5.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-8.5.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-8.5-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-8.5-comparison.png"
+    },
+    {
+      "id": "8.6",
+      "pdfPage": 163,
+      "printedPage": 172,
+      "pixelBounds": [107, 94, 555, 195],
+      "defaultCanvas": [555, 195],
+      "panels": 2,
+      "style": "oscillatingSineCurveStyle",
+      "substance": "originAdjoinedSineImage",
+      "build": "buildOriginAdjoinedSineFigure",
+      "sourceContext": "Section 8.2 Example 6: X={-1} union (0,infinity) is locally compact. Define f(-1)=(0,0) and f(x)=(x,sin(1/x)) for x>0. It is a continuous bijection onto the origin-adjoined graph Y, which is not locally compact. The following definition explains why this map is not open.",
+      "geometry": [
+        "Original left source axis with isolated -1, open positive ray, A/B and x>0 labels, then a mapping arrow to the oscillating target graph.",
+        "Target axes and amplitude guides, origin dot, source coordinate labels (0,1),(0,0),(0,-1), and Y annotation.",
+        "All curve vertices are genuine positive-x sine samples. The finite high-frequency prefix has a finer stroke to remain legible; there is no filled vertical band or invented vertical segment."
+      ],
+      "facts": [
+        "ClopenSingleton A and ClopenHalfLine B are open and closed relative to X, whose union is X; the source's locally-closed construction in R is also retained.",
+        "OscillatingSineMap, SineGraphMapOn, SineCurveImageOf, ImageOf, MapsTo(-1,origin), ContinuousMap, OneToOne, Onto, NotOpenMap and FailsLocalCompactnessAt(origin,Y,tau_Y).",
+        "Only the origin is adjoined to the positive graph. The marked (0,+/-1) and the fixed-height sequence's ambient limit are explicitly Outside(Y)."
+      ],
+      "checks": [
+        "Map evaluation rejects 0 and every invalid negative input other than -1.",
+        "SineAccumulationTerm yields positive-x graph points tending to (0,height) for nonzero heights. Arbitrarily small tested origin balls contain tails whose ambient limit is outside Y.",
+        "Phase steps no larger than pi/12 resolve the canonical native curve; native emitted paths are unfilled, never close, stay strictly right of the origin and within the amplitude guides.",
+        "The dense graph's optional ensureOnCanvas flag is false for this fixed, analytically bounded source viewport, avoiding oversized constant path-bbox Wasm compilation. Native render passes with more than 2500 total curve vertices."
+      ],
+      "limits": [
+        "The displayed window 0.0015<=x<=0.17 is finite; the semantic graph remains defined for all x>0.",
+        "The source is a hand-drawn qualitative sine curve. The analytic rendering has more densely resolved oscillations near zero; stroke refinement controls aliasing but pixel identity is not claimed.",
+        "The ordinary curve still uses true affine coordinate units, without distorting x, joining the graph to the origin, or adding the vertical accumulation segment.",
+        "The numerical sequence tests check constructive witnesses at sampled radii; the complete universal local-compactness argument remains in the supplied book prose."
+      ],
+      "sourceBounds": [0.14042, 0.074485, 0.728346, 0.154517],
+      "styleFile": "packages/bloom/src/styles/oscillating-sine-curve.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/oscillating-sine-curve.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-8.6.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-8.6.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-8.6-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-8.6-comparison.png"
+    }
+  ],
+  "missingSourceNotes": [
+    {
+      "id": "8.2",
+      "status": "not-reconstructed",
+      "note": "Figure 8.2 is unlocated in the supplied PDF. Missing printed page166 remains unknown; no prose or figure was invented."
+    }
+  ]
+}

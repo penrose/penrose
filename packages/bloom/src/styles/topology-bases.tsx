@@ -94,8 +94,14 @@ export function hatchedTopologyDisk(
   radius: number,
   angles: number[],
   color: RGBA = REGION,
+  options: {
+    spacing?: number;
+    strokeWidth?: number;
+    strokeOpacity?: number;
+  } = {},
 ) {
-  return hatchedTopologyDiskView(name, center, radius, angles, color).body;
+  return hatchedTopologyDiskView(name, center, radius, angles, color, options)
+    .body;
 }
 
 /** The body and hatching can share a native drag transform in interactive views. */
@@ -105,7 +111,27 @@ export function hatchedTopologyDiskView(
   radius: number,
   angles: number[],
   color: RGBA = REGION,
+  options: {
+    spacing?: number;
+    strokeWidth?: number;
+    strokeOpacity?: number;
+  } = {},
 ) {
+  const spacing = options.spacing ?? 3.6;
+  const strokeWidth = options.strokeWidth ?? 0.6;
+  const strokeOpacity = options.strokeOpacity ?? 0.6;
+  if (
+    !(
+      spacing > 0 &&
+      strokeWidth > 0 &&
+      strokeOpacity >= 0 &&
+      strokeOpacity <= 1
+    ) ||
+    ![spacing, strokeWidth, strokeOpacity].every(Number.isFinite)
+  )
+    throw new Error(
+      "Disk hatch spacing, width and opacity must be finite and valid",
+    );
   const disk = (
     <circle
       name={name}
@@ -120,7 +146,7 @@ export function hatchedTopologyDiskView(
   for (const angle of angles) {
     const direction: XY = [Math.cos(angle), Math.sin(angle)];
     const normal: XY = [-direction[1], direction[0]];
-    for (let offset = -radius + 1; offset < radius; offset += 3.6) {
+    for (let offset = -radius + 1; offset < radius; offset += spacing) {
       const half = Math.sqrt(radius * radius - offset * offset);
       const at = (t: number): XY => [
         center[0] + offset * normal[0] + t * direction[0],
@@ -137,8 +163,8 @@ export function hatchedTopologyDiskView(
       <path
         d={stripes}
         fill-color={[0, 0, 0, 0]}
-        stroke-color={[0.1, 0.1, 0.1, 0.6]}
-        stroke-width={0.6}
+        stroke-color={[0.1, 0.1, 0.1, strokeOpacity]}
+        stroke-width={strokeWidth}
       />
     </g>
   ) as Group;

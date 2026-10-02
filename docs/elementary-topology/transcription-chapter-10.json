@@ -1,0 +1,364 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "chapter": {
+    "number": 10,
+    "title": "Metrizability. Complete Metric Space",
+    "printedPageRange": [208, 232]
+  },
+  "review": {
+    "pdfPageRange": [195, 217],
+    "method": "Private text extraction checked against every full-page 150 dpi rendered scan. Every mathematical formula and all available exercise text visually reviewed.",
+    "status": "available-pages-transcribed",
+    "availableChapterPdfPages": [
+      195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209,
+      210, 211, 212, 213, 214, 215, 216
+    ],
+    "visualReviewedPdfPages": [
+      195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209,
+      210, 211, 212, 213, 214, 215, 216, 217
+    ],
+    "limits": [
+      "Printed211,217 and229 are absent. No missing introductions, statements, proofs or exercises are reconstructed.",
+      "Printed210 ends within Proposition1 proof; printed212 begins its last contradiction fragment. Printed217 contains unavailable section boundary/exercises. Printed230 begins a proof fragment after missing229; Proposition15/16 statements are unavailable.",
+      "Source Proposition2 chooses p=min(p_i) with no weights; retained. Printed210 says reader than any subspace.",
+      "Source Definition1 occurs in both10.1 and10.2. Both Proposition17 labels on printed230 retained.",
+      "Example7 calls D\u2032 a metric space. Nested-interval endpoint conditions start n=1 despite n\u22121. Proposition5 sequence construction and strict inequalities retained.",
+      "Proposition10 proof assigns the nth coordinate of s_n to a_n, and its second corollary proof says Hilbert space; retained. Completion outline says mapping thus defined in distance preserving.",
+      "Baire proof(a) chooses x in intersection B_n after invoking intersection Cl B_n; retained. Example10 and Exercise3 reference Proposition11; Exercise7 introduces Y/Z but asks X/Y expressions, retained.",
+      "Definition6 symbol is T_(3\u00bd). Proposition18 claims F closed in one-point compactification Y; retained. Proposition21 proof says then n_i th coordinate.",
+      "Running headers and footers retained in source map. Line wrapping, paragraph indentation and line-end hyphenation normalized. Inline anchors preserve paragraphs across page boundaries.",
+      "Printed213 and223 split at section boundaries. PDF217/printed233 is the reviewed Chapter11 boundary, not transcribed as Chapter10.",
+      "Figure10.2 draws both predecessor endpoints an\u22122/bn\u22122 separately from parent interval. Exact consecutive bisection changes only one endpoint; graphic is schematic, source glyph layout retained while reusable bisection mathematics remains exact."
+    ],
+    "browserVisualQa": {
+      "status": "passed",
+      "record": "browser-qa-chapters-09-11-and-matter.json",
+      "scope": "Every corresponding sidebar route renders with no KaTeX errors, broken figure assets or document overflow in the desktop preview."
+    }
+  },
+  "outputDirectory": "packages/docs-site/docs/elementary-topology/chapter-10",
+  "pages": [
+    {
+      "pdfPage": 195,
+      "printedPage": 208,
+      "formulaReview": "verified against rendered scan",
+      "path": "metrizable-spaces.md",
+      "anchor": "printed-page-208",
+      "coverage": "All body text; Chapter and section headings, introduction, Definition1, Examples1\u20133 and product metric."
+    },
+    {
+      "pdfPage": 196,
+      "printedPage": 209,
+      "formulaReview": "verified against rendered scan",
+      "path": "metrizable-spaces.md",
+      "anchor": "printed-page-209",
+      "coverage": "All body text; Urysohn metrization Proposition1, Proposition2 and proof beginning, weighted countable-product metric and neighborhood formulas."
+    },
+    {
+      "pdfPage": 197,
+      "printedPage": 210,
+      "formulaReview": "verified against rendered scan",
+      "path": "metrizable-spaces.md",
+      "anchor": "printed-page-210",
+      "coverage": "All body text; Proposition2 proof completion, corollary, Proposition1 proof beginning, basis enumeration and Urysohn functions."
+    },
+    {
+      "pdfPage": 198,
+      "printedPage": 212,
+      "formulaReview": "verified against rendered scan",
+      "path": "metrizable-spaces.md",
+      "anchor": "printed-page-212",
+      "coverage": "All body text; Available Proposition1 final proof fragment, discussion, corollary and proof, Examples4\u20135."
+    },
+    {
+      "pdfPage": 199,
+      "printedPage": 213,
+      "formulaReview": "verified against rendered scan",
+      "fragments": [
+        {
+          "path": "metrizable-spaces.md",
+          "anchor": "printed-page-213",
+          "coverage": "All body text of section fragment; Exercises1\u20137 with all subparts; Section10.2 heading and introduction."
+        },
+        {
+          "path": "cauchy-sequences.md",
+          "anchor": "printed-page-213",
+          "coverage": "All body text of section fragment; Exercises1\u20137 with all subparts; Section10.2 heading and introduction."
+        }
+      ]
+    },
+    {
+      "pdfPage": 200,
+      "printedPage": 214,
+      "formulaReview": "verified against rendered scan",
+      "path": "cauchy-sequences.md",
+      "anchor": "printed-page-214",
+      "coverage": "All body text; Proposition3 and proof, source Definition1, Example6, axiomsA\u2013C, Proposition4 proof beginning."
+    },
+    {
+      "pdfPage": 201,
+      "printedPage": 215,
+      "formulaReview": "verified against rendered scan",
+      "path": "cauchy-sequences.md",
+      "anchor": "printed-page-215",
+      "coverage": "All body text; Proposition4 nested-interval proof, Figures10.1\u201310.2 and all interval/endpoint formulas."
+    },
+    {
+      "pdfPage": 202,
+      "printedPage": 216,
+      "formulaReview": "verified against rendered scan",
+      "path": "cauchy-sequences.md",
+      "anchor": "printed-page-216",
+      "coverage": "All body text; Proposition4 proof completed, Proposition5 and full proof."
+    },
+    {
+      "pdfPage": 203,
+      "printedPage": 218,
+      "formulaReview": "verified against rendered scan",
+      "path": "complete-metric-spaces.md",
+      "anchor": "printed-page-218",
+      "coverage": "All body text; Definition2, completeness discussion, Example7, Definition3 diameter, Example8, Proposition6 proof beginning."
+    },
+    {
+      "pdfPage": 204,
+      "printedPage": 219,
+      "formulaReview": "verified against rendered scan",
+      "path": "complete-metric-spaces.md",
+      "anchor": "printed-page-219",
+      "coverage": "All body text; Figures10.3\u201310.4, Proposition6 proof completed, Proposition7 statement and proof beginning."
+    },
+    {
+      "pdfPage": 205,
+      "printedPage": 220,
+      "formulaReview": "verified against rendered scan",
+      "path": "complete-metric-spaces.md",
+      "anchor": "printed-page-220",
+      "coverage": "All body text; Proposition7 proof completed, Proposition8 and proof, corollary and proof, Proposition9 and proof, product introduction."
+    },
+    {
+      "pdfPage": 206,
+      "printedPage": 221,
+      "formulaReview": "verified against rendered scan",
+      "path": "complete-metric-spaces.md",
+      "anchor": "printed-page-221",
+      "coverage": "All body text; Product introduction completed, Proposition10 and proof, corollary and both proofs, Proposition11 and completion introduction."
+    },
+    {
+      "pdfPage": 207,
+      "printedPage": 222,
+      "formulaReview": "verified against rendered scan",
+      "path": "complete-metric-spaces.md",
+      "anchor": "printed-page-222",
+      "coverage": "All body text; Proposition11 proof outline and cited Hocking/Young reference; Exercises1\u20135(a)."
+    },
+    {
+      "pdfPage": 208,
+      "printedPage": 223,
+      "formulaReview": "verified against rendered scan",
+      "fragments": [
+        {
+          "path": "baire-category-theorem.md",
+          "anchor": "printed-page-223",
+          "coverage": "All body text of section fragment; Exercises5(b,c)\u20137; Section10.4 introduction and Proposition12."
+        },
+        {
+          "path": "complete-metric-spaces.md",
+          "anchor": "printed-page-223",
+          "coverage": "All body text of section fragment; Exercises5(b,c)\u20137; Section10.4 introduction and Proposition12."
+        }
+      ]
+    },
+    {
+      "pdfPage": 209,
+      "printedPage": 224,
+      "formulaReview": "verified against rendered scan",
+      "path": "baire-category-theorem.md",
+      "anchor": "printed-page-224",
+      "coverage": "All body text; Figure10.5, full Proposition12(a) proof, all nested-ball and intersection formulas."
+    },
+    {
+      "pdfPage": 210,
+      "printedPage": 225,
+      "formulaReview": "verified against rendered scan",
+      "path": "baire-category-theorem.md",
+      "anchor": "printed-page-225",
+      "coverage": "All body text; Figure10.6, Proposition12(b) proof beginning."
+    },
+    {
+      "pdfPage": 211,
+      "printedPage": 226,
+      "formulaReview": "verified against rendered scan",
+      "path": "baire-category-theorem.md",
+      "anchor": "printed-page-226",
+      "coverage": "All body text; Proposition12(b) proof completed, category definitions, Examples9\u201310 and existence discussion beginning."
+    },
+    {
+      "pdfPage": 212,
+      "printedPage": 227,
+      "formulaReview": "verified against rendered scan",
+      "path": "baire-category-theorem.md",
+      "anchor": "printed-page-227",
+      "coverage": "All body text; Existence discussion completed and Dugundji reference; Exercises1\u20138 with all parts."
+    },
+    {
+      "pdfPage": 213,
+      "printedPage": 228,
+      "formulaReview": "verified against rendered scan",
+      "path": "paracompactness-and-complete-regularity.md",
+      "anchor": "printed-page-228",
+      "coverage": "All body text; Section10.5 introduction, Definition4, Proposition13, Proposition14 and proof."
+    },
+    {
+      "pdfPage": 214,
+      "printedPage": 230,
+      "formulaReview": "verified against rendered scan",
+      "path": "paracompactness-and-complete-regularity.md",
+      "anchor": "printed-page-230",
+      "coverage": "All body text; Available normality proof fragment, Smirnov discussion, Definition5, first Proposition17, Definition6, Tychonoff discussion, second Proposition17 and proof."
+    },
+    {
+      "pdfPage": 215,
+      "printedPage": 231,
+      "formulaReview": "verified against rendered scan",
+      "path": "paracompactness-and-complete-regularity.md",
+      "anchor": "printed-page-231",
+      "coverage": "All body text; Proposition18 and proof, Proposition19, corollary, Proposition20, Proposition21 and proof beginning."
+    },
+    {
+      "pdfPage": 216,
+      "printedPage": 232,
+      "formulaReview": "verified against rendered scan",
+      "path": "paracompactness-and-complete-regularity.md",
+      "anchor": "printed-page-232",
+      "coverage": "All body text; Proposition21 proof completion, Definition7, Proposition22, discussion, Exercises1\u20138 and all chapter-ending text."
+    }
+  ],
+  "gaps": [
+    {
+      "printedPage": 211,
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "metrizable-spaces.md"],
+      "availableBoundaryEvidence": "Printed210 defines f_k; printed212 resumes a contradiction to z\u2032\u2208N(z,p)."
+    },
+    {
+      "printedPage": 217,
+      "status": "missing-from-supplied-source",
+      "noticePaths": [
+        "index.md",
+        "cauchy-sequences.md",
+        "complete-metric-spaces.md"
+      ],
+      "availableBoundaryEvidence": "Printed216 completes Proposition5 proof; printed218 begins Definition2."
+    },
+    {
+      "printedPage": 229,
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "paracompactness-and-complete-regularity.md"],
+      "availableBoundaryEvidence": "Printed228 completes Proposition14 proof; printed230 resumes normality proof fragment."
+    }
+  ],
+  "illustrations": [
+    {
+      "id": "10.1",
+      "pdfPage": 201,
+      "printedPage": 215,
+      "path": "cauchy-sequences.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=215"
+    },
+    {
+      "id": "10.2",
+      "pdfPage": 201,
+      "printedPage": 215,
+      "path": "cauchy-sequences.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=215"
+    },
+    {
+      "id": "10.3",
+      "pdfPage": 204,
+      "printedPage": 219,
+      "path": "complete-metric-spaces.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=219"
+    },
+    {
+      "id": "10.4",
+      "pdfPage": 204,
+      "printedPage": 219,
+      "path": "complete-metric-spaces.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=219"
+    },
+    {
+      "id": "10.5",
+      "pdfPage": 209,
+      "printedPage": 224,
+      "path": "baire-category-theorem.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=224"
+    },
+    {
+      "id": "10.6",
+      "pdfPage": 210,
+      "printedPage": 225,
+      "path": "baire-category-theorem.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=225"
+    }
+  ],
+  "unlocatedNumberedFigureLabels": [],
+  "nextChapterBoundary": {
+    "pdfPage": 217,
+    "printedPage": 233,
+    "chapter": 11,
+    "title": "Introduction to Homotopy Theory",
+    "section": "11.1 Homotopic Functions",
+    "status": "visually reviewed; not transcribed as Chapter10"
+  },
+  "validation": {
+    "sourceBodyCoverage": "Every extracted alphabetic OCR word of four or more characters checked per supplied page against its transcribed body; unmatched tokens only running headers, captions represented by source links, Lindelof OCR, split words or visually corrected formula OCR. Supplements full-page visual review.",
+    "sourceFormulaVerification": "Every mathematical expression on PDF195\u2013216 visually checked, including weighted product metric, coordinate sequence, nested intervals and weak endpoint inequalities, closed rectangle bounds, completion class double primes, contraction coefficient0\u2264k<1, Baire closure/intersection distinction, complete-regularity subscript3\u00bd and projection composition.",
+    "mathRenderer": "KaTeX0.13.24 via shared configureMath with v-pre wrappers",
+    "mathExpressionCountInNewPages": 1030,
+    "mathValidationStatus": "passed",
+    "vueCompilationStatus": "passed",
+    "renderedMarkdownStatus": "passed; no unexpected code blocks; source exercises and continuation preserved",
+    "browserVisualQa": {
+      "status": "pending-root-review",
+      "browser": "Codex in-app browser",
+      "pages": [
+        "baire-category-theorem",
+        "metrizable-spaces",
+        "complete-metric-spaces",
+        "cauchy-sequences",
+        "paracompactness-and-complete-regularity"
+      ],
+      "checked": []
+    }
+  },
+  "generalizabilityCandidates": [
+    {
+      "section": "10.1",
+      "printedPage": 210,
+      "pdfPage": 197,
+      "passage": "Proposition1 proof",
+      "concept": "Urysohn functions of a countable basis pair form an embedding into the Hilbert cube."
+    },
+    {
+      "section": "10.3",
+      "printedPage": 222,
+      "pdfPage": 207,
+      "passage": "Completion construction",
+      "concept": "Equivalent Cauchy sequences become points of a completion, reusing sequence and equivalence-class styles."
+    },
+    {
+      "section": "10.5",
+      "printedPage": 232,
+      "pdfPage": 216,
+      "passage": "Definition7",
+      "concept": "Two chosen points are separated by a continuous real-valued function; combine point-set and mapping modules."
+    }
+  ]
+}

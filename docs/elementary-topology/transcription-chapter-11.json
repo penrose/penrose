@@ -1,0 +1,507 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "chapter": {
+    "number": 11,
+    "title": "Introduction to Homotopy Theory",
+    "printedPageRange": [233, 260]
+  },
+  "review": {
+    "pdfPageRange": [217, 241],
+    "method": "Private text extraction checked against every full-page 150 dpi rendered scan. Every mathematical formula and all available exercise text visually reviewed.",
+    "status": "available-pages-transcribed",
+    "availableChapterPdfPages": [
+      217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231,
+      232, 233, 234, 235, 236, 237, 238, 239, 240
+    ],
+    "visualReviewedPdfPages": [
+      217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231,
+      232, 233, 234, 235, 236, 237, 238, 239, 240, 241
+    ],
+    "limits": [
+      "Printed239,248,253 and258 are absent; missing text is not reconstructed.",
+      "Only Exercise5 available in11.1. Example5 continuation and Example6 unavailable. Section11.3 final discussion and Section11.4 opening/Proposition6 statement missing253. Proposition11 proof continuation and closing-discussion opening missing258.",
+      "Printed234 says contraction j_r is1/r th of distance despite r=0 convention. Printed235 Example2 piecewise homotopy and asserted restrictions on236 have reversed endpoints; all retained and annotated.",
+      "Example3 states two arcs cannot be homotopic around a puncture without explicitly fixing endpoints; source retained. Proposition2 proof uses opposite time orientation to Definition1, retained.",
+      "Figure11.5 graphic labels include Y\u00d7[0,0]; Figure11.7 k(X) restriction uses{1}; source-linked and figure agent notified. Figure11.11 right panel a2(r) differs from prose a2(2r\u22121).",
+      "Example7 uses any point outside loop image; no missing-loop-image argument inserted. Exercise2(c) uses Y\u2032 as in Example7. Change-basepoint hint calls j#j\u22121 based at y0 although j begins y1; source retained.",
+      "Induced homomorphism notation f_* is subscript, and induced loop map is barred f. Proposition8 does not explicitly require homotopy relative base point; source retained, library must not infer false equality for arbitrary moving-basepoint homotopies.",
+      "Example10 prints f\u2218g=k\u223ciY and g\u2218f=iX despite k defined onX; retained and annotated. Example11 uses iW in ambient compositions; retained.",
+      "All weak interval inequalities, overlined line segments, inverse-loop parameter formulas, stereographic plane \u03bc, grouped homomorphism equality chain and symbol simeq visually checked.",
+      "Running headers/footers retained in source map. Line wrapping, paragraph indentation and line-end hyphenation normalized; anchors preserve paragraph and word continuations.",
+      "Printed240 splits11.1 exercises/11.2 opening. PDF241/printed261 is reviewed appendix boundary."
+    ],
+    "browserVisualQa": {
+      "status": "passed",
+      "record": "browser-qa-chapters-09-11-and-matter.json",
+      "scope": "Every corresponding sidebar route renders with no KaTeX errors, broken figure assets or document overflow in the desktop preview."
+    }
+  },
+  "outputDirectory": "packages/docs-site/docs/elementary-topology/chapter-11",
+  "pages": [
+    {
+      "pdfPage": 217,
+      "printedPage": 233,
+      "formulaReview": "verified against rendered scan",
+      "path": "homotopic-functions.md",
+      "anchor": "printed-page-233",
+      "coverage": "All body text; Chapter/section headings, contractible unit-disk introduction, Figures11.1\u201311.2, contraction function beginning."
+    },
+    {
+      "pdfPage": 218,
+      "printedPage": 234,
+      "formulaReview": "verified against rendered scan",
+      "path": "homotopic-functions.md",
+      "anchor": "printed-page-234",
+      "coverage": "All body text; Contraction introduction completion, Figures11.3\u201311.4, restriction formulas and standard-topology convention."
+    },
+    {
+      "pdfPage": 219,
+      "printedPage": 235,
+      "formulaReview": "verified against rendered scan",
+      "path": "homotopic-functions.md",
+      "anchor": "printed-page-235",
+      "coverage": "All body text; Definition1, Example1, Example2 and its piecewise homotopy beginning."
+    },
+    {
+      "pdfPage": 220,
+      "printedPage": 236,
+      "formulaReview": "verified against rendered scan",
+      "path": "homotopic-functions.md",
+      "anchor": "printed-page-236",
+      "coverage": "All body text; Example2 completion, Figures11.5\u201311.6, Example3 and Proposition1."
+    },
+    {
+      "pdfPage": 221,
+      "printedPage": 237,
+      "formulaReview": "verified against rendered scan",
+      "path": "homotopic-functions.md",
+      "anchor": "printed-page-237",
+      "coverage": "All body text; Proposition1 proof, reflexivity/symmetry/transitivity formulas and pasted homotopy."
+    },
+    {
+      "pdfPage": 222,
+      "printedPage": 238,
+      "formulaReview": "verified against rendered scan",
+      "path": "homotopic-functions.md",
+      "anchor": "printed-page-238",
+      "coverage": "All body text; Proposition1 proof completion, Definition2, Figures11.7\u201311.8, extension characterization."
+    },
+    {
+      "pdfPage": 223,
+      "printedPage": 240,
+      "formulaReview": "verified against rendered scan",
+      "fragments": [
+        {
+          "path": "homotopic-functions.md",
+          "anchor": "printed-page-240",
+          "coverage": "All body text of section fragment; Available Exercise5; Section11.2 heading/introduction and Definition3 loops/relative homotopy."
+        },
+        {
+          "path": "loops.md",
+          "anchor": "printed-page-240",
+          "coverage": "All body text of section fragment; Available Exercise5; Section11.2 heading/introduction and Definition3 loops/relative homotopy."
+        }
+      ]
+    },
+    {
+      "pdfPage": 224,
+      "printedPage": 241,
+      "formulaReview": "verified against rendered scan",
+      "path": "loops.md",
+      "anchor": "printed-page-241",
+      "coverage": "All body text; Figures11.9\u201311.10, pair notation, loop classes, concatenation and loop verification beginning."
+    },
+    {
+      "pdfPage": 225,
+      "printedPage": 242,
+      "formulaReview": "verified against rendered scan",
+      "path": "loops.md",
+      "anchor": "printed-page-242",
+      "coverage": "All body text; Concatenation verification completed, representative-independence discussion, Proposition2 proof beginning, Figure11.11."
+    },
+    {
+      "pdfPage": 226,
+      "printedPage": 243,
+      "formulaReview": "verified against rendered scan",
+      "path": "loops.md",
+      "anchor": "printed-page-243",
+      "coverage": "All body text; Proposition2 proof completed, corollary and proof, group requirements, Proposition3 proof beginning."
+    },
+    {
+      "pdfPage": 227,
+      "printedPage": 244,
+      "formulaReview": "verified against rendered scan",
+      "path": "loops.md",
+      "anchor": "printed-page-244",
+      "coverage": "All body text; Proposition3 proof completed, Figure11.12, discussion of diagrams in mathematical arguments."
+    },
+    {
+      "pdfPage": 228,
+      "printedPage": 245,
+      "formulaReview": "verified against rendered scan",
+      "path": "loops.md",
+      "anchor": "printed-page-245",
+      "coverage": "All body text; Exercises1\u20135 with all hints/formulas, Figures11.13\u201311.14."
+    },
+    {
+      "pdfPage": 229,
+      "printedPage": 246,
+      "formulaReview": "verified against rendered scan",
+      "path": "fundamental-group.md",
+      "anchor": "printed-page-246",
+      "coverage": "All body text; Section11.3 introduction, inverse loops, Figure11.15, Proposition4 and proof, Definition4."
+    },
+    {
+      "pdfPage": 230,
+      "printedPage": 247,
+      "formulaReview": "verified against rendered scan",
+      "path": "fundamental-group.md",
+      "anchor": "printed-page-247",
+      "coverage": "All body text; Fundamental-group desiderata and computation discussion, Examples4\u20135 and integer multiples."
+    },
+    {
+      "pdfPage": 231,
+      "printedPage": 249,
+      "formulaReview": "verified against rendered scan",
+      "path": "fundamental-group.md",
+      "anchor": "printed-page-249",
+      "coverage": "All body text; Example7 and stereographic-projection formula, Figure11.19, Proposition5 and proof beginning; direct reference to unlocated11.18."
+    },
+    {
+      "pdfPage": 232,
+      "printedPage": 250,
+      "formulaReview": "verified against rendered scan",
+      "path": "fundamental-group.md",
+      "anchor": "printed-page-250",
+      "coverage": "All body text; Proposition5 well-definedness, surjectivity and injectivity proofs, coordinate homotopies."
+    },
+    {
+      "pdfPage": 233,
+      "printedPage": 251,
+      "formulaReview": "verified against rendered scan",
+      "path": "fundamental-group.md",
+      "anchor": "printed-page-251",
+      "coverage": "All body text; Proposition5 homomorphism proof completed, Figure11.20, Example8, Exercises1\u20132 beginning."
+    },
+    {
+      "pdfPage": 234,
+      "printedPage": 252,
+      "formulaReview": "verified against rendered scan",
+      "path": "fundamental-group.md",
+      "anchor": "printed-page-252",
+      "coverage": "All body text; Exercise2 completed, Exercises3\u20135 and hints, Figure11.21, base-point discussion ending mid-sentence."
+    },
+    {
+      "pdfPage": 235,
+      "printedPage": 254,
+      "formulaReview": "verified against rendered scan",
+      "path": "fundamental-group-and-continuous-functions.md",
+      "anchor": "printed-page-254",
+      "coverage": "All body text; Available Proposition6 proof fragment, induced loop map and homomorphism formulas, Example9 beginning."
+    },
+    {
+      "pdfPage": 236,
+      "printedPage": 255,
+      "formulaReview": "verified against rendered scan",
+      "path": "fundamental-group-and-continuous-functions.md",
+      "anchor": "printed-page-255",
+      "coverage": "All body text; Example9 completed, Propositions7\u20138 and full proofs, homotopy-type introduction."
+    },
+    {
+      "pdfPage": 237,
+      "printedPage": 256,
+      "formulaReview": "verified against rendered scan",
+      "path": "fundamental-group-and-continuous-functions.md",
+      "anchor": "printed-page-256",
+      "coverage": "All body text; Definition5, Figure11.23, Example10 and its composition formulas, Example11 retraction/deformation retract."
+    },
+    {
+      "pdfPage": 238,
+      "printedPage": 257,
+      "formulaReview": "verified against rendered scan",
+      "path": "fundamental-group-and-continuous-functions.md",
+      "anchor": "printed-page-257",
+      "coverage": "All body text; Example11 completion, Proposition9, Proposition10 and proof, Proposition11 and available proof beginning."
+    },
+    {
+      "pdfPage": 239,
+      "printedPage": 259,
+      "formulaReview": "verified against rendered scan",
+      "path": "fundamental-group-and-continuous-functions.md",
+      "anchor": "printed-page-259",
+      "coverage": "All body text; Available closing discussion fragment, higher homotopy/homology/cohomology groups, Exercises1\u20135 beginning, Figure11.24."
+    },
+    {
+      "pdfPage": 240,
+      "printedPage": 260,
+      "formulaReview": "verified against rendered scan",
+      "path": "fundamental-group-and-continuous-functions.md",
+      "anchor": "printed-page-260",
+      "coverage": "All body text; Exercise5 completion, Exercises6\u20138 and all available chapter-ending text."
+    }
+  ],
+  "gaps": [
+    {
+      "printedPage": 239,
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "homotopic-functions.md"],
+      "availableBoundaryEvidence": "Printed238 ends extension discussion; printed240 supplies Exercise5."
+    },
+    {
+      "printedPage": 248,
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "fundamental-group.md"],
+      "availableBoundaryEvidence": "Printed247 begins Example5 multiples; printed249 begins Example7."
+    },
+    {
+      "printedPage": 253,
+      "status": "missing-from-supplied-source",
+      "noticePaths": [
+        "index.md",
+        "fundamental-group.md",
+        "fundamental-group-and-continuous-functions.md"
+      ],
+      "availableBoundaryEvidence": "Printed252 ends Therefore if; printed254 resumes two continuous functions."
+    },
+    {
+      "printedPage": 258,
+      "status": "missing-from-supplied-source",
+      "noticePaths": [
+        "index.md",
+        "fundamental-group-and-continuous-functions.md"
+      ],
+      "availableBoundaryEvidence": "Printed257 begins Proposition11 proof; printed259 resumes space without any holes."
+    }
+  ],
+  "illustrations": [
+    {
+      "id": "11.1",
+      "pdfPage": 217,
+      "printedPage": 233,
+      "path": "homotopic-functions.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=233"
+    },
+    {
+      "id": "11.2",
+      "pdfPage": 217,
+      "printedPage": 233,
+      "path": "homotopic-functions.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=233"
+    },
+    {
+      "id": "11.3",
+      "pdfPage": 218,
+      "printedPage": 234,
+      "path": "homotopic-functions.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=234"
+    },
+    {
+      "id": "11.4",
+      "pdfPage": 218,
+      "printedPage": 234,
+      "path": "homotopic-functions.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=234"
+    },
+    {
+      "id": "11.5",
+      "pdfPage": 220,
+      "printedPage": 236,
+      "path": "homotopic-functions.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=236"
+    },
+    {
+      "id": "11.6",
+      "pdfPage": 220,
+      "printedPage": 236,
+      "path": "homotopic-functions.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=236"
+    },
+    {
+      "id": "11.7",
+      "pdfPage": 222,
+      "printedPage": 238,
+      "path": "homotopic-functions.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=238"
+    },
+    {
+      "id": "11.8",
+      "pdfPage": 222,
+      "printedPage": 238,
+      "path": "homotopic-functions.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=238"
+    },
+    {
+      "id": "11.9",
+      "pdfPage": 224,
+      "printedPage": 241,
+      "path": "loops.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=241"
+    },
+    {
+      "id": "11.10",
+      "pdfPage": 224,
+      "printedPage": 241,
+      "path": "loops.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=241"
+    },
+    {
+      "id": "11.11",
+      "pdfPage": 225,
+      "printedPage": 242,
+      "path": "loops.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=242"
+    },
+    {
+      "id": "11.12",
+      "pdfPage": 227,
+      "printedPage": 244,
+      "path": "loops.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=244"
+    },
+    {
+      "id": "11.13",
+      "pdfPage": 228,
+      "printedPage": 245,
+      "path": "loops.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=245"
+    },
+    {
+      "id": "11.14",
+      "pdfPage": 228,
+      "printedPage": 245,
+      "path": "loops.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=245"
+    },
+    {
+      "id": "11.15",
+      "pdfPage": 229,
+      "printedPage": 246,
+      "path": "fundamental-group.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=246"
+    },
+    {
+      "id": "11.19",
+      "pdfPage": 231,
+      "printedPage": 249,
+      "path": "fundamental-group.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=249"
+    },
+    {
+      "id": "11.20",
+      "pdfPage": 233,
+      "printedPage": 251,
+      "path": "fundamental-group.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=251"
+    },
+    {
+      "id": "11.21",
+      "pdfPage": 234,
+      "printedPage": 252,
+      "path": "fundamental-group.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=252"
+    },
+    {
+      "id": "11.23",
+      "pdfPage": 237,
+      "printedPage": 256,
+      "path": "fundamental-group-and-continuous-functions.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=256"
+    },
+    {
+      "id": "11.24",
+      "pdfPage": 239,
+      "printedPage": 259,
+      "path": "fundamental-group-and-continuous-functions.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=259"
+    }
+  ],
+  "unlocatedNumberedFigureLabels": [
+    {
+      "label": "11.16",
+      "status": "caption unlocated in available supplied pages; source gap candidate",
+      "missingPrintedPageCandidates": [248],
+      "evidence": "Figure11.18 directly referenced on249; captions jump11.15 to11.19."
+    },
+    {
+      "label": "11.17",
+      "status": "caption unlocated in available supplied pages; source gap candidate",
+      "missingPrintedPageCandidates": [248],
+      "evidence": "Figure11.18 directly referenced on249; captions jump11.15 to11.19."
+    },
+    {
+      "label": "11.18",
+      "status": "direct reference present; caption unlocated",
+      "missingPrintedPageCandidates": [248],
+      "evidence": "Figure11.18 directly referenced on249; captions jump11.15 to11.19."
+    },
+    {
+      "label": "11.22",
+      "status": "caption unlocated in available supplied pages; source gap candidate",
+      "missingPrintedPageCandidates": [253],
+      "evidence": "Captions jump11.21 on252 to11.23 on256;253 unavailable."
+    }
+  ],
+  "nextChapterBoundary": {
+    "pdfPage": 241,
+    "printedPage": 261,
+    "title": "Appendix on Infinite Products",
+    "status": "visually reviewed; not transcribed as Chapter11"
+  },
+  "validation": {
+    "sourceBodyCoverage": "Every extracted alphabetic OCR word of four or more characters checked per supplied page against its transcribed body; unmatched tokens only running headers, captions represented by source links, Lindelof OCR, split words or visually corrected formula OCR. Supplements full-page visual review.",
+    "sourceFormulaVerification": "Every formula on PDF217\u2013240 checked against full150dpi scans, including contraction time conventions, all piecewise homotopies, loop class bars, concatenation symbol, weak inequalities, inverse/reparameterization, stereographic \u03bc, induced map bar/subscript notation, homotopy-equivalence symbol and all exercises.",
+    "mathRenderer": "KaTeX0.13.24 via shared configureMath with v-pre wrappers",
+    "mathExpressionCountInNewPages": 1036,
+    "mathValidationStatus": "passed",
+    "vueCompilationStatus": "passed",
+    "renderedMarkdownStatus": "passed; no unexpected code blocks; source exercise starts1,3,4,5 preserved",
+    "browserVisualQa": {
+      "status": "pending-root-review",
+      "browser": "Codex in-app browser",
+      "pages": [
+        "homotopic-functions",
+        "fundamental-group-and-continuous-functions",
+        "loops",
+        "fundamental-group"
+      ],
+      "checked": []
+    }
+  },
+  "generalizabilityCandidates": [
+    {
+      "section": "11.3",
+      "printedPage": 246,
+      "pdfPage": 229,
+      "passage": "Proposition4 proof",
+      "concept": "A loop followed by its reverse shrinks to constant via reparameterization, demonstrating loop/homotopy DSL composition."
+    },
+    {
+      "section": "11.4",
+      "printedPage": 257,
+      "pdfPage": 238,
+      "passage": "Proposition9",
+      "concept": "A bijection and its inverse compose to identities; reusable finite-function mappings verify domain/range and composition."
+    }
+  ]
+}

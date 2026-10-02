@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "edition": "Elementary Topology, Michael C. Gemignani, Second Edition",
+    "sourceImageDimensions": [762, 1262],
+    "visualReview": "Full supplied PDF179,181,182,190 visually inspected; supplied adjacent proof context read on PDF178\u2013183 and188\u2013191. Every native optimized SVG inspected beside its source crop.",
+    "boundsConvention": "Normalized [x,y,width,height] against full supplied PDF page, graphic and labels only."
+  },
+  "implementation": {
+    "domain": "point-set-topology",
+    "domainFile": "packages/bloom/src/domains/point-set-topology.ts",
+    "semantics": "Reusable convexity, polygonal reachability, mutual separation, spiral closure, product slices, components, and directed intersection vocabulary. No shapes or pixels in Substance.",
+    "styleReuse": "Shared topologyDrawing and native opposite hatch clipping; explicit EuclideanProductBox and AffineProductSubspace preserve ProductOf typing.",
+    "graphics": "Native Penrose optimized path/circle/line/equation/group/clip geometry.",
+    "interactive": "All seven factories accept final FigureRenderOptions and spread overrides last."
+  },
+  "verification": {
+    "focusedTestFile": "packages/examples/src/elementary-topology/connectedness-constructions.test.ts",
+    "testsPassed": 15,
+    "publicBloomDeclarationEmit": "passed (fresh full emit after the vocabulary additions)",
+    "exampleLeafTypecheckAndEmit": "passed",
+    "domainRuntimeImport": "passed",
+    "scopedBloomESLint": "passed",
+    "visualReview": "All seven optimized native renderings inspected beside equal-width source crops; cube perspective/overlap and opposite disk hatches refined.",
+    "scope": "Actual convex interpolation in multiple dimensions, open disks and touching closures, true spiral endpoints, display-chart strict monotonicity, nested separation hypotheses, product incidence, circle components and actual native path/dot containment are checked. Universal formal proof and pixel identity are not claimed.",
+    "rootVisualReview": "Passed: parent inspected all seven final equal-width source/native comparisons; the refined spiral radial chart preserves its true mathematical Substance.",
+    "readerMaskNote": "Parent extended9.6 mask eight reference pixels to include the full lower source contour while preserving its caption. Canonical canvas remains187px high; final reader visual check pending."
+  },
+  "unavailable": {
+    "figures": ["9.10"],
+    "printedPages": [191, 199],
+    "note": "No missing figure or prose reconstructed."
+  },
+  "figures": [
+    {
+      "id": "9.5",
+      "pdfPage": 179,
+      "printedPage": 190,
+      "pixelBounds": [79, 107, 183, 193],
+      "sourceBounds": [0.103675, 0.084786, 0.240157, 0.152932],
+      "defaultCanvas": [183, 193],
+      "panels": 1,
+      "style": "convexBoxStyle",
+      "substance": "convexBoxSegment",
+      "build": "buildConvexBoxFigure",
+      "styleFile": "packages/bloom/src/styles/convexity.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/connectedness-constructions.ts",
+      "sourceContext": "Section 9.2 Definition 3 defines convexity by containing every straight segment between two points. Proposition 8 shows connected open subsets of R^n are polygonally connected.",
+      "facts": [
+        "An actual three-dimensional open product box contains both Euclidean vectors and the complete interpolated segment. The affine wireframe display preserves the original dashed rear edge, segment overlap and x/y labels."
+      ],
+      "limits": [
+        "The generic source cube does not prescribe coordinates; representative strictly interior vectors are factual metadata, while perspective is Style geometry."
+      ],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-9.5.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-9.5.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-9.5-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-9.5-comparison.png"
+    },
+    {
+      "id": "9.6",
+      "pdfPage": 179,
+      "printedPage": 190,
+      "pixelBounds": [357, 109, 355, 195],
+      "sourceBounds": [0.468504, 0.086371, 0.465879, 0.154517],
+      "defaultCanvas": [355, 187],
+      "panels": 1,
+      "style": "polygonalReachabilityStyle",
+      "substance": "polygonalReachability",
+      "build": "buildPolygonalReachabilityFigure",
+      "styleFile": "packages/bloom/src/styles/convexity.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/connectedness-constructions.ts",
+      "sourceContext": "Section 9.2 Proposition 8 begins with fixed u and the polygonally reachable set A. A local basic product neighborhood V of a permits extending the route by a straight segment.",
+      "facts": [
+        "Connected open U, reachable set A, Convex(V), V subset U, the original route u to a and its one-segment extension to b are explicit. Source labels are u,a,V,U, with the extension dot unlabeled."
+      ],
+      "limits": [
+        "Printed page 191 is absent. The supplied statement and opening proof plus the visible sketch are used; absent prose is not reconstructed.",
+        "The irregular open U is a generic illustrative contour in Style. All rendered route vertices and both local endpoints are independently checked inside the contour and V."
+      ],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-9.6.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-9.6.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-9.6-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-9.6-comparison.png"
+    },
+    {
+      "id": "9.7",
+      "pdfPage": 181,
+      "printedPage": 193,
+      "pixelBounds": [207, 118, 346, 202],
+      "sourceBounds": [0.271654, 0.093502, 0.454068, 0.160063],
+      "defaultCanvas": [346, 202],
+      "panels": 1,
+      "style": "mutuallySeparatedDisksStyle",
+      "substance": "mutuallySeparatedDisks",
+      "build": "buildMutuallySeparatedDisksFigure",
+      "styleFile": "packages/bloom/src/styles/separated-disks.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/connectedness-constructions.ts",
+      "sourceContext": "Section 9.3 Example 8 defines S by x\u00b2+y\u00b2<1 and T by (x\u22122)\u00b2+y\u00b2<1. ClS intersects T and S intersects ClT trivially, while ClS intersects ClT nontrivially.",
+      "facts": [
+        "The contact point (1,0) belongs to both closed disks and neither open disk. Opposite source hatch directions, center dots, coordinate axes and source knockouts are retained."
+      ],
+      "limits": [
+        "Boundary circles are not added to the hatch-only source drawing. Subdued orange fill is the consistent permitted color addition."
+      ],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-9.7.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-9.7.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-9.7-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-9.7-comparison.png"
+    },
+    {
+      "id": "9.8",
+      "pdfPage": 182,
+      "printedPage": 194,
+      "pixelBounds": [59, 708, 225, 211],
+      "sourceBounds": [0.077428, 0.561014, 0.295276, 0.167195],
+      "defaultCanvas": [225, 211],
+      "panels": 1,
+      "style": "spiralClosureStyle",
+      "substance": "reciprocalSpiralClosure",
+      "build": "buildSpiralClosureFigure",
+      "styleFile": "packages/bloom/src/styles/connected-closures.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/connectedness-constructions.ts",
+      "sourceContext": "Section 9.3 Example 10 considers r=1\u22121/\u03bb, \u03bb>1 in polar coordinates, then adjoins limit-circle points.",
+      "facts": [
+        "The exact reciprocal spiral is a continuous connected image of \u03bb>1. The true closure includes both the unit circle and the omitted initial origin; a source-like native topological spiral display uses a strictly increasing radial chart."
+      ],
+      "limits": [
+        "The printed equation ClY=Y union {r=1} omits the origin limit as \u03bb tends to 1 from above. Substance keeps that mathematical endpoint; the source graphic and label 0 are preserved.",
+        "Canonical Style uses the strictly increasing fourth-power odds radial display q(r)=r^4/(r^4+5000(1\u2212r)^4) on normalized radii, with finite endParameter=10\u03c0. This is a topological sketch whose radial display is not metric. radialPower=1 gives the identity metric view; an explicit other radialPower selects a power chart. The default chart fixes zero and the unit-circle limit and preserves strict radial order. Exact source coil spacing remains approximate.",
+        "The infinite tail is represented by a finite phase window and the dashed limiting circle; no circle membership is inferred from drawing adjacency."
+      ],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-9.8.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-9.8.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-9.8-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-9.8-comparison.png"
+    },
+    {
+      "id": "9.9",
+      "pdfPage": 182,
+      "printedPage": 194,
+      "pixelBounds": [394, 681, 344, 229],
+      "sourceBounds": [0.51706, 0.53962, 0.451444, 0.181458],
+      "defaultCanvas": [344, 229],
+      "panels": 1,
+      "style": "connectedProductSlicesStyle",
+      "substance": "connectedProductSlices",
+      "build": "buildConnectedProductSlicesFigure",
+      "styleFile": "packages/bloom/src/styles/connected-products.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/connectedness-constructions.ts",
+      "sourceContext": "Section 9.4 Proposition 12 proves a product is connected iff each factor is connected; the two-factor argument assumes a separation U,V and uses horizontal/vertical connected slices through u and v.",
+      "facts": [
+        "The alleged separation is nested in Hypothesis. W is a genuine product box containing u, W subset U. A1=R\u00d7{u2} and A2={v1}\u00d7R meet at (v1,u2), joining u to v."
+      ],
+      "limits": [
+        "U/V labels in the source identify the assumed separation, not literal geometric half-planes. No connected plane is asserted to have an actual separation.",
+        "Source labels are (u1,u2),(v1,v2),A1,A2,W1\u00d7W2,U,V and (0,0); the shared point is factual and is not drawn as an extra labeled dot."
+      ],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-9.9.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-9.9.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-9.9-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-9.9-comparison.png"
+    },
+    {
+      "id": "9.11",
+      "pdfPage": 190,
+      "printedPage": 203,
+      "pixelBounds": [221, 103, 345, 275],
+      "sourceBounds": [0.290026, 0.081616, 0.452756, 0.217908],
+      "defaultCanvas": [345, 275],
+      "panels": 1,
+      "style": "accumulatingComponentsStyle",
+      "substance": "accumulatingCircleComponents",
+      "build": "buildAccumulatingComponentsFigure",
+      "styleFile": "packages/bloom/src/styles/components.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/connectedness-constructions.ts",
+      "sourceContext": "Section 9.5 Example 17 has Cn={(x,y):x\u00b2+y\u00b2=(1\u22121/n)\u00b2} and the two horizontal lines. These are separate components, although the space cannot be split between (0,1) and (0,\u22121).",
+      "facts": [
+        "Disconnected induced topology, ComponentOf each circle and both lines, and CannotSplitBetween the upper/lower points are distinct explicit statements. C1 is the radius-zero singleton."
+      ],
+      "limits": [
+        "Finite circles n=2,3,4,5,6,8,12,20 represent the infinite accumulating family; C1 is the origin. The dashed unit circle is an accumulation annotation, not an asserted subset of Y.",
+        "The source is disconnected. Earlier inventory shorthand calling it connected is superseded by this source-verified review."
+      ],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-9.11.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-9.11.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-9.11-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-9.11-comparison.png"
+    },
+    {
+      "id": "9.12",
+      "pdfPage": 190,
+      "printedPage": 203,
+      "pixelBounds": [165, 975, 354, 234],
+      "sourceBounds": [0.216535, 0.772583, 0.464567, 0.18542],
+      "defaultCanvas": [354, 234],
+      "panels": 1,
+      "style": "directedIntersectionStyle",
+      "substance": "directedClosedIntersection",
+      "build": "buildDirectedClosedIntersectionFigure",
+      "styleFile": "packages/bloom/src/styles/directed-intersections.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/connectedness-constructions.ts",
+      "sourceContext": "Section 9.5 Proposition 18: a reverse-inclusion-directed family of closed subsets of compact Hausdorff X, each unsplittable between x,y, has an intersection likewise unsplittable. The proof supposes a split of B and uses disjoint ambient neighborhoods G,H.",
+      "facts": [
+        "Compact T2 premises, directed closed family, intersection B and unsplittable conclusion are explicit. SplitBetween(B,x,y,U,V,tau) is nested in Hypothesis; disjoint G/H enclose U/V, and a selected xi lies in Ai outside G union H."
+      ],
+      "limits": [
+        "Both B labels refer to the same intersection, with U,V shown in the conditional contradiction branch. Derived branch facts are schematic proof context, not an unconditional true separation.",
+        "The source has labels Ai,U,V,G,H,B,B,xi, without a/b dots. The xi dot is independently checked inside the native Ai contour and outside both G/H contours."
+      ],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-9.12.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-9.12.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-9.12-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-9.12-comparison.png"
+    }
+  ]
+}

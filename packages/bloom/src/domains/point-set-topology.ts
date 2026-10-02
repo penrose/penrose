@@ -1,5 +1,7 @@
 import { domain, proposition, type EntityOf } from "../core/program.js";
+import type { PiecewisePlaneLoopData } from "./plane-curves.js";
 import { declareSetTheory } from "./set-theory.js";
+import { declareTopologicalVocabulary } from "./topological-vocabulary.js";
 
 export type PlaneCoordinates = readonly [number, number];
 
@@ -873,8 +875,486 @@ const PolygonalPathBetween = declarations.predicate("PolygonalPathBetween", [
   sets.Set,
 ]);
 
+/** Euclidean convexity and its finite-dimensional segment witnesses. */
+const Convex = declarations.predicate("Convex", [sets.Set]);
+const EuclideanVector = declarations
+  .type("EuclideanVector", sets.Point)
+  .withData<{ coordinates: readonly number[] }>();
+const EuclideanOpenBox = declarations
+  .type("EuclideanOpenBox", Neighborhood)
+  .withData<{ bounds: readonly (readonly [number, number])[] }>();
+const EuclideanLineSegment = declarations
+  .type("EuclideanLineSegment", ClosedSet)
+  .withData<{ endpoints: readonly [readonly number[], readonly number[]] }>();
+const EuclideanSegmentBetween = declarations.predicate(
+  "EuclideanSegmentBetween",
+  [EuclideanLineSegment, EuclideanVector, EuclideanVector],
+);
+const PolygonalReachabilityClass = declarations.type(
+  "PolygonalReachabilityClass",
+  OpenSubspace,
+);
+const PolygonalReachableFrom = declarations.predicate(
+  "PolygonalReachableFrom",
+  [PolygonalReachabilityClass, CoordinatePoint, OpenSet],
+);
+/** These allow intersecting closures, but neither set meets the other's closure. */
+const MutuallySeparated = declarations.predicate("MutuallySeparated", [
+  sets.Set,
+  sets.Set,
+  Topology,
+]);
+const Disconnected = declarations.predicate("Disconnected", [Topology]);
+const ComponentOf = declarations.predicate("ComponentOf", [
+  sets.Set,
+  sets.Set,
+  Topology,
+]);
+/** r=R-c/lambda for lambda>c/R, with lambda in radians; both endpoint limits are omitted. */
+const ReciprocalPolarSpiral = declarations
+  .type("ReciprocalPolarSpiral", Subspace)
+  .withData<{ limitRadius: number; coefficient: number }>();
+const SpiralLimitCircleOf = declarations.predicate("SpiralLimitCircleOf", [
+  CircleBoundary,
+  ReciprocalPolarSpiral,
+]);
+const SpiralInitialLimitOf = declarations.predicate("SpiralInitialLimitOf", [
+  CoordinatePoint,
+  ReciprocalPolarSpiral,
+]);
+/** C_n has radius R(1-1/n), n>=1, including the degenerate singleton C_1. */
+const ReciprocalRadiusCircleFamily = declarations
+  .type("ReciprocalRadiusCircleFamily", SetFamily)
+  .withData<{ limitRadius: number }>();
+const CircleIndexedIn = declarations.predicate("CircleIndexedIn", [
+  CircleBoundary,
+  RealPoint,
+  ReciprocalRadiusCircleFamily,
+]);
+const ComponentFamilyOf = declarations.predicate("ComponentFamilyOf", [
+  SetFamily,
+  sets.Set,
+  Topology,
+]);
+const CannotSplitBetween = declarations.predicate("CannotSplitBetween", [
+  sets.Set,
+  sets.Point,
+  sets.Point,
+  Topology,
+]);
+const ClopenSubspace = declarations.type(
+  "ClopenSubspace",
+  OpenSubspace,
+  ClosedSubspace,
+);
+/** Its members are ordered by reverse inclusion, as in the book's directed intersection argument. */
+const ClosedDirectedFamily = declarations
+  .type("ClosedDirectedFamily", SetFamily, DirectedSet)
+  .withData<{ order: "reverse-inclusion" }>();
+const ClosedFamilyIn = declarations.predicate("ClosedFamilyIn", [
+  SetFamily,
+  sets.Set,
+  Topology,
+]);
+const IntersectionOfFamily = declarations.predicate("IntersectionOfFamily", [
+  ClosedSet,
+  SetFamily,
+]);
+const FamilyCannotSplitBetween = declarations.predicate(
+  "FamilyCannotSplitBetween",
+  [ClosedDirectedFamily, sets.Point, sets.Point, Topology],
+);
+/** A split is asserted only as a nested hypothesis in a proof by contradiction. */
+const SplitBetween = declarations.predicate("SplitBetween", [
+  sets.Set,
+  sets.Point,
+  sets.Point,
+  OpenSet,
+  OpenSet,
+  Topology,
+]);
+const FamilyChoiceOutside = declarations.predicate("FamilyChoiceOutside", [
+  Net,
+  ClosedDirectedFamily,
+  OpenSet,
+]);
+
 /** Mathematical topology vocabulary, composed in the same set/point type context. */
+/** Metric completeness vocabulary; abstract neighborhoods carry no drawing coordinates. */
+const Metric = declarations.type("Metric");
+const EuclideanMetric = declarations
+  .type("EuclideanMetric", Metric)
+  .withData<{ dimension: number }>();
+const MetricOn = declarations.predicate("MetricOn", [Metric, sets.Set]);
+const MetricInducesTopology = declarations.predicate("MetricInducesTopology", [
+  Metric,
+  Topology,
+]);
+const CompleteMetricSpace = declarations.predicate("CompleteMetricSpace", [
+  sets.Set,
+  Metric,
+]);
+const RealSequence = declarations.type("RealSequence");
+export interface EventuallyGeometricSequenceData {
+  prefix: readonly number[];
+  initial: number;
+  limit: number;
+  ratio: number;
+}
+const EventuallyGeometricSequence = declarations
+  .type("EventuallyGeometricSequence", RealSequence)
+  .withData<EventuallyGeometricSequenceData>();
+const SequenceIn = declarations.predicate("SequenceIn", [
+  RealSequence,
+  sets.Set,
+]);
+const CauchySequenceIn = declarations.predicate("CauchySequenceIn", [
+  RealSequence,
+  sets.Set,
+  Metric,
+]);
+const SequenceConvergesTo = declarations.predicate("SequenceConvergesTo", [
+  RealSequence,
+  RealPoint,
+  Metric,
+]);
+const BisectionFamily = declarations
+  .type("BisectionFamily", SetFamily)
+  .withData<{ initialBounds: readonly [number, number]; limit: number }>();
+const BisectionInterval = declarations
+  .type("BisectionInterval", ClosedInterval)
+  .withData<{ index: number }>();
+const BisectionFamilyFor = declarations.predicate("BisectionFamilyFor", [
+  BisectionFamily,
+  RealSequence,
+]);
+const BisectionIntervalIn = declarations.predicate("BisectionIntervalIn", [
+  BisectionInterval,
+  BisectionFamily,
+]);
+const HalfOf = declarations.predicate("HalfOf", [
+  BisectionInterval,
+  BisectionInterval,
+]);
+const InfinitelyManyTermsIn = declarations.predicate("InfinitelyManyTermsIn", [
+  RealSequence,
+  sets.Set,
+]);
+const Diameter = declarations
+  .type("Diameter")
+  .withData<{ value: number | "infinity" }>();
+const DiameterOf = declarations.predicate("DiameterOf", [
+  Diameter,
+  sets.Set,
+  Metric,
+]);
+const CountableSetFamily = declarations.type("CountableSetFamily", SetFamily);
+const FamilyUnionIs = declarations.predicate("FamilyUnionIs", [
+  SetFamily,
+  sets.Set,
+]);
+const FamilyIntersectionIs = declarations.predicate("FamilyIntersectionIs", [
+  SetFamily,
+  sets.Set,
+]);
+const DenseIn = declarations.predicate("DenseIn", [sets.Set, Topology]);
+const NowhereDenseIn = declarations.predicate("NowhereDenseIn", [
+  sets.Set,
+  Topology,
+]);
+const SomewhereDenseIn = declarations.predicate("SomewhereDenseIn", [
+  sets.Set,
+  Topology,
+]);
+const MetricNeighborhood = declarations
+  .type("MetricNeighborhood", Neighborhood, OpenSet)
+  .withData<{ radius: number }>();
+const ClosedMetricBall = declarations
+  .type("ClosedMetricBall", ClosedSet, Subspace)
+  .withData<{ radius: number }>();
+/** Closure of an open ball of this radius; it need not equal the closed metric ball. */
+const MetricBallClosure = declarations
+  .type("MetricBallClosure", ClosedSet, Subspace)
+  .withData<{ radius: number }>();
+const MetricNeighborhoodAt = declarations.predicate("MetricNeighborhoodAt", [
+  MetricNeighborhood,
+  sets.Point,
+  Metric,
+]);
+const ClosedBallAt = declarations.predicate("ClosedBallAt", [
+  ClosedMetricBall,
+  sets.Point,
+  Metric,
+]);
+
+const DenseOpenFamilyIn = declarations.predicate("DenseOpenFamilyIn", [
+  SetFamily,
+  Topology,
+]);
+const NowhereDenseFamilyIn = declarations.predicate("NowhereDenseFamilyIn", [
+  SetFamily,
+  Topology,
+]);
+const DecreasingFamily = declarations.predicate("DecreasingFamily", [
+  SetFamily,
+]);
+const DiametersTendToZero = declarations.predicate("DiametersTendToZero", [
+  SetFamily,
+  Metric,
+]);
+
+/** A continuous family has the endpoint convention H(-,1)=f and H(-,0)=g. */
+const Homotopy = declarations.type("Homotopy", TopologicalMap);
+const RadialHomotopy = declarations
+  .type("RadialHomotopy", Homotopy)
+  .withData<{ center: PlaneCoordinates }>();
+const RadialContraction = declarations
+  .type("RadialContraction", TopologicalMap)
+  .withData<{ center: PlaneCoordinates; factor: number }>();
+const HomotopyBetween = declarations.predicate("HomotopyBetween", [
+  Homotopy,
+  TopologicalMap,
+  TopologicalMap,
+]);
+const Homotopic = declarations.predicate("Homotopic", [
+  TopologicalMap,
+  TopologicalMap,
+]);
+/** The first map is the restriction of the family to the named parameter. */
+const SliceMapAt = declarations.predicate("SliceMapAt", [
+  TopologicalMap,
+  Homotopy,
+  RealPoint,
+]);
+const IdentityOn = declarations.predicate("IdentityOn", [
+  TopologicalMap,
+  sets.Set,
+]);
+const ConstantTo = declarations.predicate("ConstantTo", [
+  TopologicalMap,
+  sets.Point,
+]);
+const Contractible = declarations.predicate("Contractible", [Topology]);
+const RadialContractionOf = declarations.predicate("RadialContractionOf", [
+  RadialContraction,
+  ClosedDisk,
+  RealPoint,
+]);
+
+const ContractAndSlideHomotopy = declarations
+  .type("ContractAndSlideHomotopy", Homotopy)
+  .withData<{
+    center: PlaneCoordinates;
+    target: PlaneCoordinates;
+    breakpoint: number;
+  }>();
+const Arc = declarations.type("Arc", TopologicalPath);
+const ParabolicArc = declarations.type("ParabolicArc", Arc).withData<{
+  endpoints: readonly [PlaneCoordinates, PlaneCoordinates];
+  height: number;
+}>();
+const PathEndpointsOf = declarations.predicate("PathEndpointsOf", [
+  TopologicalPath,
+  sets.Point,
+  sets.Point,
+]);
+/** Every parameter slice agrees on the named closed subset of the source. */
+const RelativeHomotopyOn = declarations.predicate("RelativeHomotopyOn", [
+  Homotopy,
+  ClosedSet,
+]);
+const RelativelyHomotopic = declarations.predicate("RelativelyHomotopic", [
+  TopologicalMap,
+  TopologicalMap,
+  ClosedSet,
+  Topology,
+]);
+const NotHomotopicRelativeTo = declarations.predicate(
+  "NotHomotopicRelativeTo",
+  [TopologicalMap, TopologicalMap, ClosedSet, Topology],
+);
+/** The first constituent occupies [split,1], and the second [0,split]. */
+const HomotopyPastedFrom = declarations.predicate("HomotopyPastedFrom", [
+  Homotopy,
+  Homotopy,
+  Homotopy,
+  RealPoint,
+]);
+const EndpointFibers = declarations.type("EndpointFibers", ClosedSet);
+const EndpointFibersOf = declarations.predicate("EndpointFibersOf", [
+  EndpointFibers,
+  ProductSet,
+]);
+
+const EuclideanProductBox = declarations.type(
+  "EuclideanProductBox",
+  EuclideanOpenBox,
+  ProductSet,
+);
+const AffineProductSubspace = declarations.type(
+  "AffineProductSubspace",
+  AffineSubspace,
+  ProductSet,
+);
+
+const vocabulary = declareTopologicalVocabulary(declarations, {
+  Set: sets.Set,
+  Point: sets.Point,
+  RealPoint,
+  Topology,
+  SetFamily,
+  OpenCover,
+  CountableSetFamily,
+  Basis,
+  NeighborhoodSystem,
+  Neighborhood,
+  TopologicalMap,
+  Metric,
+  DirectedSet,
+  Net,
+  Filter,
+  FilterBase,
+  Homotopy,
+  TopologicalPath,
+});
+
+export type SpaceCoordinates = readonly [number, number, number];
+const Sphere = declarations
+  .type("Sphere", ClosedSet, Subspace)
+  .withData<{ center: SpaceCoordinates; radius: number }>();
+const PuncturedSphere = declarations.type("PuncturedSphere", Subspace);
+const SpherePunctureOf = declarations.predicate("SpherePunctureOf", [
+  PuncturedSphere,
+  Sphere,
+  EuclideanVector,
+]);
+const SphereLoopAvoids = declarations.predicate("SphereLoopAvoids", [
+  vocabulary.Loop,
+  EuclideanVector,
+  Sphere,
+]);
+const SphereLoopContractionOf = declarations.predicate(
+  "SphereLoopContractionOf",
+  [Homotopy, vocabulary.Loop, Sphere, EuclideanVector, EuclideanVector],
+);
+const TorusFactorLoop = declarations
+  .type("TorusFactorLoop", vocabulary.Loop)
+  .withData<{ factor: "first" | "second"; winding: number }>();
+const FactorLoopOn = declarations.predicate("FactorLoopOn", [
+  TorusFactorLoop,
+  ProductSet,
+  ProductPoint,
+]);
+export type PlanarDiagramKind = "glyph" | "animal" | "house";
+const PlanarDiagramSpace = declarations
+  .type("PlanarDiagramSpace", Subspace)
+  .withData<{ kind: PlanarDiagramKind; symbol?: string }>();
+const FiniteGraphSpine = declarations
+  .type("FiniteGraphSpine", sets.Set)
+  .withData<{ vertices: number; edges: number; components: number }>();
+const GraphSpineOf = declarations.predicate("GraphSpineOf", [
+  FiniteGraphSpine,
+  PlanarDiagramSpace,
+]);
+const NotContractible = declarations.predicate("NotContractible", [Topology]);
+const ReversedPathOf = declarations.predicate("ReversedPathOf", [
+  TopologicalPath,
+  TopologicalPath,
+]);
+const BasepointConjugateOf = declarations.predicate("BasepointConjugateOf", [
+  vocabulary.Loop,
+  vocabulary.Loop,
+  TopologicalPath,
+]);
+const CompositionOf = declarations.predicate("CompositionOf", [
+  TopologicalMap,
+  TopologicalMap,
+  TopologicalMap,
+]);
+const PiecewisePlaneLoop = declarations
+  .type("PiecewisePlaneLoop", vocabulary.Loop)
+  .withData<PiecewisePlaneLoopData>();
+const PlaneLoopFamily = declarations.type("PlaneLoopFamily", SetFamily);
+const LoopInPlaneFamily = declarations.predicate("LoopInPlaneFamily", [
+  PiecewisePlaneLoop,
+  PlaneLoopFamily,
+]);
+
 export const pointSetTopology = declarations.make({
+  ...vocabulary,
+  PiecewisePlaneLoop,
+  PlaneLoopFamily,
+  LoopInPlaneFamily,
+  Sphere,
+  PuncturedSphere,
+  SpherePunctureOf,
+  SphereLoopAvoids,
+  SphereLoopContractionOf,
+  TorusFactorLoop,
+  FactorLoopOn,
+  PlanarDiagramSpace,
+  FiniteGraphSpine,
+  GraphSpineOf,
+  NotContractible,
+  ReversedPathOf,
+  BasepointConjugateOf,
+  CompositionOf,
+  EuclideanProductBox,
+  AffineProductSubspace,
+  ContractAndSlideHomotopy,
+  Arc,
+  ParabolicArc,
+  PathEndpointsOf,
+  RelativeHomotopyOn,
+  RelativelyHomotopic,
+  NotHomotopicRelativeTo,
+  HomotopyPastedFrom,
+  EndpointFibers,
+  EndpointFibersOf,
+  DenseOpenFamilyIn,
+  NowhereDenseFamilyIn,
+  DecreasingFamily,
+  DiametersTendToZero,
+  MetricBallClosure,
+  Homotopy,
+  RadialHomotopy,
+  RadialContraction,
+  HomotopyBetween,
+  Homotopic,
+  SliceMapAt,
+  IdentityOn,
+  ConstantTo,
+  Contractible,
+  RadialContractionOf,
+  Metric,
+  EuclideanMetric,
+  MetricOn,
+  MetricInducesTopology,
+  CompleteMetricSpace,
+  RealSequence,
+  EventuallyGeometricSequence,
+  SequenceIn,
+  CauchySequenceIn,
+  SequenceConvergesTo,
+  BisectionFamily,
+  BisectionInterval,
+  BisectionFamilyFor,
+  BisectionIntervalIn,
+  HalfOf,
+  InfinitelyManyTermsIn,
+  Diameter,
+  DiameterOf,
+  CountableSetFamily,
+  FamilyUnionIs,
+  FamilyIntersectionIs,
+  DenseIn,
+  NowhereDenseIn,
+  SomewhereDenseIn,
+  MetricNeighborhood,
+  ClosedMetricBall,
+  MetricNeighborhoodAt,
+  ClosedBallAt,
+
   ...sets,
   OpenSet,
   ClosedSet,
@@ -1126,9 +1606,121 @@ export const pointSetTopology = declarations.make({
   SegmentOfPath,
   VertexOfPath,
   PolygonalPathBetween,
+  Convex,
+  EuclideanVector,
+  EuclideanOpenBox,
+  EuclideanLineSegment,
+  EuclideanSegmentBetween,
+  PolygonalReachabilityClass,
+  PolygonalReachableFrom,
+  MutuallySeparated,
+  Disconnected,
+  ComponentOf,
+  ReciprocalPolarSpiral,
+  SpiralLimitCircleOf,
+  SpiralInitialLimitOf,
+  ReciprocalRadiusCircleFamily,
+  CircleIndexedIn,
+  ComponentFamilyOf,
+  CannotSplitBetween,
+  ClopenSubspace,
+  ClosedDirectedFamily,
+  ClosedFamilyIn,
+  IntersectionOfFamily,
+  FamilyCannotSplitBetween,
+  SplitBetween,
+  FamilyChoiceOutside,
 });
 
 export type MathematicalDisk = EntityOf<typeof OpenDisk>;
+
+/** A disk identity at time1 contracts at the breakpoint and then slides to target at time0. */
+export function contractAndSlideValue(
+  point: PlaneCoordinates,
+  time: number,
+  center: PlaneCoordinates = [0, 0],
+  target: PlaneCoordinates = [0.5, 0],
+  breakpoint = 0.5,
+): PlaneCoordinates {
+  if (
+    ![...point, ...center, ...target, time, breakpoint].every(
+      Number.isFinite,
+    ) ||
+    !(time >= 0 && time <= 1 && breakpoint > 0 && breakpoint < 1)
+  )
+    throw new Error(
+      "A contract-and-slide family needs finite data and parameters in [0,1]",
+    );
+  return time >= breakpoint
+    ? radialContractionValue(
+        point,
+        center,
+        (time - breakpoint) / (1 - breakpoint),
+      )
+    : [
+        center[0] + (1 - time / breakpoint) * (target[0] - center[0]),
+        center[1] + (1 - time / breakpoint) * (target[1] - center[1]),
+      ];
+}
+
+/** An injective parabolic arc along the chord direction, with a signed normal displacement. */
+export function parabolicArcValue(
+  data: {
+    endpoints: readonly [PlaneCoordinates, PlaneCoordinates];
+    height: number;
+  },
+  time: number,
+): PlaneCoordinates {
+  const [a, b] = data.endpoints,
+    dx = b[0] - a[0],
+    dy = b[1] - a[1],
+    length = Math.hypot(dx, dy);
+  if (
+    ![...a, ...b, data.height, time].every(Number.isFinite) ||
+    !(length > 0 && time >= 0 && time <= 1)
+  )
+    throw new Error(
+      "A parabolic arc needs distinct finite endpoints and time in [0,1]",
+    );
+  const deviation = 4 * time * (1 - time) * data.height;
+  return [
+    a[0] + time * dx - (deviation * dy) / length,
+    a[1] + time * dy + (deviation * dx) / length,
+  ];
+}
+
+/** Rescale either closed parameter interval when pasting two homotopies. */
+export function pastedHomotopyTime(time: number, split = 0.5) {
+  if (
+    ![time, split].every(Number.isFinite) ||
+    !(time >= 0 && time <= 1 && split > 0 && split < 1)
+  )
+    throw new Error(
+      "Pasted homotopies require time in [0,1] and an interior split",
+    );
+  return time >= split
+    ? { branch: "upper" as const, time: (time - split) / (1 - split) }
+    : { branch: "lower" as const, time: time / split };
+}
+
+/** The radial homotopy is center+r*(point-center), including both endpoint maps. */
+export function radialContractionValue(
+  point: PlaneCoordinates,
+  center: PlaneCoordinates,
+  factor: number,
+): PlaneCoordinates {
+  if (
+    ![...point, ...center, factor].every(Number.isFinite) ||
+    !(factor >= 0 && factor <= 1)
+  )
+    throw new Error(
+      "A radial contraction requires finite coordinates and a factor in [0,1]",
+    );
+  return [
+    center[0] + factor * (point[0] - center[0]),
+    center[1] + factor * (point[1] - center[1]),
+  ];
+}
 
 /** Coordinate incidence on a closed segment, including either endpoint. */
 export function pointOnClosedSegment(
@@ -1764,4 +2356,73 @@ export function sineAccumulationTerm(
   if (!(x > 0) || !Number.isFinite(x))
     throw new Error("The accumulation point must have finite positive x");
   return [x, height];
+}
+
+/** Linear interpolation within a finite-dimensional open box preserves every strict bound. */
+export function interpolateEuclideanSegment(
+  a: readonly number[],
+  b: readonly number[],
+  t: number,
+): readonly number[] {
+  if (
+    a.length === 0 ||
+    a.length !== b.length ||
+    ![...a, ...b, t].every(Number.isFinite) ||
+    t < 0 ||
+    t > 1
+  )
+    throw new Error(
+      "A Euclidean segment needs matching finite dimensions and 0<=t<=1",
+    );
+  return a.map((x, i) => (1 - t) * x + t * b[i]);
+}
+export function inEuclideanOpenBox(
+  bounds: readonly (readonly [number, number])[],
+  point: readonly number[],
+): boolean {
+  if (
+    bounds.length === 0 ||
+    bounds.length !== point.length ||
+    !point.every(Number.isFinite) ||
+    !bounds.every(([a, b]) => Number.isFinite(a) && Number.isFinite(b) && a < b)
+  )
+    throw new Error(
+      "An open box needs one finite strict interval per coordinate",
+    );
+  return bounds.every(([a, b], i) => a < point[i] && point[i] < b);
+}
+export function reciprocalSpiralPoint(
+  parameter: number,
+  limitRadius = 1,
+  coefficient = 1,
+): PlaneCoordinates {
+  if (
+    ![parameter, limitRadius, coefficient].every(Number.isFinite) ||
+    !(
+      limitRadius > 0 &&
+      coefficient > 0 &&
+      parameter > coefficient / limitRadius
+    )
+  )
+    throw new Error(
+      "The reciprocal spiral requires lambda>c/R with finite positive parameters",
+    );
+  const radius = limitRadius - coefficient / parameter;
+  if (!(radius > 0))
+    throw new Error(
+      "The spiral radius must remain strictly positive at machine precision",
+    );
+  return [radius * Math.cos(parameter), radius * Math.sin(parameter)];
+}
+export function reciprocalCircleRadius(n: number, limitRadius = 1): number {
+  if (
+    !Number.isSafeInteger(n) ||
+    n < 1 ||
+    !(limitRadius > 0) ||
+    !Number.isFinite(limitRadius)
+  )
+    throw new Error(
+      "A reciprocal-radius circle needs an integer n>=1 and positive finite limit radius",
+    );
+  return limitRadius * (1 - 1 / n);
 }

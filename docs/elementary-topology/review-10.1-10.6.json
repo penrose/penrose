@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "status": "implemented-and-visually-reviewed",
+  "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+  "verification": {
+    "focusedMathematicalAndNativeTests": 5,
+    "helperTests": 4,
+    "typecheck": "full Bloom declaration emit passed",
+    "nativeRendering": "all6 static/canonical/sampled native builds converge with XML-valid SVG; no image elements",
+    "dragging": "canonical immediate/released annotation displacement is exact; sampled immediate displacement is exact and released positions may relax under collision constraints. Mathematical geometry stays fixed.",
+    "rootVisualReview": "Full source pages201,204,209,210 and enlarged detail10.6 visually inspected; all6 equal-width scan/native comparisons reviewed and annotation/brace/marker refinements applied.",
+    "readerMaskReview": "Figure10.6 passes caption preservation and native source/keyboard/re-sampling checks on printed225. Figure10.5 mask extended nine source pixels to cover the lower stroke remnant without reaching Proof; final browser confirmation pending."
+  },
+  "figures": [
+    {
+      "id": "10.1",
+      "pdfPage": 201,
+      "printedPage": 215,
+      "pixelBounds": [20, 476, 480, 108],
+      "pagePixels": [1039, 1800],
+      "sourceBox": [0.019249, 0.264444, 0.461983, 0.06],
+      "sourceClip": null,
+      "substanceFactory": "cauchyBisectionSubstance",
+      "buildFactory": "buildBoundedCauchySequenceFigure",
+      "mathematics": "A bounded real Cauchy sequence, with an infinite geometric tail in the selected positive half interval.",
+      "visual": "The full bounding interval, two negative terms, positive tail, midpoint tick and original a₁/b₁/0/T+1 labels are retained.",
+      "limits": [],
+      "privateComparison": "tmp/elementary-topology/comparison-10.1.png"
+    },
+    {
+      "id": "10.2",
+      "pdfPage": 201,
+      "printedPage": 215,
+      "pixelBounds": [500, 476, 480, 108],
+      "pagePixels": [1039, 1800],
+      "sourceBox": [0.481232, 0.264444, 0.461983, 0.06],
+      "sourceClip": null,
+      "substanceFactory": "cauchyBisectionSubstance",
+      "buildFactory": "buildNestedBisectionFigure",
+      "mathematics": "Exact nested closed bisections containing the sequence limit, with infinitely many tail terms in each selected interval.",
+      "visual": "The selected left half, midpoint tick, preceding bracket, two outside endpoint marks and source generic n notation are retained.",
+      "limits": [
+        "The scan places both earlier endpoints strictly outside the next interval; one exact bisection changes only one endpoint. These earlier marks retain the source schematic positions; Substance contains the correct exact bisection family."
+      ],
+      "privateComparison": "tmp/elementary-topology/comparison-10.2.png"
+    },
+    {
+      "id": "10.3",
+      "pdfPage": 204,
+      "printedPage": 219,
+      "pixelBounds": [82, 140, 380, 366],
+      "pagePixels": [1039, 1800],
+      "sourceBox": [0.078922, 0.077778, 0.365736, 0.203333],
+      "sourceClip": null,
+      "substanceFactory": "circleDiameterSubstance",
+      "buildFactory": "buildCircleDiameterFigure",
+      "mathematics": "The unit circle boundary has Euclidean diameter2, attained at its opposite horizontal points.",
+      "visual": "The circle remains unfilled; both marked endpoints, origin, A label and upper diameter brace follow the scan.",
+      "limits": [],
+      "privateComparison": "tmp/elementary-topology/comparison-10.3.png"
+    },
+    {
+      "id": "10.4",
+      "pdfPage": 204,
+      "printedPage": 219,
+      "pixelBounds": [522, 165, 484, 315],
+      "pagePixels": [1039, 1800],
+      "sourceBox": [0.502406, 0.091667, 0.465833, 0.175],
+      "sourceClip": null,
+      "substanceFactory": "rectangleDiameterSubstance",
+      "buildFactory": "buildRectangleDiameterFigure",
+      "mathematics": "The closed rectangle[-2,2]×[-1,1] has diagonal length and diameter√20.",
+      "visual": "The positive-slope diagonal, reverse hatches, side braces2/4, axes, origin and d(B) knockout are retained. Restrained orange fill is added.",
+      "limits": [],
+      "privateComparison": "tmp/elementary-topology/comparison-10.4.png"
+    },
+    {
+      "id": "10.5",
+      "pdfPage": 209,
+      "printedPage": 224,
+      "pixelBounds": [379, 153, 486, 489],
+      "pagePixels": [1143, 1800],
+      "sourceBox": [0.331584, 0.085, 0.425197, 0.271667],
+      "sourceClip": [
+        [0, 0],
+        [1, 0],
+        [1, 0.84],
+        [0.95, 0.84],
+        [0.95, 1],
+        [0, 1]
+      ],
+      "substanceFactory": "baireNestedBallsSubstance",
+      "buildFactory": "buildBaireNestedBallsFigure",
+      "mathematics": "Three selected stages in the decreasing metric-neighborhood construction for Baire category. The countable nowhere-dense family and supposed cover are distinct; the false cover is nested as a hypothesis.",
+      "visual": "The three centers and nested circular contours, dashed first radius, solid second radius, third radius arrow, pₙ<1/n and ClB₁ notation follow the scan.",
+      "limits": [
+        "The display is an abstract metric proof sketch; centers have no Euclidean coordinates. Its source-derived contour ratios do not encode metric radii: the source draws ClB₁ about0.8 the outer radius although B₁ uses p₁/2.",
+        "MetricBallClosure is the closure of an open ball, which need not equal a closed metric ball in an arbitrary metric space.",
+        "Only three selected stages are drawn; the countable families are abstract mathematical entities."
+      ],
+      "privateComparison": "tmp/elementary-topology/comparison-10.5.png"
+    },
+    {
+      "id": "10.6",
+      "pdfPage": 210,
+      "printedPage": 225,
+      "pixelBounds": [355, 144, 490, 449],
+      "pagePixels": [1143, 1800],
+      "sourceBox": [0.310586, 0.08, 0.428696, 0.249444],
+      "sourceClip": [
+        [0, 0],
+        [1, 0],
+        [1, 0.91],
+        [0.83, 0.91],
+        [0.83, 1],
+        [0, 1]
+      ],
+      "substanceFactory": "baireDenseIntersectionSubstance",
+      "buildFactory": "buildBaireDenseIntersectionFigure",
+      "mathematics": "The closed complete subspace T=ClN(x,p/2), dense open Uₙ, complement Aₙ and local witness z′ in Uₙ∩N(z,q′), with the supposed somewhere-density and contradictory membership nested as hypotheses.",
+      "visual": "The overlapping outer contours, N(t,q), hatched small N(z,q′), four point marks x/t/z/z′ and original source labels follow the scan.",
+      "limits": [
+        "The dense open Uₙ is drawn as a localized oval outside the local witness, as in the contradiction-proof source graphic. These contours are schematic and do not assert a Euclidean realization of a dense set or of the contradictory membership.",
+        "The small ball radius is q′; the upper marked point is z′, confirmed by an enlarged source crop and the continuation proof on printed226."
+      ],
+      "privateComparison": "tmp/elementary-topology/comparison-10.6.png"
+    }
+  ],
+  "rootReaderMaskReview": "Passed in the rebuilt production reader: 10.5 outer contour fully replaced without clipping caption or proof; 10.6 shaped mask preserves source caption and proof, with the correct separate z-prime label. All six native SVGs have positive visible dimensions."
+}

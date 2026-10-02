@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "part": "Front matter",
+  "review": {
+    "status": "available-pages-transcribed",
+    "method": "PDF3\u201310 inspected as full-page 1800px renders; title/publication/dedication, every preface paragraph and all58 contents section names/page references checked against source.",
+    "visualReviewedPdfPages": [3, 4, 5, 6, 7, 8, 9, 10],
+    "limits": [
+      "The cover and half-title repeat the title and edition; their layouts remain in the source reader.",
+      "Running headers, page-number footers and leader dots are represented by page anchors and the source map; prose wording is unchanged.",
+      "Line-end hyphenation and capitalization of headings adapted for HTML. Preface paragraph continues acrossvii/viii with both source-page anchors."
+    ],
+    "browserVisualQa": {
+      "status": "passed",
+      "record": "browser-qa-chapters-09-11-and-matter.json",
+      "scope": "Every corresponding sidebar route renders with no KaTeX errors, broken figure assets or document overflow in the desktop preview."
+    }
+  },
+  "htmlFiles": [
+    "packages/docs-site/docs/elementary-topology/front-matter/contents.md",
+    "packages/docs-site/docs/elementary-topology/front-matter/index.md",
+    "packages/docs-site/docs/elementary-topology/front-matter/preface.md",
+    "packages/docs-site/docs/elementary-topology/front-matter/publication-and-dedication.md"
+  ],
+  "contentsEntries": [
+    {
+      "section": "1.1",
+      "title": "1.1 Sets and Functions",
+      "printedPage": 1,
+      "htmlLink": "../chapter-01/sets-and-functions"
+    },
+    {
+      "section": "1.2",
+      "title": "1.2 Partial and Total Orderings; Equivalence Relations",
+      "printedPage": 4,
+      "htmlLink": "../chapter-01/orderings-equivalence-relations"
+    },
+    {
+      "section": "1.3",
+      "title": "1.3 Cardinality",
+      "printedPage": 9,
+      "htmlLink": "../chapter-01/cardinality"
+    },
+    {
+      "section": "1.4",
+      "title": "1.4 Groups",
+      "printedPage": 13,
+      "htmlLink": "../chapter-01/groups"
+    },
+    {
+      "section": "2.1",
+      "title": "2.1 The Notion of a Metric Space",
+      "printedPage": 16,
+      "htmlLink": "../chapter-02/metric-space"
+    },
+    {
+      "section": "2.2",
+      "title": "2.2 Neighborhoods",
+      "printedPage": 19,
+      "htmlLink": "../neighborhoods"
+    },
+    {
+      "section": "2.3",
+      "title": "2.3 Open Sets",
+      "printedPage": 21,
+      "htmlLink": "../chapter-02/open-sets"
+    },
+    {
+      "section": "2.4",
+      "title": "2.4 Closed Sets",
+      "printedPage": 24,
+      "htmlLink": "../chapter-02/closed-sets"
+    },
+    {
+      "section": "2.5",
+      "title": "2.5 Convergence of Sequences",
+      "printedPage": 26,
+      "htmlLink": "../chapter-02/convergence-of-sequences"
+    },
+    {
+      "section": "2.6",
+      "title": "2.6 Continuity",
+      "printedPage": 29,
+      "htmlLink": "../chapter-02/continuity"
+    },
+    {
+      "section": "2.7",
+      "title": "2.7 \u201cDistance\u201d Between Two Sets",
+      "printedPage": 34,
+      "htmlLink": "../chapter-02/distance-between-sets"
+    },
+    {
+      "section": "3.1",
+      "title": "3.1 The Notion of a Topology",
+      "printedPage": 40,
+      "htmlLink": "../chapter-03/topology"
+    },
+    {
+      "section": "3.2",
+      "title": "3.2 Bases and Subbases",
+      "printedPage": 43,
+      "htmlLink": "../chapter-03/bases-and-subbases"
+    },
+    {
+      "section": "3.3",
+      "title": "3.3 Open Neighborhood Systems",
+      "printedPage": 49,
+      "htmlLink": "../chapter-03/open-neighborhood-systems"
+    },
+    {
+      "section": "3.4",
+      "title": "3.4 Finer and Coarser Topologies",
+      "printedPage": 52,
+      "htmlLink": "../chapter-03/finer-and-coarser-topologies"
+    },
+    {
+      "section": "3.5",
+      "title": "3.5 Derived Sets",
+      "printedPage": 55,
+      "htmlLink": "../chapter-03/derived-sets"
+    },
+    {
+      "section": "3.6",
+      "title": "3.6 More About Topologically Derived Sets",
+      "printedPage": 59,
+      "htmlLink": "../chapter-03/topologically-derived-sets"
+    },
+    {
+      "section": "4.1",
+      "title": "4.1 Subspaces",
+      "printedPage": 64,
+      "htmlLink": "../chapter-04/subspaces"
+    },
+    {
+      "section": "4.2",
+      "title": "4.2 The Topologically Derived Sets in Subspaces",
+      "printedPage": 67,
+      "htmlLink": "../chapter-04/derived-sets-in-subspaces"
+    },
+    {
+      "section": "4.3",
+      "title": "4.3 Continuity",
+      "printedPage": 70,
+      "htmlLink": "../chapter-04/continuity"
+    },
+    {
+      "section": "4.4",
+      "title": "4.4 Homeomorphisms",
+      "printedPage": 75,
+      "htmlLink": "../chapter-04/homeomorphisms"
+    },
+    {
+      "section": "4.5",
+      "title": "4.5 Identification Spaces",
+      "printedPage": 79,
+      "htmlLink": "../chapter-04/identification-spaces"
+    },
+    {
+      "section": "4.6",
+      "title": "4.6 Product Spaces",
+      "printedPage": 84,
+      "htmlLink": "../chapter-04/product-spaces"
+    },
+    {
+      "section": "5.1",
+      "title": "5.1 $T_0$- and $T_1$-spaces",
+      "printedPage": 91,
+      "htmlLink": "../chapter-05/t0-and-t1-spaces"
+    },
+    {
+      "section": "5.2",
+      "title": "5.2 $T_2$-spaces",
+      "printedPage": 95,
+      "htmlLink": "../chapter-05/t2-spaces"
+    },
+    {
+      "section": "5.3",
+      "title": "5.3 $T_3$- and Regular Spaces",
+      "printedPage": 97,
+      "htmlLink": "../chapter-05/t3-and-regular-spaces"
+    },
+    {
+      "section": "5.4",
+      "title": "5.4 $T_4$- and Normal Spaces",
+      "printedPage": 102,
+      "htmlLink": "../chapter-05/t4-and-normal-spaces"
+    },
+    {
+      "section": "5.5",
+      "title": "5.5 Normality and the Extension of Functions",
+      "printedPage": 106,
+      "htmlLink": "../chapter-05/normality-and-extension"
+    },
+    {
+      "section": "6.1",
+      "title": "6.1 The Need for a Generalized Notion of Convergence",
+      "printedPage": 113,
+      "htmlLink": "../chapter-06/generalized-convergence"
+    },
+    {
+      "section": "6.2",
+      "title": "6.2 Nets",
+      "printedPage": 116,
+      "htmlLink": "../chapter-06/nets"
+    },
+    {
+      "section": "6.3",
+      "title": "6.3 Subsequences and Subnets",
+      "printedPage": 119,
+      "htmlLink": "../chapter-06/subsequences-and-subnets"
+    },
+    {
+      "section": "6.4",
+      "title": "6.4 Convergence of Nets",
+      "printedPage": 122,
+      "htmlLink": "../chapter-06/convergence-of-nets"
+    },
+    {
+      "section": "6.5",
+      "title": "6.5 Limit Points",
+      "printedPage": 127,
+      "htmlLink": "../chapter-06/limit-points"
+    },
+    {
+      "section": "6.6",
+      "title": "6.6 Continuity and Convergence",
+      "printedPage": 130,
+      "htmlLink": "../chapter-06/continuity-and-convergence"
+    },
+    {
+      "section": "6.7",
+      "title": "6.7 Filters",
+      "printedPage": 133,
+      "htmlLink": "../chapter-06/filters"
+    },
+    {
+      "section": "6.8",
+      "title": "6.8 Ultranets and Ultrafilters",
+      "printedPage": 136,
+      "htmlLink": "../chapter-06/ultranets-and-ultrafilters"
+    },
+    {
+      "section": "7.1",
+      "title": "7.1 Open Covers and Refinements",
+      "printedPage": 142,
+      "htmlLink": "../chapter-07/open-covers-and-refinements"
+    },
+    {
+      "section": "7.2",
+      "title": "7.2 Countability Properties",
+      "printedPage": 144,
+      "htmlLink": "../chapter-07/countability-properties"
+    },
+    {
+      "section": "7.3",
+      "title": "7.3 Compactness",
+      "printedPage": 152,
+      "htmlLink": "../chapter-07/compactness"
+    },
+    {
+      "section": "7.4",
+      "title": "7.4 The Derived Spaces and Compactness. The Separation Axioms and Compactness",
+      "printedPage": 156,
+      "htmlLink": "../chapter-07/derived-spaces-and-compactness"
+    },
+    {
+      "section": "8.1",
+      "title": "8.1 Compactness in $R^n$",
+      "printedPage": 163,
+      "htmlLink": "../chapter-08/compactness-in-euclidean-space"
+    },
+    {
+      "section": "8.2",
+      "title": "8.2 Local Compactness",
+      "printedPage": 168,
+      "htmlLink": "../chapter-08/local-compactness"
+    },
+    {
+      "section": "8.3",
+      "title": "8.3 Compactifications",
+      "printedPage": 174,
+      "htmlLink": "../chapter-08/compactifications"
+    },
+    {
+      "section": "8.4",
+      "title": "8.4 Sequential and Countable Compactness",
+      "printedPage": 179,
+      "htmlLink": "../chapter-08/sequential-and-countable-compactness"
+    },
+    {
+      "section": "9.1",
+      "title": "9.1 The Notion of Connectedness",
+      "printedPage": 183,
+      "htmlLink": "../chapter-09/notion-of-connectedness"
+    },
+    {
+      "section": "9.2",
+      "title": "9.2 Further Tests for Connectedness",
+      "printedPage": 187,
+      "htmlLink": "../chapter-09/further-tests-for-connectedness"
+    },
+    {
+      "section": "9.3",
+      "title": "9.3 Connectedness and the Derived Spaces",
+      "printedPage": 192,
+      "htmlLink": "../chapter-09/connectedness-and-derived-spaces"
+    },
+    {
+      "section": "9.4",
+      "title": "9.4 Components. Local Connectedness",
+      "printedPage": 196,
+      "htmlLink": "../chapter-09/components-and-local-connectedness"
+    },
+    {
+      "section": "9.5",
+      "title": "9.5 Connectedness and Compact $T_2$-spaces",
+      "printedPage": 202,
+      "htmlLink": "../chapter-09/connectedness-and-compact-t2-spaces"
+    },
+    {
+      "section": "10.1",
+      "title": "10.1 Metrizable Spaces",
+      "printedPage": 208,
+      "htmlLink": "../chapter-10/metrizable-spaces"
+    },
+    {
+      "section": "10.2",
+      "title": "10.2 Cauchy Sequences",
+      "printedPage": 213,
+      "htmlLink": "../chapter-10/cauchy-sequences"
+    },
+    {
+      "section": "10.3",
+      "title": "10.3 Complete Metric Spaces",
+      "printedPage": 217,
+      "htmlLink": "../chapter-10/complete-metric-spaces"
+    },
+    {
+      "section": "10.4",
+      "title": "10.4 Baire Category Theorem",
+      "printedPage": 223,
+      "htmlLink": "../chapter-10/baire-category-theorem"
+    },
+    {
+      "section": "10.5",
+      "title": "10.5 Paracompactness. Complete Regularity",
+      "printedPage": 228,
+      "htmlLink": "../chapter-10/paracompactness-and-complete-regularity"
+    },
+    {
+      "section": "11.1",
+      "title": "11.1 Homotopic Functions",
+      "printedPage": 233,
+      "htmlLink": "../chapter-11/homotopic-functions"
+    },
+    {
+      "section": "11.2",
+      "title": "11.2 Loops",
+      "printedPage": 240,
+      "htmlLink": "../chapter-11/loops"
+    },
+    {
+      "section": "11.3",
+      "title": "11.3 The Fundamental Group",
+      "printedPage": 246,
+      "htmlLink": "../chapter-11/fundamental-group"
+    },
+    {
+      "section": "11.4",
+      "title": "11.4 The Fundamental Group and Continuous Functions",
+      "printedPage": 253,
+      "htmlLink": "../chapter-11/fundamental-group-and-continuous-functions"
+    }
+  ]
+}

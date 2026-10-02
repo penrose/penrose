@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "id": "unnumbered-cantor-diagonal-table",
+  "kind": "unnumbered-mathematical-table",
+  "status": "implemented-and-visually-reviewed",
+  "pdfPage": 20,
+  "printedPage": 11,
+  "section": "1.3",
+  "example": 9,
+  "domainFile": "packages/bloom/src/domains/set-theory.ts",
+  "styleFile": "packages/bloom/src/styles/decimal-tables.tsx",
+  "substanceFile": "packages/bloom/src/examples/early-tables.ts",
+  "substanceFactory": "decimalMapWindowSubstance",
+  "buildFactory": "buildCantorDecimalTable",
+  "testFile": "packages/bloom/src/styles/early-tables.test.ts",
+  "verification": {
+    "testsPassed": 5,
+    "mathematics": [
+      "The four exact known decimal prefixes are 011010, 1110111, 101101, and 0000000111.",
+      "The complemented diagonal prefix is 1001 and differs from every displayed row at its own diagonal position.",
+      "Substance distinguishes an abstract infinite decimal expansion from its known finite prefix, and does not assert an infinite enumeration, onto map or uncountability conclusion from the finite window."
+    ],
+    "reuse": "The same native decimal-table Style renders a second mathematical window with two different prefixes.",
+    "visual": "Full-resolution source PDF20 and the native rendered table were inspected. Both column headings, all four exact row strings and two vertical continuation markers are retained; there is no added grid or shading. Native equation metrics align the decimal points.",
+    "nativeInteraction": "One native whole-table handle translates every label and grid line together. Canonical positions equal the static source layout, seeded sampling changes only the bounded common translation, and all Substance facts remain immutable.",
+    "rootVisualReview": "Passed: parent inspected the full supplied pages and both native previews. Exact source decimal strings, sixteen products, open grid and continuation dots are retained."
+  },
+  "limits": [
+    "Continuation dots represent unspecified digits; no completion of these expansions is invented.",
+    "The book uses decimal expansions containing digits 0 and 1, not binary place values.",
+    "The four-row helper checks only known diagonal positions. The source's all-n argument, rather than these four checks, establishes uncountability."
+  ],
+  "sourceImageDimensions": [764, 1264],
+  "pixelBounds": [252, 786, 261, 152],
+  "sourceBounds": [0.329842932, 0.621835443, 0.341623037, 0.120253165],
+  "sourcePlacementMeasurement": {
+    "referenceDpi": 150,
+    "boundsConvention": "[x,y,width,height], with a half-open pixel rectangle; sourceBounds uses the same rectangle normalized against the complete rendered source page",
+    "graphicInkPixelBounds": [256, 790, 253, 144],
+    "paddingPixels": 4,
+    "visualReview": "Graphic-only crop inspected at triple scale. Headings, all entries, continuation dots or grid lines are complete; surrounding prose is excluded."
+  }
+}

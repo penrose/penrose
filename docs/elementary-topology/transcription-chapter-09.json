@@ -1,0 +1,424 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "chapter": {
+    "number": 9,
+    "title": "Connectedness",
+    "printedPageRange": [183, 207]
+  },
+  "review": {
+    "pdfPageRange": [173, 195],
+    "method": "Private text extraction checked against every full-page 150 dpi rendered scan. Every mathematical formula and all available exercise text visually reviewed.",
+    "status": "available-pages-transcribed",
+    "availableChapterPdfPages": [
+      173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187,
+      188, 189, 190, 191, 192, 193, 194
+    ],
+    "visualReviewedPdfPages": [
+      173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187,
+      188, 189, 190, 191, 192, 193, 194, 195
+    ],
+    "limits": [
+      "Printed183,191 and199 are absent. No missing introductions, definitions, statements, proofs, examples, exercises or discussion are reconstructed.",
+      "Printed184 begins a proof fragment; opening Definition1, Example1 and Proposition1 unavailable. Printed190 ends Proposition8 proof mid-sentence; printed192 resumes Exercises5\u20139. Proposition9 and Exercises1\u20134 unavailable. Printed198 ends Example15; printed200 resumes Proposition15 proof. Example16 and Proposition15 statement unavailable.",
+      "Example3 finite-set formulas and Section9.1 Exercise2(a) and6 retained as printed.",
+      "Example8 unit-ball inequality uses p, not p\u00b2. Exercises9.2(6c,d) print x\u22601.",
+      "Example10 polar angle is A. Proposition12 finite-product proof uses A_(m\u22121), g after defining g_m, unions over A_m and concludes Y is connected; source inconsistencies retained.",
+      "Section9.3 Exercise2 cardinality is plain italic c, verified at300dpi. Exercise3(b) has a missing opening brace in its second set; retained with editorial note.",
+      "Example12 says R\u2212{x} after using y. Proposition15 proof uses Y\u00b0; Proposition17 reverse direction assumes each X_i connected and repeats all but finitely many connected.",
+      "Example17 prints Y={C_n}\u222a... with circles as the first family, radius(1\u22121/n)\u00b2. Proposition19 omits is before directed. Proposition20 says This family in nonempty and intersects over J; retained and visually rechecked at300dpi.",
+      "Running headers and footers retained in source map. Line wrapping, paragraph indentation and line-end hyphenation normalized. Inline anchors preserve paragraphs across page boundaries.",
+      "Printed187,192,196 and202 split at section boundaries. PDF195/printed208 is the reviewed Chapter10 boundary, not transcribed as Chapter9."
+    ],
+    "browserVisualQa": {
+      "status": "passed",
+      "record": "browser-qa-chapters-09-11-and-matter.json",
+      "scope": "Every corresponding sidebar route renders with no KaTeX errors, broken figure assets or document overflow in the desktop preview."
+    }
+  },
+  "outputDirectory": "packages/docs-site/docs/elementary-topology/chapter-09",
+  "pages": [
+    {
+      "pdfPage": 173,
+      "printedPage": 184,
+      "formulaReview": "verified against rendered scan",
+      "path": "notion-of-connectedness.md",
+      "anchor": "printed-page-184",
+      "coverage": "All body text; Available opening proof fragment, Figure9.1, Proposition2 and proof, both corollaries."
+    },
+    {
+      "pdfPage": 174,
+      "printedPage": 185,
+      "formulaReview": "verified against rendered scan",
+      "path": "notion-of-connectedness.md",
+      "anchor": "printed-page-185",
+      "coverage": "All body text; Example2, Proposition3 and proof of its equivalent connectedness criteria."
+    },
+    {
+      "pdfPage": 175,
+      "printedPage": 186,
+      "formulaReview": "verified against rendered scan",
+      "path": "notion-of-connectedness.md",
+      "anchor": "printed-page-186",
+      "coverage": "All body text; Proposition3 proof completion, Example3, Proposition4 and proof, Example4 beginning."
+    },
+    {
+      "pdfPage": 176,
+      "printedPage": 187,
+      "formulaReview": "verified against rendered scan",
+      "fragments": [
+        {
+          "path": "notion-of-connectedness.md",
+          "anchor": "printed-page-187",
+          "coverage": "All body text of section fragment; Example4 completion, Exercises1\u20136; Section9.2 introduction, Examples5\u20136 beginning."
+        },
+        {
+          "path": "further-tests-for-connectedness.md",
+          "anchor": "printed-page-187",
+          "coverage": "All body text of section fragment; Example4 completion, Exercises1\u20136; Section9.2 introduction, Examples5\u20136 beginning."
+        }
+      ]
+    },
+    {
+      "pdfPage": 177,
+      "printedPage": 188,
+      "formulaReview": "verified against rendered scan",
+      "path": "further-tests-for-connectedness.md",
+      "anchor": "printed-page-188",
+      "coverage": "All body text; Example6 completion, Figure9.2, path introduction and definitions."
+    },
+    {
+      "pdfPage": 178,
+      "printedPage": 189,
+      "formulaReview": "verified against rendered scan",
+      "path": "further-tests-for-connectedness.md",
+      "anchor": "printed-page-189",
+      "coverage": "All body text; Examples7 and8, Figures9.3\u20139.4, Proposition5 and proof, Proposition6 and proof beginning."
+    },
+    {
+      "pdfPage": 179,
+      "printedPage": 190,
+      "formulaReview": "verified against rendered scan",
+      "path": "further-tests-for-connectedness.md",
+      "anchor": "printed-page-190",
+      "coverage": "All body text; Proposition6 proof completion, Figures9.5\u20139.6, Proposition7 and proof, Proposition8 and available proof beginning."
+    },
+    {
+      "pdfPage": 180,
+      "printedPage": 192,
+      "formulaReview": "verified against rendered scan",
+      "fragments": [
+        {
+          "path": "connectedness-and-derived-spaces.md",
+          "anchor": "printed-page-192",
+          "coverage": "All body text of section fragment; Available Exercises5\u20139; Section9.3 introduction, mutual separation and Proposition10 proof beginning."
+        },
+        {
+          "path": "further-tests-for-connectedness.md",
+          "anchor": "printed-page-192",
+          "coverage": "All body text of section fragment; Available Exercises5\u20139; Section9.3 introduction, mutual separation and Proposition10 proof beginning."
+        }
+      ]
+    },
+    {
+      "pdfPage": 181,
+      "printedPage": 193,
+      "formulaReview": "verified against rendered scan",
+      "path": "connectedness-and-derived-spaces.md",
+      "anchor": "printed-page-193",
+      "coverage": "All body text; Proposition10 proof completion, Figure9.7, corollary and proof, Proposition11 and proof."
+    },
+    {
+      "pdfPage": 182,
+      "printedPage": 194,
+      "formulaReview": "verified against rendered scan",
+      "path": "connectedness-and-derived-spaces.md",
+      "anchor": "printed-page-194",
+      "coverage": "All body text; Examples9\u201310, Figures9.8\u20139.9, Proposition12 and finite-product proof beginning."
+    },
+    {
+      "pdfPage": 183,
+      "printedPage": 195,
+      "formulaReview": "verified against rendered scan",
+      "path": "connectedness-and-derived-spaces.md",
+      "anchor": "printed-page-195",
+      "coverage": "All body text; Proposition12 finite-product proof completion and infinite-product proof, Exercises1\u20133."
+    },
+    {
+      "pdfPage": 184,
+      "printedPage": 196,
+      "formulaReview": "verified against rendered scan",
+      "fragments": [
+        {
+          "path": "components-and-local-connectedness.md",
+          "anchor": "printed-page-196",
+          "coverage": "All body text of section fragment; Exercises4\u20135; Section9.4 introduction and Example11."
+        },
+        {
+          "path": "connectedness-and-derived-spaces.md",
+          "anchor": "printed-page-196",
+          "coverage": "All body text of section fragment; Exercises4\u20135; Section9.4 introduction and Example11."
+        }
+      ]
+    },
+    {
+      "pdfPage": 185,
+      "printedPage": 197,
+      "formulaReview": "verified against rendered scan",
+      "path": "components-and-local-connectedness.md",
+      "anchor": "printed-page-197",
+      "coverage": "All body text; Introduction completion, Definition3, Proposition13 and proof, Example12, Proposition14 and proof, Definition4, Example13 beginning."
+    },
+    {
+      "pdfPage": 186,
+      "printedPage": 198,
+      "formulaReview": "verified against rendered scan",
+      "path": "components-and-local-connectedness.md",
+      "anchor": "printed-page-198",
+      "coverage": "All body text; Example13 completion, Examples14\u201315, reference to unlocated Figure9.10, available text ending before missing199."
+    },
+    {
+      "pdfPage": 187,
+      "printedPage": 200,
+      "formulaReview": "verified against rendered scan",
+      "path": "components-and-local-connectedness.md",
+      "anchor": "printed-page-200",
+      "coverage": "All body text; Available Proposition15 proof fragment, corollary and proof, Proposition16 and proof, Proposition17 and proof beginning."
+    },
+    {
+      "pdfPage": 188,
+      "printedPage": 201,
+      "formulaReview": "verified against rendered scan",
+      "path": "components-and-local-connectedness.md",
+      "anchor": "printed-page-201",
+      "coverage": "All body text; Proposition17 proof completed, Exercises1\u20135 beginning."
+    },
+    {
+      "pdfPage": 189,
+      "printedPage": 202,
+      "formulaReview": "verified against rendered scan",
+      "fragments": [
+        {
+          "path": "components-and-local-connectedness.md",
+          "anchor": "printed-page-202",
+          "coverage": "All body text of section fragment; Exercises5\u20138 completed; Section9.5 heading, definition introduction and Definition5."
+        },
+        {
+          "path": "connectedness-and-compact-t2-spaces.md",
+          "anchor": "printed-page-202",
+          "coverage": "All body text of section fragment; Exercises5\u20138 completed; Section9.5 heading, definition introduction and Definition5."
+        }
+      ]
+    },
+    {
+      "pdfPage": 190,
+      "printedPage": 203,
+      "formulaReview": "verified against rendered scan",
+      "path": "connectedness-and-compact-t2-spaces.md",
+      "anchor": "printed-page-203",
+      "coverage": "All body text; Examples17\u201318, Figures9.11\u20139.12, Proposition18 and first proof direction."
+    },
+    {
+      "pdfPage": 191,
+      "printedPage": 204,
+      "formulaReview": "verified against rendered scan",
+      "path": "connectedness-and-compact-t2-spaces.md",
+      "anchor": "printed-page-204",
+      "coverage": "All body text; Proposition18 proof completed, corollary, Proposition19 and proof, Proposition20 and proof beginning."
+    },
+    {
+      "pdfPage": 192,
+      "printedPage": 205,
+      "formulaReview": "verified against rendered scan",
+      "path": "connectedness-and-compact-t2-spaces.md",
+      "anchor": "printed-page-205",
+      "coverage": "All body text; Proposition20 proof completion, Proposition21 and proof, Example19, Proposition22 and proof beginning."
+    },
+    {
+      "pdfPage": 193,
+      "printedPage": 206,
+      "formulaReview": "verified against rendered scan",
+      "path": "connectedness-and-compact-t2-spaces.md",
+      "anchor": "printed-page-206",
+      "coverage": "All body text; Proposition22 proof completed, Proposition23 and proof, corollary, Example20, Hahn-Mazurkiewicz Proposition24."
+    },
+    {
+      "pdfPage": 194,
+      "printedPage": 207,
+      "formulaReview": "verified against rendered scan",
+      "path": "connectedness-and-compact-t2-spaces.md",
+      "anchor": "printed-page-207",
+      "coverage": "All body text; Exercises1\u20139 and all available chapter-ending text."
+    }
+  ],
+  "gaps": [
+    {
+      "printedPage": 183,
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "notion-of-connectedness.md"],
+      "availableBoundaryEvidence": "Chapter opening absent; printed184 begins Proof."
+    },
+    {
+      "printedPage": 191,
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "further-tests-for-connectedness.md"],
+      "availableBoundaryEvidence": "Printed190 proof ends such; printed192 begins Exercise5."
+    },
+    {
+      "printedPage": 199,
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "components-and-local-connectedness.md"],
+      "availableBoundaryEvidence": "Printed198 ends Example15; printed200 begins x\u2208C\u00b0, within Proposition15 proof."
+    }
+  ],
+  "illustrations": [
+    {
+      "id": "9.1",
+      "pdfPage": 173,
+      "printedPage": 184,
+      "path": "notion-of-connectedness.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=184"
+    },
+    {
+      "id": "9.2",
+      "pdfPage": 177,
+      "printedPage": 188,
+      "path": "further-tests-for-connectedness.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=188"
+    },
+    {
+      "id": "9.3",
+      "pdfPage": 178,
+      "printedPage": 189,
+      "path": "further-tests-for-connectedness.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=189"
+    },
+    {
+      "id": "9.4",
+      "pdfPage": 178,
+      "printedPage": 189,
+      "path": "further-tests-for-connectedness.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=189"
+    },
+    {
+      "id": "9.5",
+      "pdfPage": 179,
+      "printedPage": 190,
+      "path": "further-tests-for-connectedness.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=190"
+    },
+    {
+      "id": "9.6",
+      "pdfPage": 179,
+      "printedPage": 190,
+      "path": "further-tests-for-connectedness.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=190"
+    },
+    {
+      "id": "9.7",
+      "pdfPage": 181,
+      "printedPage": 193,
+      "path": "connectedness-and-derived-spaces.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=193"
+    },
+    {
+      "id": "9.8",
+      "pdfPage": 182,
+      "printedPage": 194,
+      "path": "connectedness-and-derived-spaces.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=194"
+    },
+    {
+      "id": "9.9",
+      "pdfPage": 182,
+      "printedPage": 194,
+      "path": "connectedness-and-derived-spaces.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=194"
+    },
+    {
+      "id": "9.11",
+      "pdfPage": 190,
+      "printedPage": 203,
+      "path": "connectedness-and-compact-t2-spaces.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=203"
+    },
+    {
+      "id": "9.12",
+      "pdfPage": 190,
+      "printedPage": 203,
+      "path": "connectedness-and-compact-t2-spaces.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=203"
+    }
+  ],
+  "unlocatedNumberedFigureLabels": [
+    {
+      "label": "9.10",
+      "status": "direct reference present; caption unlocated in available supplied pages",
+      "missingPrintedPageCandidates": [199],
+      "evidence": "Printed198 references Figure9.10 in Example15. Printed199 is missing; next present figures9.11/12 are on203."
+    }
+  ],
+  "nextChapterBoundary": {
+    "pdfPage": 195,
+    "printedPage": 208,
+    "chapter": 10,
+    "title": "Metrizability. Complete Metric Space",
+    "section": "10.1 Metrizable Spaces",
+    "status": "visually reviewed; not transcribed as Chapter9"
+  },
+  "validation": {
+    "sourceBodyCoverage": "Every extracted alphabetic OCR word of four or more characters checked per supplied page against its transcribed body; unmatched tokens only running headers, captions represented by source links, Lindelof OCR, split words or visually corrected formula OCR. Supplements full-page visual review.",
+    "sourceFormulaVerification": "Every mathematical expression on PDF173\u2013194 visually checked, including supremum interval inequalities, mutual separation, polar angle A, product-proof indices, component/local-connectedness interiors, continuum radius, directed families and chain intersection J. Formula OCR corrections and printed inconsistencies verified against scans.",
+    "mathRenderer": "KaTeX0.13.24 via shared configureMath with v-pre wrappers",
+    "mathExpressionCountInNewPages": 1302,
+    "mathValidationStatus": "passed",
+    "vueCompilationStatus": "passed",
+    "renderedMarkdownStatus": "passed; no unexpected code blocks; source exercise list starts1,3,5 preserved",
+    "browserVisualQa": {
+      "status": "pending-root-review",
+      "browser": "Codex in-app browser",
+      "pages": [
+        "components-and-local-connectedness",
+        "connectedness-and-derived-spaces",
+        "notion-of-connectedness",
+        "connectedness-and-compact-t2-spaces",
+        "further-tests-for-connectedness"
+      ],
+      "checked": []
+    }
+  },
+  "generalizabilityCandidates": [
+    {
+      "section": "9.3",
+      "printedPage": 193,
+      "pdfPage": 181,
+      "passage": "Proposition10 proof",
+      "concept": "A separation inherited by a subspace via ambient open complements; compose reusable set regions and subspace notation."
+    },
+    {
+      "section": "9.4",
+      "printedPage": 197,
+      "pdfPage": 185,
+      "passage": "Proposition14 proof",
+      "concept": "Two intersecting connected sets have a connected union; illustrate how components become maximal."
+    },
+    {
+      "section": "9.5",
+      "printedPage": 204,
+      "pdfPage": 191,
+      "passage": "Proposition20 proof",
+      "concept": "A chain of shrinking subcontinua retains an intersection, extending continuum and directed-family styles."
+    }
+  ]
+}

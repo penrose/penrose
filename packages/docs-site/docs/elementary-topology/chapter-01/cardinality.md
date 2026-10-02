@@ -6,7 +6,7 @@ description: Section 1.3, printed pages 9–12, of Elementary Topology, second e
 # 1.3 Cardinality
 
 ::: info Transcription note
-Source: printed pages 9–12 (PDF pages 18–21). The unnumbered array diagram is awaiting a Penrose reproduction; its source location, labels, and visible enumeration path are retained below. The decimal table is a transcription of the source table.
+Source: printed pages 9–12 (PDF pages 18–21). The unnumbered array diagram has a reviewed Penrose reproduction; its source location, labels, and visible enumeration path are retained below. The decimal table is also rendered by Penrose, with its values available as text.
 :::
 
 <span id="printed-page-9"></span>
@@ -75,6 +75,14 @@ Although we now have a goodly number of sets we know to be countable, we have no
 
 <span id="cantor-diagonal-table"></span>
 
+<figure class="book-figure">
+<img src="/elementary-topology/figures/figure-unnumbered-cantor-diagonal-table.svg" alt="Indexed decimal expansions used in the diagonal argument for uncountability." />
+<figcaption><a href="/docs/elementary-topology/reader?page=11">View the interactive table and its Substance program.</a></figcaption>
+</figure>
+
+<details>
+<summary>Table values as text</summary>
+
 |   $n$    |        $f(n)$        |
 | :------: | :------------------: |
 |    1     |   $0.011010\cdots$   |
@@ -82,6 +90,8 @@ Although we now have a goodly number of sets we know to be countable, we have no
 |    3     |   $0.101101\cdots$   |
 |    4     | $0.0000000111\cdots$ |
 | $\vdots$ |       $\vdots$       |
+
+</details>
 
 We now form an element $.x_1x_2x_3x_4\cdots$ of $S$ as follows: If the first digit of $f(1)$ is 0, let $x_1=1$, and if the first digit of $f(1)$ is 1, let $x_1=0$. Similarly, if the second digit of $f(2)$ is 0, let $x_2=1$, and if the second digit of $f(2)$ is 1, let $x_2=0$. In general, if the $n$th digit of $f(n)$ is 0, let $x_n$, the $n$th digit of our new element of $S$, be 1, and if the $n$th digit of $f(n)$ is 1, let $x_n=0$. Then $.x_1x_2x_3\cdots$ could not be $f(n)$ for any positive integer $n$, since $.x_1x_2x_3\cdots$ differs from each $f(n)$ at least in the $n$th digit because of the way it has been constructed. Hence $f$ could not be onto, and $S$ is therefore uncountable.
 

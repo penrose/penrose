@@ -19,12 +19,22 @@ Printed page 13, including the beginning of §1.4, is absent from the supplied s
 
 <span id="four-element-group-table"></span>
 
+<figure class="book-figure">
+<img src="/elementary-topology/figures/figure-unnumbered-four-element-group-table.svg" alt="Operation table for the four-element group in Example 10." />
+<figcaption><a href="/docs/elementary-topology/reader?page=14">View the interactive table and its Substance program.</a></figcaption>
+</figure>
+
+<details>
+<summary>Table values as text</summary>
+
 | $\#$  | $s_1$ | $s_2$ | $s_3$ | $s_4$ |
 | :---: | :---: | :---: | :---: | :---: |
 | $s_1$ | $s_1$ | $s_2$ | $s_3$ | $s_4$ |
 | $s_2$ | $s_2$ | $s_1$ | $s_4$ | $s_3$ |
 | $s_3$ | $s_3$ | $s_4$ | $s_1$ | $s_2$ |
 | $s_4$ | $s_4$ | $s_3$ | $s_2$ | $s_1$ |
+
+</details>
 
 It would actually take a great deal of computation to verify directly that this is indeed the operation table for a group; therefore, if the reader does not immediately recognize this group, he will more or less have to accept its being a group on faith. Note that the identity of this group is $s_1$ and that each element of the group is its own inverse.
 

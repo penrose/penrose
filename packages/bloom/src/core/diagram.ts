@@ -271,7 +271,8 @@ export class Diagram {
     const draggingRef = { dragging: false };
     for (const [name, elem] of nameElemMap) {
       setNoFillIfTransparent(elem);
-      elem.setAttribute("pointer-events", "painted");
+      if (!elem.hasAttribute("pointer-events"))
+        elem.setAttribute("pointer-events", "painted");
       if (this.draggingConstraints.has(name)) {
         // get rid of tooltip
         // Keep the rendered child structure intact for subsequent frame updates.

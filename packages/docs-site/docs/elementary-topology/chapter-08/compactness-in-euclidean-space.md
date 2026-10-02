@@ -50,9 +50,10 @@ where $p_i>0$, $i=1,\ldots,n$. Set $p=\min(p_1,\ldots,p_n)$. Then $N'(x,p)\in\ma
 
 _Proof._ Proposition 1 has shown that $R^n$ with the product topology is a metric space (with metric $D$ as in Proposition 1). In Section 7.4, Exercise 7, it was shown that any compact subset of any metric space is closed and bounded.
 
-::: info Figure 8.1 — Penrose reproduction pending
-[View Figure 8.1 on its source page](../reader?page=164).
-:::
+<figure class="book-figure">
+<img src="/elementary-topology/figures/figure-8.1.svg" alt="Coordinate axes pass through a shaded square centered at the origin; a darker irregular bounded set A lies in its upper-right portion, with boundary values plus/minus p labeled." />
+<figcaption>Figure 8.1. <a href="/docs/elementary-topology/reader?page=164">View the interactive figure and its Substance program.</a></figcaption>
+</figure>
 
 Suppose $A$ is a closed, bounded subset of $R^n$ (Fig. 8.1). Then, since $A$ is bounded, $A\subset N'(\bar0,p)$ for some positive number $p$; hence
 

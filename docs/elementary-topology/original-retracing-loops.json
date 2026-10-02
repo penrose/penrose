@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "kind": "original-illustrations",
+  "explanation": "New illustrations of Section11.3 Proposition4; kept separate from numbered source figures.",
+  "illustrations": [
+    {
+      "id": "original-retracing-circle",
+      "title": "A circle loop followed by its inverse",
+      "status": "reviewed-original",
+      "pdfPage": 229,
+      "printedPage": 246,
+      "description": "Four exact homotopy times show a loop followed by its parameter inverse retracing progressively less of the original curve, until its image is the fixed basepoint. The gray curve is a reference; the orange curve is the current image.",
+      "sourcePassage": {
+        "section": "11.3 The Fundamental Group",
+        "proposition": 4,
+        "pdfPages": [229],
+        "printedPages": [246],
+        "url": "./chapter-11/fundamental-group#printed-page-246"
+      },
+      "svg": "original-retracing-circle.svg",
+      "implementation": "packages/bloom/src/examples/loop-retracing.ts",
+      "buildFactory": "buildInverseCancellationFigure",
+      "buildArguments": ["circle"],
+      "substanceFactory": "inverseCancellationSubstance",
+      "substanceModule": "packages/bloom/src/examples/loop-retracing.ts",
+      "substanceArguments": ["circle"],
+      "substanceLines": [8, 114],
+      "style": "packages/bloom/src/styles/loop-retracing.tsx",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "interaction": "labels",
+      "review": {
+        "record": "review-original-retracing-loops.json"
+      }
+    },
+    {
+      "id": "original-retracing-figure-eight",
+      "title": "A figure-eight loop followed by its inverse",
+      "status": "reviewed-original",
+      "pdfPage": 229,
+      "printedPage": 246,
+      "description": "Four exact homotopy times show a loop followed by its parameter inverse retracing progressively less of the original curve, until its image is the fixed basepoint. The gray curve is a reference; the orange curve is the current image.",
+      "sourcePassage": {
+        "section": "11.3 The Fundamental Group",
+        "proposition": 4,
+        "pdfPages": [229],
+        "printedPages": [246],
+        "url": "./chapter-11/fundamental-group#printed-page-246"
+      },
+      "svg": "original-retracing-figure-eight.svg",
+      "implementation": "packages/bloom/src/examples/loop-retracing.ts",
+      "buildFactory": "buildInverseCancellationFigure",
+      "buildArguments": ["figure-eight"],
+      "substanceFactory": "inverseCancellationSubstance",
+      "substanceModule": "packages/bloom/src/examples/loop-retracing.ts",
+      "substanceArguments": ["figure-eight"],
+      "substanceLines": [8, 114],
+      "style": "packages/bloom/src/styles/loop-retracing.tsx",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "interaction": "labels",
+      "review": {
+        "record": "review-original-retracing-loops.json"
+      }
+    }
+  ]
+}

@@ -205,4 +205,79 @@ describe("native interactive figure layouts", () => {
       vi.unstubAllGlobals();
     }
   });
+
+  test("explicit mouse hit regions survive the first interactive render and later frames", async () => {
+    // Drive frames explicitly so a later raw-attribute refresh cannot hide a bad first frame.
+    const frames: (() => unknown)[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: () => unknown) => {
+      frames.push(callback);
+      return frames.length;
+    });
+    const builder = new DiagramBuilder(
+      canvas(200, 140),
+      "hit-region-seed",
+      1000,
+    );
+    const handle = builder.rectangle({
+      name: "transparent-hit-region",
+      center: [0, 0],
+      width: 80,
+      height: 50,
+      fillColor: [0, 0, 0, 0],
+      strokeWidth: 0,
+      rawAttrs: { "pointer-events": "all", "data-test-region": "hit" },
+    });
+    const ordinary = builder.circle({
+      name: "ordinary-painted-shape",
+      center: [12, 0],
+      r: 6,
+      rawAttrs: { "data-test-region": "ordinary" },
+    });
+    const passive = builder.circle({
+      name: "passive-overlay",
+      center: [-12, 0],
+      r: 6,
+      rawAttrs: { "pointer-events": "none", "data-test-region": "passive" },
+    });
+    builder.draggableGroup(handle, [ordinary, passive], {
+      jitter: 0,
+      maxDistance: 8,
+    });
+    const drawing = await builder.build(),
+      host = drawing.getInteractiveElement();
+    try {
+      document.body.appendChild(host);
+      expect(frames.length).toBeGreaterThan(0);
+      await frames.shift()!();
+      const hit = host.querySelector('[data-test-region="hit"]')!,
+        regular = host.querySelector('[data-test-region="ordinary"]')!,
+        overlay = host.querySelector('[data-test-region="passive"]')!;
+      expect(hit).toBeTruthy();
+      expect(hit.getAttribute("fill")).toBe("none");
+      expect(hit.getAttribute("stroke-width")).toBe("0");
+      expect(hit.getAttribute("pointer-events")).toBe("all");
+      expect(overlay.getAttribute("pointer-events")).toBe("none");
+      expect(regular.getAttribute("pointer-events")).toBe("painted");
+      expect(hit.getAttribute("data-bloom-drag")).toBe("true");
+      const initialX = hit.getAttribute("x");
+      hit.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+      );
+      for (let i = 0; i < 30 && hit.getAttribute("x") === initialX; i++) {
+        const frame = frames.shift();
+        if (frame) await frame();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+      expect(hit.getAttribute("x")).not.toBe(initialX);
+      expect(host.querySelector('[data-test-region="hit"]')).toBe(hit);
+      expect(hit.getAttribute("pointer-events")).toBe("all");
+      expect(overlay.getAttribute("pointer-events")).toBe("none");
+      expect(regular.getAttribute("pointer-events")).toBe("painted");
+      expect(hit.getAttribute("data-test-region")).toBe("hit");
+    } finally {
+      drawing.discard();
+      host.remove();
+      vi.unstubAllGlobals();
+    }
+  });
 });

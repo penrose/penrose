@@ -20,7 +20,10 @@ const panelCount = numbered.reduce(
     {{ numbered.length }} numbered figures with {{ panelCount }} panels, one
     unnumbered mathematical diagram, three tables, and the cover illustration.
     {{ reviewed }} of the {{ figures.length }} available mathematical figures
-    have been reproduced and reviewed. The reader shows the reviewed
-    replacements and remaining figures on each page.
+    have been reproduced and reviewed. Both mathematical tables and the cover
+    artwork also have native interactive reproductions; the symbol index remains
+    typeset text. These counts cover the supplied pages. The scan omits 31
+    printed pagination positions, including the locations of nine unlocated
+    figure labels.
   </p>
 </template>

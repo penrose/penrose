@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "sourceBook": "Michael C. Gemignani, Elementary Topology, Second Edition",
+  "status": "implemented-and-visually-reviewed",
+  "privateInputPolicy": "The supplied PDF, full-page scans, crops and private comparison images remain local inputs; only provenance and graphic rectangles are recorded.",
+  "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+  "styleModule": "packages/bloom/src/styles/homotopies.tsx",
+  "substanceModule": "packages/bloom/src/examples/homotopies.ts",
+  "testModule": "packages/bloom/src/styles/homotopies.test.ts",
+  "reuseVerification": [
+    "diskContractionStyle is shared by a plain contractible disk and distinct parameterized radial contractions.",
+    "radialHomotopyStyle and homotopyFamilyStyle each render multiple distinct parameter slices using the same style instance.",
+    "Existing closed disks, coordinate points, intervals, products, topology, continuous maps and ImageOf predicates are reused.",
+    "New coarse Homotopy/RadialHomotopy/RadialContraction declarations and endpoint/slice/identity/constant/contractibility predicates provide reusable mathematical vocabulary, without shape data in Substance.",
+    "The native disk hatch primitive gains optional spacing/stroke width/opacity parameters with all existing defaults preserved; three topology-bases regressions pass."
+  ],
+  "verification": {
+    "focusedTests": 4,
+    "relatedHatchRegressionTests": 3,
+    "failures": 0,
+    "mockedRendering": false,
+    "nativeRendering": "All four static, canonical interactive and sampled native factory builds converge and produce XML-valid SVG.",
+    "nativeDragHandles": {
+      "11.1": 4,
+      "11.2": 7,
+      "11.3": 9,
+      "11.4": 9
+    },
+    "canonicalInteraction": "Native annotation-layout offsets stay within 1e-8 of zero before dragging.",
+    "dragRegression": "Canonical native label translation by (3,1) preserves every path, line, circle, ellipse and polygon; matching white label knockouts are part of the native annotation group.",
+    "mathematicalRenderChecks": "Rendered image/source disk radius ratios and marked point displacement agree with r; every cone ellipse has radii (43r,17r).",
+    "typecheck": "Full Bloom declaration emit passed.",
+    "lintWarnings": 0,
+    "rootVisualReview": "Passed: parent inspected all four final equal-width source/native comparisons."
+  },
+  "figures": [
+    {
+      "id": "11.1",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 217,
+        "printedPage": 233,
+        "boundingBox": [0.109589, 0.473579, 0.336143, 0.216722],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [104, 708, 319, 324],
+        "pagePixels180dpi": [949, 1495]
+      },
+      "implementation": {
+        "substanceFactory": "contractibleDiskSubstance",
+        "styleFactory": "diskContractionStyle",
+        "buildFactory": "buildContractibleDiskFigure",
+        "canvas": [164, 164]
+      },
+      "mathematics": [
+        "The source is the closed unit disk x\u00b2+y\u00b2\u22641, with the usual subspace topology and included origin.",
+        "Contractibility is a topological property; its radial contraction is realized explicitly by the companion figures."
+      ],
+      "visualFidelity": [
+        "One circle on x/y axes preserves the origin and Y labels. Dense diagonal hatching and white label clearance follow the source, with restrained orange added."
+      ],
+      "comparison": "Full supplied pages 217/218 and graphic-only scan crops visually inspected beside the native SVG at equal width; private comparisons retained locally.",
+      "limitations": [
+        "Exact native circles/ellipses and smooth cubic paths replace small scan irregularities."
+      ]
+    },
+    {
+      "id": "11.2",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 217,
+        "printedPage": 233,
+        "boundingBox": [0.498419, 0.451505, 0.40569, 0.257525],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [473, 675, 385, 385],
+        "pagePixels180dpi": [949, 1495]
+      },
+      "implementation": {
+        "substanceFactory": "radialDiskContractionSubstance",
+        "styleFactory": "diskContractionStyle",
+        "buildFactory": "buildRadialDiskContractionFigure",
+        "canvas": [192, 196]
+      },
+      "mathematics": [
+        "j_{1/2}(p)=p/2, including the marked interior point and the unit-radius boundary point.",
+        "The image of the closed unit disk is the concentric closed radius 1/2 disk; the center maps to itself.",
+        "The family of factories also accepts other finite 0<r<1 factors and points in the original closed disk."
+      ],
+      "visualFidelity": [
+        "Both marked points, concentric circles, darker cross-hatched image and all seven labels are preserved.",
+        "White clearance behind point/image/radius annotations reproduces the source interruptions in hatching."
+      ],
+      "comparison": "Full supplied pages 217/218 and graphic-only scan crops visually inspected beside the native SVG at equal width; private comparisons retained locally.",
+      "limitations": [
+        "Exact native circles/ellipses and smooth cubic paths replace small scan irregularities."
+      ]
+    },
+    {
+      "id": "11.3",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 218,
+        "printedPage": 234,
+        "boundingBox": [0.177708, 0.408818, 0.289169, 0.199733],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [169, 612, 275, 299],
+        "pagePixels180dpi": [951, 1497]
+      },
+      "implementation": {
+        "substanceFactory": "radialHomotopySubstance",
+        "styleFactory": "radialHomotopyStyle",
+        "buildFactory": "buildRadialHomotopyFigure",
+        "canvas": [138, 154]
+      },
+      "mathematics": [
+        "j(p,r)=r\u00b7p is a continuous family with j\u2081=id and j\u2080 constant at the origin.",
+        "Each positive slice image is a closed disk of radius r; r=0 is the singleton center, without a zero-radius open disk.",
+        "The cone displays the family of image disks at their parameter heights, rather than identifying the mathematical product Y\u00d7[0,1] with a cone."
+      ],
+      "visualFidelity": [
+        "Three projected hatched disk sections shrink toward the apex along straight side edges and a central axis.",
+        "All nine source labels, both marked centers and the lower bent center leader are retained."
+      ],
+      "comparison": "Full supplied pages 217/218 and graphic-only scan crops visually inspected beside the native SVG at equal width; private comparisons retained locally.",
+      "limitations": [
+        "Exact native circles/ellipses and smooth cubic paths replace small scan irregularities."
+      ],
+      "sourceCorrection": {
+        "source": "Printed234 describes j_r as 1/r th of the distance, then states j\u2081=id and j\u2080 maps to (0,0).",
+        "mathematicalProgram": "The radial map uses r times the distance. The reciprocal wording conflicts with its domain [0,1], endpoint statements and shrinking image disks, and is not asserted as a true mathematical formula.",
+        "visibleFigure": "All source graphic labels remain unchanged."
+      }
+    },
+    {
+      "id": "11.4",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 218,
+        "printedPage": 234,
+        "boundingBox": [0.55205, 0.430862, 0.429022, 0.182365],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [525, 645, 408, 273],
+        "pagePixels180dpi": [951, 1497]
+      },
+      "implementation": {
+        "substanceFactory": "homotopyFamilySubstance",
+        "styleFactory": "homotopyFamilyStyle",
+        "buildFactory": "buildHomotopyFamilyFigure",
+        "canvas": [248, 164]
+      },
+      "mathematics": [
+        "H:X\u00d7[0,1]\u2192Y restricts to f at time1 and g at time0, following the supplied Definition1 on printed235.",
+        "The three domain fibers are products with named singleton parameters; every displayed image is explicitly an ImageOf fact and a subset of Y.",
+        "ContinuousMap is asserted for H and all three slice maps, with the corresponding product and endpoint topologies."
+      ],
+      "visualFidelity": [
+        "The cylinder, dashed back arcs at intermediate/lower slices, target contours and rightward H arrow preserve the source arrangement.",
+        "All nine visible labels are retained, including the source upper-image notation f(x)."
+      ],
+      "comparison": "Full supplied pages 217/218 and graphic-only scan crops visually inspected beside the native SVG at equal width; private comparisons retained locally.",
+      "limitations": [
+        "Exact native circles/ellipses and smooth cubic paths replace small scan irregularities."
+      ],
+      "sourceNotationNote": "The upper visible image label reads f(x) in the supplied graphic. It is preserved visually; the mathematical ImageOf predicate denotes f(X), the image of the whole source space."
+    }
+  ]
+}

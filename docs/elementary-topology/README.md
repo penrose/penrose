@@ -59,9 +59,9 @@ the cover illustration. These are counts for the supplied source, not the
 complete book. Nine numbered labels are unlocated: 2.7, 5.8, 5.13, 8.2, 9.10,
 11.16, 11.17, 11.18, and 11.22. Their numbering and missing-page evidence is
 recorded in the audit; their contents and panel counts remain unknown. Figures
-2.1, 4.1, 7.5, and 7.6 are visually present despite OCR omissions. Inventory
-descriptions, precise source crops, and implementations still need mathematical
-and fidelity review.
+2.1, 4.1, 7.5, and 7.6 are visually present despite OCR omissions. Available
+inventory entries, precise source crops and implementations have mathematical
+and fidelity review records; missing-page contents remain unresolved.
 
 ## Visual reference and adaptation
 
@@ -114,18 +114,24 @@ and remain consistent across chapters.
    figure, using the same mathematical domains and styles. Include their source
    programs and explain which existing library capabilities they reuse.
 
-The available-page inventory is complete. Fifty-five mathematical figures are
+The available-page inventory is complete. All 97 available mathematical figures are
 implemented and visually reviewed: the countable-union enumeration, 2.1–2.6,
-2.8–2.20, 3.1–3.5, 4.1–4.10, 5.1–5.7, 5.9–5.12, 5.14, 6.1–6.2, and 7.1–7.6. Their immutable mathematical
-instances reuse metric-space and point-set topology domains and TSX styles;
-review records document geometry checks, source placement, and approximation
-limits. The API also includes a reusable set-theory domain and an optimizer-based
-Euler/Venn style.
+2.8–2.20, 3.1–3.5, 4.1–4.10, 5.1–5.7, 5.9–5.12, 5.14, 6.1–6.2, 7.1–7.6,
+8.1, 8.3–8.6, 9.1–9.9, 9.11–9.12, 10.1–10.6, 11.1–11.15, 11.19–11.21 and 11.23–11.24. Their immutable
+mathematical instances reuse metric-space and point-set topology domains and
+TSX styles. Review records document geometry checks, source placement and
+approximation limits. Ten original illustrations demonstrate reuse on
+previously unillustrated passages: ambient/relative derived sets, coordinate
+slice embeddings, two Lebesgue-number constructions and two contraction
+iterations, two finite group kernels and two inverse-loop contractions. They are recorded separately from source-figure counts.
 
 The local reader preserves all supplied pages and replaces reviewed figures in
-their original positions. Chapters 1–8 have full available-page HTML transcriptions,
-including exercises, tables, references, and mathematical notation. Additional
-chapter transcriptions and figures are in progress. The reader reuses the blog's
-Bloom Renderer/useDiagram widgets for native dragging and deterministic resampling,
-and exposes the actual Substance, Style, and Domain source modules. Full-book completion also
-requires the missing source pages.
+their original positions. All available text in Chapters 1–11, the appendix,
+both indexes, the preface and contents has an HTML transcription, including
+exercises, tables, references and mathematical notation. Both mathematical tables
+and the cover have native interactive reproductions, giving 100 reviewed native
+inventory entries. The symbol index is preserved as typography. The reader reuses the blog's Bloom
+Renderer/useDiagram widgets for native dragging and deterministic resampling,
+and exposes the actual Substance, Style and Domain source modules. The full
+available text is present; full-book completion requires resolving the missing
+source pages.

@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import type { Diagram, FigureRenderOptions } from "@penrose/bloom";
+import { figurePrograms as programs } from "./figure-modules.generated";
 
 export interface BookFigure {
   id: string;
@@ -8,6 +9,8 @@ export interface BookFigure {
   description: string;
   status: string;
   sourceBox?: number[];
+  /** Optional polygon in replacement-box coordinates, preserving source captions in empty corners. */
+  sourceClip?: number[][];
   svg?: string;
   implementation?: string;
   buildFactory?: string;
@@ -18,15 +21,14 @@ export interface BookFigure {
   substanceLines?: [number, number];
   style?: string;
   domainModule?: string;
-  interaction?: "labels" | "construction" | "mixed";
+  interaction?: "labels" | "construction" | "mixed" | "objects" | "table";
+  sourceCorrection?: {
+    source: string;
+    mathematicalProgram: string;
+    visibleFigure: string;
+  };
 }
 
-const programs = import.meta.glob([
-  "../../../bloom/dist/examples/*.js",
-  "../../../examples/dist/elementary-topology/*.js",
-  "!../../../bloom/dist/examples/*.test.js",
-  "!../../../examples/dist/elementary-topology/*.test.js",
-]);
 const sources = import.meta.glob<string>(
   [
     "../../../bloom/src/examples/*.ts",

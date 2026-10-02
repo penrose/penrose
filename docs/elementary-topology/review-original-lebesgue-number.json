@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "kind": "original-illustration",
+  "registrySuggestion": {
+    "id": "original-lebesgue-number",
+    "title": "A positive Lebesgue number from a finite subcover",
+    "section": "chapter-8/8.1",
+    "pdfPage": 157,
+    "printedPage": 165,
+    "placement": "after Proposition 3 proof",
+    "originalSourceFigure": false,
+    "domain": "point-set-topology",
+    "domainModule": "@penrose/bloom/domains/point-set-topology",
+    "substanceFactory": "compactIntervalLebesgueCover",
+    "styleFactory": "lebesgueNumberStyle",
+    "buildFactory": "buildLebesgueNumberFigure",
+    "exampleFile": "packages/examples/src/elementary-topology/lebesgue-number.ts",
+    "styleFile": "packages/bloom/src/styles/metric-covers.tsx",
+    "description": "The compact interval cover admits a finite half-radius subcover; the minimum radius is positive and its ball about any x fits inside a selected original cover member."
+  },
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "pdfPage": 157,
+    "printedPage": 165,
+    "visualReview": "Full supplied source page inspected at 762\u00d71262; Proposition 3 statement and full triangle-inequality proof read. This passage has no original figure.",
+    "bounds": null
+  },
+  "implementation": {
+    "domain": "point-set-topology",
+    "newVocabulary": [
+      "LebesgueNumber(value)",
+      "LebesgueNumberFor(number,cover,space,metric)"
+    ],
+    "helpers": ["finiteBallLebesgueWitness", "halfBallContaining"],
+    "substanceFactories": [
+      "compactIntervalLebesgueCover",
+      "symmetricIntervalLebesgueCover"
+    ],
+    "style": "lebesgueNumberStyle",
+    "styleFile": "packages/bloom/src/styles/metric-covers.tsx",
+    "helperFile": "packages/bloom/src/domains/metric-covers.ts",
+    "exampleFile": "packages/examples/src/elementary-topology/lebesgue-number.ts",
+    "math": "Original cover members are relative Euclidean metric balls in compact X=[a,b]. Their half-radius balls strictly cover all of X; rho=min_j radius_j/2. For every x, choose a half-ball containing x. The strict margin radius_j\u2212|x\u2212center_j|\u2212rho>0 implies N_X(x,rho) is contained in that original member by the triangle inequality.",
+    "programs": [
+      {
+        "interval": [0, 1],
+        "rho": 0.22,
+        "x": 0.54,
+        "z": 0.694,
+        "build": "buildLebesgueNumberFigure"
+      },
+      {
+        "interval": [-2, 2],
+        "rho": 0.9,
+        "x": 0.25,
+        "z": 0.78,
+        "build": "buildSymmetricLebesgueNumberFigure"
+      }
+    ],
+    "reuse": "Both distinct interval/cover programs use the same Style and helper; no pixel data or shapes in Substance. Numeric cover helper accepts any finite ball family; the compact teaching layout displays at most four balls.",
+    "graphics": "Native optimized line/circle/rectangle/equation shapes with subdued orange strips and selected cover member emphasis.",
+    "interactive": "Both build functions accept final FigureRenderOptions, with seed/interactive overrides spread last."
+  },
+  "verification": {
+    "testsPassed": 5,
+    "testFile": "packages/examples/src/elementary-topology/lebesgue-number.test.ts",
+    "publicBloomDeclarationEmit": "passed",
+    "exampleLeafTypecheckAndEmit": "passed",
+    "scopedESLint": "passed",
+    "mathematicalChecks": "Exact interval sweep rejects touching open half-balls and uncovered endpoints. Both positive witnesses checked at 1,001 points including interval endpoints, strict full-ball containment margin checked, and representative z values verified. The sweep itself establishes cover for the whole real interval rather than only sampled points.",
+    "visualReview": "Both fully optimized native SVGs rasterized and visually inspected; selected half/full balls and uniform ball are aligned on one affine coordinate chart with clear non-overlapping labels.",
+    "previewSVG": "tmp/elementary-topology/new-figures/original-lebesgue-number.svg",
+    "previewPNG": "tmp/elementary-topology/new-figures/original-lebesgue-number.png",
+    "alternatePreviewSVG": "tmp/elementary-topology/new-figures/original-symmetric-lebesgue-number.svg",
+    "alternatePreviewPNG": "tmp/elementary-topology/new-figures/original-symmetric-lebesgue-number.png",
+    "rootVisualReview": "Passed: parent inspected both final optimized interval-cover previews."
+  },
+  "limits": [
+    "This is an original pedagogical illustration, not a reconstruction or replacement of a source figure.",
+    "A representative compact real interval illustrates the general metric-space proof; the diagram does not claim to encode arbitrary compact metric geometry.",
+    "Metric balls are clipped to X. The extent strips do not independently encode endpoint inclusion; the predicates and metric specify that they are open relative to X.",
+    "The abstract infinite refinement is represented by a genuine finite subcover, and no finite drawing purports to enumerate all its members."
+  ]
+}

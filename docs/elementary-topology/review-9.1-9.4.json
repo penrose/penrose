@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "sourceBook": "Michael C. Gemignani, Elementary Topology, Second Edition",
+  "status": "implemented-and-visually-reviewed",
+  "privateInputPolicy": "Supplied PDF, full-page renders, crops and side-by-side comparisons remain local private inputs; only provenance and graphic rectangles are recorded.",
+  "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+  "styleModule": "packages/bloom/src/styles/connectedness.tsx",
+  "substanceModule": "packages/bloom/src/examples/connectedness.ts",
+  "testModule": "packages/bloom/src/styles/connectedness.test.ts",
+  "reuseVerification": [
+    "One polygonalConnectednessStyle instance renders both a punctured-plane path and a path within a region W, using ordered mathematical vertices, endpoints and containment predicates.",
+    "Interval, polygonal and sine styles each render distinct parameterized Substance programs; the tests run actual Penrose construction, optimization and SVG rendering.",
+    "The connected sine curve uses the shared native OscillatingSineGraphView rather than a separate figure-specific spline.",
+    "Every Substance factory is shape-free: intervals, coordinates, topologies, sets, predicates and nested proof hypotheses contain no drawing objects or colors."
+  ],
+  "verification": {
+    "focusedTests": 4,
+    "failures": 0,
+    "mockedRendering": false,
+    "nativeRendering": "Static, canonical interactive and re-sampled native builds all converge and produce XML-valid SVG.",
+    "canonicalInteraction": "All annotation-layout x/y offsets remain within 1e-8 of zero before dragging.",
+    "nativeDragHandles": {
+      "9.1": 7,
+      "9.2": 6,
+      "9.3": 6,
+      "9.4": 3
+    },
+    "dragRegression": "Native label translation by (3,1) moves the actual input offsets while all path/line/circle/polygon geometry remains unchanged.",
+    "lintWarnings": 0,
+    "typecheck": "Full Bloom declaration emit passed; mathematical and native render tests pass.",
+    "analyticViewport": "The fixed sine viewport is bounded analytically and disables only the expensive automatic path-bounding constraint at creation; its native Path still traverses normal Penrose rendering.",
+    "rootVisualReview": "Passed: parent inspected all four source/SVG comparison images at equal width."
+  },
+  "figures": [
+    {
+      "id": "9.1",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 173,
+        "printedPage": 184,
+        "boundingBox": [0.117714, 0.391562, 0.769143, 0.059328],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [103, 594, 673, 90],
+        "pagePixels180dpi": [875, 1517]
+      },
+      "implementation": {
+        "substanceFactory": "intervalConnectednessSubstance",
+        "styleFactory": "intervalConnectednessStyle",
+        "buildFactory": "buildIntervalConnectednessFigure",
+        "canvas": [326, 52]
+      },
+      "mathematics": [
+        "The graphic depicts the a∈U branch of the contradiction proof that [0,1] is connected. Hypothesis stores the supposed separation and supremum as nested propositions, avoiding false top-level facts about a connected interval.",
+        "The open neighborhood (a−ρ,a+ρ) contains the closed witness [a−ρ/2,a+ρ/2]; its right endpoint exceeds a.",
+        "The preceding proposition statement is on missing printed page183; the supplied proof on printed184 is sufficient to establish this graphic context."
+      ],
+      "visualFidelity": [
+        "One interval panel preserves U/V hatching, local open parentheses, nested closed brackets and all seven visible labels.",
+        "Opposite hatch directions distinguish the purported separating sets, with denser hatching for the local closed witness. Restrained orange is added consistently."
+      ],
+      "comparison": "Full source page and graphic-only scan crop visually inspected beside the native SVG at equal width; private comparison image retained locally.",
+      "limitations": [
+        "The separation is a contradiction-proof hypothesis; the graphic is schematic and does not provide actual disjoint open sets separating the interval."
+      ]
+    },
+    {
+      "id": "9.2",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 177,
+        "printedPage": 188,
+        "boundingBox": [0.292096, 0.452444, 0.45819, 0.169749],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [255, 685, 400, 257],
+        "pagePixels180dpi": [873, 1514]
+      },
+      "implementation": {
+        "substanceFactory": "puncturedPlanePathSubstance",
+        "styleFactory": "polygonalConnectednessStyle",
+        "buildFactory": "buildPuncturedPlanePathFigure",
+        "canvas": [270, 166]
+      },
+      "mathematics": [
+        "In R²−{P}, the route QQ″∪Q″Q′ is the union of two connected closed segments meeting at Q″.",
+        "Every endpoint/segment incidence is explicit, and the mathematical route is checked to avoid the removed point P.",
+        "The source example applies to Rⁿ−{P} for n≥2; this illustration displays the plane case."
+      ],
+      "visualFidelity": [
+        "Coordinate axes, four marked points, prime/double-prime notation and the two straight route segments preserve the source composition.",
+        "The removed point remains a solid mark, matching the source; its exclusion is represented mathematically by Outside(P,Y)."
+      ],
+      "comparison": "Full source page and graphic-only scan crop visually inspected beside the native SVG at equal width; private comparison image retained locally.",
+      "limitations": [
+        "The source point coordinates are schematic; mathematical coordinates are chosen to preserve the visible incidence and ordering."
+      ]
+    },
+    {
+      "id": "9.3",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 178,
+        "printedPage": 189,
+        "boundingBox": [0.045819, 0.451783, 0.45819, 0.18362],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [40, 684, 400, 278],
+        "pagePixels180dpi": [873, 1514]
+      },
+      "implementation": {
+        "substanceFactory": "polygonalRegionPathSubstance",
+        "styleFactory": "polygonalConnectednessStyle",
+        "buildFactory": "buildPolygonalRegionPathFigure",
+        "canvas": [252, 186]
+      },
+      "mathematics": [
+        "Seven ordered vertices and six consecutive closed segments form a path contained in W.",
+        "Only the source labels x₀=x, x₁, x₂, x₃ and xₙ=y are displayed; the two intermediate unlabeled vertices remain present.",
+        "One path is a witness for these endpoints; the Substance program does not infer global connectedness or polygonal connectedness of W from a single witness."
+      ],
+      "visualFidelity": [
+        "The enclosing irregular region, both downward endpoint leaders and the long descending/ascending route are preserved.",
+        "The source contour is represented by a reusable native cubic Path with pale orange filling; the mathematical path uses the same shared segment style as Figure9.2."
+      ],
+      "comparison": "Full source page and graphic-only scan crop visually inspected beside the native SVG at equal width; private comparison image retained locally.",
+      "limitations": [
+        "The source W contour is schematic, and the native cubic contour smooths scan irregularities."
+      ]
+    },
+    {
+      "id": "9.4",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 178,
+        "printedPage": 189,
+        "boundingBox": [0.504009, 0.439234, 0.455899, 0.19749],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [440, 665, 398, 299],
+        "pagePixels180dpi": [873, 1514]
+      },
+      "implementation": {
+        "substanceFactory": "connectedSineCurveSubstance",
+        "styleFactory": "sineConnectednessStyle",
+        "buildFactory": "buildConnectedSineCurveFigure",
+        "canvas": [264, 182]
+      },
+      "mathematics": [
+        "Example7 on supplied printed190 defines Y={(x,sin(1/x)):x>0}∪{(0,0)} as connected but not path connected.",
+        "Only the origin is included at x=0; no vertical interval at x=0 and no artificial line from the origin to the positive graph is added.",
+        "The graph is analytic over x>0. A finite positive rendering viewport ending at a negative trough is separate from its mathematical domain."
+      ],
+      "visualFidelity": [
+        "The x/y axes, two horizontal extrema guides, origin label, dense accumulation next to the vertical axis and right endpoint at the lower guide are preserved.",
+        "The analytic curve reuses OscillatingSineGraphView and phase-resolved sampling from the Chapter8 continuity/local-compactness library."
+      ],
+      "comparison": "Full source page and graphic-only scan crop visually inspected beside the native SVG at equal width; private comparison image retained locally.",
+      "limitations": [
+        "The printed curve uses hand-drawn nonnumeric spacing; analytic sin(1/x) has more individually resolved oscillations. This difference is explicit and preserves the mathematical function.",
+        "The finite curve window starts at x=frequency/500; arbitrarily small positive x remains part of the mathematical graph even though it cannot be fully resolved in a finite SVG."
+      ]
+    }
+  ]
+}

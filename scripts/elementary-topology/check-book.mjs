@@ -1,7 +1,7 @@
 /** Check source provenance, placement rectangles and actual SVG XML exports. */
 import { JSDOM } from "jsdom";
 import assert from "node:assert/strict";
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { substanceSourceLines } from "./program-sources.mjs";
@@ -19,6 +19,23 @@ const audit = JSON.parse(
 );
 assert.equal(manifest.sourceSha256, audit.source.sha256);
 const ids = new Set();
+async function markdownContents(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  return (
+    await Promise.all(
+      entries.map((entry) =>
+        entry.isDirectory()
+          ? markdownContents(path.join(directory, entry.name))
+          : entry.name.endsWith(".md")
+          ? readFile(path.join(directory, entry.name), "utf8")
+          : "",
+      ),
+    )
+  ).join("\n");
+}
+const htmlEdition = await markdownContents(
+  path.join(root, "packages/docs-site/docs/elementary-topology"),
+);
 let reviewed = 0;
 for (const figure of manifest.figures) {
   assert(!ids.has(figure.id), `Duplicate figure ${figure.id}`);
@@ -30,8 +47,22 @@ for (const figure of manifest.figures) {
     String(sourcePage.printedPage),
     `Printed-page mismatch for ${figure.id}`,
   );
+  assert(
+    ["pending", "reviewed", "preserved-typography"].includes(figure.status),
+    `Unknown inventory status for ${figure.id}`,
+  );
+  if (figure.status === "preserved-typography") {
+    assert.equal(figure.kind, "unnumbered-mathematical-table");
+    assert(figure.transcription, `Missing transcription for ${figure.id}`);
+    await access(path.join(root, figure.transcription));
+    await access(path.join(auditDirectory, figure.review.record));
+  }
   if (figure.status !== "reviewed") continue;
   reviewed++;
+  assert(
+    htmlEdition.includes(`/elementary-topology/figures/${figure.svg}`),
+    `Reviewed figure absent from HTML edition: ${figure.id}`,
+  );
   const [x, y, w, h] = figure.sourceBox ?? [];
   assert(
     [x, y, w, h].every(Number.isFinite) &&
@@ -43,6 +74,21 @@ for (const figure of manifest.figures) {
       y + h <= 1,
     `Invalid source placement for ${figure.id}`,
   );
+  if (figure.sourceClip) {
+    assert(
+      figure.sourceClip.length >= 3,
+      `Invalid source mask for ${figure.id}`,
+    );
+    for (const point of figure.sourceClip)
+      assert(
+        point.length === 2 &&
+          point.every(
+            (coordinate) =>
+              Number.isFinite(coordinate) && coordinate >= 0 && coordinate <= 1,
+          ),
+        `Invalid source mask point for ${figure.id}`,
+      );
+  }
   await access(path.join(root, figure.implementation));
   await access(path.join(root, figure.style));
   assert(
@@ -82,7 +128,7 @@ for (const figure of manifest.figures) {
     element.getAttribute("aria-label"),
     `Missing accessible description: ${figure.id}`,
   );
-  assert(!svg.includes("NaN"), `Nonfinite SVG geometry: ${figure.id}`);
+  assert(!/NaN|Infinity/.test(svg), `Nonfinite SVG geometry: ${figure.id}`);
   parsed.window.close();
 }
 const additions = JSON.parse(

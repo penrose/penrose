@@ -13,14 +13,22 @@ Michael C. Gemignani · Second edition
 
 The reader preserves the supplied pages' original prose and mathematical
 typesetting. Reviewed Penrose figures replace their corresponding graphics in
-place. Reproduction is in progress; remaining original illustrations are counted
-below each page. The supplied scan omits 31 printed pagination positions.
+place. All available mathematical figures, both mathematical tables and the
+cover artwork have native reproductions. The symbol index remains typeset text.
+The supplied scan omits 31 printed pagination positions; absent prose and figures
+remain explicitly recorded as source gaps.
 
 Use the page controls or the left and right arrow keys to turn pages.
 Expand a figure's **program and layout** panel to view its Substance source,
 inspect the reusable Style and Domain modules, or choose a new layout seed.
-Drag its labels to adjust the layout; Figure 4.5 lets you move the disk as a whole.
-**Re-sample** creates a new layout and **Reset layout** restores the source arrangement.
+Most figures let you drag labels to adjust the layout. Figure 4.5 moves its disk
+as a whole; the cover moves its complete curve family, and the two source tables
+move their cells and grid together. Figure 11.24 lets you move each complete
+space while preserving its holes and connected contours. The new group-kernel
+illustrations also let you move marked elements and their incident arrows.
+**Re-sample** changes the visual layout while retaining the mathematical facts.
+**Reset layout** restores the reviewed source arrangement. Focus a drag handle
+and use the arrow keys to move it with the keyboard.
 
 <BookReader />
 
