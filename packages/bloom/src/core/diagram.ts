@@ -22,9 +22,10 @@ import {
 import consola, { LogLevels } from "consola";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SharedInput } from "./builder.js";
-import { DragConstraint } from "./types.js";
+import { DragConstraint, RawSvgElement } from "./types.js";
 import {
   CallbackLooper,
+  appendRawSvgElements,
   mathjaxInitWithHandler,
   setNoFillIfTransparent,
   stateToSVG,
@@ -52,6 +53,8 @@ export type DiagramCreationData = {
   sharedInputs: Set<SharedInput>;
   interactiveOnlyShapes: Set<Shape<Num>>;
   eventListeners: Map<string, [string, (e: any, diagram: Diagram) => void][]>;
+  rawSvgDefs: RawSvgElement[];
+  rawAttrsByName: Map<string, Record<string, string>>;
 };
 
 /** Data passed into the constructor. Has had state create asynchronously. */
@@ -64,6 +67,8 @@ type DiagramConstructorData = {
   lassoStrength: number;
   interactiveOnlyShapes: Set<Shape<Num>>;
   eventListeners: Map<string, [string, (e: any, diagram: Diagram) => void][]>;
+  rawSvgDefs: RawSvgElement[];
+  rawAttrsByName: Map<string, Record<string, string>>;
 };
 
 /**
@@ -96,6 +101,8 @@ export class Diagram {
   private sharedInputs = new Set<SharedInput>();
   private interactiveOnlyShapes;
   private eventListeners;
+  private rawSvgDefs: RawSvgElement[];
+  private rawAttrsByName: Map<string, Record<string, string>>;
   private optimizationLooper = new CallbackLooper("MessageChannel");
   private renderLooper = new CallbackLooper("AnimationFrame");
   private onOptimizationFinished: (xs: number[]) => void = () => {};
@@ -124,6 +131,8 @@ export class Diagram {
     this.sharedInputs = data.sharedInputs;
     this.interactiveOnlyShapes = data.interactiveOnlyShapes;
     this.eventListeners = data.eventListeners;
+    this.rawSvgDefs = data.rawSvgDefs;
+    this.rawAttrsByName = data.rawAttrsByName;
   }
 
   /**
@@ -139,6 +148,23 @@ export class Diagram {
       titleCache,
       namespace: this.namespace,
     });
+
+    // Inject raw SVG defs (linearGradient, filter, etc.) before the shapes
+    if (this.rawSvgDefs.length > 0) {
+      appendRawSvgElements(svg, this.rawSvgDefs, true /* prepend */);
+    }
+
+    // Apply raw SVG attribute overrides (e.g. fill="url(#grad1)") post-render
+    if (this.rawAttrsByName.size > 0) {
+      for (const [name, attrs] of this.rawAttrsByName) {
+        const elem = titleCache.get(name);
+        if (elem) {
+          for (const [attr, val] of Object.entries(attrs)) {
+            elem.setAttribute(attr, val);
+          }
+        }
+      }
+    }
 
     return {
       svg,

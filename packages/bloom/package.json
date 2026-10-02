@@ -10,6 +10,20 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./jsx-runtime": {
+      "import": "./dist/jsx-runtime.js",
+      "types": "./dist/jsx-runtime.d.ts"
+    },
+    "./jsx-dev-runtime": {
+      "import": "./dist/jsx-runtime.js",
+      "types": "./dist/jsx-runtime.d.ts"
+    }
+  },
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "files": [
@@ -32,11 +46,6 @@
           "docs"
         ]
       },
-      "test": {
-        "dependsOn": [
-          "^build"
-        ]
-      },
       "dev": {
         "dependsOn": [
           "^build"
@@ -50,6 +59,12 @@
       "docs": {
         "dependsOn": [
           "^build"
+        ]
+      },
+      "test": {
+        "dependsOn": [
+          "^build",
+          "^build-decls"
         ]
       }
     }
@@ -77,7 +92,9 @@
     "typedoc": "^0.26.6",
     "typedoc-plugin-markdown": "^4.2.6",
     "typedoc-vitepress-theme": "^1.0.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vite": "^5",
+    "vitest": "^0.31"
   },
   "publishConfig": {
     "access": "public"
