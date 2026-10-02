@@ -530,6 +530,7 @@ const ClosedProductRectangle = declarations.type(
 );
 const Subspace = declarations.type("Subspace", sets.Set);
 const OpenSubspace = declarations.type("OpenSubspace", Subspace, OpenSet);
+const ClosedSubspace = declarations.type("ClosedSubspace", Subspace, ClosedSet);
 const RationalSubspace = declarations.type("RationalSubspace", Subspace);
 const RationalRayCoverAt = declarations.predicate("RationalRayCoverAt", [
   OpenCover,
@@ -573,7 +574,6 @@ const SineCurveImageOf = declarations.predicate("SineCurveImageOf", [
 const SineGraphMapOn = declarations.predicate("SineGraphMapOn", [
   OscillatingSineMap,
   HalfLine,
-  ClopenHalfLine,
   OscillatingSineGraph,
 ]);
 const OscillationSequenceIn = declarations.predicate("OscillationSequenceIn", [
@@ -644,7 +644,6 @@ const HorizontalBoundaryPair = declarations.type(
   "HorizontalBoundaryPair",
   ClosedSet,
   Subspace,
-  OpenSubspace,
 );
 const HorizontalEdgesOf = declarations.predicate("HorizontalEdgesOf", [
   HorizontalBoundaryPair,
@@ -1109,6 +1108,9 @@ export const pointSetTopology = declarations.make({
   SubspaceTopologyOf,
   CorestrictionOf,
   Hypothesis,
+  ClopenHalfLine,
+  OpenSubspace,
+  ClosedSubspace,
   Connected,
   ConnectedIn,
   PathConnected,
