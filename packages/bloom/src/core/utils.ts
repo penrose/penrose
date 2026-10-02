@@ -304,7 +304,11 @@ export const stateToSVG = async (
     "svg",
   );
   rendered.setAttribute("version", "1.2");
-  rendered.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  rendered.setAttributeNS(
+    "http://www.w3.org/2000/xmlns/",
+    "xmlns",
+    "http://www.w3.org/2000/svg",
+  );
   rendered.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
   await RenderShapes(shapes, rendered, {
     labels: labelCache,

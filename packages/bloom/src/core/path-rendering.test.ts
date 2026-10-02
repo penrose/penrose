@@ -24,7 +24,11 @@ test("path coordinates retain automatic differentiation and update through the r
   expect(toPenroseShape(path)).toHaveProperty("d.tag", "PathDataV");
   const drawing = await builder.build();
   try {
-    const before = (await drawing.render()).svg.querySelector("path")!;
+    const { svg } = await drawing.render();
+    const xml = new XMLSerializer().serializeToString(svg);
+    const document = new DOMParser().parseFromString(xml, "image/svg+xml");
+    expect(document.querySelector("parsererror")).toBeNull();
+    const before = svg.querySelector("path")!;
     expect(before.getAttribute("d")).toContain("M 60 50");
     expect(before.getAttribute("d")).toContain("C 65 40 70 40 75 50");
     drawing.setInput("x", 20);
