@@ -347,7 +347,7 @@ const PenrosePathTypes = {
   ...PenroseStrokeTypes,
   ...PenroseFillTypes,
   ...PenroseArrowTypes,
-  d: "StrV",
+  d: "PathDataV",
   strokeLinecap: "StrV",
 };
 

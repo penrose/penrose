@@ -11,6 +11,7 @@ import {
   mul,
   sampleShape,
   simpleContext,
+  sub,
   uniform,
 } from "@penrose/core";
 import * as constraints from "./constraints.js";
@@ -53,6 +54,59 @@ import { fromPenroseShape, sortShapes, toPenroseShape } from "./utils.js";
 
 type NamedSamplingContext = {
   makeInput: (meta: InputMeta, name?: string) => Var;
+};
+
+type AffineCoordinate = { offset: number; coefficients: Map<Var, number> };
+
+/** A single-axis affine coordinate can be translated without changing its shape. */
+const affineCoordinate = (num: Num): AffineCoordinate | undefined => {
+  if (typeof num === "number") {
+    return Number.isFinite(num)
+      ? { offset: num, coefficients: new Map() }
+      : undefined;
+  }
+  if (isVar(num)) return { offset: 0, coefficients: new Map([[num, 1]]) };
+  const scaled = (
+    value: AffineCoordinate,
+    factor: number,
+  ): AffineCoordinate => ({
+    offset: value.offset * factor,
+    coefficients: new Map(
+      [...value.coefficients]
+        .map(([v, coefficient]): [Var, number] => [v, coefficient * factor])
+        .filter(([, coefficient]) => coefficient !== 0),
+    ),
+  });
+  if (num.tag === "Unary" && num.unop === "neg") {
+    const value = affineCoordinate(num.param);
+    return value && scaled(value, -1);
+  }
+  if (num.tag !== "Binary") return undefined;
+  const left = affineCoordinate(num.left);
+  const right = affineCoordinate(num.right);
+  if (!left || !right) return undefined;
+  if (num.binop === "+" || num.binop === "-") {
+    const result = scaled(right, num.binop === "+" ? 1 : -1);
+    result.offset += left.offset;
+    for (const [v, coefficient] of left.coefficients) {
+      const sum = coefficient + (result.coefficients.get(v) ?? 0);
+      if (sum === 0) result.coefficients.delete(v);
+      else result.coefficients.set(v, sum);
+    }
+    return result;
+  }
+  if (num.binop === "*") {
+    if (left.coefficients.size === 0) return scaled(right, left.offset);
+    if (right.coefficients.size === 0) return scaled(left, right.offset);
+  }
+  if (
+    num.binop === "/" &&
+    right.coefficients.size === 0 &&
+    right.offset !== 0
+  ) {
+    return scaled(left, 1 / right.offset);
+  }
+  return undefined;
 };
 
 /**
@@ -241,7 +295,6 @@ export class DiagramBuilder {
   private pinnedInputs: Set<number> = new Set();
   private externalInputs: Set<SharedInput> = new Set();
   private lassoStrength: number;
-  private interactiveOnlyShapes: Set<Shape> = new Set();
   private rawSvgDefs: RawSvgElement[] = [];
   /** Shape name -> event name -> listener */
   private eventListeners: Map<
@@ -288,6 +341,12 @@ export class DiagramBuilder {
     this.input({ name: "_time", init: 0, optimized: false });
   }
 
+  /** Convert SVG coordinates (top-left origin, y down) to Penrose coordinates. */
+  svgPoint = ([x, y]: Vec2): Vec2 => [
+    sub(x, this.canvas.width / 2),
+    sub(this.canvas.height / 2, y),
+  ];
+
   /**
    * Fill all shape methods
    */
@@ -326,9 +385,6 @@ export class DiagramBuilder {
             this.shapes = this.shapes.filter((s) => !elements.has(s));
           }
 
-          if (shape.interactiveOnly) {
-            this.interactiveOnlyShapes.add(shape);
-          }
           this.shapes.push(shape);
           return shape;
         },
@@ -491,13 +547,9 @@ export class DiagramBuilder {
             if (where(assignmentRecord)) {
               const str = matchString(assignmentRecord);
               if (!deduplicate || !visited.has(str)) {
-                const prev = _activeBuilder;
-                _activeBuilder = this;
-                try {
+                withBuilder(this, () => {
                   func(assignmentRecord, matches++);
-                } finally {
-                  _activeBuilder = prev;
-                }
+                });
                 if (deduplicate) {
                   visited.add(str);
                 }
@@ -706,6 +758,7 @@ export class DiagramBuilder {
    */
   build = async (): Promise<Diagram> => {
     const dragNamesAndConstrs = this.getDragConstraints();
+    const { inputIdxsByPath, dragInputScales } = this.getTranslationInputs();
     const onCanvasConstraints = this.getOnCanvasConstraints();
 
     const inputs =
@@ -730,23 +783,32 @@ export class DiagramBuilder {
     >();
     // Collect rawAttrs from Bloom shapes (for post-render SVG attribute overrides)
     const rawAttrsByName = new Map<string, Record<string, string>>();
+    const collectMetadata = (shape: Shape, penroseShape: PenroseShape<Num>) => {
+      if (shape.rawAttrs && Object.keys(shape.rawAttrs).length > 0) {
+        rawAttrsByName.set(shape.name, { ...shape.rawAttrs });
+      }
+      if (shape.interactiveOnly) interactiveOnlyShapes.add(penroseShape);
+      if (this.eventListeners.has(shape.name)) {
+        eventListeners.set(shape.name, [
+          ...this.eventListeners.get(shape.name)!,
+        ]);
+      }
+      if (shape.shapeType === ShapeType.Group) {
+        const group = penroseShape as Extract<
+          PenroseShape<Num>,
+          { shapeType: "Group" }
+        >;
+        shape.shapes.forEach((child, i) =>
+          collectMetadata(child, group.shapes.contents[i]),
+        );
+        if (shape.clipPath && group.clipPath.contents.tag === "Clip") {
+          collectMetadata(shape.clipPath, group.clipPath.contents.contents);
+        }
+      }
+    };
     const penroseShapes = this.shapes.map((s) => {
       const penroseShape = toPenroseShape(s);
-      if (s.rawAttrs && Object.keys(s.rawAttrs).length > 0) {
-        rawAttrsByName.set(s.name, s.rawAttrs);
-      }
-      if (this.interactiveOnlyShapes.has(s)) {
-        interactiveOnlyShapes.add(penroseShape);
-      }
-      if (this.eventListeners.has(s.name)) {
-        if (!eventListeners.has(penroseShape.name.contents)) {
-          eventListeners.set(penroseShape.name.contents, []);
-        }
-        const inner = eventListeners.get(penroseShape.name.contents)!;
-        for (const [event, listener] of this.eventListeners.get(s.name)!) {
-          inner.push([event, listener]);
-        }
-      }
+      collectMetadata(s, penroseShape);
       return penroseShape;
     });
     const orderedShapes = sortShapes(penroseShapes, this.partialLayering);
@@ -764,7 +826,8 @@ export class DiagramBuilder {
       draggingConstraints: new Map(dragNamesAndConstrs),
       rawSvgDefs: [...this.rawSvgDefs],
       rawAttrsByName,
-      inputIdxsByPath: this.getTranslatedInputIdxsByPath(),
+      inputIdxsByPath,
+      dragInputScales,
       lassoStrength: this.lassoStrength,
       sharedInputs: new Set(this.externalInputs),
       interactiveOnlyShapes,
@@ -856,42 +919,59 @@ export class DiagramBuilder {
     };
 
     const dragConstraints = new Map<string, DragConstraint>();
-    for (const shape of this.shapes) {
+    const collect = (shape: Shape) => {
       if (shape.shapeType === ShapeType.Group) {
-        for (const s of (shape as Group).shapes) {
-          if ("drag" in s && s.drag) {
-            dragConstraints.set(s.name, getDragConstraint(s));
-          }
-        }
+        shape.shapes.forEach(collect);
       } else if ("drag" in shape && shape.drag) {
         dragConstraints.set(shape.name, getDragConstraint(shape));
       }
-    }
+    };
+    this.shapes.forEach(collect);
 
     return dragConstraints;
   };
 
-  private getTranslatedInputIdxsByPath = () => {
-    const mapNum = (num: Num) => {
-      if (isVar(num)) {
-        return this.varInputMap.get(num);
-      }
-      return undefined;
-    };
-
-    const mapVec2 = (vec: Vec2): any => {
-      return {
-        tag: "Val",
-        contents: {
-          tag: "VectorV",
-          contents: vec.map(mapNum),
-        },
-      };
-    };
-
+  private getTranslationInputs = () => {
     const inputIdxsByPath: IdxsByPath = new Map();
+    const dragInputScales = new Map<string, Map<number, number>>();
     const applyShape = (shape: Shape) => {
       if ("drag" in shape && shape.drag) {
+        const scales = new Map<number, number>();
+        const axes = new Map<number, number>();
+        const mapNum = (num: Num, axis: number): number => {
+          const affine = affineCoordinate(num);
+          if (
+            !affine ||
+            affine.coefficients.size !== 1 ||
+            !Number.isFinite(affine.offset)
+          ) {
+            throw new Error(
+              `Draggable ${shape.name} coordinates must be affine expressions of one input each; fixed or nonlinear coordinates cannot be dragged.`,
+            );
+          }
+          const [[variable, scale]] = [...affine.coefficients];
+          const index = this.varInputMap.get(variable);
+          if (index === undefined || !Number.isFinite(scale) || scale === 0) {
+            throw new Error(
+              `Draggable ${shape.name} coordinates must use inputs from this builder with finite nonzero coefficients.`,
+            );
+          }
+          if (
+            (axes.has(index) && axes.get(index) !== axis) ||
+            (scales.has(index) && scales.get(index) !== scale)
+          ) {
+            throw new Error(
+              `Draggable ${shape.name} cannot share an input across axes or coordinates with different coefficients.`,
+            );
+          }
+          axes.set(index, axis);
+          scales.set(index, scale);
+          return index;
+        };
+        const mapVec2 = (vec: Vec2): any => ({
+          tag: "Val",
+          contents: { tag: "VectorV", contents: vec.map(mapNum) },
+        });
         if ("center" in shape) {
           const idxs = mapVec2(shape.center);
           inputIdxsByPath.set(shape.name + ".center", idxs);
@@ -917,6 +997,7 @@ export class DiagramBuilder {
           };
           inputIdxsByPath.set(shape.name + ".points", idxs as any);
         }
+        dragInputScales.set(shape.name, scales);
       }
 
       if (shape.shapeType === ShapeType.Group) {
@@ -926,22 +1007,19 @@ export class DiagramBuilder {
 
     this.shapes.map(applyShape);
 
-    return inputIdxsByPath;
+    return { inputIdxsByPath, dragInputScales };
   };
 
   private getNameShapeMap = () => {
     const nameShapeMap = new Map<string, PenroseShape<Num>>();
-    for (const s of this.shapes) {
+    const collect = (s: Shape) => {
       nameShapeMap.set(s.name, toPenroseShape(s));
       if (s.shapeType === ShapeType.Group) {
-        s.shapes.map((subshape) =>
-          nameShapeMap.set(subshape.name, toPenroseShape(subshape)),
-        );
-        if (s.clipPath) {
-          nameShapeMap.set(s.clipPath.name, toPenroseShape(s.clipPath));
-        }
+        s.shapes.forEach(collect);
+        if (s.clipPath) collect(s.clipPath);
       }
-    }
+    };
+    this.shapes.forEach(collect);
     return nameShapeMap;
   };
 
@@ -979,4 +1057,42 @@ export function getActiveBuilder(): DiagramBuilder | null {
  */
 export function setActiveBuilder(b: DiagramBuilder | null): void {
   _activeBuilder = b;
+}
+
+/**
+ * Evaluate JSX synchronously in a builder's scope, restoring the previous scope
+ * even when the callback throws. Finish JSX construction before awaiting build
+ * or render: a module-global context cannot follow an asynchronous callback.
+ */
+export function withBuilder<T>(
+  builder: DiagramBuilder,
+  callback: () => T extends PromiseLike<unknown> ? never : T,
+): T {
+  if (
+    ["[object AsyncFunction]", "[object AsyncGeneratorFunction]"].includes(
+      Object.prototype.toString.call(callback),
+    )
+  ) {
+    throw new Error(
+      "withBuilder callbacks must be synchronous; await after the scope returns.",
+    );
+  }
+  const previous = _activeBuilder;
+  _activeBuilder = builder;
+  try {
+    const result = callback();
+    if (
+      result !== null &&
+      (typeof result === "object" || typeof result === "function") &&
+      "then" in result &&
+      typeof result.then === "function"
+    ) {
+      throw new Error(
+        "withBuilder callbacks must be synchronous; await after the scope returns.",
+      );
+    }
+    return result;
+  } finally {
+    _activeBuilder = previous;
+  }
 }

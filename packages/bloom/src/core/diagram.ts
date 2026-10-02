@@ -24,9 +24,10 @@ import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SharedInput } from "./builder.js";
 import { DragConstraint, RawSvgElement } from "./types.js";
 import {
-  CallbackLooper,
   appendRawSvgElements,
+  CallbackLooper,
   mathjaxInitWithHandler,
+  namespaceSvgIds,
   setNoFillIfTransparent,
   stateToSVG,
 } from "./utils.js";
@@ -49,6 +50,7 @@ export type DiagramCreationData = {
   pinnedInputs: Set<number>;
   draggingConstraints: Map<string, DragConstraint>;
   inputIdxsByPath: IdxsByPath;
+  dragInputScales: Map<string, Map<number, number>>;
   lassoStrength: number;
   sharedInputs: Set<SharedInput>;
   interactiveOnlyShapes: Set<Shape<Num>>;
@@ -62,6 +64,7 @@ type DiagramConstructorData = {
   state: PenroseState;
   pinnedInputs: Set<number>;
   draggingConstraints: Map<string, DragConstraint>;
+  dragInputScales: Map<string, Map<number, number>>;
   namedInputs: Map<string, number>;
   sharedInputs: Set<SharedInput>;
   lassoStrength: number;
@@ -93,6 +96,7 @@ export class Diagram {
    */
   private tempPinnedForDrag = new Map<string, number[][]>();
   private draggingConstraints: Map<string, DragConstraint>;
+  private dragInputScales: Map<string, Map<number, number>>;
   private namedInputs: Map<string, number>;
   private onInteraction = () => {};
   private inputEffects: Map<string, Set<(val: number, name: string) => void>> =
@@ -126,6 +130,7 @@ export class Diagram {
     this.state = data.state;
     this.manuallyPinnedIndices = data.pinnedInputs;
     this.draggingConstraints = data.draggingConstraints;
+    this.dragInputScales = data.dragInputScales;
     this.namedInputs = data.namedInputs;
     this.lassoEnabled = data.lassoStrength !== 0;
     this.sharedInputs = data.sharedInputs;
@@ -166,6 +171,17 @@ export class Diagram {
       }
     }
 
+    const rawIds = new Set<string>();
+    const collectRawIds = (element: RawSvgElement) => {
+      if (element.attrs.id) rawIds.add(element.attrs.id);
+      element.children.forEach(collectRawIds);
+    };
+    this.rawSvgDefs.forEach(collectRawIds);
+    for (const attrs of this.rawAttrsByName.values()) {
+      if (attrs.id) rawIds.add(attrs.id);
+    }
+    namespaceSvgIds(svg, this.namespace, rawIds);
+
     return {
       svg,
       nameElemMap: titleCache,
@@ -177,11 +193,8 @@ export class Diagram {
    */
   renderStatic = async () => {
     const { svg, nameElemMap } = await this.render();
-    for (const shape of this.state.shapes) {
-      if (this.interactiveOnlyShapes.has(shape)) {
-        const elem = nameElemMap.get(shape.name.contents)!;
-        elem.remove();
-      }
+    for (const shape of this.interactiveOnlyShapes) {
+      nameElemMap.get(shape.name.contents)?.remove();
     }
     return svg;
   };
@@ -400,10 +413,20 @@ export class Diagram {
     if (this.lassoEnabled) this.setAndEnableLasso();
 
     const translatedIndices = this.tempPinnedForDrag.get(name)!;
+    const scales = this.dragInputScales.get(name);
+    if (!scales) {
+      throw new Error(`No draggable coordinate inputs for ${name}`);
+    }
     const prevVaryingValues = [...this.state.varyingValues];
+    // Multiple endpoints can share the same affine input. Translate it once,
+    // using the inverse coefficient to obtain a displacement in diagram space.
+    const displacements = new Map<number, number>();
     for (const [xIdx, yIdx] of translatedIndices) {
-      this.state.varyingValues[xIdx] += dx;
-      this.state.varyingValues[yIdx] += dy;
+      displacements.set(xIdx, dx / scales.get(xIdx)!);
+      displacements.set(yIdx, dy / scales.get(yIdx)!);
+    }
+    for (const [index, displacement] of displacements) {
+      this.state.varyingValues[index] += displacement;
     }
     this.triggerInputEffects(prevVaryingValues, this.state.varyingValues);
   };

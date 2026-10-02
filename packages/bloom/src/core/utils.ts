@@ -361,14 +361,8 @@ export const mathjaxInitWithHandler = () => {
 /**
  * Recursively create and append SVG DOM elements from a RawSvgElement tree.
  */
-const appendRawSvgElement = (
-  parent: Element,
-  raw: RawSvgElement,
-): void => {
-  const el = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    raw.tag,
-  );
+const appendRawSvgElement = (parent: Element, raw: RawSvgElement): void => {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", raw.tag);
   for (const [key, val] of Object.entries(raw.attrs)) {
     el.setAttribute(key, val);
   }
@@ -384,6 +378,54 @@ const appendRawSvgElement = (
  * @param defs The list of raw SVG elements to inject
  * @param prepend If true, insert before the first child; otherwise append
  */
+/** Scope SVG definitions and local references so separate diagrams can coexist. */
+export const namespaceSvgIds = (
+  svg: SVGSVGElement,
+  namespace: string,
+  scope: ReadonlySet<string>,
+) => {
+  const ids = new Map<string, string>();
+  for (const element of Array.from(svg.querySelectorAll("[id]"))) {
+    const id = element.getAttribute("id")!;
+    if (scope.has(id)) ids.set(id, `${namespace}--${id}`);
+  }
+  const localUrl = /url\(\s*(["']?)#([^\s"'()]+)\1\s*\)/g;
+  for (const element of [svg, ...Array.from(svg.querySelectorAll("*"))]) {
+    for (const attribute of Array.from(element.attributes)) {
+      let value = attribute.value.replace(
+        localUrl,
+        (original: string, _quote: string, id: string) =>
+          ids.has(id) ? `url(#${ids.get(id)})` : original,
+      );
+      if (
+        (attribute.localName === "href" || attribute.name === "xlink:href") &&
+        value.startsWith("#")
+      ) {
+        value = ids.has(value.slice(1)) ? `#${ids.get(value.slice(1))}` : value;
+      } else if (
+        [
+          "aria-labelledby",
+          "aria-describedby",
+          "aria-activedescendant",
+          "aria-controls",
+          "aria-details",
+          "aria-errormessage",
+          "aria-flowto",
+          "aria-owns",
+        ].includes(attribute.name)
+      ) {
+        value = value
+          .split(/\s+/)
+          .map((id) => ids.get(id) ?? id)
+          .join(" ");
+      } else if (attribute.name === "id") {
+        value = ids.get(value) ?? value;
+      }
+      if (value !== attribute.value) attribute.value = value;
+    }
+  }
+};
+
 export const appendRawSvgElements = (
   svg: SVGSVGElement,
   defs: RawSvgElement[],
