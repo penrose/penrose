@@ -358,7 +358,7 @@ export {
   prettyCompiledSubstance,
   prettySubstance,
 } from "./compiler/Substance.js";
-export { genGradient } from "./engine/Autodiff.js";
+export { collectVars, genGradient } from "./engine/Autodiff.js";
 export {
   compileCompGraph,
   mapShape,
