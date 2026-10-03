@@ -4115,7 +4115,8 @@ export const compDict = {
 
   signedDistancePolygon: {
     name: "signedDistancePolygon",
-    description: "Returns the distance between a polygon and a point",
+    description:
+      "Returns signed Euclidean distance to a simple polygon's boundary, negative inside and positive outside. Either vertex orientation and repeated adjacent/closing vertices are supported. Holes and self-intersections are not supported.",
     params: [
       { name: "pts", type: real2NT(), description: "points of the polygon" },
       { name: "pt", type: real2T(), description: "the point" },
@@ -6050,6 +6051,26 @@ export const signedDistanceCircle = (
   return sub(ops.vnorm(pOffset), r);
 };
 
+// Squared distance to a closed segment, including a segment collapsed to a
+// point. Avoid a zero divisor rather than adding a scale-dependent epsilon.
+const squaredDistanceSegment = (
+  start: ad.Pt2,
+  end: ad.Pt2,
+  pt: ad.Pt2,
+): ad.Num => {
+  const offset = ops.vsub(pt, start);
+  const direction = ops.vsub(end, start);
+  const lengthSq = ops.vdot(direction, direction);
+  const denominator = ifCond(eq(lengthSq, 0), 1, lengthSq);
+  const t = clamp([0, 1], div(ops.vdot(offset, direction), denominator));
+  const displacement = ops.vsub(offset, ops.vmul(t, direction));
+  return ops.vdot(displacement, displacement);
+};
+
+/** Signed boundary distance for a finite simple polygon, in either orientation.
+ * Repeated vertices are allowed; a fully collapsed polygon has no interior.
+ * Holes and self-intersections are outside this function's contract.
+ */
 export const signedDistancePolygon = (pts: ad.Pt2[], pt: ad.Pt2): ad.Num => {
   /*
       float sdPolygon( in vec2[N] v, in vec2 p )
@@ -6068,6 +6089,9 @@ export const signedDistancePolygon = (pts: ad.Pt2[], pt: ad.Pt2): ad.Num => {
           return s*sqrt(d);
       }
   */
+  if (pts.length === 0) {
+    throw new Error("signedDistancePolygon expects at least one point");
+  }
   const v = pts;
   let d = ops.vdot(ops.vsub(pt, v[0]), ops.vsub(pt, v[0]));
   let ess: ad.Num = 1.0;
@@ -6075,9 +6099,7 @@ export const signedDistancePolygon = (pts: ad.Pt2[], pt: ad.Pt2): ad.Num => {
   for (let i = 0; i < v.length; i++) {
     const e = ops.vsub(v[j], v[i]);
     const w = ops.vsub(pt, v[i]);
-    const clampedVal = clamp([0, 1], div(ops.vdot(w, e), ops.vdot(e, e)));
-    const b = ops.vsub(w, ops.vmul(clampedVal, e));
-    d = min(d, ops.vdot(b, b));
+    d = min(d, squaredDistanceSegment(v[i], v[j], pt));
     const c1 = gte(pt[1], v[i][1]);
     const c2 = lt(pt[1], v[j][1]);
     const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
@@ -6210,10 +6232,7 @@ export const signedDistanceLine = (
       return length( pa - ba*h );
     }
   */
-  const pa = ops.vsub(pt, start);
-  const ba = ops.vsub(end, start);
-  const h = clamp([0, 1], div(ops.vdot(pa, ba), ops.vdot(ba, ba)));
-  return ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
+  return sqrt(squaredDistanceSegment(start, end, pt));
 };
 
 export const signedDistancePolyline = (pts: ad.Pt2[], pt: ad.Pt2): ad.Num => {

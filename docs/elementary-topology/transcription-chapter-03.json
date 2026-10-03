@@ -1,0 +1,358 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "chapter": {
+    "number": 3,
+    "title": "Topologies",
+    "printedPageRange": [40, 63]
+  },
+  "review": {
+    "pdfPageRange": [45, 66],
+    "method": "Private text extraction checked against every full-page 150 dpi rendered scan. Every mathematical formula and available exercise was visually reviewed. A marked formula on PDF page 63 was additionally reviewed at 300 dpi.",
+    "status": "available-pages-transcribed",
+    "availableChapterPdfPages": [
+      45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62,
+      63, 64, 65
+    ],
+    "visualReviewedPdfPages": [
+      45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62,
+      63, 64, 65, 66
+    ],
+    "limits": [
+      "Printed pages 50, 52, and 63 are absent. No missing prose, section openings, propositions, proofs, or exercises are reconstructed.",
+      "Printed page 51 starts inside the proof of Proposition 7; its missing statement is not reconstructed.",
+      "The source spelling “snd” in Example 10(iii), the Exercise 6 citation in Example 6, and source formulas are retained.",
+      "A handwritten strike crosses “Thus x ∈ Fr(X−A).” in Proposition 12(c); the underlying printed sentence is retained and the intervention is noted.",
+      "Running headers and page-number footers are retained in the source mapping rather than continuous prose. Line wrapping, indentation, and line-end hyphenation are normalized.",
+      "Printed pages 43, 55, and 59 are split at section boundaries.",
+      "PDF page 66, printed page 64, is the reviewed next-chapter boundary only."
+    ]
+  },
+  "outputDirectory": "packages/docs-site/docs/elementary-topology/chapter-03",
+  "pages": [
+    {
+      "pdfPage": 45,
+      "printedPage": 40,
+      "path": "topology.md",
+      "coverage": "All body text; Chapter and section headings, introduction, Definition 1, Examples 1–3.",
+      "anchor": "printed-page-40",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 46,
+      "printedPage": 41,
+      "path": "topology.md",
+      "coverage": "All body text; Examples 4–5, Definition 2, Proposition 1 and proof.",
+      "anchor": "printed-page-41",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 47,
+      "printedPage": 42,
+      "path": "topology.md",
+      "coverage": "All body text; Propositions 2–3 and proofs, Exercises 1–6.",
+      "anchor": "printed-page-42",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 48,
+      "printedPage": 43,
+      "fragments": [
+        {
+          "path": "topology.md",
+          "anchor": "printed-page-43",
+          "coverage": "All body text of section fragment; Exercises 7–8."
+        },
+        {
+          "path": "bases-and-subbases.md",
+          "anchor": "printed-page-43",
+          "coverage": "All body text of section fragment; Section opening, Definition 3, Example 6, Proposition 4 and proof beginning."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 49,
+      "printedPage": 44,
+      "path": "bases-and-subbases.md",
+      "coverage": "All body text; Proposition 4 proof completion, Definition 4, Proposition 5 and beginning of proof.",
+      "anchor": "printed-page-44",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 50,
+      "printedPage": 45,
+      "path": "bases-and-subbases.md",
+      "coverage": "All body text; Proposition 5 proof completion, Example 7, regular-open-set discussion, Exercise 1.",
+      "anchor": "printed-page-45",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 51,
+      "printedPage": 46,
+      "path": "bases-and-subbases.md",
+      "coverage": "All body text; Exercises 2–5 and Example 8 beginning, including order topology definitions.",
+      "anchor": "printed-page-46",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 52,
+      "printedPage": 47,
+      "path": "bases-and-subbases.md",
+      "coverage": "All body text; Examples 8–9, Figures 3.1–3.2.",
+      "anchor": "printed-page-47",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 53,
+      "printedPage": 48,
+      "path": "bases-and-subbases.md",
+      "coverage": "All body text; Example 9 completion, Exercises 3–7 continuing source numbering.",
+      "anchor": "printed-page-48",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 54,
+      "printedPage": 49,
+      "path": "open-neighborhood-systems.md",
+      "coverage": "All body text; Section opening, Definition 5, Example 10, Proposition 6 statement.",
+      "anchor": "printed-page-49",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 55,
+      "printedPage": 51,
+      "path": "open-neighborhood-systems.md",
+      "coverage": "All body text; Proof fragment identified as proof of Proposition 7; Examples 11–13.",
+      "anchor": "printed-page-51",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 56,
+      "printedPage": 53,
+      "path": "finer-and-coarser-topologies.md",
+      "coverage": "All body text; Definition 6, Propositions 8–9 and proofs, Examples 14–17.",
+      "anchor": "printed-page-53",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 57,
+      "printedPage": 54,
+      "path": "finer-and-coarser-topologies.md",
+      "coverage": "All body text; Example 18, Figure 3.3, Exercises 1–6.",
+      "anchor": "printed-page-54",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 58,
+      "printedPage": 55,
+      "fragments": [
+        {
+          "path": "finer-and-coarser-topologies.md",
+          "anchor": "printed-page-55",
+          "coverage": "All body text of section fragment; Exercises 7–8."
+        },
+        {
+          "path": "derived-sets.md",
+          "anchor": "printed-page-55",
+          "coverage": "All body text of section fragment; Section opening, Definition 7, Proposition 10 and proof beginning."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 59,
+      "printedPage": 56,
+      "path": "derived-sets.md",
+      "coverage": "All body text; Proposition 10 proof completion, Proposition 11 and beginning of proof, Figure 3.4.",
+      "anchor": "printed-page-56",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 60,
+      "printedPage": 57,
+      "path": "derived-sets.md",
+      "coverage": "All body text; Proposition 11 proof completion, Exercises 1–3.",
+      "anchor": "printed-page-57",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 61,
+      "printedPage": 58,
+      "path": "derived-sets.md",
+      "coverage": "All body text; Exercises 4–7 with all subparts and hints.",
+      "anchor": "printed-page-58",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 62,
+      "printedPage": 59,
+      "fragments": [
+        {
+          "path": "derived-sets.md",
+          "anchor": "printed-page-59",
+          "coverage": "All body text of section fragment; Exercise 8 with both subparts."
+        },
+        {
+          "path": "topologically-derived-sets.md",
+          "anchor": "printed-page-59",
+          "coverage": "All body text of section fragment; Section opening, Proposition 12 and proof part a."
+        }
+      ],
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 63,
+      "printedPage": 60,
+      "path": "topologically-derived-sets.md",
+      "coverage": "All body text; Proposition 12 proof completion, marked printed sentence retained; Proposition 13 and beginning of proof.",
+      "anchor": "printed-page-60",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 64,
+      "printedPage": 61,
+      "path": "topologically-derived-sets.md",
+      "coverage": "All body text; Proposition 13 proof completion, Examples 20–21, Figure 3.5, Definition 8, Proposition 14 and beginning of proof.",
+      "anchor": "printed-page-61",
+      "formulaReview": "verified against rendered scan"
+    },
+    {
+      "pdfPage": 65,
+      "printedPage": 62,
+      "path": "topologically-derived-sets.md",
+      "coverage": "All body text; Proposition 14 proof completion, Examples 22–24, final sentence introducing a proposition on unavailable page 63.",
+      "anchor": "printed-page-62",
+      "formulaReview": "verified against rendered scan"
+    }
+  ],
+  "gaps": [
+    {
+      "printedPage": 50,
+      "before": {
+        "pdfPage": 54,
+        "printedPage": 49
+      },
+      "after": {
+        "pdfPage": 55,
+        "printedPage": 51
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "open-neighborhood-systems.md"],
+      "availableBoundaryEvidence": "Page 49 ends with Proposition 6; page 51 begins inside a proof subsequently identified as that of Proposition 7."
+    },
+    {
+      "printedPage": 52,
+      "before": {
+        "pdfPage": 55,
+        "printedPage": 51
+      },
+      "after": {
+        "pdfPage": 56,
+        "printedPage": 53
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": [
+        "index.md",
+        "open-neighborhood-systems.md",
+        "finer-and-coarser-topologies.md"
+      ],
+      "availableBoundaryEvidence": "Page 51 ends with Example 13; page 53 begins with Definition 6 and running section label 3.4."
+    },
+    {
+      "printedPage": 63,
+      "before": {
+        "pdfPage": 65,
+        "printedPage": 62
+      },
+      "after": {
+        "pdfPage": 66,
+        "printedPage": 64
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "topologically-derived-sets.md"],
+      "availableBoundaryEvidence": "Page 62 ends by introducing a proposition. The next supplied page begins Chapter 4."
+    }
+  ],
+  "illustrations": [
+    {
+      "id": "3.1",
+      "pdfPage": 52,
+      "printedPage": 47,
+      "path": "bases-and-subbases.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=47",
+      "svgPath": "/elementary-topology/figures/figure-3.1.svg"
+    },
+    {
+      "id": "3.2",
+      "pdfPage": 52,
+      "printedPage": 47,
+      "path": "bases-and-subbases.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=47",
+      "svgPath": "/elementary-topology/figures/figure-3.2.svg"
+    },
+    {
+      "id": "3.3",
+      "pdfPage": 57,
+      "printedPage": 54,
+      "path": "finer-and-coarser-topologies.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=54",
+      "svgPath": "/elementary-topology/figures/figure-3.3.svg"
+    },
+    {
+      "id": "3.4",
+      "pdfPage": 59,
+      "printedPage": 56,
+      "path": "derived-sets.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=56",
+      "svgPath": "/elementary-topology/figures/figure-3.4.svg"
+    },
+    {
+      "id": "3.5",
+      "pdfPage": 64,
+      "printedPage": 61,
+      "path": "topologically-derived-sets.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=61",
+      "svgPath": "/elementary-topology/figures/figure-3.5.svg"
+    }
+  ],
+  "nextChapterBoundary": {
+    "pdfPage": 66,
+    "printedPage": 64,
+    "chapter": 4,
+    "title": "Derived Topological Spaces. Continuity",
+    "section": "4.1 Subspaces",
+    "status": "visually reviewed; not transcribed as Chapter 3"
+  },
+  "validation": {
+    "sourceBodyCoverage": "Every extracted alphabetic OCR word of four or more characters was checked per supplied page against its transcribed body; unmatched tokens were only running headers or visually corrected OCR errors. This supplements full-page visual review.",
+    "sourceFormulaVerification": "Every mathematical expression on PDF pages 45–65 visually checked against 150 dpi scans, including collection notation, strict and weak inequalities, inverse images, derived sets, and exercise hints.",
+    "mathRenderer": "KaTeX 0.13.24 via shared docs-site configureMath, with v-pre wrappers preserving mathematical braces in Vue",
+    "mathExpressionCountInNewPages": 1197,
+    "mathValidationStatus": "passed",
+    "vueCompilationStatus": "passed",
+    "browserVisualQa": {
+      "status": "passed",
+      "browser": "Chrome",
+      "pages": [
+        "topology",
+        "bases-and-subbases",
+        "open-neighborhood-systems",
+        "finer-and-coarser-topologies",
+        "derived-sets",
+        "topologically-derived-sets"
+      ],
+      "checked": [
+        "No KaTeX errors on all six section pages; display formulas fit the reading column.",
+        "Source exercise numbering retained across page anchors.",
+        "Missing pages 50, 52, and 63 remain explicit, including the missing section opening and final proposition.",
+        "All five present figures use public Penrose SVGs and load successfully with white backgrounds for dark-theme contrast."
+      ]
+    }
+  }
+}

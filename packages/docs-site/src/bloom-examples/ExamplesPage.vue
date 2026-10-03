@@ -9,5 +9,7 @@ const Examples = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <Examples />
+  <ClientOnly>
+    <Examples />
+  </ClientOnly>
 </template>

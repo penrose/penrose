@@ -1,0 +1,1128 @@
+{
+  "schemaVersion": 1,
+  "kind": "native-reader-structural-audit",
+  "url": "http://localhost:5202/reader",
+  "build": "standalone production preview; final shared inline mounting geometry",
+  "status": "passed",
+  "coverage": {
+    "sourcePages": 69,
+    "reviewedNativeOverlays": 100,
+    "nativeDragHandles": 607
+  },
+  "method": "Native Chrome browser interactions. Each page selected using the Page combobox selectOption; readiness checked through the expected figure anchor and live SVG. All geometry and clipping measurements were read from the rendered DOM. No browser JavaScript mutated page state. Batches were limited to at most fifteen pages.",
+  "checksPassed": [
+    "exact reviewed figure IDs and counts",
+    "selected Page combobox matches PDF page",
+    "ready visible native root SVG for every overlay",
+    "finite positive source-page/anchor/canvas/SVG/mask/toolbar bounds",
+    "finite positive native viewBox",
+    "canvas and SVG dimensions match source anchor within one CSS pixel",
+    "source anchors contained by source page within one CSS pixel",
+    "source mask and canvas clipping match",
+    "toolbar has no clip path",
+    "figure card has an accessible name",
+    "every figure has native drag handles"
+  ],
+  "console": {
+    "errors": [],
+    "warnings": []
+  },
+  "transientReadinessWaits": [
+    {
+      "pdfPage": 151,
+      "resolution": "All three native figures already had valid geometry after the wait anomaly; a fresh page selection and readiness recheck passed."
+    },
+    {
+      "pdfPage": 224,
+      "resolution": "Both native figures already had valid geometry after the wait anomaly; a fresh page selection and readiness recheck passed."
+    }
+  ],
+  "exceptions": [],
+  "matchedCustomClipIds": ["10.5", "10.6", "11.12"],
+  "limits": "Structural browser audit at desktop viewport. Prior source-fidelity reviews establish each graphic. This audit does not claim to detect every visual overlap or test every drag gesture on all figures.",
+  "pages": [
+    {
+      "pdfPage": 1,
+      "pageOptionLabel": "Front matter · 1",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "cover-rosette",
+          "nativeSvgCssSize": [671.859375, 671.59375],
+          "nativeViewBoxSize": [724, 724],
+          "nativeDragHandles": 1
+        }
+      ]
+    },
+    {
+      "pdfPage": 19,
+      "pageOptionLabel": "Page 10",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "unnumbered-countable-union-enumeration",
+          "nativeSvgCssSize": [571.640625, 347.328125],
+          "nativeViewBoxSize": [360, 230],
+          "nativeDragHandles": 47
+        }
+      ]
+    },
+    {
+      "pdfPage": 20,
+      "pageOptionLabel": "Page 11",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "unnumbered-cantor-diagonal-table",
+          "nativeSvgCssSize": [317.015625, 184.796875],
+          "nativeViewBoxSize": [270, 165],
+          "nativeDragHandles": 1
+        }
+      ]
+    },
+    {
+      "pdfPage": 22,
+      "pageOptionLabel": "Page 14",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "unnumbered-four-element-group-table",
+          "nativeSvgCssSize": [390.921875, 259.28125],
+          "nativeViewBoxSize": [250, 180],
+          "nativeDragHandles": 1
+        }
+      ]
+    },
+    {
+      "pdfPage": 27,
+      "pageOptionLabel": "Page 19",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "2.1",
+          "nativeSvgCssSize": [371.1875, 357.953125],
+          "nativeViewBoxSize": [300, 280],
+          "nativeDragHandles": 7
+        },
+        {
+          "id": "2.2",
+          "nativeSvgCssSize": [371.1875, 357.953125],
+          "nativeViewBoxSize": [300, 280],
+          "nativeDragHandles": 7
+        },
+        {
+          "id": "2.3",
+          "nativeSvgCssSize": [352.625, 314.9375],
+          "nativeViewBoxSize": [300, 280],
+          "nativeDragHandles": 3
+        },
+        {
+          "id": "2.4",
+          "nativeSvgCssSize": [361.90625, 318],
+          "nativeViewBoxSize": [300, 280],
+          "nativeDragHandles": 11
+        }
+      ]
+    },
+    {
+      "pdfPage": 28,
+      "pageOptionLabel": "Page 20",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "2.5",
+          "nativeSvgCssSize": [487.1875, 460.875],
+          "nativeViewBoxSize": [360, 300],
+          "nativeDragHandles": 8
+        },
+        {
+          "id": "2.6",
+          "nativeSvgCssSize": [398.109375, 413.25],
+          "nativeViewBoxSize": [340, 300],
+          "nativeDragHandles": 6
+        }
+      ]
+    },
+    {
+      "pdfPage": 29,
+      "pageOptionLabel": "Page 22",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "2.8",
+          "nativeSvgCssSize": [406.75, 371.28125],
+          "nativeViewBoxSize": [340, 330],
+          "nativeDragHandles": 6
+        }
+      ]
+    },
+    {
+      "pdfPage": 31,
+      "pageOptionLabel": "Page 24",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "2.9",
+          "nativeSvgCssSize": [406.75, 129.03125],
+          "nativeViewBoxSize": [330, 110],
+          "nativeDragHandles": 4
+        }
+      ]
+    },
+    {
+      "pdfPage": 33,
+      "pageOptionLabel": "Page 26",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "2.10",
+          "nativeSvgCssSize": [401.875, 349.375],
+          "nativeViewBoxSize": [300, 270],
+          "nativeDragHandles": 5
+        },
+        {
+          "id": "2.11",
+          "nativeSvgCssSize": [423.796875, 286.0625],
+          "nativeViewBoxSize": [320, 300],
+          "nativeDragHandles": 7
+        }
+      ]
+    },
+    {
+      "pdfPage": 34,
+      "pageOptionLabel": "Page 27",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "2.12",
+          "nativeSvgCssSize": [389.75, 377.921875],
+          "nativeViewBoxSize": [300, 290],
+          "nativeDragHandles": 6
+        },
+        {
+          "id": "2.13",
+          "nativeSvgCssSize": [408.3125, 377.921875],
+          "nativeViewBoxSize": [300, 290],
+          "nativeDragHandles": 7
+        }
+      ]
+    },
+    {
+      "pdfPage": 35,
+      "pageOptionLabel": "Page 28",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "2.14",
+          "nativeSvgCssSize": [405.53125, 306.765625],
+          "nativeViewBoxSize": [370, 285],
+          "nativeDragHandles": 8
+        }
+      ]
+    },
+    {
+      "pdfPage": 36,
+      "pageOptionLabel": "Page 30",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "2.15",
+          "nativeSvgCssSize": [680.765625, 290.9375],
+          "nativeViewBoxSize": [570, 260],
+          "nativeDragHandles": 8
+        }
+      ]
+    },
+    {
+      "pdfPage": 37,
+      "pageOptionLabel": "Page 31",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "2.16",
+          "nativeSvgCssSize": [401.875, 284.859375],
+          "nativeViewBoxSize": [350, 270],
+          "nativeDragHandles": 5
+        }
+      ]
+    },
+    {
+      "pdfPage": 40,
+      "pageOptionLabel": "Page 34",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "2.17",
+          "nativeSvgCssSize": [398.359375, 311.59375],
+          "nativeViewBoxSize": [360, 280],
+          "nativeDragHandles": 6
+        },
+        {
+          "id": "2.18",
+          "nativeSvgCssSize": [401.78125, 218],
+          "nativeViewBoxSize": [350, 210],
+          "nativeDragHandles": 6
+        }
+      ]
+    },
+    {
+      "pdfPage": 42,
+      "pageOptionLabel": "Page 36",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "2.19",
+          "nativeSvgCssSize": [526.203125, 275.0625],
+          "nativeViewBoxSize": [500, 280],
+          "nativeDragHandles": 8
+        }
+      ]
+    },
+    {
+      "pdfPage": 43,
+      "pageOptionLabel": "Page 37",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "2.20",
+          "nativeSvgCssSize": [397.21875, 398.328125],
+          "nativeViewBoxSize": [340, 350],
+          "nativeDragHandles": 6
+        }
+      ]
+    },
+    {
+      "pdfPage": 52,
+      "pageOptionLabel": "Page 47",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "3.1",
+          "nativeSvgCssSize": [430.9375, 80.9375],
+          "nativeViewBoxSize": [400, 100],
+          "nativeDragHandles": 5
+        },
+        {
+          "id": "3.2",
+          "nativeSvgCssSize": [403.5625, 314.65625],
+          "nativeViewBoxSize": [360, 285],
+          "nativeDragHandles": 1
+        }
+      ]
+    },
+    {
+      "pdfPage": 57,
+      "pageOptionLabel": "Page 54",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "3.3",
+          "nativeSvgCssSize": [263.671875, 264.796875],
+          "nativeViewBoxSize": [240, 240],
+          "nativeDragHandles": 1
+        }
+      ]
+    },
+    {
+      "pdfPage": 59,
+      "pageOptionLabel": "Page 56",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "3.4",
+          "nativeSvgCssSize": [407.484375, 382.359375],
+          "nativeViewBoxSize": [370, 350],
+          "nativeDragHandles": 9
+        }
+      ]
+    },
+    {
+      "pdfPage": 64,
+      "pageOptionLabel": "Page 61",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "3.5",
+          "nativeSvgCssSize": [697.421875, 112.984375],
+          "nativeViewBoxSize": [610, 115],
+          "nativeDragHandles": 7
+        }
+      ]
+    },
+    {
+      "pdfPage": 77,
+      "pageOptionLabel": "Page 76",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "4.1",
+          "nativeSvgCssSize": [377.53125, 255.640625],
+          "nativeViewBoxSize": [340, 240],
+          "nativeDragHandles": 5
+        },
+        {
+          "id": "4.2",
+          "nativeSvgCssSize": [327.59375, 278.765625],
+          "nativeViewBoxSize": [280, 245],
+          "nativeDragHandles": 3
+        }
+      ]
+    },
+    {
+      "pdfPage": 82,
+      "pageOptionLabel": "Page 81",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "4.3",
+          "nativeSvgCssSize": [277.65625, 384.671875],
+          "nativeViewBoxSize": [250, 330],
+          "nativeDragHandles": 5
+        }
+      ]
+    },
+    {
+      "pdfPage": 84,
+      "pageOptionLabel": "Page 83",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "4.4",
+          "nativeSvgCssSize": [296.953125, 199.703125],
+          "nativeViewBoxSize": [240, 165],
+          "nativeDragHandles": 4
+        },
+        {
+          "id": "4.5",
+          "nativeSvgCssSize": [208.796875, 207.390625],
+          "nativeViewBoxSize": [166, 166],
+          "nativeDragHandles": 1
+        },
+        {
+          "id": "4.6",
+          "nativeSvgCssSize": [301.59375, 216.609375],
+          "nativeViewBoxSize": [260, 178],
+          "nativeDragHandles": 4
+        },
+        {
+          "id": "4.7",
+          "nativeSvgCssSize": [297.875, 204.3125],
+          "nativeViewBoxSize": [244, 176],
+          "nativeDragHandles": 1
+        }
+      ]
+    },
+    {
+      "pdfPage": 86,
+      "pageOptionLabel": "Page 86",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "4.8",
+          "nativeSvgCssSize": [396.078125, 203.15625],
+          "nativeViewBoxSize": [370, 200],
+          "nativeDragHandles": 7
+        },
+        {
+          "id": "4.9",
+          "nativeSvgCssSize": [401.78125, 338.984375],
+          "nativeViewBoxSize": [365, 305],
+          "nativeDragHandles": 7
+        }
+      ]
+    },
+    {
+      "pdfPage": 88,
+      "pageOptionLabel": "Page 88",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "4.10",
+          "nativeSvgCssSize": [333.296875, 205.4375],
+          "nativeViewBoxSize": [310, 205],
+          "nativeDragHandles": 3
+        }
+      ]
+    },
+    {
+      "pdfPage": 91,
+      "pageOptionLabel": "Page 91",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "5.1",
+          "nativeSvgCssSize": [416.5, 198.421875],
+          "nativeViewBoxSize": [342, 163],
+          "nativeDragHandles": 4
+        }
+      ]
+    },
+    {
+      "pdfPage": 96,
+      "pageOptionLabel": "Page 97",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "5.2",
+          "nativeSvgCssSize": [361.6875, 216.59375],
+          "nativeViewBoxSize": [297, 178],
+          "nativeDragHandles": 4
+        },
+        {
+          "id": "5.3",
+          "nativeSvgCssSize": [320.28125, 242.140625],
+          "nativeViewBoxSize": [263, 199],
+          "nativeDragHandles": 6
+        }
+      ]
+    },
+    {
+      "pdfPage": 98,
+      "pageOptionLabel": "Page 99",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "5.4",
+          "nativeSvgCssSize": [405.53125, 85.1875],
+          "nativeViewBoxSize": [333, 70],
+          "nativeDragHandles": 3
+        }
+      ]
+    },
+    {
+      "pdfPage": 100,
+      "pageOptionLabel": "Page 101",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "5.5",
+          "nativeSvgCssSize": [175.359375, 255.640625],
+          "nativeViewBoxSize": [148, 218],
+          "nativeDragHandles": 3
+        },
+        {
+          "id": "5.6",
+          "nativeSvgCssSize": [151, 233.71875],
+          "nativeViewBoxSize": [126, 196],
+          "nativeDragHandles": 3
+        },
+        {
+          "id": "5.7",
+          "nativeSvgCssSize": [275.21875, 177.71875],
+          "nativeViewBoxSize": [216, 146],
+          "nativeDragHandles": 3
+        }
+      ]
+    },
+    {
+      "pdfPage": 102,
+      "pageOptionLabel": "Page 104",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "5.9",
+          "nativeSvgCssSize": [395.796875, 256.859375],
+          "nativeViewBoxSize": [325, 211],
+          "nativeDragHandles": 4
+        },
+        {
+          "id": "5.10",
+          "nativeSvgCssSize": [403.09375, 293.375],
+          "nativeViewBoxSize": [331, 241],
+          "nativeDragHandles": 4
+        }
+      ]
+    },
+    {
+      "pdfPage": 106,
+      "pageOptionLabel": "Page 108",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "5.11",
+          "nativeSvgCssSize": [387.265625, 269.03125],
+          "nativeViewBoxSize": [318, 221],
+          "nativeDragHandles": 5
+        }
+      ]
+    },
+    {
+      "pdfPage": 107,
+      "pageOptionLabel": "Page 109",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "5.12",
+          "nativeSvgCssSize": [420.15625, 356.671875],
+          "nativeViewBoxSize": [345, 293],
+          "nativeDragHandles": 4
+        }
+      ]
+    },
+    {
+      "pdfPage": 108,
+      "pageOptionLabel": "Page 111",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "5.14",
+          "nativeSvgCssSize": [410.40625, 240.9375],
+          "nativeViewBoxSize": [337, 198],
+          "nativeDragHandles": 4
+        }
+      ]
+    },
+    {
+      "pdfPage": 119,
+      "pageOptionLabel": "Page 123",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "6.1",
+          "nativeSvgCssSize": [394.421875, 84.359375],
+          "nativeViewBoxSize": [365, 82],
+          "nativeDragHandles": 6
+        }
+      ]
+    },
+    {
+      "pdfPage": 122,
+      "pageOptionLabel": "Page 126",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "6.2",
+          "nativeSvgCssSize": [408.65625, 196.109375],
+          "nativeViewBoxSize": [370, 187],
+          "nativeDragHandles": 5
+        }
+      ]
+    },
+    {
+      "pdfPage": 141,
+      "pageOptionLabel": "Page 148",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "7.1",
+          "nativeSvgCssSize": [266.703125, 262.765625],
+          "nativeViewBoxSize": [219, 213],
+          "nativeDragHandles": 3
+        }
+      ]
+    },
+    {
+      "pdfPage": 146,
+      "pageOptionLabel": "Page 153",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "7.2",
+          "nativeSvgCssSize": [412.84375, 77.71875],
+          "nativeViewBoxSize": [339, 63],
+          "nativeDragHandles": 4
+        }
+      ]
+    },
+    {
+      "pdfPage": 149,
+      "pageOptionLabel": "Page 156",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "7.3",
+          "nativeSvgCssSize": [582.125, 244.265625],
+          "nativeViewBoxSize": [478, 198],
+          "nativeDragHandles": 10
+        }
+      ]
+    },
+    {
+      "pdfPage": 151,
+      "pageOptionLabel": "Page 159",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "7.4",
+          "nativeSvgCssSize": [205.75, 279.890625],
+          "nativeViewBoxSize": [108, 148],
+          "nativeDragHandles": 6
+        },
+        {
+          "id": "7.5",
+          "nativeSvgCssSize": [265.5, 155.6875],
+          "nativeViewBoxSize": [216, 134],
+          "nativeDragHandles": 3
+        },
+        {
+          "id": "7.6",
+          "nativeSvgCssSize": [231.484375, 253.125],
+          "nativeViewBoxSize": [118, 130],
+          "nativeDragHandles": 4
+        }
+      ]
+    },
+    {
+      "pdfPage": 156,
+      "pageOptionLabel": "Page 164",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "8.1",
+          "nativeSvgCssSize": [426.234375, 264.515625],
+          "nativeViewBoxSize": [350, 208],
+          "nativeDragHandles": 8
+        }
+      ]
+    },
+    {
+      "pdfPage": 159,
+      "pageOptionLabel": "Page 168",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "8.3",
+          "nativeSvgCssSize": [358.046875, 313.203125],
+          "nativeViewBoxSize": [294, 246],
+          "nativeDragHandles": 4
+        }
+      ]
+    },
+    {
+      "pdfPage": 161,
+      "pageOptionLabel": "Page 170",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "8.4",
+          "nativeSvgCssSize": [427.453125, 134.953125],
+          "nativeViewBoxSize": [351, 106],
+          "nativeDragHandles": 5
+        }
+      ]
+    },
+    {
+      "pdfPage": 162,
+      "pageOptionLabel": "Page 171",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "8.5",
+          "nativeSvgCssSize": [291.0625, 277.46875],
+          "nativeViewBoxSize": [239, 218],
+          "nativeDragHandles": 6
+        }
+      ]
+    },
+    {
+      "pdfPage": 163,
+      "pageOptionLabel": "Page 172",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "8.6",
+          "nativeSvgCssSize": [675.890625, 248.3125],
+          "nativeViewBoxSize": [555, 195],
+          "nativeDragHandles": 11
+        }
+      ]
+    },
+    {
+      "pdfPage": 173,
+      "pageOptionLabel": "Page 184",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "9.1",
+          "nativeSvgCssSize": [713.75, 95.4375],
+          "nativeViewBoxSize": [326, 52],
+          "nativeDragHandles": 7
+        }
+      ]
+    },
+    {
+      "pdfPage": 177,
+      "pageOptionLabel": "Page 188",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "9.2",
+          "nativeSvgCssSize": [425.1875, 273.140625],
+          "nativeViewBoxSize": [270, 166],
+          "nativeDragHandles": 6
+        }
+      ]
+    },
+    {
+      "pdfPage": 178,
+      "pageOptionLabel": "Page 189",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "9.3",
+          "nativeSvgCssSize": [425.1875, 295.453125],
+          "nativeViewBoxSize": [252, 186],
+          "nativeDragHandles": 6
+        },
+        {
+          "id": "9.4",
+          "nativeSvgCssSize": [423.0625, 317.78125],
+          "nativeViewBoxSize": [264, 182],
+          "nativeDragHandles": 3
+        }
+      ]
+    },
+    {
+      "pdfPage": 179,
+      "pageOptionLabel": "Page 190",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "9.5",
+          "nativeSvgCssSize": [222.859375, 246.078125],
+          "nativeViewBoxSize": [183, 193],
+          "nativeDragHandles": 2
+        },
+        {
+          "id": "9.6",
+          "nativeSvgCssSize": [432.328125, 248.625],
+          "nativeViewBoxSize": [355, 187],
+          "nativeDragHandles": 4
+        }
+      ]
+    },
+    {
+      "pdfPage": 181,
+      "pageOptionLabel": "Page 193",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "9.7",
+          "nativeSvgCssSize": [421.375, 257.484375],
+          "nativeViewBoxSize": [346, 202],
+          "nativeDragHandles": 6
+        }
+      ]
+    },
+    {
+      "pdfPage": 182,
+      "pageOptionLabel": "Page 194",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "9.8",
+          "nativeSvgCssSize": [274.015625, 268.953125],
+          "nativeViewBoxSize": [225, 211],
+          "nativeDragHandles": 1
+        },
+        {
+          "id": "9.9",
+          "nativeSvgCssSize": [418.9375, 291.90625],
+          "nativeViewBoxSize": [344, 229],
+          "nativeDragHandles": 10
+        }
+      ]
+    },
+    {
+      "pdfPage": 190,
+      "pageOptionLabel": "Page 203",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "9.11",
+          "nativeSvgCssSize": [420.15625, 350.625],
+          "nativeViewBoxSize": [345, 275],
+          "nativeDragHandles": 5
+        },
+        {
+          "id": "9.12",
+          "nativeSvgCssSize": [431.109375, 298.359375],
+          "nativeViewBoxSize": [354, 234],
+          "nativeDragHandles": 8
+        }
+      ]
+    },
+    {
+      "pdfPage": 201,
+      "pageOptionLabel": "Page 215",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "10.1",
+          "nativeSvgCssSize": [428.71875, 96.546875],
+          "nativeViewBoxSize": [278, 62],
+          "nativeDragHandles": 5
+        },
+        {
+          "id": "10.2",
+          "nativeSvgCssSize": [428.71875, 96.546875],
+          "nativeViewBoxSize": [280, 65],
+          "nativeDragHandles": 6
+        }
+      ]
+    },
+    {
+      "pdfPage": 204,
+      "pageOptionLabel": "Page 219",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "10.3",
+          "nativeSvgCssSize": [339.390625, 327.171875],
+          "nativeViewBoxSize": [240, 230],
+          "nativeDragHandles": 5
+        },
+        {
+          "id": "10.4",
+          "nativeSvgCssSize": [432.28125, 281.59375],
+          "nativeViewBoxSize": [290, 196],
+          "nativeDragHandles": 7
+        }
+      ]
+    },
+    {
+      "pdfPage": 209,
+      "pageOptionLabel": "Page 224",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "10.5",
+          "nativeSvgCssSize": [394.578125, 397.03125],
+          "nativeViewBoxSize": [300, 302],
+          "nativeDragHandles": 7
+        }
+      ]
+    },
+    {
+      "pdfPage": 210,
+      "pageOptionLabel": "Page 225",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "10.6",
+          "nativeSvgCssSize": [397.828125, 364.5625],
+          "nativeViewBoxSize": [310, 280],
+          "nativeDragHandles": 8
+        }
+      ]
+    },
+    {
+      "pdfPage": 217,
+      "pageOptionLabel": "Page 233",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.1",
+          "nativeSvgCssSize": [311.9375, 316.78125],
+          "nativeViewBoxSize": [164, 164],
+          "nativeDragHandles": 4
+        },
+        {
+          "id": "11.2",
+          "nativeSvgCssSize": [376.46875, 376.421875],
+          "nativeViewBoxSize": [192, 196],
+          "nativeDragHandles": 7
+        }
+      ]
+    },
+    {
+      "pdfPage": 218,
+      "pageOptionLabel": "Page 234",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.3",
+          "nativeSvgCssSize": [268.34375, 291.984375],
+          "nativeViewBoxSize": [138, 154],
+          "nativeDragHandles": 9
+        },
+        {
+          "id": "11.4",
+          "nativeSvgCssSize": [398.125, 266.59375],
+          "nativeViewBoxSize": [248, 164],
+          "nativeDragHandles": 9
+        }
+      ]
+    },
+    {
+      "pdfPage": 220,
+      "pageOptionLabel": "Page 236",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.5",
+          "nativeSvgCssSize": [565.203125, 261.109375],
+          "nativeViewBoxSize": [374, 176],
+          "nativeDragHandles": 11
+        },
+        {
+          "id": "11.6",
+          "nativeSvgCssSize": [373.546875, 265.03125],
+          "nativeViewBoxSize": [166, 132],
+          "nativeDragHandles": 5
+        }
+      ]
+    },
+    {
+      "pdfPage": 222,
+      "pageOptionLabel": "Page 238",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.7",
+          "nativeSvgCssSize": [549.375, 266.375],
+          "nativeViewBoxSize": [360, 182],
+          "nativeDragHandles": 9
+        },
+        {
+          "id": "11.8",
+          "nativeSvgCssSize": [403.984375, 233.1875],
+          "nativeViewBoxSize": [244, 146],
+          "nativeDragHandles": 6
+        }
+      ]
+    },
+    {
+      "pdfPage": 224,
+      "pageOptionLabel": "Page 241",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.9",
+          "nativeSvgCssSize": [286.203125, 222.828125],
+          "nativeViewBoxSize": [162, 122],
+          "nativeDragHandles": 2
+        },
+        {
+          "id": "11.10",
+          "nativeSvgCssSize": [389.75, 227.71875],
+          "nativeViewBoxSize": [224, 134],
+          "nativeDragHandles": 11
+        }
+      ]
+    },
+    {
+      "pdfPage": 225,
+      "pageOptionLabel": "Page 242",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.11",
+          "nativeSvgCssSize": [220.765625, 260.9375],
+          "nativeViewBoxSize": [120, 142],
+          "nativeDragHandles": 12
+        }
+      ]
+    },
+    {
+      "pdfPage": 227,
+      "pageOptionLabel": "Page 244",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.12",
+          "nativeSvgCssSize": [400.5, 287.328125],
+          "nativeViewBoxSize": [218, 168],
+          "nativeDragHandles": 20
+        }
+      ]
+    },
+    {
+      "pdfPage": 228,
+      "pageOptionLabel": "Page 245",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.13",
+          "nativeSvgCssSize": [201.21875, 203.28125],
+          "nativeViewBoxSize": [106, 120],
+          "nativeDragHandles": 8
+        },
+        {
+          "id": "11.14",
+          "nativeSvgCssSize": [198.296875, 204.265625],
+          "nativeViewBoxSize": [106, 120],
+          "nativeDragHandles": 8
+        }
+      ]
+    },
+    {
+      "pdfPage": 229,
+      "pageOptionLabel": "Page 246",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.15",
+          "nativeSvgCssSize": [380.953125, 182.75],
+          "nativeViewBoxSize": [208, 106],
+          "nativeDragHandles": 4
+        }
+      ]
+    },
+    {
+      "pdfPage": 231,
+      "pageOptionLabel": "Page 249",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.19",
+          "nativeSvgCssSize": [275.21875, 275.359375],
+          "nativeViewBoxSize": [226, 238],
+          "nativeDragHandles": 3
+        }
+      ]
+    },
+    {
+      "pdfPage": 233,
+      "pageOptionLabel": "Page 251",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.20",
+          "nativeSvgCssSize": [255.734375, 151.5625],
+          "nativeViewBoxSize": [210, 131],
+          "nativeDragHandles": 3
+        }
+      ]
+    },
+    {
+      "pdfPage": 234,
+      "pageOptionLabel": "Page 252",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.21",
+          "nativeSvgCssSize": [286.1875, 219.859375],
+          "nativeViewBoxSize": [235, 191],
+          "nativeDragHandles": 5
+        }
+      ]
+    },
+    {
+      "pdfPage": 237,
+      "pageOptionLabel": "Page 256",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.23",
+          "nativeSvgCssSize": [382.390625, 195.4375],
+          "nativeViewBoxSize": [314, 169],
+          "nativeDragHandles": 5
+        }
+      ]
+    },
+    {
+      "pdfPage": 239,
+      "pageOptionLabel": "Page 259",
+      "status": "passed",
+      "figures": [
+        {
+          "id": "11.24",
+          "nativeSvgCssSize": [401.875, 136.453125],
+          "nativeViewBoxSize": [330, 118],
+          "nativeDragHandles": 11
+        }
+      ]
+    }
+  ]
+}

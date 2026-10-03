@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "productionBuild": "passed",
+  "previewPort": 5194,
+  "chapterChecks": {
+    "chapters": [5, 6, 7, 8],
+    "sections": 21,
+    "mathErrors": 0,
+    "documentOverflow": false,
+    "exercisesRetained": true,
+    "largeTorusSvg": "Loaded and visually inspected in Chapter 5.3"
+  },
+  "readerChecks": {
+    "printedPages": [101, 123, 159],
+    "nativeTorusPolygons": 1536,
+    "nativeTorusHandles": 3,
+    "keyboardAdjustment": "Observed +2 native SVG units after ArrowRight",
+    "source": "Actual generic circleProductSubstance body and its fixedLabel/bothFibers/compact arguments exposed",
+    "pageUrl": "Selecting printed 123 changed URL to ?page=123",
+    "resampling": "New seed and changed native label transform observed",
+    "reset": "Canonical seed restored"
+  },
+  "originalIllustrations": {
+    "ids": ["original-subspace-derived-sets", "original-coordinate-slice"],
+    "nativeHandles": [13, 5],
+    "source": "Actual generic realLineEmbeddingSubstance(0.75,2) declaration exposed",
+    "resampling": "New seed and native diagram observed",
+    "keyboardAdjustment": "Observed +2 native SVG units after ArrowRight",
+    "visual": "Full website context screenshot inspected for both added diagrams"
+  }
+}

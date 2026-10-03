@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-03T20:30:38.346Z",
+  "runner": "scripts/elementary-topology/constraint-library-experiments.mjs",
+  "runCommand": "node scripts/elementary-topology/constraint-library-experiments.mjs",
+  "buildCommand": "yarn --cwd packages/core build",
+  "baseline": "baf76d69f (legacy formulas reconstructed; unchanged convex-partition/half-plane and rectangle-distance helpers reused)",
+  "sourceHashes": {
+    "packages/core/src/lib/Constraints.ts": "dd458fc081d73916d32cd6fd3817b2a28e6c8c7abdefe677d6f6dda751a56e7c",
+    "packages/core/src/lib/Functions.ts": "c75e1da9ecf7ab95346a3b59133ecdeac9f17e084a84ca551c7d19899f6b86d1",
+    "packages/core/src/lib/Queries.ts": "6622f65585e669498b37a9f5d2b6938cb345e7844d2dd0faa33d81a6b2cb6f6c",
+    "packages/core/src/renderer/AttrHelper.ts": "a207e99b241c9f24d2f8115f3042f35c9a154b2578d885b354fa36c86dd932d3",
+    "packages/core/src/renderer/Polygon.ts": "32c5e13e0979124adc661682ce8f309588fcaea3c9f7093108231cbcdd2e370c",
+    "packages/core/src/renderer/Polyline.ts": "3c4a760377311cb6dbd9141208f2ffc4d520231171db318ad1a6f8d246a9c619"
+  },
+  "feasibilityTolerance": 0.001,
+  "membership": {
+    "polygon": [
+      [
+        0,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        0,
+        4
+      ]
+    ],
+    "preferred": [
+      3,
+      0.4
+    ],
+    "padding": 0.1,
+    "experiment": "fixed-weight penalty",
+    "weight": 1000,
+    "objective": "distanceSquaredToPreferred + 1000*relu(containment)^2",
+    "before": {
+      "initialResidual": 2.0999933333555556,
+      "converged": true,
+      "position": [
+        0.9987872624876811,
+        0.9987792464347298
+      ],
+      "finalResidual": 0.10000566816532033,
+      "feasible": false,
+      "trueBoundaryClearance": 0.0017207473785844428
+    },
+    "after": {
+      "initialResidual": -0.30000000000000004,
+      "converged": true,
+      "position": [
+        3,
+        0.4
+      ],
+      "finalResidual": -0.30000000000000004,
+      "feasible": true,
+      "trueBoundaryClearance": 0.4
+    }
+  },
+  "separation": {
+    "polygon": [
+      [
+        0,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        0,
+        4
+      ]
+    ],
+    "preferred": [
+      2,
+      2
+    ],
+    "circleRadius": 0.2,
+    "padding": 0.1,
+    "experiment": "native exterior-penalty",
+    "objective": "distanceSquaredToPreferred, with a native exterior-penalty disjoint constraint",
+    "before": {
+      "initialResidual": 2.3000000000000003,
+      "converged": true,
+      "position": [
+        2,
+        -0.29998101443880726
+      ],
+      "finalResidual": 0.000018985561192869094,
+      "feasible": true,
+      "trueCircleClearance": 0.09998101443880725
+    },
+    "after": {
+      "initialResidual": -0.7000000000000001,
+      "converged": true,
+      "position": [
+        2,
+        2
+      ],
+      "finalResidual": -0.7000000000000001,
+      "feasible": true,
+      "trueCircleClearance": 0.8
+    }
+  },
+  "circleRectangle": {
+    "rectangleCorners": [
+      [
+        3,
+        4
+      ],
+      [
+        -3,
+        4
+      ],
+      [
+        -3,
+        -4
+      ],
+      [
+        3,
+        -4
+      ]
+    ],
+    "circleRadius": 5,
+    "beforeResidual": 3,
+    "afterResidual": 0,
+    "padding": 0.25,
+    "beforeWithPadding": 3,
+    "afterWithPadding": 0.25
+  },
+  "collapsedSegment": {
+    "start": [
+      1,
+      2
+    ],
+    "end": [
+      1,
+      2
+    ],
+    "point": [
+      4,
+      6
+    ],
+    "before": {
+      "value": null,
+      "finite": false,
+      "representation": "NaN"
+    },
+    "after": {
+      "value": 5,
+      "finite": true
+    }
+  },
+  "scale": {
+    "canvas": [
+      100,
+      80
+    ],
+    "vertex": [
+      1,
+      1
+    ],
+    "scale": 2,
+    "beforeRenderedVertex": [
+      102,
+      78
+    ],
+    "beforeQueryVertex": [
+      1,
+      1
+    ],
+    "bboxMathematicalVertex": [
+      2,
+      2
+    ],
+    "afterRenderedVertex": [
+      52,
+      38
+    ],
+    "afterQueryVertex": [
+      2,
+      2
+    ],
+    "scale0Before": "renderer coerced to1; BBox collapsed; queries unscaled",
+    "scale0After": "all collapse about Penrose origin",
+    "strokeConvention": "native Polygon/Polyline scale changes coordinate geometry while stroke width stays unchanged; geometry BBox and queries exclude stroke"
+  },
+  "outstanding": {
+    "concavePolygonContainsPolygon": {
+      "innerTriangle": [
+        [
+          0.5,
+          3
+        ],
+        [
+          3,
+          0.5
+        ],
+        [
+          0.5,
+          0.5
+        ]
+      ],
+      "vertexOnlyResidual": -0.5,
+      "edgeMidpoint": [
+        1.75,
+        1.75
+      ],
+      "edgeMidpointSignedDistance": 0.75
+    },
+    "tinyScaleSqrtDerivative": {
+      "distance": 1e-8,
+      "ADDerivative": 0.0009999999999999998,
+      "mathematicalDerivative": 1,
+      "sqrtDerivativeFloor": 0.00001
+    },
+    "cubicOnCanvas": {
+      "controlPoints": [
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          10
+        ],
+        [
+          1,
+          -10
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "canvas": [
+        10,
+        6
+      ],
+      "bboxWidth": 2,
+      "bboxHeight": 20,
+      "actualCurveYBounds": [
+        -2.886751345948129,
+        2.886751345948129
+      ],
+      "onCanvasResidual": 14,
+      "actualCurveFits": true,
+      "limitation": "bboxFromPath uses the Bezier control-point hull, not curve extrema"
+    }
+  }
+}

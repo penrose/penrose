@@ -11,5 +11,7 @@ const CirclePackingDisjoint = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <CirclePackingDisjoint />
+  <ClientOnly>
+    <CirclePackingDisjoint />
+  </ClientOnly>
 </template>

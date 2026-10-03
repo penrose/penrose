@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "kind": "cover-illustration",
+  "id": "cover-rosette",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "pdfPage": 1,
+    "printedPage": null,
+    "sourceImageDimensions": [1000, 1489],
+    "pixelBounds": [164, 533, 724, 724],
+    "sourceBounds": [0.164, 0.35795836, 0.724, 0.48623237],
+    "visualReview": "Entire supplied front cover inspected at 1000x1489, then native rendering compared with equal-size crop. Graphic bounds include all artwork and exclude cover lettering and rectangular frame.",
+    "verifiedFeatures": [
+      "One circular outline in the lower cover.",
+      "All visible petal/fan traces meet at one lower-left interior junction.",
+      "Three nested left petals, right-hand fan and lower inner loop are visually present.",
+      "Source artwork uses purple strokes and has no mathematical caption or labels."
+    ],
+    "unverifiedInterpretation": "A based-loop family is a defensible mathematical reconstruction of the visible geometry. No source formula, original artist parametrization, attribution to Figure11.19 or sphere-homotopy meaning has been established."
+  },
+  "registrySuggestion": {
+    "id": "cover-rosette",
+    "kind": "cover-illustration",
+    "pdfPage": 1,
+    "printedPage": null,
+    "panels": 1,
+    "domain": "point-set-topology",
+    "domainModule": "@penrose/bloom/domains/point-set-topology",
+    "substanceFactory": "coverLoopFan",
+    "styleFactory": "planeLoopFamilyStyle",
+    "buildFactory": "buildCoverLoopFigure",
+    "buildModule": "@penrose/bloom/examples/cover-loops",
+    "defaultCanvas": [724, 724],
+    "sourceBounds": [0.164, 0.35795836, 0.724, 0.48623237],
+    "sourceImageDimensions": [1000, 1489],
+    "styleFile": "packages/bloom/src/styles/plane-curves.tsx",
+    "exampleFile": "packages/bloom/src/examples/cover-loops.ts"
+  },
+  "implementation": {
+    "domain": "point-set-topology",
+    "vocabulary": [
+      "PiecewisePlaneLoop <: Loop, with immutable typed cubic/circular segments",
+      "PlaneLoopFamily <: SetFamily",
+      "LoopInPlaneFamily(loop,family)"
+    ],
+    "helperFile": "packages/bloom/src/domains/plane-curves.ts",
+    "styleFile": "packages/bloom/src/styles/plane-curves.tsx",
+    "exampleFile": "packages/bloom/src/examples/cover-loops.ts",
+    "mathematics": "Eight explicitly chosen continuous closed loops in the unit disk, sharing p=((351-526)/353,(895-1018)/353). Curves are cubic polynomial segments joined to exact circular boundary arcs. Each has a linear based contraction H(t,u)=(1-u)a(t)+u*p in the convex disk. These define the reconstruction, not an asserted original artist formula.",
+    "nativeGeometry": "Actual native optimized C/A/Z Path commands and Circle shape. Circular arcs are exact SVG arcs, with correct reflected sweep and splitting of full circles. No raster image, sampled pixel field, text surrogate or unknown SVG wrapper.",
+    "chart": "Units353, origin[0,0], canvas724x724. Cover crop center is (526,895) in source pixels. Default purple approximates source ink; no shading added.",
+    "reuse": "circularLoopPencil declares four exact circles with different centers at a different shared base. It uses the identical family Style and reusable PiecewisePlaneLoopView, with units160 and black stroke; no source-specific conditional in Style.",
+    "interactive": "Both build functions accept FigureRenderOptions overrides last. Interactive mode adds one native whole-family drag handle on the boundary circle. Shared AD translations move every cubic control and circular endpoint coherently; seeded targets sample at most3 units by default and dragging is bounded to5 units. Mathematical loop data remains immutable and the static canonical chart retains its source geometry.",
+    "typography": "Title, author, edition text and rectangular frame remain typography/source material outside the artwork bounds."
+  },
+  "verification": {
+    "testFile": "packages/examples/src/elementary-topology/cover-loops.test.ts",
+    "testsPassed": 12,
+    "publicBloomDeclarationEmit": "passed",
+    "exampleLeafTypecheck": "passed",
+    "domainRuntimeImport": "passed",
+    "scopedESLint": "passed",
+    "mathematicalChecks": "Every join and closed endpoint checked, immutable copy and rejection of nonfinite/disconnected data tested. Whole-curve disk containment uses outward-rounded degree-6 Bernstein coefficients for squared distance, with conservative de Casteljau subdivision. All eight loops certify at absolute radial tolerance 1e-12, with maximum squared-radius upper bound 1.0000000000000016; one subdivision suffices for loop8. Regression rejects a cubic excursion missed by endpoint/midpoint samples. Unresolved work/depth bounds fail conservatively. Circular loops have exact constant radius. Based contractions preserve endpoints/base; HomotopyBetween(H,constant,loop) follows the book endpoint order.",
+    "actualRenderChecks": "Cover and distinct circle-pencil builds assembled in parallel, fully optimized and rendered. Eight/four native closed paths share their first native point, each diagram has one Circle and no Image/Text elements; full circular SVG arcs split into two correct arcs. Actual native whole-family drag updates every path coordinate by the same displacement, leaving all circular radii/flags invariant. Seeded targets repeat for identical seeds and differ for two seeds. The live native SVG responds to ArrowRight with its boundary/loop group intact and tabindex0.",
+    "visualReview": "Native cover SVG rasterized to724px and inspected beside source crop. Circle-pencil native SVG separately inspected. Cover petal count/composition, common junction, boundary incidence and original purple strokes retained.",
+    "previewSVG": "tmp/elementary-topology/new-figures/cover-loops.svg",
+    "previewPNG": "tmp/elementary-topology/new-figures/cover-loops.png",
+    "sourceCrop": "tmp/elementary-topology/new-figures/cover-loops-source.png",
+    "comparisonPNG": "tmp/elementary-topology/new-figures/cover-loops-comparison.png",
+    "alternatePreviewSVG": "tmp/elementary-topology/new-figures/circular-loop-pencil.svg",
+    "alternatePreviewPNG": "tmp/elementary-topology/new-figures/circular-loop-pencil.png",
+    "containmentCertificate": {
+      "schemaVersion": 1,
+      "method": "Outward-rounded interval Bernstein coefficients of squared distance, de Casteljau subdivision; exact circle identity with conservative whole-circle numeric bound",
+      "center": [0, 0],
+      "radius": 1,
+      "absoluteRadialTolerance": 1e-12,
+      "maxSquaredRadiusUpperBound": 1.0000000000000016,
+      "wholeCurveCertificates": [
+        {
+          "loop": 1,
+          "contained": true,
+          "squaredRadiusUpperBound": 0.9687502507844549,
+          "tolerance": 1e-12,
+          "subdivisions": 0
+        },
+        {
+          "loop": 2,
+          "contained": true,
+          "squaredRadiusUpperBound": 0.6507395131972821,
+          "tolerance": 1e-12,
+          "subdivisions": 0
+        },
+        {
+          "loop": 3,
+          "contained": true,
+          "squaredRadiusUpperBound": 0.47699604362445774,
+          "tolerance": 1e-12,
+          "subdivisions": 0
+        },
+        {
+          "loop": 4,
+          "contained": true,
+          "squaredRadiusUpperBound": 1.0000000000000013,
+          "tolerance": 1e-12,
+          "subdivisions": 0
+        },
+        {
+          "loop": 5,
+          "contained": true,
+          "squaredRadiusUpperBound": 1.0000000000000013,
+          "tolerance": 1e-12,
+          "subdivisions": 0
+        },
+        {
+          "loop": 6,
+          "contained": true,
+          "squaredRadiusUpperBound": 1.0000000000000016,
+          "tolerance": 1e-12,
+          "subdivisions": 0
+        },
+        {
+          "loop": 7,
+          "contained": true,
+          "squaredRadiusUpperBound": 1.0000000000000013,
+          "tolerance": 1e-12,
+          "subdivisions": 0
+        },
+        {
+          "loop": 8,
+          "contained": true,
+          "squaredRadiusUpperBound": 0.994486152685603,
+          "tolerance": 1e-12,
+          "subdivisions": 1
+        }
+      ],
+      "homotopyEndpointConvention": "H(-,0)=loop, H(-,1)=constant; HomotopyBetween(H,constant,loop)",
+      "testsPassed": 12
+    }
+  },
+  "limits": [
+    "The cover has no caption identifying the mathematical object. The chosen cubic/circular family is an explicit inferred reconstruction; it must not be described as the original analytic formula or a verified sphere contraction.",
+    "Overlapping boundary traces do not uniquely identify how the original artwork connects behind each shared arc. Eight chosen closed loops reproduce the visible line arrangement; an original loop count is not asserted.",
+    "Native smooth strokes approximate the scanned contour and purple color, without reproducing aging paper, scan noise or hand-drawn thickness fluctuations.",
+    "Source circular boundary has slight scan distortion; the native mathematical chart uses a true circle.",
+    "Containment certification permits explicit absolute radial tolerance 1e-12 to accommodate binary64 arithmetic. A conservative failure can mean an unresolved bound rather than a counterexample. The linear contraction preserves a convex disk containing its input loop; neither the helper nor this inferred artwork is a proof about the original artist parametrization."
+  ]
+}

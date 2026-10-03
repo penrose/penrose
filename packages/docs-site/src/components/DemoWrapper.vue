@@ -65,18 +65,20 @@ const Demo = defineAsyncComponent(async () => {
 </style>
 
 <template>
-  <div
-    style="
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      width: 100%;
-      height: 100%;
-    "
-  >
-    <div class="demo-container">
-      <Demo :examples="demo" />
+  <ClientOnly>
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+      "
+    >
+      <div class="demo-container">
+        <Demo :examples="demo" />
+      </div>
     </div>
-  </div>
+  </ClientOnly>
 </template>

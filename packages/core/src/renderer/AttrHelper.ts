@@ -357,14 +357,15 @@ export const attrFont = (shape: Text<number>, elem: SVGElement): string[] => {
  * Maps points -> points
  */
 export const attrPolyPoints = (
-  shape: Poly<number>,
+  shape: Poly<number> & Scale<number>,
   canvasSize: [number, number],
   elem: SVGElement,
 ): string[] => {
   const points = shape.points;
+  const scale = shape.scale.contents;
   const pointsTransformed = points.contents.map((p: number[]) =>
-    toScreen([p[0], p[1]], canvasSize),
+    toScreen([scale * p[0], scale * p[1]], canvasSize),
   );
   elem.setAttribute("points", pointsTransformed.toString());
-  return ["points"];
+  return ["points", "scale"];
 };

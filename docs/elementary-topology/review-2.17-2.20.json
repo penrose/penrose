@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "sourceBook": "Michael C. Gemignani, Elementary Topology, Second Edition, Addison-Wesley",
+  "status": "implemented-and-manually-compared; final-book-fidelity-review-pending",
+  "privateInputPolicy": "The supplied PDF, crops, page renders, and side-by-side source comparisons remain local private inputs. No source pages or full PDF are included in these documentation files.",
+  "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+  "styleModule": "packages/bloom/src/styles/point-set-topology.tsx",
+  "substanceModule": "packages/bloom/src/examples/point-set-topology.ts",
+  "testModule": "packages/bloom/src/styles/point-set-topology.test.ts",
+  "vocabulary": {
+    "composedSetTheory": [
+      "Set",
+      "Point",
+      "Subset",
+      "Member",
+      "Disjoint",
+      "Intersecting"
+    ],
+    "types": [
+      "OpenSet",
+      "ClosedSet",
+      "CoordinatePoint",
+      "OpenDisk",
+      "Singleton",
+      "ClosedRegion",
+      "Neighborhood",
+      "NeighborhoodUnion",
+      "ReciprocalGraph",
+      "AffineLine"
+    ],
+    "predicates": [
+      "SingletonOf",
+      "BoundaryPoint",
+      "Outside",
+      "NeighborhoodOf",
+      "ZeroSetDistance",
+      "ZeroPointDistance",
+      "PointClosedSeparation",
+      "ClosedSetsSeparation"
+    ],
+    "meaning": "Coordinates, disk radii, line coefficients, and reciprocal coefficients are mathematical data. Canvas geometry, illustrative contours, colors, hatching, and label placement belong to the style."
+  },
+  "reuseVerification": [
+    "The same diskBoundaryStyle renders distinct substances with radii 1 and 1/2.",
+    "One separationStyle handles a point outside a closed set and a pair of disjoint closed sets; both also render with one shared scaled style.",
+    "The composed point-set-topology domain can use eulerVennStyleFor without mixing domain-owned descriptors."
+  ],
+  "verification": {
+    "focusedTests": {
+      "passed": 4,
+      "failed": 0,
+      "mockedRendering": false
+    },
+    "typecheck": "Bloom declaration emit passed, including subtype metadata and compile-time predicate checks.",
+    "lint": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "rendering": "Every canonical substance was built through diagram(), stepped through the optimizer interface, rendered to SVG, rasterized with rsvg-convert, and compared with the source scan on a white background.",
+    "geometryPolicy": "Coordinate geometry is fixed by mathematical definitions. Separation contours and sample-ball placements are an illustrative style policy; this batch does not require free optimization variables.",
+    "preview": "tmp/elementary-topology/review/figures-2.17-2.20-side-by-side.png"
+  },
+  "visualConventions": {
+    "retained": [
+      "panel count",
+      "coordinate axes",
+      "boundary singleton dots and leaders",
+      "mathematical names and notation",
+      "hatch directions",
+      "white label knockouts",
+      "irregular closed-set outlines",
+      "representative neighborhood circles",
+      "distance brace and dashed segment",
+      "two reciprocal branches without artificial endpoint dots"
+    ],
+    "adaptation": [
+      "consistent pale orange region fill",
+      "near-black outlines and labels",
+      "subdued secondary axes",
+      "clean scalable MathJax lettering"
+    ],
+    "remainingLimits": [
+      "Irregular contours are hand-tuned cubic curves, not exact traces of scan pixels.",
+      "Clean equation lettering differs from the heavier scanned typeface.",
+      "A finite drawing of a neighborhood union is illustrative and does not enumerate every ball.",
+      "The reciprocal graph is displayed in a finite window; its mathematical substance denotes the entire closed set.",
+      "The current reciprocal comparison style supports the positive-coefficient first/third-quadrant case and an x-axis comparison; other affine lines or negative coefficients require another style policy."
+    ]
+  },
+  "sourceRectangleMethod": "Graphic and its labels, excluding caption and prose. Rectangles were isolated on inspected 160 dpi page renders, tightened to dark ink with a 2 pixel margin, and divided by the full rendered page dimensions. Coordinates are top-left x,y,width,height in [0,1].",
+  "figures": [
+    {
+      "id": "2.17",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 40,
+        "printedPage": 34,
+        "boundingBox": [0.075031, 0.72734, 0.429274, 0.202823],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels160dpi": [61, 979, 349, 273],
+        "pagePixels160dpi": [813, 1346],
+        "context": "Example 18; discussion continues on printed page 35 (PDF 41)."
+      },
+      "implementation": {
+        "substanceFactory": "openDiskBoundarySubstance",
+        "styleFactory": "diskBoundaryStyle",
+        "buildFactory": "buildOpenDiskBoundaryFigure",
+        "canvas": [360, 280]
+      },
+      "mathematics": [
+        "Y={(x,y):x^2+y^2<1}; W={(1,0)}; Z={(-1,0)}.",
+        "The boundary points are outside Y although their infimum distances from Y are zero.",
+        "D(Z,W)=2 while D(W,Y)+D(Y,Z)=0; this refutes the triangle inequality for set distance."
+      ],
+      "checks": [
+        "Strict disk membership excludes both boundary points.",
+        "Rendered singleton centers lie exactly one radius from the rendered disk center.",
+        "The same style renders a different disk radius without substance shape fields."
+      ],
+      "visualReview": {
+        "status": "manual-side-by-side-pass-complete; final-fidelity-approval-pending",
+        "observations": "Axes, disk hatching, singleton dots, labels, leaders, and the origin knockout retained. Hatch orientation was corrected during comparison; label weight remains lighter than the scan.",
+        "privatePreview": "tmp/elementary-topology/review/figure-2.17-side-by-side.png"
+      },
+      "privateSvg": "tmp/elementary-topology/rendered/figure-2.17.svg"
+    },
+    {
+      "id": "2.18",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 40,
+        "printedPage": 34,
+        "boundingBox": [0.528905, 0.769688, 0.432964, 0.141902],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels160dpi": [430, 1036, 352, 191],
+        "pagePixels160dpi": [813, 1346],
+        "context": "Proposition 12 and its proof on printed page 35 (PDF 41)."
+      },
+      "implementation": {
+        "substanceFactory": "pointClosedSetSeparationSubstance",
+        "styleFactory": "separationStyle",
+        "buildFactory": "buildPointClosedSeparationFigure",
+        "canvas": [350, 210]
+      },
+      "mathematics": [
+        "x is outside the closed set F.",
+        "U=N(x,D(x,F)/2), and V is the union over y in F of U_y=N(y,D(x,F)/2).",
+        "x belongs to U, F is contained in V, and U and V are disjoint. Only one representative U_y is pictured, as in the original."
+      ],
+      "checks": [
+        "Substance asserts outside, membership, containment and disjointness with typed signatures.",
+        "The displayed neighborhoods are disjoint.",
+        "Sampled rendered F boundary stays outside the displayed neighborhood about x."
+      ],
+      "visualReview": {
+        "status": "manual-side-by-side-pass-complete; final-fidelity-approval-pending",
+        "observations": "The one-panel outline, two shaded neighborhoods, x/y points, U_y/F/U labels, dashed segment, and D(x,F) brace retained. White space and label sizing were revised against the crop. The irregular F contour is a hand-tuned approximation.",
+        "privatePreview": "tmp/elementary-topology/review/figure-2.18-side-by-side.png"
+      },
+      "privateSvg": "tmp/elementary-topology/rendered/figure-2.18.svg"
+    },
+    {
+      "id": "2.19",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 42,
+        "printedPage": 36,
+        "boundingBox": [0.198032, 0.372214, 0.567036, 0.179049],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels160dpi": [161, 501, 461, 241],
+        "pagePixels160dpi": [813, 1346],
+        "context": "Proposition 13 and its proof on printed page 36 (PDF 42)."
+      },
+      "implementation": {
+        "substanceFactory": "closedSetsSeparationSubstance",
+        "styleFactory": "separationStyle",
+        "buildFactory": "buildClosedSetsSeparationFigure",
+        "canvas": [500, 280]
+      },
+      "mathematics": [
+        "F and F′ are disjoint closed sets.",
+        "rho_y=D(y,F′)/2 and rho′_{y′}=D(y′,F)/2.",
+        "U is the union of N(y,rho_y) for y in F; V is the union of N(y′,rho′_{y′}) for y′ in F′.",
+        "F is contained in U, F′ is contained in V, and U and V are disjoint."
+      ],
+      "checks": [
+        "The same separationStyle also renders the Proposition 12 substance.",
+        "Rendered cubic outlines were sampled at 40 points per segment: each closed-set boundary is inside its displayed union.",
+        "128 samples on each representative circular boundary lie inside its displayed union.",
+        "The displayed union boundaries have disjoint horizontal ranges; the representative balls are disjoint."
+      ],
+      "visualReview": {
+        "status": "manual-side-by-side-pass-complete; final-fidelity-approval-pending",
+        "observations": "The horizontally arranged irregular sets, hatched open unions, darker representative balls, prime notation, and white point-label knockouts retained. Union and F/F′ contours are approximate cubic curves, with lighter fill than the source.",
+        "privatePreview": "tmp/elementary-topology/review/figure-2.19-side-by-side.png"
+      },
+      "privateSvg": "tmp/elementary-topology/rendered/figure-2.19.svg"
+    },
+    {
+      "id": "2.20",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 43,
+        "printedPage": 37,
+        "boundingBox": [0.512915, 0.079495, 0.428044, 0.259287],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels160dpi": [417, 107, 348, 349],
+        "pagePixels160dpi": [813, 1346],
+        "context": "Example 19 on printed page 37 (PDF 43)."
+      },
+      "implementation": {
+        "substanceFactory": "reciprocalXAxisSubstance",
+        "styleFactory": "reciprocalSetDistanceStyle",
+        "buildFactory": "buildReciprocalXAxisFigure",
+        "canvas": [340, 350]
+      },
+      "mathematics": [
+        "F={(x,y):y=1/x,x!=0}; F′={(x,y):y=0}.",
+        "F is the closed zero locus of xy-1; F′ is the closed zero locus of y.",
+        "Their intersection is empty since xy=1 and y=0 cannot both hold.",
+        "Every finite graph point has positive distance |1/x| from the x-axis, but the infimum over the whole graph is zero as |x| tends to infinity."
+      ],
+      "checks": [
+        "Both first- and third-quadrant branches are present.",
+        "Every rendered sampled vertex, 161 per branch, satisfies xy=1 to numerical tolerance.",
+        "For each tested epsilon>0, choosing x=2/epsilon produces a positive distance smaller than epsilon.",
+        "No point at x=0 or artificial endpoint marker is introduced."
+      ],
+      "visualReview": {
+        "status": "manual-side-by-side-pass-complete; final-fidelity-approval-pending",
+        "observations": "Axes, origin, F/F′ labels, compact fraction, and both branches retained. The axis location and branch window were revised against the source composition. The analytic polyline is a finite sampling of the exact hyperbola.",
+        "privatePreview": "tmp/elementary-topology/review/figure-2.20-side-by-side.png"
+      },
+      "privateSvg": "tmp/elementary-topology/rendered/figure-2.20.svg"
+    }
+  ]
+}

@@ -16,11 +16,13 @@ const props = defineProps([
 </script>
 
 <template>
-  <Embed
-    :domain="props.domain"
-    :style="props.style"
-    :substance="props.substance"
-    :variation="props.variation"
-    :interactive="props.interactive"
-  />
+  <ClientOnly>
+    <Embed
+      :domain="props.domain"
+      :style="props.style"
+      :substance="props.substance"
+      :variation="props.variation"
+      :interactive="props.interactive"
+    />
+  </ClientOnly>
 </template>

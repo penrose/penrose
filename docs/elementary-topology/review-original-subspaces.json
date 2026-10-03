@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "kind": "original-illustrations",
+  "status": "implemented-and-visually-reviewed",
+  "sourcePolicy": "These additions are separate from the source figure inventory and reproduction count. The supplied PDF and rendered source pages remain private local inputs.",
+  "sourceBook": "Michael C. Gemignani, Elementary Topology, Second Edition",
+  "registry": "docs/elementary-topology/original-illustrations.json",
+  "websitePage": "packages/docs-site/docs/elementary-topology/further-illustrations.md",
+  "substanceModule": "packages/bloom/src/examples/original-subspaces.ts",
+  "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+  "testModule": "packages/bloom/src/examples/original-subspaces.test.ts",
+  "verification": {
+    "mathematicalAndNativeRenderTests": 3,
+    "failures": 0,
+    "mockedRendering": false,
+    "nativeOptimization": "Both static factories converge in five optimization steps; canonical and sampled interactive builds also converge and render valid XML SVG.",
+    "typecheck": "Bloom TypeScript declaration emit passed.",
+    "lintWarnings": 0,
+    "canonicalInteraction": "jitter=0 retains all initial label-layout offsets within 1e-8 of zero.",
+    "sourceDisplay": "One-based Substance declaration ranges are derived from the TypeScript AST. The coordinate-slice inspector exposes the existing realLineEmbeddingSubstance declaration and its actual arguments."
+  },
+  "illustrations": [
+    {
+      "id": "original-subspace-derived-sets",
+      "sourcePassage": {
+        "section": "4.2",
+        "example": 6,
+        "pdfPage": 70,
+        "printedPage": 68
+      },
+      "sourceInspection": "Read the page image and the available transcription: Y is the x-axis, A=Y, A has empty interior and frontier A in R squared; in Y its interior is Y and its frontier is empty.",
+      "mathematics": [
+        "The ambient and induced subspace topologies are distinct entities.",
+        "InteriorOf, FrontierOf and ClosureOf are asserted separately for each topology.",
+        "The off-line witness q lies strictly inside the disk neighborhood of p.",
+        "The relative neighborhood is a finite intersection of that disk with Y.",
+        "The interval endpoints are drawn as excluded; the disk boundary is dashed."
+      ],
+      "reuse": "One subspaceDerivedSetsStyle instance renders two distinct horizontal affine lines and neighborhood radii. It reuses existing topology drawing helpers and coarse point-set vocabulary.",
+      "visualReview": "Viewed the native SVG rendered onto white: paired panels align, pale orange indicates the same set in both spaces, the off-line witness is visible, and the six derived-set formulas remain legible.",
+      "nativeDragHandles": 13,
+      "svg": "packages/docs-site/public/elementary-topology/figures/original-subspace-derived-sets.svg"
+    },
+    {
+      "id": "original-coordinate-slice",
+      "sourcePassage": {
+        "section": "4.6",
+        "proposition": 20,
+        "pdfPages": [87, 88],
+        "printedPages": [87, 88]
+      },
+      "sourceInspection": "Read PDF page 87 and the available proof transcription: fixing the other coordinates embeds a factor into the product; projection onto the varying coordinate is inverse to the corestriction onto the image.",
+      "mathematics": [
+        "The default coordinate inclusion is q_2(x)=(0.75,x).",
+        "Its image is the vertical slice {0.75} times R, with its induced subspace topology.",
+        "The corestriction is a homeomorphism onto that image; the second projection is its inverse.",
+        "The mapped point is geometrically on the correct constant-coordinate line."
+      ],
+      "reuse": "Uses the existing realLineEmbeddingSubstance and coordinateEmbeddingStyle from Figure 4.10. The same style instance renders both a vertical nonzero slice and a horizontal nonzero slice; showAmbientAxes is an optional view that preserves the source figure's default composition.",
+      "visualReview": "Viewed the native SVG rendered onto white: the orange image slice is separate from the dashed ambient axis, the fixed coordinate is labeled, the mapped point is connected to the axis by a dashed guide, and labels are clear of the slice.",
+      "nativeDragHandles": 5,
+      "svg": "packages/docs-site/public/elementary-topology/figures/original-coordinate-slice.svg"
+    }
+  ],
+  "limitations": [
+    "The new affine-subspace comparison style currently renders horizontal affine lines; other affine orientations require an additional reusable view.",
+    "Live annotation dragging changes layout while the mathematical construction stays fixed.",
+    "Final website control behavior is reviewed separately in the local browser preview."
+  ]
+}

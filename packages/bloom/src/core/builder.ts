@@ -7,14 +7,17 @@ import {
   Num,
   Shape as PenroseShape,
   Var,
+  add,
   isVar,
   mul,
   sampleShape,
   simpleContext,
+  sub,
   uniform,
 } from "@penrose/core";
 import * as constraints from "./constraints.js";
 import { Diagram } from "./diagram.js";
+import * as objectives from "./objectives.js";
 import {
   Circle,
   CircleProps,
@@ -37,6 +40,7 @@ import {
   Polyline,
   PolylineProps,
   Predicate,
+  RawSvgElement,
   Rectangle,
   RectangleProps,
   Shape,
@@ -52,6 +56,59 @@ import { fromPenroseShape, sortShapes, toPenroseShape } from "./utils.js";
 
 type NamedSamplingContext = {
   makeInput: (meta: InputMeta, name?: string) => Var;
+};
+
+type AffineCoordinate = { offset: number; coefficients: Map<Var, number> };
+
+/** A single-axis affine coordinate can be translated without changing its shape. */
+const affineCoordinate = (num: Num): AffineCoordinate | undefined => {
+  if (typeof num === "number") {
+    return Number.isFinite(num)
+      ? { offset: num, coefficients: new Map() }
+      : undefined;
+  }
+  if (isVar(num)) return { offset: 0, coefficients: new Map([[num, 1]]) };
+  const scaled = (
+    value: AffineCoordinate,
+    factor: number,
+  ): AffineCoordinate => ({
+    offset: value.offset * factor,
+    coefficients: new Map(
+      [...value.coefficients]
+        .map(([v, coefficient]): [Var, number] => [v, coefficient * factor])
+        .filter(([, coefficient]) => coefficient !== 0),
+    ),
+  });
+  if (num.tag === "Unary" && num.unop === "neg") {
+    const value = affineCoordinate(num.param);
+    return value && scaled(value, -1);
+  }
+  if (num.tag !== "Binary") return undefined;
+  const left = affineCoordinate(num.left);
+  const right = affineCoordinate(num.right);
+  if (!left || !right) return undefined;
+  if (num.binop === "+" || num.binop === "-") {
+    const result = scaled(right, num.binop === "+" ? 1 : -1);
+    result.offset += left.offset;
+    for (const [v, coefficient] of left.coefficients) {
+      const sum = coefficient + (result.coefficients.get(v) ?? 0);
+      if (sum === 0) result.coefficients.delete(v);
+      else result.coefficients.set(v, sum);
+    }
+    return result;
+  }
+  if (num.binop === "*") {
+    if (left.coefficients.size === 0) return scaled(right, left.offset);
+    if (right.coefficients.size === 0) return scaled(left, right.offset);
+  }
+  if (
+    num.binop === "/" &&
+    right.coefficients.size === 0 &&
+    right.offset !== 0
+  ) {
+    return scaled(left, 1 / right.offset);
+  }
+  return undefined;
 };
 
 /**
@@ -85,6 +142,14 @@ export type InputOpts = {
   init?: number;
   optimized?: boolean;
 };
+
+/** Opt-in layout exploration; mathematical shape coordinates remain unchanged by default. */
+export interface InteractiveLayoutOptions {
+  /** Initial seed-dependent displacement in diagram units. */
+  jitter?: number;
+  /** Maximum displacement from the source layout while dragging. */
+  maxDistance?: number;
+}
 
 /**
  * An input that can be shared between diagrams and get/set from outside the diagram.
@@ -233,6 +298,7 @@ export class DiagramBuilder {
   private samplingContext: NamedSamplingContext;
   private shapes: Shape[] = [];
   private constraints: Num[] = [];
+  private constraintNames: (string | undefined)[] = [];
   private objectives: Num[] = [];
   private variation: string;
   private nextId = 0;
@@ -240,7 +306,7 @@ export class DiagramBuilder {
   private pinnedInputs: Set<number> = new Set();
   private externalInputs: Set<SharedInput> = new Set();
   private lassoStrength: number;
-  private interactiveOnlyShapes: Set<Shape> = new Set();
+  private rawSvgDefs: RawSvgElement[] = [];
   /** Shape name -> event name -> listener */
   private eventListeners: Map<
     string,
@@ -263,6 +329,7 @@ export class DiagramBuilder {
     this.canvas = canvas;
     this.variation = variation;
     this.lassoStrength = lassoStrength;
+    setActiveBuilder(this);
 
     const { makeInput: createVar } = simpleContext(variation);
     this.samplingContext = {
@@ -284,6 +351,12 @@ export class DiagramBuilder {
 
     this.input({ name: "_time", init: 0, optimized: false });
   }
+
+  /** Convert SVG coordinates (top-left origin, y down) to Penrose coordinates. */
+  svgPoint = ([x, y]: Vec2): Vec2 => [
+    sub(x, this.canvas.width / 2),
+    sub(this.canvas.height / 2, y),
+  ];
 
   /**
    * Fill all shape methods
@@ -323,14 +396,36 @@ export class DiagramBuilder {
             this.shapes = this.shapes.filter((s) => !elements.has(s));
           }
 
-          if (shape.interactiveOnly) {
-            this.interactiveOnlyShapes.add(shape);
-          }
           this.shapes.push(shape);
           return shape;
         },
       });
     }
+  };
+
+  /**
+   * Register a raw SVG element (defs, linearGradient, etc.) to be injected into
+   * the rendered SVG. Called automatically by the JSX factory for unknown element types.
+   * When a parent element is added, its children are removed from the top-level list.
+   */
+  addRawSvgDef = (def: RawSvgElement) => {
+    // Remove any existing registered elements that are children of this new element
+    const descendants = this.getAllRawSvgDescendants(def);
+    this.rawSvgDefs = this.rawSvgDefs.filter((d) => !descendants.has(d));
+    this.rawSvgDefs.push(def);
+  };
+
+  private getAllRawSvgDescendants = (
+    def: RawSvgElement,
+  ): Set<RawSvgElement> => {
+    const result = new Set<RawSvgElement>();
+    for (const child of def.children) {
+      result.add(child);
+      for (const desc of this.getAllRawSvgDescendants(child)) {
+        result.add(desc);
+      }
+    }
+    return result;
   };
 
   /**
@@ -463,7 +558,9 @@ export class DiagramBuilder {
             if (where(assignmentRecord)) {
               const str = matchString(assignmentRecord);
               if (!deduplicate || !visited.has(str)) {
-                func(assignmentRecord, matches++);
+                withBuilder(this, () => {
+                  func(assignmentRecord, matches++);
+                });
                 if (deduplicate) {
                   visited.add(str);
                 }
@@ -614,12 +711,14 @@ export class DiagramBuilder {
    *   You can read about creating custom constaints at https://penrose.cs.cmu.edu/docs/ref/constraints)
    * @param weight An optional weight to multiply the constraint by. If you find that your constraints are not
    *   being satisfied, you may want to try increasing the weight.
+   * @param label An optional explanation used by `Diagram.getConstraintDiagnostics`.
    */
-  ensure = (constraint: Num, weight?: number) => {
-    if (weight) {
+  ensure = (constraint: Num, weight?: number, label?: string) => {
+    if (weight !== undefined) {
       constraint = mul(constraint, weight);
     }
     this.constraints.push(constraint);
+    this.constraintNames.push(label);
   };
 
   /**
@@ -631,7 +730,7 @@ export class DiagramBuilder {
    *   being satisfied, you may want to try increasing the weight.
    */
   encourage = (objective: Num, weight?: number) => {
-    if (weight) {
+    if (weight !== undefined) {
       objective = mul(objective, weight);
     }
     this.objectives.push(objective);
@@ -668,10 +767,194 @@ export class DiagramBuilder {
   };
 
   /**
+   * Move a fixed-coordinate construction through shared native Bloom inputs.
+   * The handle and companions translate together, preserving their geometry.
+   * Styles can opt into geometric groups; label layouts use the same mechanism.
+   */
+  draggableGroup = (
+    handle: Shape & {
+      center: Vec2;
+      drag: boolean;
+      dragConstraint: DragConstraint;
+    },
+    companions: readonly Shape[] = [],
+    options: InteractiveLayoutOptions = {},
+  ) => {
+    const jitter = options.jitter ?? 4;
+    const maxDistance = options.maxDistance ?? 16;
+    if (
+      !(jitter >= 0 && maxDistance > 0 && maxDistance >= jitter) ||
+      ![jitter, maxDistance].every(Number.isFinite)
+    )
+      throw new Error(
+        "Interactive jitter must be nonnegative and bounded by a positive drag distance",
+      );
+    const original = [...handle.center] as Vec2;
+    if (!original.every((n) => typeof n === "number" && Number.isFinite(n)))
+      throw new Error("A native drag group requires a fixed-coordinate handle");
+    const sampled = (axis: string, pinned: boolean) => {
+      const variable = this.samplingContext.makeInput(
+        {
+          init: {
+            tag: "Sampled",
+            sampler: jitter === 0 ? () => 0 : uniform(-jitter, jitter),
+          },
+          stages: "All",
+        },
+        `${handle.name}.layout.${axis}`,
+      );
+      if (pinned) this.pinnedInputs.add(this.inputs.length - 1);
+      return variable;
+    };
+    const dx = sampled("x", false),
+      dy = sampled("y", false);
+    const targetX = sampled("anchor-x", true),
+      targetY = sampled("anchor-y", true);
+    this.encourage(objectives.equal(dx, targetX), 0.1);
+    this.encourage(objectives.equal(dy, targetY), 0.1);
+    this.ensure(constraints.inRange(dx, -maxDistance, maxDistance));
+    this.ensure(constraints.inRange(dy, -maxDistance, maxDistance));
+    const moved = new Set<Shape>();
+    const translate = (shape: Shape) => {
+      if (moved.has(shape)) return;
+      moved.add(shape);
+      const point = ([x, y]: Vec2): Vec2 => [add(x, dx), add(y, dy)];
+      if ("center" in shape) shape.center = point(shape.center);
+      if ("start" in shape) shape.start = point(shape.start);
+      if ("end" in shape) shape.end = point(shape.end);
+      if ("points" in shape) shape.points = shape.points.map(point);
+      if (shape.shapeType === ShapeType.Path) {
+        shape.d = shape.d.map((command) => ({
+          ...command,
+          contents: command.contents.map((value) =>
+            value.tag === "CoordV"
+              ? { ...value, contents: point(value.contents as Vec2) }
+              : value,
+          ),
+        }));
+      }
+      if (shape.shapeType === ShapeType.Group) {
+        shape.shapes.forEach(translate);
+        if (shape.clipPath) translate(shape.clipPath);
+      }
+    };
+    [handle, ...companions].forEach(translate);
+    handle.drag = true;
+    const [cx, cy] = original as [number, number];
+    handle.dragConstraint = ([x, y]) => [
+      Math.min(cx + maxDistance, Math.max(cx - maxDistance, x)),
+      Math.min(cy + maxDistance, Math.max(cy - maxDistance, y)),
+    ];
+    handle.rawAttrs = {
+      ...handle.rawAttrs,
+      tabindex: "0",
+      role: "button",
+      cursor: "grab",
+      "data-bloom-drag": "true",
+      "aria-label":
+        handle.rawAttrs?.["aria-label"] ??
+        `Drag ${"string" in handle ? handle.string : handle.name}`,
+      "aria-keyshortcuts": "ArrowUp ArrowDown ArrowLeft ArrowRight",
+    };
+    this.addEventListener(
+      handle,
+      "keydown",
+      (event: KeyboardEvent, diagram) => {
+        const direction: Record<string, [number, number]> = {
+          ArrowLeft: [-1, 0],
+          ArrowRight: [1, 0],
+          ArrowUp: [0, 1],
+          ArrowDown: [0, -1],
+        };
+        if (!direction[event.key]) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const distance = event.shiftKey ? 8 : 2;
+        const currentX = diagram.getInput(`${handle.name}.layout.x`);
+        const currentY = diagram.getInput(`${handle.name}.layout.y`);
+        const [tx, ty] = handle.dragConstraint(
+          [
+            cx + currentX + distance * direction[event.key][0],
+            cy + currentY + distance * direction[event.key][1],
+          ],
+          diagram,
+        );
+        diagram.beginDrag(handle.name);
+        diagram.translate(handle.name, tx - cx - currentX, ty - cy - currentY);
+        diagram.endDrag(handle.name);
+      },
+    );
+    return { dx, dy };
+  };
+
+  /** Add seed-dependent label layouts, retaining exact mathematical geometry. */
+  interactiveLabels = (options: InteractiveLayoutOptions = {}) => {
+    const all: Shape[] = [];
+    const seen = new Set<Shape>();
+    const collect = (shape: Shape) => {
+      if (seen.has(shape)) return;
+      seen.add(shape);
+      all.push(shape);
+      if (shape.shapeType === ShapeType.Group) shape.shapes.forEach(collect);
+    };
+    this.shapes.forEach(collect);
+    const labels = all.filter(
+      (shape): shape is Equation | Text =>
+        (shape.shapeType === ShapeType.Equation ||
+          shape.shapeType === ShapeType.Text) &&
+        !shape.drag &&
+        shape.center.every((n) => typeof n === "number") &&
+        !/^(?:[()[\]{}]|\\(?:smile|frown))$/.test(shape.string),
+    );
+    const points = all.filter(
+      (shape): shape is Circle =>
+        shape.shapeType === ShapeType.Circle &&
+        typeof shape.r === "number" &&
+        shape.r > 0 &&
+        shape.r <= 6,
+    );
+    for (const label of labels) {
+      const knockouts = all.filter(
+        (shape): shape is Rectangle =>
+          shape.shapeType === ShapeType.Rectangle &&
+          shape.center[0] === label.center[0] &&
+          shape.center[1] === label.center[1] &&
+          typeof shape.height === "number" &&
+          shape.height <= 80 &&
+          typeof shape.width === "number" &&
+          shape.width <= this.canvas.width / 2 &&
+          shape.fillColor.every((n) => n === 1) &&
+          shape.strokeWidth === 0,
+      );
+      this.draggableGroup(label, knockouts, options);
+      if (options.jitter !== 0) {
+        label.ensureOnCanvas = true;
+        knockouts.forEach((shape) => {
+          shape.ensureOnCanvas = true;
+        });
+        for (const point of points)
+          this.ensure(constraints.disjoint(label, point, 1));
+      } else {
+        // The canonical composition may deliberately align type beyond the
+        // drawing's bounds. Native handles must not reflow it on first mount.
+        label.ensureOnCanvas = false;
+        knockouts.forEach((shape) => {
+          shape.ensureOnCanvas = false;
+        });
+      }
+    }
+    if (options.jitter !== 0)
+      for (let i = 0; i < labels.length; i++)
+        for (let j = i + 1; j < labels.length; j++)
+          this.ensure(constraints.disjoint(labels[i], labels[j], 1));
+  };
+
+  /**
    * Build the diagram.
    */
   build = async (): Promise<Diagram> => {
     const dragNamesAndConstrs = this.getDragConstraints();
+    const { inputIdxsByPath, dragInputScales } = this.getTranslationInputs();
     const onCanvasConstraints = this.getOnCanvasConstraints();
 
     const inputs =
@@ -680,6 +963,12 @@ export class DiagramBuilder {
         : [...this.inputs];
     const pinnedInputs = new Set(this.pinnedInputs);
     const constraints = [...this.constraints, ...onCanvasConstraints];
+    const constraintNames = [
+      ...this.constraintNames,
+      ...this.shapes
+        .filter((shape) => shape.ensureOnCanvas)
+        .map((shape) => `onCanvas(${shape.name})`),
+    ];
     const objectives = [...this.objectives];
 
     if (this.lassoStrength !== 0) {
@@ -694,20 +983,34 @@ export class DiagramBuilder {
       string,
       [string, (e: any, diagram: Diagram) => void][]
     >();
+    // Collect rawAttrs from Bloom shapes (for post-render SVG attribute overrides)
+    const rawAttrsByName = new Map<string, Record<string, string>>();
+    const collectMetadata = (shape: Shape, penroseShape: PenroseShape<Num>) => {
+      if (shape.rawAttrs && Object.keys(shape.rawAttrs).length > 0) {
+        rawAttrsByName.set(shape.name, { ...shape.rawAttrs });
+      }
+      if (shape.interactiveOnly) interactiveOnlyShapes.add(penroseShape);
+      if (this.eventListeners.has(shape.name)) {
+        eventListeners.set(shape.name, [
+          ...this.eventListeners.get(shape.name)!,
+        ]);
+      }
+      if (shape.shapeType === ShapeType.Group) {
+        const group = penroseShape as Extract<
+          PenroseShape<Num>,
+          { shapeType: "Group" }
+        >;
+        shape.shapes.forEach((child, i) =>
+          collectMetadata(child, group.shapes.contents[i]),
+        );
+        if (shape.clipPath && group.clipPath.contents.tag === "Clip") {
+          collectMetadata(shape.clipPath, group.clipPath.contents.contents);
+        }
+      }
+    };
     const penroseShapes = this.shapes.map((s) => {
       const penroseShape = toPenroseShape(s);
-      if (this.interactiveOnlyShapes.has(s)) {
-        interactiveOnlyShapes.add(penroseShape);
-      }
-      if (this.eventListeners.has(s.name)) {
-        if (!eventListeners.has(penroseShape.name.contents)) {
-          eventListeners.set(penroseShape.name.contents, []);
-        }
-        const inner = eventListeners.get(penroseShape.name.contents)!;
-        for (const [event, listener] of this.eventListeners.get(s.name)!) {
-          inner.push([event, listener]);
-        }
-      }
+      collectMetadata(s, penroseShape);
       return penroseShape;
     });
     const orderedShapes = sortShapes(penroseShapes, this.partialLayering);
@@ -717,13 +1020,17 @@ export class DiagramBuilder {
       variation: this.variation,
       inputs,
       constraints,
+      constraintNames,
       objectives,
       shapes: orderedShapes,
       nameShapeMap,
       namedInputs: new Map(this.namedInputs),
       pinnedInputs: new Set(this.pinnedInputs),
       draggingConstraints: new Map(dragNamesAndConstrs),
-      inputIdxsByPath: this.getTranslatedInputIdxsByPath(),
+      rawSvgDefs: [...this.rawSvgDefs],
+      rawAttrsByName,
+      inputIdxsByPath,
+      dragInputScales,
       lassoStrength: this.lassoStrength,
       sharedInputs: new Set(this.externalInputs),
       interactiveOnlyShapes,
@@ -815,42 +1122,59 @@ export class DiagramBuilder {
     };
 
     const dragConstraints = new Map<string, DragConstraint>();
-    for (const shape of this.shapes) {
+    const collect = (shape: Shape) => {
       if (shape.shapeType === ShapeType.Group) {
-        for (const s of (shape as Group).shapes) {
-          if ("drag" in s && s.drag) {
-            dragConstraints.set(s.name, getDragConstraint(s));
-          }
-        }
+        shape.shapes.forEach(collect);
       } else if ("drag" in shape && shape.drag) {
         dragConstraints.set(shape.name, getDragConstraint(shape));
       }
-    }
+    };
+    this.shapes.forEach(collect);
 
     return dragConstraints;
   };
 
-  private getTranslatedInputIdxsByPath = () => {
-    const mapNum = (num: Num) => {
-      if (isVar(num)) {
-        return this.varInputMap.get(num);
-      }
-      return undefined;
-    };
-
-    const mapVec2 = (vec: Vec2): any => {
-      return {
-        tag: "Val",
-        contents: {
-          tag: "VectorV",
-          contents: vec.map(mapNum),
-        },
-      };
-    };
-
+  private getTranslationInputs = () => {
     const inputIdxsByPath: IdxsByPath = new Map();
+    const dragInputScales = new Map<string, Map<number, number>>();
     const applyShape = (shape: Shape) => {
       if ("drag" in shape && shape.drag) {
+        const scales = new Map<number, number>();
+        const axes = new Map<number, number>();
+        const mapNum = (num: Num, axis: number): number => {
+          const affine = affineCoordinate(num);
+          if (
+            !affine ||
+            affine.coefficients.size !== 1 ||
+            !Number.isFinite(affine.offset)
+          ) {
+            throw new Error(
+              `Draggable ${shape.name} coordinates must be affine expressions of one input each; fixed or nonlinear coordinates cannot be dragged.`,
+            );
+          }
+          const [[variable, scale]] = [...affine.coefficients];
+          const index = this.varInputMap.get(variable);
+          if (index === undefined || !Number.isFinite(scale) || scale === 0) {
+            throw new Error(
+              `Draggable ${shape.name} coordinates must use inputs from this builder with finite nonzero coefficients.`,
+            );
+          }
+          if (
+            (axes.has(index) && axes.get(index) !== axis) ||
+            (scales.has(index) && scales.get(index) !== scale)
+          ) {
+            throw new Error(
+              `Draggable ${shape.name} cannot share an input across axes or coordinates with different coefficients.`,
+            );
+          }
+          axes.set(index, axis);
+          scales.set(index, scale);
+          return index;
+        };
+        const mapVec2 = (vec: Vec2): any => ({
+          tag: "Val",
+          contents: { tag: "VectorV", contents: vec.map(mapNum) },
+        });
         if ("center" in shape) {
           const idxs = mapVec2(shape.center);
           inputIdxsByPath.set(shape.name + ".center", idxs);
@@ -876,6 +1200,7 @@ export class DiagramBuilder {
           };
           inputIdxsByPath.set(shape.name + ".points", idxs as any);
         }
+        dragInputScales.set(shape.name, scales);
       }
 
       if (shape.shapeType === ShapeType.Group) {
@@ -885,22 +1210,19 @@ export class DiagramBuilder {
 
     this.shapes.map(applyShape);
 
-    return inputIdxsByPath;
+    return { inputIdxsByPath, dragInputScales };
   };
 
   private getNameShapeMap = () => {
     const nameShapeMap = new Map<string, PenroseShape<Num>>();
-    for (const s of this.shapes) {
+    const collect = (s: Shape) => {
       nameShapeMap.set(s.name, toPenroseShape(s));
       if (s.shapeType === ShapeType.Group) {
-        s.shapes.map((subshape) =>
-          nameShapeMap.set(subshape.name, toPenroseShape(subshape)),
-        );
-        if (s.clipPath) {
-          nameShapeMap.set(s.clipPath.name, toPenroseShape(s.clipPath));
-        }
+        s.shapes.forEach(collect);
+        if (s.clipPath) collect(s.clipPath);
       }
-    }
+    };
+    this.shapes.forEach(collect);
     return nameShapeMap;
   };
 
@@ -919,4 +1241,61 @@ export class DiagramBuilder {
       },
     }));
   };
+}
+
+// Module-level active builder context for the JSX runtime.
+// _activeBuilder is set when a DiagramBuilder is constructed and within forall callbacks,
+// so that the JSX factory can call builder methods without explicit builder reference.
+let _activeBuilder: DiagramBuilder | null = null;
+
+/**
+ * Get the currently active DiagramBuilder (used by the JSX runtime).
+ */
+export function getActiveBuilder(): DiagramBuilder | null {
+  return _activeBuilder;
+}
+
+/**
+ * Set the currently active DiagramBuilder (used by the JSX runtime and advanced users).
+ */
+export function setActiveBuilder(b: DiagramBuilder | null): void {
+  _activeBuilder = b;
+}
+
+/**
+ * Evaluate JSX synchronously in a builder's scope, restoring the previous scope
+ * even when the callback throws. Finish JSX construction before awaiting build
+ * or render: a module-global context cannot follow an asynchronous callback.
+ */
+export function withBuilder<T>(
+  builder: DiagramBuilder,
+  callback: () => T extends PromiseLike<unknown> ? never : T,
+): T {
+  if (
+    ["[object AsyncFunction]", "[object AsyncGeneratorFunction]"].includes(
+      Object.prototype.toString.call(callback),
+    )
+  ) {
+    throw new Error(
+      "withBuilder callbacks must be synchronous; await after the scope returns.",
+    );
+  }
+  const previous = _activeBuilder;
+  _activeBuilder = builder;
+  try {
+    const result = callback();
+    if (
+      result !== null &&
+      (typeof result === "object" || typeof result === "function") &&
+      "then" in result &&
+      typeof result.then === "function"
+    ) {
+      throw new Error(
+        "withBuilder callbacks must be synchronous; await after the scope returns.",
+      );
+    }
+    return result;
+  } finally {
+    _activeBuilder = previous;
+  }
 }

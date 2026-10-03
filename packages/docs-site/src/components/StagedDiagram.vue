@@ -10,5 +10,7 @@ const props = defineProps(["trio"]);
 </script>
 
 <template>
-  <StagedDiagram :trio="props.trio" />
+  <ClientOnly>
+    <StagedDiagram :trio="props.trio" />
+  </ClientOnly>
 </template>

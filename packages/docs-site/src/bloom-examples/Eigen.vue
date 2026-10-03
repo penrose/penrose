@@ -9,5 +9,7 @@ const Eigen = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <Eigen />
+  <ClientOnly>
+    <Eigen />
+  </ClientOnly>
 </template>

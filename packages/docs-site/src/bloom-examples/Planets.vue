@@ -11,5 +11,7 @@ const Planets = defineAsyncComponent(async () => {
 </script>
 
 <template>
-  <Planets />
+  <ClientOnly>
+    <Planets />
+  </ClientOnly>
 </template>

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "edition": "Elementary Topology, Michael C. Gemignani, Second Edition",
+    "sourceImageDimensions": [847, 1400],
+    "boundsConvention": "Normalized [x,y,width,height] around graphics and labels, excluding captions and prose."
+  },
+  "implementation": {
+    "domain": "point-set-topology",
+    "domainFile": "packages/bloom/src/domains/point-set-topology.ts",
+    "styleFile": "packages/bloom/src/styles/convergence.tsx",
+    "exampleFile": "packages/bloom/src/examples/convergence.ts"
+  },
+  "verification": {
+    "focusedTestFile": "packages/bloom/src/styles/convergence.test.ts",
+    "testsPassed": 4,
+    "publicDeclarationEmit": "passed",
+    "scopedLint": "passed",
+    "visualReview": "Full source pages and final vector renderings inspected; compared at equal crop scale. The U label opening was adjusted after comparison."
+  },
+  "figures": [
+    {
+      "id": "6.1",
+      "pdfPage": 119,
+      "printedPage": 123,
+      "pixelBounds": [248, 989, 360, 77],
+      "style": "intervalPartitionStyle",
+      "substance": "intervalPartitionSubstance",
+      "build": "buildIntervalPartitionFigure",
+      "mathematics": "A finite strictly increasing partition x0=a<…<xn=b belongs to the family of all partitions of [a,b]. The source places finer partitions first in its order; that convention is retained explicitly.",
+      "visual": "Bracketed endpoints, dashed line continuations, x1/x2/x3/x(n−1) point marks, a=x0 and b=xn above, and a gray three-dot ellipsis retain the source arrangement.",
+      "limits": [
+        "The default Substance supplies one explicit finite partition; the ellipsis hides actual intermediate indices and does not assert a finite representation of the entire directed family.",
+        "Clean vector type and strokes replace scanned lettering; the source-defined partition order is not silently reversed."
+      ],
+      "sourceBounds": [
+        0.29279811097992914, 0.7064285714285714, 0.42502951593860683, 0.055
+      ],
+      "comparisonPNG": "tmp/elementary-topology/review/figure-6.1-comparison.png"
+    },
+    {
+      "id": "6.2",
+      "pdfPage": 122,
+      "printedPage": 126,
+      "pixelBounds": [248, 912, 373, 179],
+      "style": "intersectingNeighborhoodsStyle",
+      "substance": "nonHausdorffSelectionNetSubstance",
+      "build": "buildNonHausdorffNetFigure",
+      "mathematics": "For distinct unseparable x,y in a non-T2 space, the directed product of their neighborhood systems indexes a selector choosing s(U,V) in every U∩V; its net converges to both x and y. The drawn value is one witness distinct from this all-neighborhood hypothesis.",
+      "visual": "Overlapping unequal oval neighborhoods U,V, three point marks x/y/s(U,V), and the opening in U at the selected-value label match the source. Pale orange transparency distinguishes the neighborhoods and overlap.",
+      "limits": [
+        "Neighborhood outlines are a schematic view; the Substance assigns no Euclidean metric or plane coordinates to X.",
+        "The all-neighborhood selection property is declared as a mathematical hypothesis, not inferred from the one depicted value."
+      ],
+      "sourceBounds": [
+        0.29279811097992914, 0.6514285714285715, 0.44037780401416765,
+        0.12785714285714286
+      ],
+      "comparisonPNG": "tmp/elementary-topology/review/figure-6.2-comparison.png"
+    }
+  ]
+}

@@ -609,5 +609,57 @@
   "set-potatoes/non-surjection-not-epimorphism": {
     "name": "A non-surjection is not an epimorphism",
     "gallery": true
+  },
+  "bloom/gallery/array-models/insertionSort": {
+    "trio": false,
+    "bloom": true,
+    "name": "Insertion Sort (Bloom JSX)"
+  },
+
+  "bloom/gallery/dataviz/linearreg": {
+    "trio": false,
+    "bloom": true,
+    "name": "Linear Regression (Bloom JSX)"
+  },
+  
+  "bloom/gallery/graph-domain/other-examples/arpanet": {
+    "trio": false,
+    "bloom": true,
+    "name": "Curved Graph Example with Dots (Bloom JSX)"
+  },
+  "bloom/gallery/graph-domain/other-examples/hamiltonian-cycle": {
+    "trio": false,
+    "bloom": true,
+    "name": "Hamiltonian Cycle (Bloom JSX)"
+  },
+  "bloom/gallery/group-theory/quaternion-multiplication-table": {
+    "trio": false,
+    "bloom": true,
+    "name": "Quaternions as Table (Bloom JSX)"
+  },
+  "bloom/gallery/group-theory/cayley-graph": {
+    "trio": false,
+    "bloom": true,
+    "name": "Quaternions as Cayley Graph (Bloom JSX)"
+  },
+  "bloom/gallery/set-theory-domain/continuousmap": {
+    "trio": false,
+    "bloom": true,
+    "name": "Continuous Map (Bloom JSX)"
+  },
+  "bloom/gallery/set-theory-domain/tree-euler": {
+    "trio": false,
+    "bloom": true,
+    "name": "Sets as Euler Diagram (Bloom JSX)"
+  },
+  "bloom/gallery/set-theory-domain/tree-euler-3d": {
+    "trio": false,
+    "bloom": true,
+    "name": "Sets as Euler Diagram in 2.5D (Bloom JSX)"
+  },
+  "bloom/gallery/misc/tiger": {
+    "trio": false,
+    "bloom": true,
+    "name": "Tiger with Cursor-Following Eyes (Bloom JSX)"
   }
 }

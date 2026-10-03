@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "sourceBook": "Michael C. Gemignani, Elementary Topology, Second Edition",
+  "status": "implemented-and-visually-reviewed",
+  "privateInputPolicy": "The supplied PDF, full-page renders, crops and side-by-side comparisons remain local private inputs. This report records provenance and crop rectangles only.",
+  "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+  "styleModule": "packages/bloom/src/styles/product-surfaces.tsx",
+  "substanceModule": "packages/bloom/src/examples/product-surfaces.ts",
+  "testModule": "packages/bloom/src/styles/product-surfaces.test.ts",
+  "vocabulary": {
+    "reusedTypes": [
+      "ClosedInterval",
+      "CircleBoundary",
+      "ProductSet",
+      "RealPoint",
+      "CoordinatePoint",
+      "Singleton",
+      "Topology"
+    ],
+    "reusedPredicates": [
+      "ProductOf",
+      "ProductTopologyOf",
+      "TopologyOn",
+      "Compact",
+      "CompactIn",
+      "SingletonOf",
+      "Subset",
+      "Member"
+    ],
+    "newDomainDeclarations": []
+  },
+  "reuseVerification": [
+    "One compactProductSurfaceStyle instance renders both I×C and (I×I)×I by inspecting mathematical product facts.",
+    "The same cylinder style renders distinct fixed circle coordinates; the same cube style renders distinct finite closed-interval bounds.",
+    "Cylinder surface projection reuses surfaceProjection and the ParametricSurface/SurfaceSample conventions from the native torus library.",
+    "Cube hatching reuses hatchedTopologyPolygon with optional spacing, stroke width and opacity; existing default appearances remain unchanged.",
+    "ProductOf(I×I,I,I) and its iterated product topology are reflexive facts, consumed directly by facts() without distinct-variable restrictions."
+  ],
+  "verification": {
+    "focusedTests": 3,
+    "failures": 0,
+    "mockedRendering": false,
+    "nativeRendering": "Both static factories converge in five optimization steps and emit XML-valid SVG; canonical and sampled interactive builds also pass.",
+    "canonicalInteraction": "All native annotation-layout x/y offsets remain within 1e-8 of zero.",
+    "nativeDragHandles": {
+      "7.4": 6,
+      "7.6": 4
+    },
+    "groupedAnnotationRegression": "The cube top-face label and its matching white knockout move together under native dragging; all twelve wireframe edges remain unchanged.",
+    "typecheck": "Bloom declaration emit passed.",
+    "lintWarnings": 0,
+    "relatedHatchRegression": "All three topology-bases tests pass after the optional hatch appearance parameters.",
+    "rootVisualReview": "Full source page and final side-by-side comparisons inspected; fiber notation, endpoint marks, face labels, hatching and leader incidence accepted."
+  },
+  "figures": [
+    {
+      "id": "7.4",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 151,
+        "printedPage": 159,
+        "boundingBox": [0.058758, 0.0846, 0.221729, 0.179775],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [53, 128, 200, 272],
+        "pagePixels180dpi": [902, 1513],
+        "context": "Chapter 7 section 7.4, Example 12 (preceding PDF page150/printed158): compact products of I=[0,1] and the circle C."
+      },
+      "implementation": {
+        "substanceFactory": "compactCylinderSubstance",
+        "styleFactory": "compactProductSurfaceStyle",
+        "buildFactory": "buildCompactCylinderFigure",
+        "canvas": [108, 148]
+      },
+      "mathematics": [
+        "The graphic uses the factor order I×C, matching its boundary-fiber labels; the preceding prose also names the homeomorphic product C×I.",
+        "The top and bottom fibers are {1}×C and {0}×C, and the marked side fiber is I×{x}.",
+        "Both factor topologies and the product topology are declared compact; fibers are compact subsets of the product.",
+        "The representative x is checked against the circle equation; native render tests verify its projected point lies exactly on the upper ellipse."
+      ],
+      "visualFidelity": [
+        "One cylinder panel, full solid top and bottom ellipses, upright side edges and all five source labels are preserved.",
+        "The two upper marked points, right endpoint numerals and left interval-fiber label follow the source composition.",
+        "Only the lateral surface receives restrained orange shading; the endpoint openings stay white.",
+        "The source intentionally exposes the full lower ellipse. The view preserves this wireframe occlusion convention, rather than hiding its far arc."
+      ],
+      "comparison": "Viewed the source graphic and native SVG side by side at the same graphic width after reducing canvas padding and matching lettering scale.",
+      "limitations": [
+        "The scanned contours are slightly irregular; the native ellipses are exact."
+      ]
+    },
+    {
+      "id": "7.6",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 151,
+        "printedPage": 159,
+        "boundingBox": [0.711752, 0.099141, 0.249446, 0.162591],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [642, 150, 225, 246],
+        "pagePixels180dpi": [902, 1513],
+        "context": "Chapter 7 section 7.4, Example 12: the compact product I³."
+      },
+      "implementation": {
+        "substanceFactory": "compactCubeSubstance",
+        "styleFactory": "compactProductSurfaceStyle",
+        "buildFactory": "buildCompactCubeFigure",
+        "canvas": [118, 130]
+      },
+      "mathematics": [
+        "The cube is the iterated product (I×I)×I; its topology is the iterated product of compact interval topologies.",
+        "The marked left face fixes the first coordinate to zero: {0}×I×I. The marked top face fixes the third coordinate to one: I×I×{1}.",
+        "Both faces are asserted compact subsets of the cube, and the lower/upper endpoint singletons preserve the closed interval boundaries."
+      ],
+      "visualFidelity": [
+        "One cube panel with all twelve solid wireframe edges and its original oblique projection is preserved.",
+        "The left face has dense vertical hatching; the top has diagonal hatching and the source’s additional vertical crosshatching near its back vertex.",
+        "The bent leader points left into the first-coordinate-zero face, matching the source arrow direction.",
+        "Both face labels have white knockouts; the 0 and 1 numerals remain at the front left vertical edge.",
+        "Pale orange fill is confined to the two marked faces."
+      ],
+      "comparison": "Viewed the source graphic and native SVG side by side at the same graphic width, including an enlarged source crop to confirm the leader and crosshatching.",
+      "limitations": [
+        "The source uses slightly nonparallel scanned edges; the view uses an affine oblique projection.",
+        "Annotation dragging changes layout while the compact product and boundary-face geometry stay fixed."
+      ]
+    }
+  ]
+}

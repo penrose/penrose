@@ -9,6 +9,13 @@ module.exports = {
   ignorePatterns: ["dist", ".eslintrc.cjs"],
   parser: "@typescript-eslint/parser",
   plugins: ["react-refresh"],
+  // These TSX factories produce Penrose shapes, rather than React components.
+  overrides: [
+    {
+      files: ["src/styles/**/*.tsx"],
+      rules: { "react-refresh/only-export-components": "off" },
+    },
+  ],
   rules: {
     "react-refresh/only-export-components": [
       "warn",

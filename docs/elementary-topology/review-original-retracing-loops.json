@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "kind": "reviewed-original-illustrations",
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "sourcePassage": {
+    "section": "11.3 The Fundamental Group",
+    "proposition": 4,
+    "pdfPage": 229,
+    "printedPage": 246
+  },
+  "sourceFigureClaim": "These are new illustrations of the proof formula; they do not replace or add a numbered source figure.",
+  "mathematics": [
+    "The actual function is H(r,s)=a(2 min(r,1−r)(1−s)); its time0 slice is a#a⁻¹ and its time1 slice is the constant based loop k.",
+    "Both interval endpoints map to y0 at every time, and the two half-interval formulas agree at r=1/2. Fourier periodicity gives a(0)=a(1)=y0.",
+    "Substance explicitly relates the parameter inverse, concatenation, based-loop classes, identity/inverse elements, constant-loop class and relative homotopy.",
+    "One Style renders both a simple circle loop and a self-intersecting figure-eight loop; each native Path samples the actual mathematical Fourier function and the exact retracing parameter map."
+  ],
+  "visualReview": [
+    "Both final native SVGs inspected at1200pixel width. Four panels and arrows remain readable without image/raw SVG wrappers.",
+    "Orange denotes the current image; gray is only the original loop as a reference. The final panel retains the marked fixed basepoint and k label.",
+    "Small white clearances keep y0 labels readable near the figure-eight return branch; these move with the native annotation group."
+  ],
+  "implementation": {
+    "substanceModule": "packages/bloom/src/examples/loop-retracing.ts",
+    "substanceFactory": "inverseCancellationSubstance",
+    "styleModule": "packages/bloom/src/styles/loop-retracing.tsx",
+    "styleFactory": "inverseCancellationStyle",
+    "buildFactory": "buildInverseCancellationFigure",
+    "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+    "mathematicalHelpers": "packages/bloom/src/domains/loop-operations.ts",
+    "canvas": [512, 164],
+    "arguments": [["circle"], ["figure-eight"]],
+    "websitePage": "packages/docs-site/docs/elementary-topology/loop-retracing.md",
+    "metadata": "docs/elementary-topology/original-retracing-loops.json"
+  },
+  "verification": {
+    "focusedTests": 3,
+    "failures": 0,
+    "mockedRendering": false,
+    "mathematicalChecks": "Six homotopy times, both fixed endpoints, symmetric out/return parameterization, breakpoint agreement, class product identity and actual native sampled-path closure are checked for both loops.",
+    "nativeBuilds": "Static, exact canonical interactive and seeded factories both converge and emit XML-valid SVG.",
+    "nativeDragHandlesPerIllustration": 10,
+    "nativeInteraction": "Canonical offsets remain within1e-8 of zero; actual(3,1)label translation preserves all native paths, circles and traversal arrows. Seeded layouts optimize successfully.",
+    "fullBloomDeclarationEmit": "Passed.",
+    "lintWarnings": 0,
+    "rootVisualReview": "Passed: parent inspected both final native previews and accepted integration.",
+    "finalInteractionRegression": "The latest focused Bloom table/original-illustration batch passes 15 tests across five files, including all three retracing tests."
+  },
+  "limitations": [
+    "The four displayed slices are finite illustrations of a continuous homotopy; the function is defined on the entire parameter square.",
+    "Native polylines sample the analytic Fourier paths at192equal intervals; mathematical endpoint and continuity claims are proved by the formula, not inferred from samples."
+  ],
+  "rootVisualReview": "Passed: parent inspected both final native previews and the source proposition provenance. Four homotopy times, outgoing/return arrows, fixed basepoints and current-image/reference distinction are clear. Both programs reuse the same Style."
+}

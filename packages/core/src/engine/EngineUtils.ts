@@ -513,15 +513,17 @@ export const compileCompGraph = async (
   shapes: Shape<ad.Num>[],
 ): Promise<ShapeFn> => {
   const indices = new Map(inputs.map((x, i) => [x, i]));
-  const vars: ad.Num[] = [];
+  const unique = new Set<ad.Num>();
   for (const s of shapes) {
     // a bit weird since it feels somewhat wasteful to reconstruct the new
     // shape, but this reduces some code duplication since this way we don't
     // have to write a separate function to collect all the `ad.Num`s
     mapShape((x) => {
-      vars.push(x);
+      unique.add(x);
     }, s);
   }
+  // Repeated constants and shared expressions need only one compiled output.
+  const vars = [...unique];
   const m = new Map(vars.map((x, i) => [x, i]));
   const evalFn = await compile(vars);
   return (xs: number[]): Shape<number>[] => {

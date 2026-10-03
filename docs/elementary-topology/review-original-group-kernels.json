@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "kind": "original-illustrations",
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "pdfPages": [23],
+    "printedPages": [15],
+    "section": "1.4",
+    "exercise": 2,
+    "originalSourceFigure": false
+  },
+  "implementation": {
+    "domain": "set-theory",
+    "style": "packages/bloom/src/styles/group-kernels.tsx",
+    "example": "packages/bloom/src/examples/group-kernels.ts",
+    "buildFactory": "buildCyclicGroupKernelFigure",
+    "substanceFactory": "cyclicGroupKernelSubstance",
+    "programs": [
+      {
+        "sourceOrder": 6,
+        "targetOrder": 3,
+        "kernelResidues": [0, 3],
+        "svg": "original-group-kernel-6-3.svg"
+      },
+      {
+        "sourceOrder": 8,
+        "targetOrder": 4,
+        "kernelResidues": [0, 4],
+        "svg": "original-group-kernel-8-4.svg"
+      }
+    ],
+    "mathematics": "Reduction modulo m from Z_n to Z_m preserves addition when m divides n. Every source and target product, every map value, all identities and inverses, and the restricted kernel operation are recorded as typed facts. The entire finite homomorphism law and subgroup axioms are checked, rather than inferred from selected arrows.",
+    "reuse": "Both programs use one domain, one Substance factory and one TSX Style. The Style validates the complete cyclic operation tables, map values and kernel membership before drawing. Orange consistently marks the kernel fiber and target identity."
+  },
+  "verification": {
+    "testFile": "packages/bloom/src/styles/group-kernels.test.ts",
+    "tests": 2,
+    "native": "Both diagrams finish native optimization, contain no embedded images, and serialize as valid SVG. Dragging a source node moves its incident map arrow and updates the kernel enclosure through shared automatic-differentiation inputs.",
+    "typecheck": "Full Bloom declaration emit passed.",
+    "lint": "Scoped ESLint passed.",
+    "visual": "The printed source exercise and both native SVG previews were inspected. The source has no illustration for this passage.",
+    "rootVisualReview": "Passed: parent inspected both native previews, verified their source exercise provenance, kernel fiber labels and arrow incidence. Native object dragging is identified in the reader controls."
+  },
+  "limits": [
+    "These are new illustrations of the exercise, not reproductions of source figures.",
+    "The finite cyclic models establish their own whole-group properties; the drawings alone do not prove the exercise for arbitrary groups.",
+    "Node dragging changes the visual arrangement only. Group membership and map values remain immutable mathematical facts."
+  ]
+}

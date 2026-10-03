@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "edition": "Elementary Topology, Michael C. Gemignani, Second Edition",
+    "sourceImageDimensions": [762, 1262],
+    "visualReview": "Full supplied PDF231,233,234,237,239 visually inspected. Adjacent supplied proof context PDF232,235,236,238 consulted. All five optimized native SVGs inspected beside source crops; sphere clipping, source meridian visibility, smooth arc and contraction point refined.",
+    "boundsConvention": "Normalized [x,y,width,height] against the complete supplied PDF page, including graphic/labels and excluding caption/prose."
+  },
+  "implementation": {
+    "domain": "point-set-topology",
+    "domainFile": "packages/bloom/src/domains/point-set-topology.ts",
+    "helpers": "packages/bloom/src/domains/surface-topology.ts",
+    "semantics": "Coarse sphere/puncture, product-loop, reverse-path, map composition, planar-space and graph-spine vocabulary composes with generic Loop/FundamentalGroup/HomotopyEquivalence/group declarations.",
+    "styleReuse": "Shared topologyDrawing/page chart and native reusable TextbookGlyphView/textbookGlyphOutline. Math helpers separately evaluate stereographic contraction, exact torus factors, basepoint conjugation and graph cycle rank.",
+    "graphics": "Native optimized ellipse/circle/path/line/rectangle/equation/group shapes, even-odd contours and silhouette clipping. No raster wrappers or external fonts for exercise spaces.",
+    "interactive": "All five factories accept final FigureRenderOptions and spread overrides last."
+  },
+  "verification": {
+    "focusedTestFile": "packages/examples/src/elementary-topology/fundamental-group-spaces.test.ts",
+    "testsPassed": 11,
+    "publicBloomDeclarationEmit": "passed",
+    "exampleLeafTypecheckAndEmit": "passed",
+    "domainRuntimeImport": "passed",
+    "scopedESLint": "passed",
+    "mathematicalChecks": "Stereographic inverse and based contraction unit-sphere/omitted-pole invariants; separate sphere noncontractibility; exact torus factors/closed endpoints; seam continuity and endpoint reversal of j#a#j^-1; correct X/Y composition domains; free graph cycle counts.",
+    "actualRenderChecks": "All five native SVGs render. Native glyph point-in-contour parity independently verifies actual transparent holes and black spines. Shared torus dot lies on both native generator curves. Sphere uses native ellipse clipping; alternate seed and interactive mode compile. Independently split the actual native animal/house linework at its junctions and verified one connected component and two cycles in each.",
+    "visualReview": "All five optimized renderings viewed beside equal-width source crops. Detailed exercise glyph/animal/house source crop checked at triple scale. Final exact head/neck and roof/chimney junction revision rerendered; source composition retained.",
+    "scope": "Representative exact constructions and native geometry are checked. Universal formal proofs, pixel identity, a metric 3D schematic and missing source figures are not claimed.",
+    "rootVisualReview": "Passed: parent inspected all five equal-width source/native comparisons, correct mathematical domains, and transparent-hole/connected-spine semantics."
+  },
+  "unavailable": {
+    "figures": ["11.16", "11.17", "11.18", "11.22"],
+    "note": "Missing printed pages248 and253 remain unresolved; no missing figure reconstructed."
+  },
+  "figures": [
+    {
+      "id": "11.19",
+      "pdfPage": 231,
+      "printedPage": 249,
+      "pixelBounds": [475, 539, 226, 238],
+      "sourceBounds": [0.62336, 0.4271, 0.296588, 0.18859],
+      "defaultCanvas": [226, 238],
+      "panels": 1,
+      "style": "sphereLoopContractionStyle",
+      "substance": "puncturedSphereLoop",
+      "build": "buildSphereLoopFigure",
+      "styleFile": "packages/bloom/src/styles/fundamental-groups.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/fundamental-group-spaces.ts",
+      "sourceContext": "Section 11.3 Example 7 describes stereographic projection from the omitted pole P to the tangent plane at its antipode, contracting a based loop in the punctured sphere. The sphere itself is not contractible, though its fundamental group is trivial.",
+      "facts": [
+        "Sphere/PuncturedSphere, SpherePunctureOf, SphereLoopAvoids, SphereLoopContractionOf, LoopBasedAt, NullHomotopic and NotContractible distinguish loop contraction from contraction of the entire sphere. P is outside the loop image and y0 is the base point."
+      ],
+      "limits": [
+        "The source figure is a schematic fan of loop slices, not a faithful orthographic projection of the exact stereographic homotopy. Native curves share the fixed base point and are clipped to the sphere silhouette; helpers separately evaluate the actual based homotopy.",
+        "The source shortcut assumes a pole outside a loop image. The concrete program asserts this hypothesis and does not claim every arbitrary continuous loop has a proper image; a space-filling loop need not admit that shortcut. The established triviality of the sphere fundamental group is recorded separately.",
+        "Figure 11.18 is on missing printed page248; the supplied stereographic prose is used, but that missing figure is not reconstructed."
+      ],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-11.19.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-11.19.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-11.19-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-11.19-comparison.png"
+    },
+    {
+      "id": "11.20",
+      "pdfPage": 233,
+      "printedPage": 251,
+      "pixelBounds": [294, 558, 210, 131],
+      "sourceBounds": [0.385827, 0.442155, 0.275591, 0.103803],
+      "defaultCanvas": [210, 131],
+      "panels": 1,
+      "style": "torusGeneratorStyle",
+      "substance": "torusFundamentalGenerators",
+      "build": "buildTorusGeneratorsFigure",
+      "styleFile": "packages/bloom/src/styles/fundamental-groups.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/fundamental-group-spaces.ts",
+      "sourceContext": "Section 11.3 Example 8 applies the product fundamental-group theorem to C\u00d7C, obtaining Z direct-sum Z with the two factor loops a,b representing its two generators.",
+      "facts": [
+        "Both TorusFactorLoop entities have unit winding in distinct factors and share a ProductPoint y0. Loop classes belong to the fundamental group, which is isomorphic to the binary direct sum and the rank-two free abelian group."
+      ],
+      "limits": [
+        "The native torus is the source-like flattened schematic, with ellipse silhouette/hole and widened meridian, rather than a metrically faithful projected mesh. Source solid/dashed traversal conventions and arrows are retained.",
+        "torusFactorPoint separately samples exact loops in the product of circles; source display geometry does not redefine the product or its loops.",
+        "The marked base point is independently verified on both native generator curves."
+      ],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-11.20.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-11.20.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-11.20-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-11.20-comparison.png"
+    },
+    {
+      "id": "11.21",
+      "pdfPage": 234,
+      "printedPage": 252,
+      "pixelBounds": [498, 715, 235, 190],
+      "sourceBounds": [0.653543, 0.566561, 0.308399, 0.150555],
+      "defaultCanvas": [235, 191],
+      "panels": 1,
+      "style": "basepointChangeStyle",
+      "substance": "transportedLoopBasepoint",
+      "build": "buildBasepointChangeFigure",
+      "styleFile": "packages/bloom/src/styles/fundamental-groups.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/fundamental-group-spaces.ts",
+      "sourceContext": "Section 11.3 Exercise5 changes base point along an arc j from y1 to y0; the isomorphism sends |a| to |j#a#j^-1|.",
+      "facts": [
+        "j and its reverse are TopologicalPath entities with reversed endpoints; a is a loop at y0 and its conjugate a loop at y1. BasepointChangeAlong and GroupIsomorphismBetween encode the transport."
+      ],
+      "limits": [
+        "The two near-parallel traces show opposite traversals of the same arc image, rather than two separate mathematical edges. ReversedPathOf is used because j is not itself a based loop.",
+        "Source bounds stop before the caption; the render canvas retains one extra vertical pixel for label padding.",
+        "Smooth native contour approximates the hand-drawn loop while preserving labels a,y0,y1,j,j^-1 and arrow directions."
+      ],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-11.21.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-11.21.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-11.21-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-11.21-comparison.png"
+    },
+    {
+      "id": "11.23",
+      "pdfPage": 237,
+      "printedPage": 256,
+      "pixelBounds": [270, 432, 314, 169],
+      "sourceBounds": [0.354331, 0.342314, 0.412073, 0.133914],
+      "defaultCanvas": [314, 169],
+      "panels": 2,
+      "style": "contractiblePointEquivalenceStyle",
+      "substance": "contractibleSingletonEquivalence",
+      "build": "buildContractibleEquivalenceFigure",
+      "styleFile": "packages/bloom/src/styles/homotopy-equivalence.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/fundamental-group-spaces.ts",
+      "sourceContext": "Section 11.4 Definition5 and Example10: a contractible X has the same homotopy type as singleton Y={P}, using f(x)=P and g(P)=x0.",
+      "facts": [
+        "ConstantTo(f,P), MapsTo(g,P,x0), CompositionOf(k,g,f), CompositionOf(iY,f,g), HomotopyBetween(H,iX,k), HomotopyInverseMaps and HomotopyEquivalent retain the correct map domains."
+      ],
+      "limits": [
+        "The source prints the X/Y composite names in the opposite order: f\u2218g=k~iX and g\u2218f=iY. This is type-inconsistent for the stated f:X\u2192Y and g:Y\u2192X. Substance uses the correctly typed g\u2218f=k~iX and f\u2218g=iY; no corrected equations are introduced into the picture.",
+        "The generic contractible contour belongs to Style; its source hatches, x0 dot, original knockout, singleton dot and f/g arrows remain, with subdued orange fill."
+      ],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-11.23.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-11.23.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-11.23-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-11.23-comparison.png"
+    },
+    {
+      "id": "11.24",
+      "pdfPage": 239,
+      "printedPage": 259,
+      "pixelBounds": [210, 711, 330, 118],
+      "sourceBounds": [0.275591, 0.563391, 0.433071, 0.093502],
+      "defaultCanvas": [330, 118],
+      "panels": 11,
+      "style": "planarGraphSpacesStyle",
+      "substance": "planarHomotopyExerciseSpaces",
+      "build": "buildPlanarHomotopyExercisesFigure",
+      "styleFile": "packages/bloom/src/styles/planar-graph-spaces.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/fundamental-group-spaces.ts",
+      "sourceContext": "Section 11.4 Exercise2 asks to classify eleven planar diagram spaces by homotopy type: A,B,C,D,E,R,T, the animal, the house, 8 and the connected compound 108.",
+      "facts": [
+        "PlanarDiagramSpace and FiniteGraphSpine are reusable coarse descriptors. The representative spines have one vertex and ranks A1,B2,C0,D1,E0,R1,T0,animal2,house2,82,1083. Their fundamental groups are modeled by corresponding free groups."
+      ],
+      "limits": [
+        "Bold native vector contours approximate the source typeface; even-odd interior contours preserve transparent holes independently of host fonts. No answers or extra labels are shown in the source reproduction.",
+        "The compound 108 has touching source ink. Two native joins preserve that connected space with three holes; rendering three isolated text characters would alter its homotopy type.",
+        "The house chimney encloses a second cycle, while the animal has closed head/body loops and attached tree legs/tail. Graph spines describe the printed planar geometry rather than arbitrary drawings of those objects.",
+        "Classification facts concern these explicit vector spaces; a differently drawn glyph or disconnected typography may have a different homotopy type."
+      ],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-11.24.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-11.24.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-11.24-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-11.24-comparison.png"
+    }
+  ]
+}

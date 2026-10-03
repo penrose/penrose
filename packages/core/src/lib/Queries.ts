@@ -6,7 +6,6 @@ import {
   ifCond,
   lt,
   lte,
-  max,
   maxN,
   min,
   minN,
@@ -22,7 +21,11 @@ import { Shape, computeShapeBbox } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { MayWarn } from "../types/functions.js";
 import { noWarn } from "../utils/Util.js";
-import { msign, signedDistancePolygon } from "./Functions.js";
+import {
+  msign,
+  signedDistanceLine,
+  signedDistancePolygon,
+} from "./Functions.js";
 import {
   convexPartitions,
   overlappingPolygonPoints,
@@ -86,12 +89,17 @@ export const shapeCenter = (s: Shape<ad.Num>): ad.Pt2 => {
 };
 
 /**
- * Return vertices of polygon-like shapes.
+ * Return vertices of polygon-like shapes. Polygon and Polyline vertices
+ * include their native scale about the Penrose origin, matching the renderer
+ * and bounding box. Stroke widths and SVG passthrough transforms are excluded.
  */
 export const polygonLikePoints = (s: Shape<ad.Num>): ad.Pt2[] => {
   const t = s.shapeType;
   if (t === "Polygon" || t === "Polyline")
-    return s.points.contents.map((point) => [point[0], point[1]]);
+    return s.points.contents.map((point) => [
+      mul(s.scale.contents, point[0]),
+      mul(s.scale.contents, point[1]),
+    ]);
   else if (isLinelike(s))
     return [
       [s.start.contents[0], s.start.contents[1]],
@@ -348,6 +356,24 @@ export const shapeDistance = (
       ),
     );
   }
+  // A disk overlaps a simple filled polygon precisely when its center is
+  // inside the polygon or within one radius of its boundary. This clearance
+  // supports concavity without treating the polygon's empty AABB area as ink.
+  else if (t1 === "Polygon" && t2 === "Circle") {
+    return noWarn(
+      sub(
+        signedDistancePolygon(polygonLikePoints(s1), toPt(s2.center.contents)),
+        s2.r.contents,
+      ),
+    );
+  } else if (t1 === "Circle" && t2 === "Polygon") {
+    return noWarn(
+      sub(
+        signedDistancePolygon(polygonLikePoints(s2), toPt(s1.center.contents)),
+        s1.r.contents,
+      ),
+    );
+  }
   // Polygon x Ellipse
   else if (isPolygonlike(s1) && t2 === "Ellipse") {
     return noWarn(
@@ -403,7 +429,7 @@ export const shapeDistance = (
       shapeDistanceCirclePolyline(
         s2.center.contents,
         s2.r.contents,
-        s1.points.contents,
+        polygonLikePoints(s1),
       ),
     );
   } else if (t2 === "Polyline" && t1 === "Circle") {
@@ -411,7 +437,7 @@ export const shapeDistance = (
       shapeDistanceCirclePolyline(
         s1.center.contents,
         s1.r.contents,
-        s2.points.contents,
+        polygonLikePoints(s2),
       ),
     );
   } else if (t1 === "Polyline" && isRectlike(s2)) {
@@ -574,22 +600,9 @@ export const shapeDistanceCircleLine = (
   start: ad.Pt2,
   end: ad.Pt2,
 ): ad.Num => {
-  const [a, b] = [start, end];
-  // Return the distance between the circle center c and the
-  // segment ab, minus the circle radius r and offset o.  This
-  // quantity will be negative of the circular disk intersects
-  // a thickened "capsule" associated with the line (of radius o).
-  // The expression for the point-segment distance d comes from
-  // https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
-  // (see "Segment - exact").
-  const u = ops.vsub(c, a); // u = c-a
-  const v = ops.vsub(b, a); // v - b-a
-  // h = clamp( <u,v>/<v,v>, 0, 1 )
-  const h = max(0, min(1, div(ops.vdot(u, v), ops.vdot(v, v))));
-  // d = | u - h*v |
-  const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
-  // return d - (r+o)
-  return sub(d, r);
+  // Reuse the closed-segment distance, including a segment collapsed to a
+  // point, rather than dividing by the segment's potentially zero length.
+  return sub(signedDistanceLine(start, end, c), r);
 };
 
 const shapeDistanceCirclePolyline = (

@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "edition": "Elementary Topology, Michael C. Gemignani, Second Edition",
+    "sourceImageDimensions": [762, 1262],
+    "visualReview": "Full supplied PDF pages 55, 101, 102, 106, 107 and 108 inspected with adjacent mathematical prose; all five final native SVG renderings inspected beside source crops.",
+    "boundsConvention": "sourceBounds is normalized [x,y,width,height] against the full PDF page. Inspected pixel crops include graphic and labels, excluding captions and prose."
+  },
+  "implementation": {
+    "domain": "point-set-topology",
+    "domainFile": "packages/bloom/src/domains/point-set-topology.ts",
+    "semantics": "Immutable shape-free Substance snapshots describe relative topology, clopen lower-limit products, exact dyadic neighborhood relations and continuous map extensions.",
+    "styleReuse": "lowerLimitProductStyle renders basic neighborhoods and affine subspace intersections; dyadicNeighborhoodStyle renders separation and induction excerpts. All three policies share topologyDrawing, native vector hatching, labels and subdued orange palette.",
+    "graphics": "Native Penrose PathData, lines, equations and clipped hatch groups. No bitmap or raw SVG image wrappers.",
+    "interactive": "Every build factory accepts final optional FigureRenderOptions with variation/interactive forwarded to assembly; canonical default seeds and source geometry remain fixed."
+  },
+  "verification": {
+    "focusedTestFile": "packages/examples/src/elementary-topology/chapter-five-constructions.test.ts",
+    "testsPassed": 11,
+    "publicBloomDeclarationEmit": "passed (full packages/bloom yarn tsc --pretty false)",
+    "exampleLeafTypecheckAndEmit": "passed, including focused tests",
+    "domainRuntimeImport": "passed after all declarations were exported",
+    "scopedBloomESLint": "passed",
+    "formatting": "Prettier applied to new source/test files",
+    "visualReview": "Five optimized SVGs rendered and rasterized on white backgrounds, compared side by side with inspected source crops. Figure 5.12 label sizes were corrected after comparison. Root review removed an extra A outline from Figure 5.12 and reduced its label knockout to match the source.",
+    "scope": "Boundary membership, relative topology witnesses, dyadic inclusion chains, exact path boundary agreement, positive sampled Jacobian of the illustrative patch and native SVG structure are checked; formal universal proofs and pixel identity are not claimed."
+  },
+  "figures": [
+    {
+      "id": "5.9",
+      "pdfPage": 102,
+      "printedPage": 104,
+      "pixelBounds": [54, 112, 325, 211],
+      "panels": 1,
+      "style": "lowerLimitProductStyle",
+      "substance": "lowerLimitBasicNeighborhood",
+      "build": "buildLowerLimitNeighborhoodFigure",
+      "sourceContext": "Example 14 (continued from supplied printed page 103): the product of the lower-limit topology from Chapter 3 Example 11 has clopen basic rectangles [x,a) times [y,b). Each rectangle equals its closure; the plane is regular, although it is not normal.",
+      "geometry": [
+        "A hatched rectangle above and left of the origin, with solid included left/bottom edges and the source round half-open marks at the opposite corners.",
+        "Original x, y, (0,0) and southwest (x,y) labels are retained; only the southwest corner is marked."
+      ],
+      "facts": [
+        "LowerLimitTopology on the real line; Regular, Normal and T1 for the factor, ProductTopologyOf for the plane, and Regular/T1/T3/NotNormal for the product.",
+        "Two factual half-open interval descriptors, their clopen product neighborhood, its southwest point, and ClosureOf(U,U,tau).",
+        "Pixel positions and hatch geometry are confined to Style."
+      ],
+      "checks": [
+        "Membership includes the southwest corner and left/bottom edges; strict top/right boundaries are excluded.",
+        "Native SVG retains both half-open hooks, one point marker, clipped vector hatching and no image elements."
+      ],
+      "limits": [
+        "The finite diagram illustrates a typical neighborhood, rather than proving the universal separation properties.",
+        "Upper/right hatch limits represent excluded boundaries; no solid top/right outline is introduced."
+      ],
+      "sourceBounds": [0.070866, 0.088748, 0.426509, 0.167195],
+      "defaultCanvas": [325, 211],
+      "styleFile": "packages/bloom/src/styles/lower-limit-topology.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/lower-limit-topology.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-5.9.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-5.9.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-5.9-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-5.9-comparison.png"
+    },
+    {
+      "id": "5.10",
+      "pdfPage": 102,
+      "printedPage": 104,
+      "pixelBounds": [403, 95, 331, 241],
+      "panels": 1,
+      "style": "lowerLimitProductStyle",
+      "substance": "lowerLimitDiagonalSingleton",
+      "build": "buildLowerLimitDiagonalFigure",
+      "sourceContext": "The same example takes Y={(x,y):x+y=0}. A northeast basic neighborhood at a point of Y meets Y only at that point, so the induced subspace topology is discrete; Y is closed in the product plane. The following nonnormality discussion in the book explicitly omits a rigorous proof.",
+      "geometry": [
+        "The downward antidiagonal Y passes through the origin and the included southwest rectangle corner.",
+        "Same clopen rectangle policy as 5.9, with the source Y label and no extra point dot or corner label."
+      ],
+      "facts": [
+        "AffineSubspace Y has coefficients [1,1,0], ClosedIn(Y,tau), and a Discrete induced topology.",
+        "IntersectionOf(singleton,U,Y), SingletonOf(singleton,anchor) and Member(anchor,Y) encode the mathematical singleton intersection."
+      ],
+      "checks": [
+        "201 sampled antidiagonal points meet the half-open rectangle only when the displacement from its southwest corner is zero.",
+        "The singleton identity, induced discrete topology and native vector antidiagonal are checked."
+      ],
+      "limits": [
+        "The pictured singleton explains discreteness, not the subsequent universal nonnormality argument.",
+        "Nonnormality is a named mathematical property of the specified lower-limit product, not inferred from finite drawing overlap."
+      ],
+      "sourceBounds": [0.528871, 0.075277, 0.434383, 0.190967],
+      "defaultCanvas": [331, 241],
+      "styleFile": "packages/bloom/src/styles/lower-limit-topology.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/lower-limit-topology.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-5.10.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-5.10.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-5.10-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-5.10-comparison.png"
+    },
+    {
+      "id": "5.11",
+      "pdfPage": 106,
+      "printedPage": 108,
+      "pixelBounds": [423, 254, 318, 221],
+      "panels": 1,
+      "style": "dyadicNeighborhoodStyle",
+      "substance": "dyadicSeparatedClosedSets",
+      "build": "buildDyadicSeparationFigure",
+      "sourceContext": "Urysohn lemma construction in a T4 space: disjoint nonempty closed A,B and dyadic indexed open sets satisfy A subset U(q), B disjoint U(q), and Cl U(q) subset U(q prime) for q<q prime.",
+      "geometry": [
+        "Separate small B at lower left; small A lies inside the U(q)/Cl U(q) contour and the outer U(q prime) contour.",
+        "The original unfilled outlines and A, B, U(q), Cl U(q), U(q prime) labels are retained; no hatching is added to this source outline figure."
+      ],
+      "facts": [
+        "DyadicOpenFamily with generic closed A,B and T4 topology; default exact dyadic witnesses q=1/4 and q prime=3/4.",
+        "DyadicIndexOf, SetInFamily, OpenIn, Subset(A,U), Disjoint(B,U), ClosureOf and the next-neighborhood inclusion."
+      ],
+      "checks": [
+        "Both relative closedness facts, disjointness and T4 requirement are checked before drawing.",
+        "Actual SVG has four unfilled native outlines and no hatch masks."
+      ],
+      "limits": [
+        "The two shown neighborhoods form a finite excerpt of the infinite dyadic construction.",
+        "U(q) and its closure share the visible source outline; their mathematical entities and closure fact remain distinct."
+      ],
+      "sourceBounds": [0.555118, 0.201268, 0.417323, 0.175119],
+      "defaultCanvas": [318, 221],
+      "styleFile": "packages/bloom/src/styles/dyadic-neighborhoods.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/dyadic-neighborhoods.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-5.11.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-5.11.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-5.11-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-5.11-comparison.png"
+    },
+    {
+      "id": "5.12",
+      "pdfPage": 107,
+      "printedPage": 109,
+      "pixelBounds": [186, 305, 345, 293],
+      "panels": 1,
+      "style": "dyadicNeighborhoodStyle",
+      "substance": "dyadicRefinementNeighborhoods",
+      "build": "buildDyadicRefinementFigure",
+      "sourceContext": "Inductive insertion of U(n/2^(k+1)) between the already defined neighboring dyadic neighborhoods for odd n. The prose explicitly gives Cl U((n-1)/2^(k+1)) subset U(n/2^(k+1)) subset Cl U(n/2^(k+1)) subset U((n+1)/2^(k+1)).",
+      "geometry": [
+        "Three irregular nested hatch regions, source diagonal/vertical/cross hatch distinctions, and a small central A label on a white knockout. No added A outline is drawn.",
+        "Three original fractional U labels and leader lines. Fraction label size was adjusted after actual rendering to keep all labels within the source framing."
+      ],
+      "facts": [
+        "Default n=3,k=2 produces exact indices 1/4,3/8,1/2; alternate valid odd numerator/exponent values are supported by the shape-free factory.",
+        "DyadicRefinementStep retains both closures and the complete ordered inclusion chain."
+      ],
+      "checks": [
+        "Bounded exact binary index helpers reject invalid, even or unrepresentable refinement indices.",
+        "The mathematical middle index is 3/8 with the correct k+1 exponent.",
+        "The actual SVG source label override, three clipping groups, small central A label without an additional boundary loop and native hatch lines are checked."
+      ],
+      "sourceDiscrepancy": "The source graphic literally labels the middle region U(n/2^k), while its adjacent induction prose requires U(n/2^(k+1)). The book build preserves the visible source label through a Style-only override. The reusable default style and all Substance indices follow the mathematically ordered k+1 construction.",
+      "limits": [
+        "Hatch density is lighter than the scan and uses the consistent pale orange palette; the three source hatch modes remain distinguishable.",
+        "The finite displayed step is not a formal proof of the infinite Urysohn family."
+      ],
+      "sourceBounds": [0.244094, 0.24168, 0.452756, 0.232171],
+      "defaultCanvas": [345, 293],
+      "styleFile": "packages/bloom/src/styles/dyadic-neighborhoods.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/dyadic-neighborhoods.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-5.12.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-5.12.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-5.12-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-5.12-comparison.png"
+    },
+    {
+      "id": "5.14",
+      "pdfPage": 108,
+      "printedPage": 111,
+      "pixelBounds": [242, 113, 337, 198],
+      "panels": 1,
+      "style": "pathExtensionStyle",
+      "substance": "boundaryPathExtension",
+      "build": "buildBoundaryPathExtensionFigure",
+      "sourceContext": "Example 17: A is the union of the two horizontal closed edges in I times I. A continuous f:A to R squared has a continuous extension F across the normal square. Thus any two paths in R squared are freely homotopic; no endpoint-fixing condition is stated.",
+      "geometry": [
+        "A hatched unit square labeled by the original top/bottom edge set notation, an unlabelled arrow, and a warped hatched image patch beside coordinate axes.",
+        "Top/bottom paths are sampled as native curves; the two connecting sides and interior deformation form a continuous illustrative extension."
+      ],
+      "facts": [
+        "ClosedProductRectangle with bounds [0,0,1,1], HorizontalBoundaryPair A, a finite two-edge family and UnionOf(A,family).",
+        "Two continuous TopologicalPath objects, their boundary map f, ExtensionOf(F,f,A,square), relative ClosedIn and induced SubspaceTopologyOf, and both continuous map facts.",
+        "No drawing samples or pixel positions are stored in Substance."
+      ],
+      "checks": [
+        "Every lower and upper boundary sample agrees exactly with its named path, even with interior deformation.",
+        "361 interior samples have positive numerical Jacobian for the displayed illustrative patch.",
+        "Substance contains only the two horizontal edges in A, not the full square boundary.",
+        "Actual SVG contains separate clipped square/image regions, a 128-point native image contour and no raster wrappers."
+      ],
+      "limits": [
+        "The book supplies generic curves without analytic formulas. The cubic path samplers and continuous t(1-t) interior deformation are Style realizations, not formulas attributed to the source.",
+        "Caller samplers can represent other continuous paths; finite sampled contours are schematic, and filling arbitrary folded map images is not claimed.",
+        "There are no imposed equal endpoints or fixed-endpoint homotopy claims."
+      ],
+      "sourceBounds": [0.317585, 0.08954, 0.442257, 0.156894],
+      "defaultCanvas": [337, 198],
+      "styleFile": "packages/bloom/src/styles/path-extensions.tsx",
+      "exampleFile": "packages/examples/src/elementary-topology/path-extensions.ts",
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-5.14.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-5.14.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-5.14-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-5.14-comparison.png"
+    }
+  ],
+  "missingSourceNotes": [
+    {
+      "id": "5.8",
+      "status": "unlocated numbering-gap candidate; contents unknown",
+      "missingPrintedPageCandidates": [102],
+      "note": "Supplied printed 103 has no illustration; placement on missing printed 102 remains inferred. Nothing reconstructed."
+    },
+    {
+      "id": "5.13",
+      "status": "referenced but unlocated; contents uninspected",
+      "missingPrintedPageCandidates": [110],
+      "note": "The supplied proof references the figure on printed 109; placement on missing printed 110 remains inferred. Nothing reconstructed."
+    }
+  ]
+}

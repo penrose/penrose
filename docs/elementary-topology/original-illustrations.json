@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "kind": "original-illustrations",
+  "explanation": "New illustrations of previously unillustrated passages. These are separate from the source-figure inventory and reproduction count.",
+  "illustrations": [
+    {
+      "id": "original-subspace-derived-sets",
+      "title": "Ambient and relative derived sets",
+      "status": "reviewed-original",
+      "pdfPage": 70,
+      "printedPage": 68,
+      "description": "Two panels compare the interior, frontier and closure of the x-axis A=Y in the Euclidean plane X and in its own subspace topology. A disk around p has an off-line witness q, whereas its intersection with Y is a relative neighborhood.",
+      "sourcePassage": {
+        "section": "4.2 Derived Sets in Subspaces",
+        "example": 6,
+        "pdfPages": [70],
+        "printedPages": [68],
+        "url": "./chapter-04/derived-sets-in-subspaces#printed-page-68"
+      },
+      "svg": "original-subspace-derived-sets.svg",
+      "implementation": "packages/bloom/src/examples/original-subspaces.ts",
+      "buildFactory": "buildSubspaceDerivedSetsIllustration",
+      "buildArguments": [0, 0.5],
+      "substanceFactory": "subspaceDerivedSetsSubstance",
+      "substanceModule": "packages/bloom/src/examples/original-subspaces.ts",
+      "substanceArguments": [0, 0.5],
+      "substanceLines": [9, 74],
+      "style": "packages/bloom/src/styles/subspaces.tsx",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "interaction": "labels"
+    },
+    {
+      "id": "original-coordinate-slice",
+      "title": "A coordinate-slice embedding",
+      "status": "reviewed-original",
+      "pdfPage": 87,
+      "printedPages": [87, 88],
+      "description": "The coordinate inclusion x maps to (0.75,x), whose image is the subspace {0.75} times R of R squared. The orange vertical slice is distinct from the dashed y-axis, and projection to the second coordinate is the inverse homeomorphism onto the image.",
+      "sourcePassage": {
+        "section": "4.6 Product Spaces",
+        "proposition": 20,
+        "pdfPages": [87, 88],
+        "printedPages": [87, 88],
+        "url": "./chapter-04/product-spaces#printed-page-87"
+      },
+      "svg": "original-coordinate-slice.svg",
+      "implementation": "packages/bloom/src/examples/original-subspaces.ts",
+      "buildFactory": "buildCoordinateSliceIllustration",
+      "buildArguments": [0.75, 2],
+      "substanceFactory": "realLineEmbeddingSubstance",
+      "substanceModule": "packages/bloom/src/examples/product-topology.ts",
+      "substanceArguments": [0.75, 2],
+      "substanceLines": [138, 199],
+      "style": "packages/bloom/src/styles/product-topology.tsx",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "interaction": "labels"
+    },
+    {
+      "id": "original-lebesgue-number",
+      "title": "A positive Lebesgue number from a finite subcover",
+      "status": "reviewed-original",
+      "pdfPage": 157,
+      "printedPage": 165,
+      "description": "The compact interval [0,1], its finite half-radius subcover and the uniform ball N(x,rho) contained in a selected original cover member.",
+      "sourcePassage": {
+        "section": "8.1 Compactness in Euclidean Space",
+        "proposition": 3,
+        "pdfPages": [157],
+        "printedPages": [165],
+        "url": "./chapter-08/compactness-in-euclidean-space#printed-page-165"
+      },
+      "svg": "original-lebesgue-number.svg",
+      "implementation": "packages/examples/src/elementary-topology/lebesgue-number.ts",
+      "buildFactory": "buildLebesgueNumberFigure",
+      "buildArguments": [{}],
+      "substanceFactory": "compactIntervalLebesgueCover",
+      "substanceModule": "packages/examples/src/elementary-topology/lebesgue-number.ts",
+      "style": "packages/bloom/src/styles/metric-covers.tsx",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "interaction": "labels",
+      "review": {
+        "record": "review-original-lebesgue-number.json"
+      },
+      "substanceLines": [19, 108]
+    },
+    {
+      "id": "original-symmetric-lebesgue-number",
+      "title": "The same Lebesgue construction on a larger interval",
+      "status": "reviewed-original",
+      "pdfPage": 157,
+      "printedPage": 165,
+      "description": "The same reusable metric-cover Style on [-2,2], with different centers and radii, has a positive uniform Lebesgue number rho=0.9.",
+      "sourcePassage": {
+        "section": "8.1 Compactness in Euclidean Space",
+        "proposition": 3,
+        "pdfPages": [157],
+        "printedPages": [165],
+        "url": "./chapter-08/compactness-in-euclidean-space#printed-page-165"
+      },
+      "svg": "original-symmetric-lebesgue-number.svg",
+      "implementation": "packages/examples/src/elementary-topology/lebesgue-number.ts",
+      "buildFactory": "buildSymmetricLebesgueNumberFigure",
+      "buildArguments": [],
+      "substanceFactory": "symmetricIntervalLebesgueCover",
+      "substanceModule": "packages/examples/src/elementary-topology/lebesgue-number.ts",
+      "style": "packages/bloom/src/styles/metric-covers.tsx",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "interaction": "labels",
+      "review": {
+        "record": "review-original-lebesgue-number.json"
+      },
+      "substanceLines": [110, 122]
+    },
+    {
+      "id": "original-contraction-iterates",
+      "title": "Iterating a monotone contraction",
+      "status": "reviewed-original",
+      "pdfPage": 207,
+      "printedPage": 222,
+      "printedPages": [222, 223],
+      "description": "Eight iterates of f(x)=0.5x+1 approach its unique fixed point z=2. The cobweb and exact geometric error curve share the mathematical sequence.",
+      "sourcePassage": {
+        "section": "10.3 Complete Metric Spaces",
+        "exercise": 5,
+        "pdfPages": [207, 208],
+        "printedPages": [222, 223],
+        "url": "./chapter-10/complete-metric-spaces#printed-page-222"
+      },
+      "svg": "original-contraction-iterates.svg",
+      "implementation": "packages/bloom/src/examples/contraction-iterates.ts",
+      "buildFactory": "buildContractionIteratesIllustration",
+      "buildArguments": [0.5, 1, -2, 8],
+      "substanceFactory": "affineContractionIteratesSubstance",
+      "substanceModule": "packages/bloom/src/examples/contraction-iterates.ts",
+      "substanceArguments": [0.5, 1, -2, 8],
+      "style": "packages/bloom/src/styles/contraction-iterates.tsx",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "interaction": "labels",
+      "review": {
+        "record": "review-original-contraction-iterates.json"
+      },
+      "substanceLines": [8, 52]
+    },
+    {
+      "id": "original-alternating-contraction",
+      "title": "Iterating an alternating contraction",
+      "status": "reviewed-original",
+      "pdfPage": 207,
+      "printedPage": 222,
+      "printedPages": [222, 223],
+      "description": "The same iteration Style draws f(x)=-0.6x+0.8, with alternating iterates approaching z=0.5 and exact error contraction factor0.6.",
+      "sourcePassage": {
+        "section": "10.3 Complete Metric Spaces",
+        "exercise": 5,
+        "pdfPages": [207, 208],
+        "printedPages": [222, 223],
+        "url": "./chapter-10/complete-metric-spaces#printed-page-222"
+      },
+      "svg": "original-alternating-contraction.svg",
+      "implementation": "packages/bloom/src/examples/contraction-iterates.ts",
+      "buildFactory": "buildContractionIteratesIllustration",
+      "buildArguments": [-0.6, 0.8, 3, 8],
+      "substanceFactory": "affineContractionIteratesSubstance",
+      "substanceModule": "packages/bloom/src/examples/contraction-iterates.ts",
+      "substanceArguments": [-0.6, 0.8, 3, 8],
+      "style": "packages/bloom/src/styles/contraction-iterates.tsx",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "interaction": "labels",
+      "review": {
+        "record": "review-original-contraction-iterates.json"
+      },
+      "substanceLines": [8, 52]
+    },
+    {
+      "id": "original-group-kernel-6-3",
+      "title": "The kernel of Z_6 → Z_3",
+      "status": "reviewed-original",
+      "pdfPage": 23,
+      "printedPage": 15,
+      "description": "Reduction modulo 3 maps the cyclic group Z_6 to Z_3; its kernel fiber and target identity are orange. Every map value is shown.",
+      "sourcePassage": {
+        "section": "1.4 Groups",
+        "exercise": 2,
+        "pdfPages": [23],
+        "printedPages": [15],
+        "url": "./chapter-01/groups#printed-page-15"
+      },
+      "svg": "original-group-kernel-6-3.svg",
+      "implementation": "packages/bloom/src/examples/group-kernels.ts",
+      "buildFactory": "buildCyclicGroupKernelFigure",
+      "buildArguments": [6, 3],
+      "substanceFactory": "cyclicGroupKernelSubstance",
+      "substanceArguments": [6, 3],
+      "style": "packages/bloom/src/styles/group-kernels.tsx",
+      "domainModule": "packages/bloom/src/domains/set-theory.ts",
+      "interaction": "objects",
+      "review": {
+        "record": "review-original-group-kernels.json"
+      },
+      "substanceLines": [18, 105]
+    },
+    {
+      "id": "original-group-kernel-8-4",
+      "title": "The kernel of Z_8 → Z_4",
+      "status": "reviewed-original",
+      "pdfPage": 23,
+      "printedPage": 15,
+      "description": "Reduction modulo 4 maps the cyclic group Z_8 to Z_4; its kernel fiber and target identity are orange. Every map value is shown.",
+      "sourcePassage": {
+        "section": "1.4 Groups",
+        "exercise": 2,
+        "pdfPages": [23],
+        "printedPages": [15],
+        "url": "./chapter-01/groups#printed-page-15"
+      },
+      "svg": "original-group-kernel-8-4.svg",
+      "implementation": "packages/bloom/src/examples/group-kernels.ts",
+      "buildFactory": "buildCyclicGroupKernelFigure",
+      "buildArguments": [8, 4],
+      "substanceFactory": "cyclicGroupKernelSubstance",
+      "substanceArguments": [8, 4],
+      "style": "packages/bloom/src/styles/group-kernels.tsx",
+      "domainModule": "packages/bloom/src/domains/set-theory.ts",
+      "interaction": "objects",
+      "review": {
+        "record": "review-original-group-kernels.json"
+      },
+      "substanceLines": [18, 105]
+    },
+    {
+      "id": "original-retracing-circle",
+      "title": "A circle loop followed by its inverse",
+      "status": "reviewed-original",
+      "pdfPage": 229,
+      "printedPage": 246,
+      "description": "Four exact homotopy times show a loop followed by its parameter inverse retracing progressively less of the original curve, until its image is the fixed basepoint. The gray curve is a reference; the orange curve is the current image.",
+      "sourcePassage": {
+        "section": "11.3 The Fundamental Group",
+        "proposition": 4,
+        "pdfPages": [229],
+        "printedPages": [246],
+        "url": "./chapter-11/fundamental-group#printed-page-246"
+      },
+      "svg": "original-retracing-circle.svg",
+      "implementation": "packages/bloom/src/examples/loop-retracing.ts",
+      "buildFactory": "buildInverseCancellationFigure",
+      "buildArguments": ["circle"],
+      "substanceFactory": "inverseCancellationSubstance",
+      "substanceModule": "packages/bloom/src/examples/loop-retracing.ts",
+      "substanceArguments": ["circle"],
+      "substanceLines": [8, 124],
+      "style": "packages/bloom/src/styles/loop-retracing.tsx",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "interaction": "labels",
+      "review": {
+        "record": "review-original-retracing-loops.json"
+      }
+    },
+    {
+      "id": "original-retracing-figure-eight",
+      "title": "A figure-eight loop followed by its inverse",
+      "status": "reviewed-original",
+      "pdfPage": 229,
+      "printedPage": 246,
+      "description": "Four exact homotopy times show a loop followed by its parameter inverse retracing progressively less of the original curve, until its image is the fixed basepoint. The gray curve is a reference; the orange curve is the current image.",
+      "sourcePassage": {
+        "section": "11.3 The Fundamental Group",
+        "proposition": 4,
+        "pdfPages": [229],
+        "printedPages": [246],
+        "url": "./chapter-11/fundamental-group#printed-page-246"
+      },
+      "svg": "original-retracing-figure-eight.svg",
+      "implementation": "packages/bloom/src/examples/loop-retracing.ts",
+      "buildFactory": "buildInverseCancellationFigure",
+      "buildArguments": ["figure-eight"],
+      "substanceFactory": "inverseCancellationSubstance",
+      "substanceModule": "packages/bloom/src/examples/loop-retracing.ts",
+      "substanceArguments": ["figure-eight"],
+      "substanceLines": [8, 124],
+      "style": "packages/bloom/src/styles/loop-retracing.tsx",
+      "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+      "interaction": "labels",
+      "review": {
+        "record": "review-original-retracing-loops.json"
+      }
+    }
+  ]
+}

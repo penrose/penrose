@@ -716,6 +716,16 @@ function* predsExpr(x: ad.Expr): Generator<ad.Expr, void, undefined> {
   }
 }
 
+/** Variables which contribute to the supplied expression graphs. */
+export const collectVars = (expressions: ad.Expr[]): Set<ad.Var> => {
+  const variables = new Set<ad.Var>();
+  for (const expression of topsort(predsExpr, expressions)) {
+    if (typeof expression !== "number" && expression.tag === "Var")
+      variables.add(expression);
+  }
+  return variables;
+};
+
 // this type is very incomplete but it excludes `undefined` so at least it makes
 // sure we handle all necessary cases in `switch` statements
 type RoseVal =
@@ -955,11 +965,16 @@ export const genGradient = async (
   const n = inputs.length;
   const o = objectives.length;
   const c = constraints.length;
-
-  const indices = new Map<ad.Var, number>(inputs.map((x, i) => [x, i]));
+  // Keep the public state indices intact, but differentiate only variables
+  // reachable from the energy. Shape defaults can leave many unused inputs.
+  const reachable = collectVars([...objectives, ...constraints]);
+  const activeIndices = inputs.flatMap((x, i) => (reachable.has(x) ? [i] : []));
+  const activeInputs = activeIndices.map((i) => inputs[i]);
+  const k = activeInputs.length;
+  const indices = new Map<ad.Var, number>(activeInputs.map((x, i) => [x, i]));
 
   const single = (y: ad.Num) =>
-    rose.fn([rose.Vec(n, rose.Real)], rose.Real, (varying) => {
+    rose.fn([rose.Vec(k, rose.Real)], rose.Real, (varying) => {
       const sorted = topsort(predsExpr, [y]);
       const vals = emitGraph((x) => varying[indices.get(x)!], sorted);
       return vals.get(y) as rose.Real;
@@ -969,7 +984,7 @@ export const genGradient = async (
   const constrFns = constraints.map(single);
 
   const basic = rose.fn(
-    [rose.Vec(n, rose.Real)],
+    [rose.Vec(k, rose.Real)],
     { objectives: rose.Vec(o, rose.Real), constraints: rose.Vec(c, rose.Real) },
     (varying) => ({
       objectives: objFns.map((f) => f(varying)),
@@ -979,14 +994,14 @@ export const genGradient = async (
 
   const full = rose.fn(
     [
-      rose.Vec(n, rose.Real),
+      rose.Vec(k, rose.Real),
       rose.Real,
       rose.Vec(o, rose.Bool),
       rose.Vec(c, rose.Bool),
     ],
     {
       phi: rose.Real,
-      gradient: rose.Vec(n, rose.Real),
+      gradient: rose.Vec(k, rose.Real),
       objectives: rose.Vec(o, rose.Real),
       constraints: rose.Vec(c, rose.Real),
     },
@@ -1047,9 +1062,18 @@ export const genGradient = async (
         `expected ${n} inputs, got gradient with length ${grad.length}`,
       );
 
-    const out = f(Array.from(inputs), weight, objMask, constrMask);
+    const out = f(
+      activeIndices.map((i) => inputs[i]),
+      weight,
+      objMask,
+      constrMask,
+    );
     const { phi, gradient, objectives: objs, constraints: constrs } = out;
-    for (let i = 0; i < n; i++) grad[i] = inputMask[i] ? gradient[i] : 0;
+    grad.fill(0);
+    for (let j = 0; j < k; j++) {
+      const i = activeIndices[j];
+      grad[i] = inputMask[i] ? gradient[j] : 0;
+    }
     return {
       phi,
       objectives: objMask.map((p, i) => (p ? objs[i] : 0)),

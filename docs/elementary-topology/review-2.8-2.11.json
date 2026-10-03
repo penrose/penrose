@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "edition": "Elementary Topology, Michael C. Gemignani, Second Edition",
+    "visualReview": "Full source pages 29,31,33 rendered at 150 dpi; adjacent mathematical prose read from the scan and checked against OCR.",
+    "sourceImageDimensions": [
+      762,
+      1262
+    ],
+    "boundsConvention": "sourceBounds is [x,y,width,height], each component normalized to the full source page. Pixel bounds are from the inspected 150-dpi page PNGs and include diagram labels, excluding captions and prose."
+  },
+  "implementation": {
+    "domainFile": "packages/bloom/src/domains/metric-spaces.ts",
+    "domain": "metric-spaces",
+    "sharedComponents": "packages/bloom/src/styles/metric-primitives.tsx",
+    "semantics": "Shape-free immutable Substance snapshots, synchronous eager TSX styles, fresh assembly. All graphics use optimized Penrose shapes and typed PathData; no raw image wrappers.",
+    "appearance": "Consistent subdued orange fill, gray hatching, black mathematical labels, and gray axes."
+  },
+  "verification": {
+    "focusedTestFile": "packages/examples/src/elementary-topology/metric-topology.test.ts",
+    "testsPassed": 10,
+    "bloomDeclarationEmit": "passed",
+    "exampleLeafTypecheckAndEmit": "passed",
+    "scopedBloomESLint": "passed",
+    "visualReview": "All four final SVGs were rasterized on white backgrounds and visually inspected against their source pages.",
+    "limitations": "These checks establish source relationships and actual rendering, not automated pixel-level equivalence."
+  },
+  "figures": [
+    {
+      "id": "2.8",
+      "pdfPage": 29,
+      "printedPage": 22,
+      "pixelBounds": [
+        208,
+        94,
+        334,
+        305
+      ],
+      "style": "neighborhoodInclusionStyle",
+      "styleFile": "packages/bloom/src/styles/neighborhood-inclusion.tsx",
+      "substance": "openBallInteriorNeighborhood",
+      "build": "buildNeighborhoodInclusionFigure",
+      "exampleFile": "packages/examples/src/elementary-topology/neighborhood-inclusion.ts",
+      "sourceContext": "The conclusion of the proof that N(x,ρ) is open: q=ρ−D(x,w), and D(x,z)≤D(x,w)+D(w,z)<ρ for z∈N(w,q). The beginning of the proof is on missing printed page 21.",
+      "geometry": [
+        "Large circular neighborhood N(x,ρ), smaller internally tangent neighborhood centered at w, with a crosshatched inner region.",
+        "Default x=(0,0), w=(-0.52,-0.63), ρ=1 and q=1−hypot(0.52,0.63).",
+        "Segments w→x and x→outer boundary, cubic braces for D(x,w) and ρ, and an elbow leader for q=ρ−D(x,w)."
+      ],
+      "facts": [
+        "PointInSpace(x,plane), PointInSpace(w,plane)",
+        "InSpace(inner,plane), InSpace(outer,plane), NeighborhoodAt(inner,w), NeighborhoodAt(outer,x)",
+        "InsideNeighborhood(w,outer), NeighborhoodContainedIn(inner,outer)"
+      ],
+      "defaultCanvas": [
+        340,
+        330
+      ],
+      "checks": [
+        "Strict positivity of q; numerical tangency q+D(x,w)=ρ.",
+        "Samples strictly inside the inner ball are inside the outer ball.",
+        "Actual SVG renders both circles, center points, labels, and two cubic PathData braces.",
+        "An asserted containment with a false radius is rejected."
+      ],
+      "limits": [
+        "The source illustrates a theorem about an arbitrary metric space with Euclidean-looking balls. This concrete figure uses a Euclidean plane realization; it does not numerically prove the general triangle inequality.",
+        "The scan's hand-drawn circle, brace waviness, and exact hatch phase are replaced with analytic vector geometry."
+      ],
+      "sourceBounds": [
+        0.272966,
+        0.074485,
+        0.43832,
+        0.24168
+      ],
+      "panels": 1,
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-2.8.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-2.8.png"
+    },
+    {
+      "id": "2.9",
+      "pdfPage": 31,
+      "printedPage": 24,
+      "pixelBounds": [
+        230,
+        228,
+        334,
+        106
+      ],
+      "style": "closedIntervalComplementStyle",
+      "styleFile": "packages/bloom/src/styles/closed-interval.tsx",
+      "substance": "closedIntervalComplementNeighborhood",
+      "build": "buildClosedIntervalFigure",
+      "exampleFile": "packages/examples/src/elementary-topology/closed-interval.ts",
+      "sourceContext": "Example 10 proves that [0,1] is closed in the real line with the absolute-value metric. For x outside [0,1], set ρ=min(|x|,|1−x|); N(x,ρ) is disjoint from [0,1].",
+      "geometry": [
+        "A hatched closed interval [0,1] with square endpoint brackets and labels above a horizontal number line.",
+        "An open neighborhood around x<0, ending at 0, with curved parentheses and a curly distance brace.",
+        "Default x=-0.6, interval=[0,1], ρ=0.6. The reusable style also supports x>1 and other finite intervals."
+      ],
+      "facts": [
+        "IntervalInLine(interval,line), LinePointInSpace(x,line)",
+        "OutsideInterval(x,interval), LineNeighborhoodAt(ball,x)",
+        "LineNeighborhoodInSpace(ball,line), LineNeighborhoodAvoidsInterval(ball,interval)"
+      ],
+      "defaultCanvas": [
+        330,
+        110
+      ],
+      "checks": [
+        "Distance radius is the minimum distance to the two endpoints; neither endpoint belongs to the open neighborhood.",
+        "Factory rejects points in the closed interval and reversed intervals.",
+        "Actual SVG renders two shaded bars, closed endpoint polylines, open parentheses, hatches, and a cubic radius brace."
+      ],
+      "limits": [
+        "The source's handwritten curly brace and dense hatching are regularized as vectors. The open interval and closed bracket meet visually at 0, as in the scan."
+      ],
+      "sourceBounds": [
+        0.301837,
+        0.180666,
+        0.43832,
+        0.083994
+      ],
+      "panels": 1,
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-2.9.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-2.9.png"
+    },
+    {
+      "id": "2.10",
+      "pdfPage": 33,
+      "printedPage": 26,
+      "pixelBounds": [
+        42,
+        900,
+        330,
+        287
+      ],
+      "style": "sequenceConvergenceStyle",
+      "styleFile": "packages/bloom/src/styles/sequence-convergence.tsx",
+      "substance": "convergentSequenceNeighborhood",
+      "build": "buildSequenceConvergenceFigure",
+      "exampleFile": "packages/examples/src/elementary-topology/sequence-convergence.ts",
+      "sourceContext": "Definition 5: S={s_n} converges to y if for each ρ>0 there is an integer M such that n>M implies s_n∈N(y,ρ). The figure labels the last exceptional index with lowercase m.",
+      "geometry": [
+        "A shaded circular neighborhood with center/limit y, a finite scattered prefix outside it, and a tail approaching y inside it.",
+        "Source labels s_1, s_m, s_{m+1}, y and N(y,ρ) are retained.",
+        "Default cutoff m=6, ρ=1, finite drawing of 22 terms. The unspecified sequence remains a symbolic PointSequence object; the style owns a representative sampler.",
+        "The default drawn tail begins at (-0.52,0.45) and then approaches zero on an exponentially contracting spiral. Its finite exceptional positions are fitted to the scan."
+      ],
+      "facts": [
+        "SequenceInPlane(sequence,plane), ConvergesTo(sequence,y,plane)",
+        "NeighborhoodAt(ball,y), InSpace(ball,plane)",
+        "TailOfSequence(tail,sequence), TailInNeighborhood(tail,ball)"
+      ],
+      "defaultCanvas": [
+        300,
+        270
+      ],
+      "checks": [
+        "Default tail terms sampled through index 100 lie in the open neighborhood and approach zero.",
+        "Cutoff is a positive safe integer, drawn prefix extends beyond cutoff.",
+        "Actual SVG renders the finite prefix and circular neighborhood.",
+        "A custom sampler whose tail leaves the declared neighborhood is rejected."
+      ],
+      "limits": [
+        "The source gives no formula for this schematic sequence. Default plotted positions are a faithful representative rather than a recovered formula.",
+        "A finite rendered prefix cannot establish an infinite convergence claim; ConvergesTo and TailInNeighborhood are explicit Substance assertions.",
+        "The circular display is a Euclidean realization of the generic metric-space illustration."
+      ],
+      "sourceBounds": [
+        0.055118,
+        0.713154,
+        0.433071,
+        0.227417
+      ],
+      "panels": 1,
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-2.10.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-2.10.png"
+    },
+    {
+      "id": "2.11",
+      "pdfPage": 33,
+      "printedPage": 26,
+      "pixelBounds": [
+        388,
+        927,
+        348,
+        235
+      ],
+      "style": "sequenceMetricComparisonStyle",
+      "styleFile": "packages/bloom/src/styles/sequence-convergence.tsx",
+      "substance": "reciprocalSequenceNeighborhoods",
+      "build": "buildSequenceMetricComparisonFigure",
+      "exampleFile": "packages/examples/src/elementary-topology/sequence-convergence.ts",
+      "sourceContext": "Example 12 uses s_n=(1,1/n). Distances to (1,0) under D, D_1 and D_3 equal 1/n, so the sequence converges under all three. It does not converge under the discrete metric D_2.",
+      "geometry": [
+        "Overlapping Euclidean circle, taxicab diamond, and supremum square centered at the shared limit (1,0), with axes and labels (0,0), x, y, s_1, s_2 and s_3.",
+        "The actual mathematical sequence is plotted at (1,1/n) rather than at arbitrary sample coordinates.",
+        "Default ρ=0.45 places s_1 and s_2 outside all three balls and s_3 inside. M=floor(1/ρ)+1 is strictly greater than 1/ρ.",
+        "Default drawing includes 24 terms. Diamond crosshatching distinguishes the overlapping regions."
+      ],
+      "facts": [
+        "One PointSequence with formula s_n=(1,1/n), one shared MetricPoint y=(1,0), one SequenceTail.",
+        "Separate MetricPlane and Neighborhood objects for D (Euclidean), D_1 (taxicab), D_3 (supremum).",
+        "Metric-qualified SequenceInPlane and ConvergesTo assertions, with a shared TailOfSequence and three TailInNeighborhood assertions."
+      ],
+      "defaultCanvas": [
+        320,
+        300
+      ],
+      "checks": [
+        "For positive ρ, M>1/ρ and all checked n>M satisfy the three neighborhood inequalities.",
+        "The distance under each of the three illustrated metrics equals exactly 1/n.",
+        "Discrete-metric terms stay distance 1 from the proposed limit and are outside radius 0.5.",
+        "Actual SVG renders a circle, diamond and square plus vertically aligned sequence points.",
+        "Parallel repeated builds use the same immutable Substance snapshot without sharing visual state; contradictory sample terms are rejected."
+      ],
+      "limits": [
+        "The scanned hand drawing places its first terms schematically and does not maintain exact 1/n spacing. This reconstruction uses exact coordinates, so vertical spacing and the total aspect ratio differ from the scan.",
+        "The scan specifies no numerical neighborhood radius. The selected 0.45 radius preserves the source's qualitative placement of the first three labeled terms.",
+        "The discrete metric is discussed in adjacent prose but has no drawn neighborhood in this figure; no extra discrete panel is invented."
+      ],
+      "sourceBounds": [
+        0.509186,
+        0.734548,
+        0.456693,
+        0.186212
+      ],
+      "panels": 1,
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-2.11.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-2.11.png"
+    }
+  ],
+  "missingSourceNotes": [
+    "Printed page 21 is absent from the supplied scan. Figure 2.7 is not reconstructed or asserted present in these modules."
+  ]
+}

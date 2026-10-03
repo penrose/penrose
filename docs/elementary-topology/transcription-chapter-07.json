@@ -1,0 +1,366 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "chapter": {
+    "number": 7,
+    "title": "Covering Properties",
+    "printedPageRange": [142, 162]
+  },
+  "review": {
+    "pdfPageRange": [136, 155],
+    "method": "Private text extraction checked against every full-page 150 dpi rendered scan. Every mathematical formula and available exercise visually reviewed. Fraktur maximal-family symbol in Proposition15 additionally checked at higher resolution.",
+    "status": "available-pages-transcribed",
+    "availableChapterPdfPages": [
+      136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150,
+      151, 152, 153, 154
+    ],
+    "visualReviewedPdfPages": [
+      136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150,
+      151, 152, 153, 154, 155
+    ],
+    "limits": [
+      "Printed pages147 and157 are absent. No missing prose, definitions, propositions, proofs, examples, exercises, or discussion are reconstructed.",
+      "Printed146 ends with Proposition4 parts a–g; printed148 begins the introduction to Proposition5. Intervening discussion or proofs are unavailable.",
+      "Printed156 ends inside Proposition11 proof; printed158 starts a proof whose statement is unavailable. Missing Proposition12 and intervening material are not reconstructed.",
+      "The original historical compactness definition and footnote expressly noting its nonequivalence are retained with a source asterisk link.",
+      "Proposition5 separation inequalities for all pairs, neighborhood notation1/2m, and Exercise2(b) neighborhood N(w,1) remain as printed.",
+      "Example7 capital For, Exercise7 variable x∈X in the differentiability condition, and Exercise8 reference to Proposition6 are retained.",
+      "Proposition9 uses j∈J for the family of closures followed by I. Example9 monotonicity cases and informal cofinally wording are preserved.",
+      "Example11 cites Proposition11; Proposition13 specifies a countable family and prints {s_j},i∈I in its last proof paragraph; source readings retained.",
+      "Exercise7.4.5 states a function onto[0,1] with sin(1/x); its stated codomain and onto wording are preserved. Exercise10 regards the function as a subspace, retained.",
+      "Running headers and footers are retained in the source map. Line wrapping, paragraph indentation and line-end hyphenation are normalized. Inline anchors preserve paragraphs crossing page boundaries.",
+      "Printed144 and156 split at section boundaries. PDF155, printed163, is the reviewed Chapter8 boundary only."
+    ]
+  },
+  "outputDirectory": "packages/docs-site/docs/elementary-topology/chapter-07",
+  "pages": [
+    {
+      "pdfPage": 136,
+      "printedPage": 142,
+      "formulaReview": "verified against rendered scan",
+      "path": "open-covers-and-refinements.md",
+      "anchor": "printed-page-142",
+      "coverage": "All body text; Chapter and section headings, introduction and original footnote, Definition1 and subcover beginning."
+    },
+    {
+      "pdfPage": 137,
+      "printedPage": 143,
+      "formulaReview": "verified against rendered scan",
+      "path": "open-covers-and-refinements.md",
+      "anchor": "printed-page-143",
+      "coverage": "All body text; Subcover and refinement definitions completed; Examples1–3, complete."
+    },
+    {
+      "pdfPage": 138,
+      "printedPage": 144,
+      "formulaReview": "verified against rendered scan",
+      "fragments": [
+        {
+          "path": "open-covers-and-refinements.md",
+          "anchor": "printed-page-144",
+          "coverage": "All body text of section fragment; Exercises1–5, all parts."
+        },
+        {
+          "path": "countability-properties.md",
+          "anchor": "printed-page-144",
+          "coverage": "All body text of section fragment; Section7.2 heading, introduction and Definition2."
+        }
+      ]
+    },
+    {
+      "pdfPage": 139,
+      "printedPage": 145,
+      "formulaReview": "verified against rendered scan",
+      "path": "countability-properties.md",
+      "anchor": "printed-page-145",
+      "coverage": "All body text; Example4, Definition3, Examples5–6, Proposition1 and proof, Proposition2 statement."
+    },
+    {
+      "pdfPage": 140,
+      "printedPage": 146,
+      "formulaReview": "verified against rendered scan",
+      "path": "countability-properties.md",
+      "anchor": "printed-page-146",
+      "coverage": "All body text; Proposition2 proof, Proposition3 and proof, discussion, Proposition4 parts a–g."
+    },
+    {
+      "pdfPage": 141,
+      "printedPage": 148,
+      "formulaReview": "verified against rendered scan",
+      "path": "countability-properties.md",
+      "anchor": "printed-page-148",
+      "coverage": "All body text; Metric introduction, Proposition5 statement, b⇒c proof, Figure7.1, a⇒b proof beginning."
+    },
+    {
+      "pdfPage": 142,
+      "printedPage": 149,
+      "formulaReview": "verified against rendered scan",
+      "path": "countability-properties.md",
+      "anchor": "printed-page-149",
+      "coverage": "All body text; a⇒b proof completed, corollary, Proposition6 and proof beginning."
+    },
+    {
+      "pdfPage": 143,
+      "printedPage": 150,
+      "formulaReview": "verified against rendered scan",
+      "path": "countability-properties.md",
+      "anchor": "printed-page-150",
+      "coverage": "All body text; Proposition6 proof completed, all union/closure formulas, Example7."
+    },
+    {
+      "pdfPage": 144,
+      "printedPage": 151,
+      "formulaReview": "verified against rendered scan",
+      "path": "countability-properties.md",
+      "anchor": "printed-page-151",
+      "coverage": "All body text; All eight exercises, every subpart and hint."
+    },
+    {
+      "pdfPage": 145,
+      "printedPage": 152,
+      "formulaReview": "verified against rendered scan",
+      "path": "compactness.md",
+      "anchor": "printed-page-152",
+      "coverage": "All body text; Section heading, introduction, Definition4 and subspace formulation, Example8, Proposition7 and proof beginning."
+    },
+    {
+      "pdfPage": 146,
+      "printedPage": 153,
+      "formulaReview": "verified against rendered scan",
+      "path": "compactness.md",
+      "anchor": "printed-page-153",
+      "coverage": "All body text; Figure7.2, Proposition7 proof completion, Proposition8 and proof, Proposition9 statement."
+    },
+    {
+      "pdfPage": 147,
+      "printedPage": 154,
+      "formulaReview": "verified against rendered scan",
+      "path": "compactness.md",
+      "anchor": "printed-page-154",
+      "coverage": "All body text; Proposition9 proof, corollary and proof, Example9 introduction."
+    },
+    {
+      "pdfPage": 148,
+      "printedPage": 155,
+      "formulaReview": "verified against rendered scan",
+      "path": "compactness.md",
+      "anchor": "printed-page-155",
+      "coverage": "All body text; Example9 cases1–4 and conclusion; Exercises1–6 through part a."
+    },
+    {
+      "pdfPage": 149,
+      "printedPage": 156,
+      "formulaReview": "verified against rendered scan",
+      "fragments": [
+        {
+          "path": "compactness.md",
+          "anchor": "printed-page-156",
+          "coverage": "All body text of section fragment; Exercise6 parts b–d and Exercises7–9."
+        },
+        {
+          "path": "derived-spaces-and-compactness.md",
+          "anchor": "printed-page-156",
+          "coverage": "All body text of section fragment; Section7.4 heading, introduction, Proposition10 and proof, Proposition11 and available proof beginning, Figure7.3."
+        }
+      ]
+    },
+    {
+      "pdfPage": 150,
+      "printedPage": 158,
+      "formulaReview": "verified against rendered scan",
+      "path": "derived-spaces-and-compactness.md",
+      "anchor": "printed-page-158",
+      "coverage": "All body text; Available proof fragment whose statement is absent, corollary, Examples11–12, Proposition13 and full proof, homeomorphism discussion."
+    },
+    {
+      "pdfPage": 151,
+      "printedPage": 159,
+      "formulaReview": "verified against rendered scan",
+      "path": "derived-spaces-and-compactness.md",
+      "anchor": "printed-page-159",
+      "coverage": "All body text; Figures7.4–7.6, Proposition14 and proof, Proposition15 statement and proof beginning."
+    },
+    {
+      "pdfPage": 152,
+      "printedPage": 160,
+      "formulaReview": "verified against rendered scan",
+      "path": "derived-spaces-and-compactness.md",
+      "anchor": "printed-page-160",
+      "coverage": "All body text; Proposition15 proof completed, Proposition16 statement and proof beginning."
+    },
+    {
+      "pdfPage": 153,
+      "printedPage": 161,
+      "formulaReview": "verified against rendered scan",
+      "path": "derived-spaces-and-compactness.md",
+      "anchor": "printed-page-161",
+      "coverage": "All body text; Proposition16 proof completed, Exercises1–5, all subparts and hint."
+    },
+    {
+      "pdfPage": 154,
+      "printedPage": 162,
+      "formulaReview": "verified against rendered scan",
+      "path": "derived-spaces-and-compactness.md",
+      "anchor": "printed-page-162",
+      "coverage": "All body text; Exercises6–11, all available chapter-ending text."
+    }
+  ],
+  "gaps": [
+    {
+      "printedPage": 147,
+      "before": {
+        "pdfPage": 140,
+        "printedPage": 146
+      },
+      "after": {
+        "pdfPage": 141,
+        "printedPage": 148
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "countability-properties.md"],
+      "availableBoundaryEvidence": "Printed146 ends with Proposition4 parts a–g; printed148 begins the introduction to Proposition5."
+    },
+    {
+      "printedPage": 157,
+      "before": {
+        "pdfPage": 149,
+        "printedPage": 156
+      },
+      "after": {
+        "pdfPage": 150,
+        "printedPage": 158
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "derived-spaces-and-compactness.md"],
+      "availableBoundaryEvidence": "Printed156 ends within Proposition11 proof; printed158 begins Proof without its statement. Subsequent text refers to Proposition12 and begins Example11."
+    }
+  ],
+  "illustrations": [
+    {
+      "id": "7.1",
+      "pdfPage": 141,
+      "printedPage": 148,
+      "path": "countability-properties.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=148",
+      "publicSvgPath": "/elementary-topology/figures/figure-7.1.svg"
+    },
+    {
+      "id": "7.2",
+      "pdfPage": 146,
+      "printedPage": 153,
+      "path": "compactness.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=153",
+      "publicSvgPath": "/elementary-topology/figures/figure-7.2.svg"
+    },
+    {
+      "id": "7.3",
+      "pdfPage": 149,
+      "printedPage": 156,
+      "path": "derived-spaces-and-compactness.md",
+      "penroseStatus": "implemented-public-svg",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=156",
+      "publicSvgPath": "/elementary-topology/figures/figure-7.3.svg"
+    },
+    {
+      "id": "7.4",
+      "pdfPage": 151,
+      "printedPage": 159,
+      "path": "derived-spaces-and-compactness.md",
+      "penroseStatus": "reviewed",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=159",
+      "penroseSvg": "/elementary-topology/figures/figure-7.4.svg"
+    },
+    {
+      "id": "7.5",
+      "pdfPage": 151,
+      "printedPage": 159,
+      "path": "derived-spaces-and-compactness.md",
+      "penroseStatus": "reviewed",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=159",
+      "penroseSvg": "/elementary-topology/figures/figure-7.5.svg"
+    },
+    {
+      "id": "7.6",
+      "pdfPage": 151,
+      "printedPage": 159,
+      "path": "derived-spaces-and-compactness.md",
+      "penroseStatus": "reviewed",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=159",
+      "penroseSvg": "/elementary-topology/figures/figure-7.6.svg"
+    }
+  ],
+  "nextChapterBoundary": {
+    "pdfPage": 155,
+    "printedPage": 163,
+    "chapter": 8,
+    "title": "More About Compactness",
+    "section": "8.1 Compactness in R^n",
+    "status": "visually reviewed; not transcribed as Chapter7"
+  },
+  "validation": {
+    "sourceBodyCoverage": "Every extracted alphabetic OCR word of four or more characters checked per supplied page against its transcribed body; unmatched tokens were only running headers, Lindelof OCR for Lindelöf, line-break fragments, or visually corrected OCR errors. Supplements full-page visual review.",
+    "sourceFormulaVerification": "All mathematical expressions on PDF136–154 visually checked, including metric-radius fractions, weak inequalities, condensation superscript minus, recursively separated neighborhoods, finite-intersection/net indices, product cross notation, Fraktur collections, and every exercise formula.",
+    "mathRenderer": "KaTeX0.13.24 via shared configureMath, with v-pre wrappers preserving mathematical braces in Vue",
+    "mathExpressionCountInNewPages": 1101,
+    "mathValidationStatus": "passed",
+    "vueCompilationStatus": "passed",
+    "browserVisualQa": {
+      "status": "passed-root-review",
+      "browser": "Codex in-app browser",
+      "pages": [
+        "open-covers-and-refinements",
+        "countability-properties",
+        "compactness",
+        "derived-spaces-and-compactness"
+      ],
+      "checked": [
+        "open-covers-and-refinements",
+        "countability-properties",
+        "compactness",
+        "derived-spaces-and-compactness"
+      ],
+      "method": "All section routes loaded in the production in-app browser. Checked chapter headings, exercises, rendered KaTeX, native SVG images and document width. Representative screenshots inspected; the large 5.7 SVG completed loading and was inspected in its prose context.",
+      "mathErrors": 0,
+      "documentOverflow": false
+    }
+  },
+  "generalizabilityCandidates": [
+    {
+      "section": "7.1",
+      "printedPage": 143,
+      "pdfPage": 137,
+      "passage": "Example1",
+      "concept": "Compare a cover, a countable subcover, and a smaller-radius refinement on the real line."
+    },
+    {
+      "section": "7.1",
+      "printedPage": 144,
+      "pdfPage": 138,
+      "passage": "Exercise4",
+      "concept": "Nested cover of(0,1) with no finite subcover though deleting finitely many members preserves coverage."
+    },
+    {
+      "section": "7.2",
+      "printedPage": 150,
+      "pdfPage": 143,
+      "passage": "Proposition6 proof",
+      "concept": "Recursive trimming of countable neighborhood families separates two disjoint closed sets."
+    },
+    {
+      "section": "7.3",
+      "printedPage": 154,
+      "pdfPage": 147,
+      "passage": "Proposition9 proof",
+      "concept": "Finite intersections ordered by reverse inclusion and selected points form a net witnessing compactness."
+    },
+    {
+      "section": "7.4",
+      "printedPage": 161,
+      "pdfPage": 153,
+      "passage": "Exercise3",
+      "concept": "A space-filling continuous image of an interval cannot be one-one."
+    }
+  ]
+}

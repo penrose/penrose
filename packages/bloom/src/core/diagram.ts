@@ -1,6 +1,7 @@
 import {
   Canvas,
   collectLabels,
+  collectVars,
   compileCompGraph,
   finalStage,
   genGradient,
@@ -10,6 +11,7 @@ import {
   insertPending,
   isOptimized,
   makeTranslateOnMouseDown,
+  mapShape,
   mul,
   nextStage,
   Num,
@@ -22,10 +24,12 @@ import {
 import consola, { LogLevels } from "consola";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SharedInput } from "./builder.js";
-import { DragConstraint } from "./types.js";
+import { DragConstraint, RawSvgElement } from "./types.js";
 import {
+  appendRawSvgElements,
   CallbackLooper,
   mathjaxInitWithHandler,
+  namespaceSvgIds,
   setNoFillIfTransparent,
   stateToSVG,
 } from "./utils.js";
@@ -41,6 +45,7 @@ export type DiagramCreationData = {
   variation: string;
   inputs: InputInfo[];
   constraints: Num[];
+  constraintNames?: (string | undefined)[];
   objectives: Num[];
   shapes: Shape<Num>[];
   nameShapeMap: Map<string, Shape<Num>>;
@@ -48,10 +53,13 @@ export type DiagramCreationData = {
   pinnedInputs: Set<number>;
   draggingConstraints: Map<string, DragConstraint>;
   inputIdxsByPath: IdxsByPath;
+  dragInputScales: Map<string, Map<number, number>>;
   lassoStrength: number;
   sharedInputs: Set<SharedInput>;
   interactiveOnlyShapes: Set<Shape<Num>>;
   eventListeners: Map<string, [string, (e: any, diagram: Diagram) => void][]>;
+  rawSvgDefs: RawSvgElement[];
+  rawAttrsByName: Map<string, Record<string, string>>;
 };
 
 /** Data passed into the constructor. Has had state create asynchronously. */
@@ -59,12 +67,37 @@ type DiagramConstructorData = {
   state: PenroseState;
   pinnedInputs: Set<number>;
   draggingConstraints: Map<string, DragConstraint>;
+  dragInputScales: Map<string, Map<number, number>>;
   namedInputs: Map<string, number>;
   sharedInputs: Set<SharedInput>;
   lassoStrength: number;
   interactiveOnlyShapes: Set<Shape<Num>>;
   eventListeners: Map<string, [string, (e: any, diagram: Diagram) => void][]>;
+  rawSvgDefs: RawSvgElement[];
+  rawAttrsByName: Map<string, Record<string, string>>;
+  constraintNames?: (string | undefined)[];
 };
+
+/** A registered constraint is satisfied when its signed value is nonpositive. */
+export interface ConstraintDiagnostic {
+  index: number;
+  label?: string;
+  active: boolean;
+  /** Value of the registered expression, including any weight passed to ensure. */
+  value: number;
+  /** Positive part of value; nonfinite values have infinite violation. */
+  violation: number;
+}
+
+export interface ConstraintDiagnostics {
+  /** Solver termination is distinct from satisfying the registered constraints. */
+  optimizationFinished: boolean;
+  /** Current-stage active constraints satisfy the supplied numerical tolerance. */
+  feasible: boolean;
+  tolerance: number;
+  maxViolation: number;
+  constraints: ConstraintDiagnostic[];
+}
 
 /**
  * A renderable diagram, created with `DiagramBuilder.prototype.build`.
@@ -88,6 +121,7 @@ export class Diagram {
    */
   private tempPinnedForDrag = new Map<string, number[][]>();
   private draggingConstraints: Map<string, DragConstraint>;
+  private dragInputScales: Map<string, Map<number, number>>;
   private namedInputs: Map<string, number>;
   private onInteraction = () => {};
   private inputEffects: Map<string, Set<(val: number, name: string) => void>> =
@@ -96,11 +130,15 @@ export class Diagram {
   private sharedInputs = new Set<SharedInput>();
   private interactiveOnlyShapes;
   private eventListeners;
+  private rawSvgDefs: RawSvgElement[];
+  private rawAttrsByName: Map<string, Record<string, string>>;
+  private readonly constraintNames: (string | undefined)[];
   private optimizationLooper = new CallbackLooper("MessageChannel");
   private renderLooper = new CallbackLooper("AnimationFrame");
   private onOptimizationFinished: (xs: number[]) => void = () => {};
   private onOptimizationStepped: (xs: number[]) => void = () => {};
   private onOptimizationStarted: (xs: number[]) => void = () => {};
+  private discarded = false;
   private readonly namespace = `bloom-${nextDiagramNamespaceId++}`;
 
   /**
@@ -119,11 +157,15 @@ export class Diagram {
     this.state = data.state;
     this.manuallyPinnedIndices = data.pinnedInputs;
     this.draggingConstraints = data.draggingConstraints;
+    this.dragInputScales = data.dragInputScales;
     this.namedInputs = data.namedInputs;
     this.lassoEnabled = data.lassoStrength !== 0;
     this.sharedInputs = data.sharedInputs;
     this.interactiveOnlyShapes = data.interactiveOnlyShapes;
     this.eventListeners = data.eventListeners;
+    this.rawSvgDefs = data.rawSvgDefs;
+    this.rawAttrsByName = data.rawAttrsByName;
+    this.constraintNames = [...(data.constraintNames ?? [])];
   }
 
   /**
@@ -140,6 +182,34 @@ export class Diagram {
       namespace: this.namespace,
     });
 
+    // Inject raw SVG defs (linearGradient, filter, etc.) before the shapes
+    if (this.rawSvgDefs.length > 0) {
+      appendRawSvgElements(svg, this.rawSvgDefs, true /* prepend */);
+    }
+
+    // Apply raw SVG attribute overrides (e.g. fill="url(#grad1)") post-render
+    if (this.rawAttrsByName.size > 0) {
+      for (const [name, attrs] of this.rawAttrsByName) {
+        const elem = titleCache.get(name);
+        if (elem) {
+          for (const [attr, val] of Object.entries(attrs)) {
+            elem.setAttribute(attr, val);
+          }
+        }
+      }
+    }
+
+    const rawIds = new Set<string>();
+    const collectRawIds = (element: RawSvgElement) => {
+      if (element.attrs.id) rawIds.add(element.attrs.id);
+      element.children.forEach(collectRawIds);
+    };
+    this.rawSvgDefs.forEach(collectRawIds);
+    for (const attrs of this.rawAttrsByName.values()) {
+      if (attrs.id) rawIds.add(attrs.id);
+    }
+    namespaceSvgIds(svg, this.namespace, rawIds);
+
     return {
       svg,
       nameElemMap: titleCache,
@@ -151,11 +221,8 @@ export class Diagram {
    */
   renderStatic = async () => {
     const { svg, nameElemMap } = await this.render();
-    for (const shape of this.state.shapes) {
-      if (this.interactiveOnlyShapes.has(shape)) {
-        const elem = nameElemMap.get(shape.name.contents)!;
-        elem.remove();
-      }
+    for (const shape of this.interactiveOnlyShapes) {
+      nameElemMap.get(shape.name.contents)?.remove();
     }
     return svg;
   };
@@ -166,6 +233,7 @@ export class Diagram {
    * (i.e. when optimization converges or fails)
    */
   optimizationStep = async () => {
+    if (this.discarded) return false;
     try {
       let i = 0;
       const steppedState = step(this.state, {
@@ -228,13 +296,15 @@ export class Diagram {
     const draggingRef = { dragging: false };
     for (const [name, elem] of nameElemMap) {
       setNoFillIfTransparent(elem);
-      elem.setAttribute("pointer-events", "painted");
+      if (!elem.hasAttribute("pointer-events"))
+        elem.setAttribute("pointer-events", "painted");
       if (this.draggingConstraints.has(name)) {
         // get rid of tooltip
-        elem.insertBefore(
-          document.createElementNS("http://www.w3.org/2000/svg", "title"),
-          elem.firstChild,
+        // Keep the rendered child structure intact for subsequent frame updates.
+        const title = Array.from(elem.children).find(
+          (child) => child.localName === "title",
         );
+        if (title) title.textContent = "";
         let lastDx = 0;
         let lastDy = 0;
         const translateFn = makeTranslateOnMouseDown(
@@ -278,13 +348,34 @@ export class Diagram {
   };
 
   private copyAttrs = (src: Element, dest: Element) => {
+    if (
+      src.children.length !== dest.children.length ||
+      Array.from(src.children).some(
+        (child, index) => child.localName !== dest.children[index].localName,
+      )
+    ) {
+      // Math labels may regenerate their nested SVG tree. Preserve listeners on
+      // the shape's outer element while replacing the changed label contents.
+      dest.replaceChildren(
+        ...Array.from(src.childNodes, (child) => child.cloneNode(true)),
+      );
+    }
     for (let i = 0; i < src.children.length; i++) {
       this.copyAttrs(src.children[i], dest.children[i]);
     }
 
     for (let i = 0; i < src.attributes.length; i++) {
       const attr = src.attributes[i];
-      dest.setAttribute(attr.name, attr.value);
+      if (attr.name === "xmlns" || attr.name.startsWith("xmlns:")) {
+        const xmlns = "http://www.w3.org/2000/xmlns/";
+        if (dest.getAttributeNode(attr.name)?.namespaceURI !== xmlns)
+          dest.removeAttribute(attr.name);
+        dest.setAttributeNS(xmlns, attr.name, attr.value);
+      } else if (attr.namespaceURI) {
+        dest.setAttributeNS(attr.namespaceURI, attr.name, attr.value);
+      } else {
+        dest.setAttribute(attr.name, attr.value);
+      }
     }
   };
 
@@ -308,12 +399,14 @@ export class Diagram {
     };
 
     const renderLoop = async () => {
+      if (this.discarded) return false;
       if (svg === null || nameElemMap === null || draggingRef === null) {
         const {
           svg: newSvg,
           nameElemMap: newNameElemMap,
           draggingRef: newDraggingRef,
         } = await this.initialRender();
+        if (this.discarded) return false;
 
         svg = newSvg;
         nameElemMap = newNameElemMap;
@@ -360,6 +453,7 @@ export class Diagram {
   };
 
   endDrag = (name: string) => {
+    if (this.lassoEnabled) this.setAndEnableLasso();
     this.tempPinnedForDrag.delete(name);
     this.applyPins(this.state);
   };
@@ -374,10 +468,20 @@ export class Diagram {
     if (this.lassoEnabled) this.setAndEnableLasso();
 
     const translatedIndices = this.tempPinnedForDrag.get(name)!;
+    const scales = this.dragInputScales.get(name);
+    if (!scales) {
+      throw new Error(`No draggable coordinate inputs for ${name}`);
+    }
     const prevVaryingValues = [...this.state.varyingValues];
+    // Multiple endpoints can share the same affine input. Translate it once,
+    // using the inverse coefficient to obtain a displacement in diagram space.
+    const displacements = new Map<number, number>();
     for (const [xIdx, yIdx] of translatedIndices) {
-      this.state.varyingValues[xIdx] += dx;
-      this.state.varyingValues[yIdx] += dy;
+      displacements.set(xIdx, dx / scales.get(xIdx)!);
+      displacements.set(yIdx, dy / scales.get(yIdx)!);
+    }
+    for (const [index, displacement] of displacements) {
+      this.state.varyingValues[index] += displacement;
     }
     this.triggerInputEffects(prevVaryingValues, this.state.varyingValues);
   };
@@ -454,6 +558,47 @@ export class Diagram {
   getCanvas = () => ({ ...this.state.canvas });
 
   /**
+   * Inspect current constraint residuals without changing inputs or optimization.
+   * Values retain the units and weights of their registered expressions. This
+   * checks current-stage numerical feasibility, not the truth of mathematical
+   * assertions. Inactive terms are evaluated but do not affect feasibility.
+   */
+  getConstraintDiagnostics = (tolerance = 1e-3): ConstraintDiagnostics => {
+    if (!Number.isFinite(tolerance) || tolerance < 0)
+      throw new Error("Constraint tolerance must be finite and nonnegative");
+    const stage =
+      this.state.optStages[
+        Math.min(this.state.currentStageIndex, this.state.optStages.length - 1)
+      ];
+    const masks = this.state.constraintSets.get(stage)!;
+    const { constraints: values } = this.state.gradient(
+      { ...masks, constrMask: masks.constrMask.map(() => true) },
+      new Float64Array(this.state.varyingValues),
+      1,
+      new Float64Array(this.state.varyingValues.length),
+    );
+    const constraints = values.map((value, index) => ({
+      index,
+      label: this.constraintNames[index],
+      active: masks.constrMask[index],
+      value,
+      violation: Number.isFinite(value) ? Math.max(0, value) : Infinity,
+    }));
+    const maxViolation = constraints.reduce(
+      (maximum, constraint) =>
+        constraint.active ? Math.max(maximum, constraint.violation) : maximum,
+      0,
+    );
+    return {
+      optimizationFinished: isOptimized(this.state),
+      feasible: maxViolation <= tolerance,
+      tolerance,
+      maxViolation,
+      constraints,
+    };
+  };
+
+  /**
    * Get the dragging constraints of the diagram.
    */
   getDraggingConstraints = () => new Map(this.draggingConstraints);
@@ -503,6 +648,11 @@ export class Diagram {
   };
 
   discard = () => {
+    if (this.discarded) return;
+    this.discarded = true;
+    if (this.optimizationLooper.isRunning()) this.optimizationLooper.stop();
+    if (this.renderLooper.isRunning()) this.renderLooper.stop();
+    this.onInteraction = () => {};
     for (const input of this.sharedInputs) {
       input.unregister(this);
     }
@@ -582,13 +732,24 @@ export class Diagram {
     ]);
 
     if (data.lassoStrength !== 0) {
+      const expressions = [...objectives, ...constraints];
+      for (const shape of data.shapes)
+        mapShape((value) => {
+          expressions.push(value);
+          return value;
+        }, shape);
+      const reachable = collectVars(expressions);
+      const half = data.inputs.length / 2;
+      const active = data.inputs
+        .slice(0, half)
+        .flatMap((input, i) => (reachable.has(input.handle) ? [i] : []));
       // add lasso term, disabled by default
       objectives.push(
         mul(
           data.lassoStrength,
           ops.vdist(
-            data.inputs.slice(0, data.inputs.length / 2).map((i) => i.handle),
-            data.inputs.slice(data.inputs.length / 2).map((i) => i.handle),
+            active.map((i) => data.inputs[i].handle),
+            active.map((i) => data.inputs[half + i].handle),
           ),
         ),
       );

@@ -1,0 +1,356 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "chapter": {
+    "number": 8,
+    "title": "More About Compactness",
+    "printedPageRange": [163, 182]
+  },
+  "review": {
+    "pdfPageRange": [155, 173],
+    "method": "Private text extraction checked against every full-page 150 dpi rendered scan. Every mathematical formula and all available exercise text visually reviewed.",
+    "status": "available-pages-transcribed",
+    "availableChapterPdfPages": [
+      155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169,
+      170, 171, 172
+    ],
+    "visualReviewedPdfPages": [
+      155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169,
+      170, 171, 172, 173
+    ],
+    "limits": [
+      "Printed pages166 and175 are absent. No missing definitions, statements, proofs, examples, exercises, or discussion are reconstructed.",
+      "Printed165 ends within the continuity introduction; printed167 begins a proof whose statement is missing. Proposition4 is referenced by Exercise2 but not reconstructed.",
+      "Printed174 promises a compactification definition; printed176 resumes at Proposition11. Definitions3/4 and Example7 are referenced later but not reconstructed.",
+      "The uniformly continuous corollary on printed167 says Any function without a continuity assumption; Exercise5(a) prints f∘g, retained.",
+      "Example4 says neighborhood U of X; Example5 first cover has a closing parenthesis after A; Example6 displayed decomposition and Proposition9 repeated f(B°) retained as printed.",
+      "Proposition11(i) calls X−{x} a neighborhood of P, and its paragraph following(iv) uses FrakturN_x, both retained.",
+      "Exercise8.3 numbering jumps from4 to6 on printed178; no Exercise5 invented. Exercises6/7 print f(Z)/f(P), retained.",
+      "Proposition13 second proof direction prints x∈U_n1 after selecting x1; Proposition15 separation inequality includes all a,b in E_p, retained.",
+      "Printed182 Exercise8 has handwritten marks but its original printed wording is visible and retained.",
+      "Running headers and footers retained in source map. Line wrapping, paragraph indentation and line-end hyphenation normalized. Inline anchors preserve paragraphs across page boundaries.",
+      "Printed168,174 and179 split at section boundaries. PDF173/printed184 is the reviewed Chapter9 boundary; next chapter opening printed183 is absent."
+    ]
+  },
+  "outputDirectory": "packages/docs-site/docs/elementary-topology/chapter-08",
+  "pages": [
+    {
+      "pdfPage": 155,
+      "printedPage": 163,
+      "formulaReview": "verified against rendered scan",
+      "path": "compactness-in-euclidean-space.md",
+      "anchor": "printed-page-163",
+      "coverage": "All body text; Chapter and section headings, introduction, Proposition1 and proof beginning with both neighborhood-system formulas."
+    },
+    {
+      "pdfPage": 156,
+      "printedPage": 164,
+      "formulaReview": "verified against rendered scan",
+      "path": "compactness-in-euclidean-space.md",
+      "anchor": "printed-page-164",
+      "coverage": "All body text; Proposition1 proof completion, Proposition2 and proof beginning, Figure8.1, all boundedness/product formulas."
+    },
+    {
+      "pdfPage": 157,
+      "printedPage": 165,
+      "formulaReview": "verified against rendered scan",
+      "path": "compactness-in-euclidean-space.md",
+      "anchor": "printed-page-165",
+      "coverage": "All body text; Proposition2 proof completion, corollary and proof, Proposition3 and proof, available continuity introduction ending mid-sentence."
+    },
+    {
+      "pdfPage": 158,
+      "printedPage": 167,
+      "formulaReview": "verified against rendered scan",
+      "path": "compactness-in-euclidean-space.md",
+      "anchor": "printed-page-167",
+      "coverage": "All body text; Available proof fragment whose statement is missing, corollary, Exercises1–5 with all subparts."
+    },
+    {
+      "pdfPage": 159,
+      "printedPage": 168,
+      "formulaReview": "verified against rendered scan",
+      "fragments": [
+        {
+          "path": "compactness-in-euclidean-space.md",
+          "anchor": "printed-page-168",
+          "coverage": "All body text of section fragment; Exercise6."
+        },
+        {
+          "path": "local-compactness.md",
+          "anchor": "printed-page-168",
+          "coverage": "All body text of section fragment; Section8.2 heading, introduction, Figure8.3, Example3 and definition introduction."
+        }
+      ]
+    },
+    {
+      "pdfPage": 160,
+      "printedPage": 169,
+      "formulaReview": "verified against rendered scan",
+      "path": "local-compactness.md",
+      "anchor": "printed-page-169",
+      "coverage": "All body text; Definition2, Proposition5 and full proof, corollary and proof, Example4."
+    },
+    {
+      "pdfPage": 161,
+      "printedPage": 170,
+      "formulaReview": "verified against rendered scan",
+      "path": "local-compactness.md",
+      "anchor": "printed-page-170",
+      "coverage": "All body text; Figure8.4, Example5 and open-cover formulas, Proposition6 and proof, Proposition7 and proof beginning."
+    },
+    {
+      "pdfPage": 162,
+      "printedPage": 171,
+      "formulaReview": "verified against rendered scan",
+      "path": "local-compactness.md",
+      "anchor": "printed-page-171",
+      "coverage": "All body text; Proposition7 proof completed, Proposition8 and proof, Figure8.5, continuous-images introduction."
+    },
+    {
+      "pdfPage": 163,
+      "printedPage": 172,
+      "formulaReview": "verified against rendered scan",
+      "path": "local-compactness.md",
+      "anchor": "printed-page-172",
+      "coverage": "All body text; Figure8.6, Example6, open-map definition, Proposition9 and proof beginning."
+    },
+    {
+      "pdfPage": 164,
+      "printedPage": 173,
+      "formulaReview": "verified against rendered scan",
+      "path": "local-compactness.md",
+      "anchor": "printed-page-173",
+      "coverage": "All body text; Proposition9 proof completion, Proposition10 and full proof, all product formulas."
+    },
+    {
+      "pdfPage": 165,
+      "printedPage": 174,
+      "formulaReview": "verified against rendered scan",
+      "fragments": [
+        {
+          "path": "local-compactness.md",
+          "anchor": "printed-page-174",
+          "coverage": "All body text of section fragment; Exercises1–8, all subparts and hints."
+        },
+        {
+          "path": "compactifications.md",
+          "anchor": "printed-page-174",
+          "coverage": "All body text of section fragment; Section8.3 heading, introduction ending at promised definition."
+        }
+      ]
+    },
+    {
+      "pdfPage": 166,
+      "printedPage": 176,
+      "formulaReview": "verified against rendered scan",
+      "path": "compactifications.md",
+      "anchor": "printed-page-176",
+      "coverage": "All body text; Proposition11 and proof beginning; neighborhood axioms i–iv, (v) exercise, dense-subspace and finite-cover proof."
+    },
+    {
+      "pdfPage": 167,
+      "printedPage": 177,
+      "formulaReview": "verified against rendered scan",
+      "path": "compactifications.md",
+      "anchor": "printed-page-177",
+      "coverage": "All body text; Proposition11 proof completion, Examples8–9, Proposition12 and proof, Corollary1."
+    },
+    {
+      "pdfPage": 168,
+      "printedPage": 178,
+      "formulaReview": "verified against rendered scan",
+      "path": "compactifications.md",
+      "anchor": "printed-page-178",
+      "coverage": "All body text; Corollary1 proof, Corollary2 and proof, discussion, Exercises1–4 and6–7 with all parts; source omits label5."
+    },
+    {
+      "pdfPage": 169,
+      "printedPage": 179,
+      "formulaReview": "verified against rendered scan",
+      "fragments": [
+        {
+          "path": "compactifications.md",
+          "anchor": "printed-page-179",
+          "coverage": "All body text of section fragment; Exercise8, both parts."
+        },
+        {
+          "path": "sequential-and-countable-compactness.md",
+          "anchor": "printed-page-179",
+          "coverage": "All body text of section fragment; Section8.4 heading, introduction, Definition5, Proposition13 and first proof direction."
+        }
+      ]
+    },
+    {
+      "pdfPage": 170,
+      "printedPage": 180,
+      "formulaReview": "verified against rendered scan",
+      "path": "sequential-and-countable-compactness.md",
+      "anchor": "printed-page-180",
+      "coverage": "All body text; Proposition13 proof completed, Proposition14 and proof, Bolzano-Weierstrass and first-countability discussion."
+    },
+    {
+      "pdfPage": 171,
+      "printedPage": 181,
+      "formulaReview": "verified against rendered scan",
+      "path": "sequential-and-countable-compactness.md",
+      "anchor": "printed-page-181",
+      "coverage": "All body text; Metric compactness introduction, Proposition15 and proof, Corollaries1–2, Proposition16 and proof beginning."
+    },
+    {
+      "pdfPage": 172,
+      "printedPage": 182,
+      "formulaReview": "verified against rendered scan",
+      "path": "sequential-and-countable-compactness.md",
+      "anchor": "printed-page-182",
+      "coverage": "All body text; Proposition16 proof completion, further-properties discussion, Exercises1–8, all available chapter-ending text."
+    }
+  ],
+  "gaps": [
+    {
+      "printedPage": 166,
+      "before": {
+        "pdfPage": 157,
+        "printedPage": 165
+      },
+      "after": {
+        "pdfPage": 158,
+        "printedPage": 167
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "compactness-in-euclidean-space.md"],
+      "availableBoundaryEvidence": "Printed165 ends A function f:X,D→Y,D′ is; printed167 begins Proof. Later Exercise2 references Proposition4."
+    },
+    {
+      "printedPage": 175,
+      "before": {
+        "pdfPage": 165,
+        "printedPage": 174
+      },
+      "after": {
+        "pdfPage": 166,
+        "printedPage": 176
+      },
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "compactifications.md"],
+      "availableBoundaryEvidence": "Printed174 ends Accordingly,we make the following definition; printed176 resumes Proposition11 referencing Definitions3/4."
+    }
+  ],
+  "illustrations": [
+    {
+      "id": "8.1",
+      "pdfPage": 156,
+      "printedPage": 164,
+      "path": "compactness-in-euclidean-space.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=164"
+    },
+    {
+      "id": "8.3",
+      "pdfPage": 159,
+      "printedPage": 168,
+      "path": "local-compactness.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=168"
+    },
+    {
+      "id": "8.4",
+      "pdfPage": 161,
+      "printedPage": 170,
+      "path": "local-compactness.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=170"
+    },
+    {
+      "id": "8.5",
+      "pdfPage": 162,
+      "printedPage": 171,
+      "path": "local-compactness.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=171"
+    },
+    {
+      "id": "8.6",
+      "pdfPage": 163,
+      "printedPage": 172,
+      "path": "local-compactness.md",
+      "penroseStatus": "pending",
+      "sourceReaderLink": "/docs/elementary-topology/reader?page=172"
+    }
+  ],
+  "unlocatedNumberedFigureLabels": [
+    {
+      "label": "8.2",
+      "status": "unlocated in available supplied pages; source gap candidate",
+      "missingPrintedPageCandidates": [166],
+      "evidence": "Figure8.1 appears on164; next present caption is8.3 on168. Printed166 absent; no absent contents reconstructed."
+    }
+  ],
+  "nextChapterBoundary": {
+    "pdfPage": 173,
+    "printedPage": 184,
+    "chapter": 9,
+    "title": "Connectedness",
+    "section": "9.1 The Notion of Connectedness",
+    "status": "visually reviewed; not transcribed as Chapter8",
+    "missingOpeningPrintedPage": 183
+  },
+  "validation": {
+    "sourceBodyCoverage": "Every extracted alphabetic OCR word of four or more characters checked per supplied page against its transcribed body; unmatched tokens only running headers, captions represented by source links, Lindelof OCR, split words or visually corrected formula OCR. Supplements full-page visual review.",
+    "sourceFormulaVerification": "All mathematical expressions on PDF155–172 visually checked, including barred origin, cross-product neighborhoods, weak inequalities, Lebesgue-number indices, local/subspace interiors, open-cover piecewise formula, one-point compactification notation, exercise bounds, accumulation-point selections and subsequence indices.",
+    "mathRenderer": "KaTeX0.13.24 via shared configureMath with v-pre wrappers",
+    "mathExpressionCountInNewPages": 1007,
+    "mathValidationStatus": "passed",
+    "vueCompilationStatus": "passed",
+    "renderedMarkdownStatus": "passed; no unexpected code blocks; source exercise list starts1,6,8 preserved",
+    "browserVisualQa": {
+      "status": "passed-root-review",
+      "browser": "Codex in-app browser",
+      "pages": [
+        "compactness-in-euclidean-space",
+        "local-compactness",
+        "compactifications",
+        "sequential-and-countable-compactness"
+      ],
+      "checked": [
+        "compactness-in-euclidean-space",
+        "local-compactness",
+        "compactifications",
+        "sequential-and-countable-compactness"
+      ],
+      "method": "All section routes loaded in the production in-app browser. Checked chapter headings, exercises, rendered KaTeX, native SVG images and document width. Representative screenshots inspected; the large 5.7 SVG completed loading and was inspected in its prose context.",
+      "mathErrors": 0,
+      "documentOverflow": false
+    }
+  },
+  "generalizabilityCandidates": [
+    {
+      "section": "8.1",
+      "printedPage": 165,
+      "pdfPage": 157,
+      "passage": "Proposition3 proof",
+      "concept": "Illustrate a Lebesgue number shared by a finite subcover using the reusable metric balls and open-cover library."
+    },
+    {
+      "section": "8.2",
+      "printedPage": 174,
+      "pdfPage": 165,
+      "passage": "Exercise7",
+      "concept": "Compact exhaustion with each compact region contained in the next interior, extending region-containment notation."
+    },
+    {
+      "section": "8.3",
+      "printedPage": 177,
+      "pdfPage": 167,
+      "passage": "Example9",
+      "concept": "An ideal point’s neighborhoods contain all but finitely many points of an infinite discrete space."
+    },
+    {
+      "section": "8.4",
+      "printedPage": 181,
+      "pdfPage": 171,
+      "passage": "Proposition16 proof",
+      "concept": "Select successively later sequence indices in shrinking balls to visualize a convergent subsequence."
+    }
+  ]
+}

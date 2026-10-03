@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "pdfPage": 84,
+    "printedPage": 83,
+    "review": "Full page at 150 and 300 dpi and exercise captions inspected. Source and rasterized Penrose SVGs compared side by side after tightening all four canvases."
+  },
+  "domain": "packages/bloom/src/domains/point-set-topology.ts",
+  "style": "packages/bloom/src/styles/identification-sources.tsx",
+  "substance": "packages/bloom/src/examples/identification-sources.ts",
+  "verification": {
+    "testsPassed": 4,
+    "realSVG": true,
+    "XMLRoundTrip": true,
+    "publicDeclarationEmit": "passed",
+    "reuse": "One identificationSourceStyle renders all four independent substances; scaled antipodal disk also renders.",
+    "preview": "tmp/elementary-topology/review/figures-4.4-4.7-side-by-side.png"
+  },
+  "limits": [
+    "Figure 4.6 caption appears mathematically incomplete: {{(x,y)|x=y+m, where m is an integer}} names one subset rather than a partition. The supplied wording and graphic are preserved; no missing parameter or equivalence relation is silently introduced.",
+    "Original scan noise and heavier hatching are replaced by clean vectors and the shared subdued orange fill."
+  ],
+  "figures": [
+    {
+      "id": "4.4",
+      "canvas": [
+        240,
+        165
+      ],
+      "factory": "oppositeEdgesCollapseSubstance",
+      "math": "The union of both complete opposite edges is collapsed into one class; interior points remain singletons.",
+      "visual": "Rectangle aspect, A/B/C/D corners and full diagonal hatching retained; no invented pointwise edge gluing.",
+      "pdfPage": 84,
+      "printedPage": 83,
+      "sourceBox": [
+        0.051,
+        0.482,
+        0.32,
+        0.13
+      ]
+    },
+    {
+      "id": "4.5",
+      "canvas": [
+        166,
+        166
+      ],
+      "factory": "antipodalDiskSubstance",
+      "math": "Antipodal boundary pairs are identified; every interior point has a singleton class.",
+      "visual": "Circular outline, complete hatching and sole center dot retained; no additional arrows or boundary markers.",
+      "pdfPage": 84,
+      "printedPage": 83,
+      "sourceBox": [
+        0.56,
+        0.475,
+        0.225,
+        0.135
+      ]
+    },
+    {
+      "id": "4.6",
+      "canvas": [
+        260,
+        178
+      ],
+      "factory": "integerDifferencePlaneSubstance",
+      "math": "The literal caption denotes the single integer-difference locus. It does not form a partition of the plane, so no repaired quotient is asserted.",
+      "visual": "Hatched ambient coordinate window, x/y axes, origin and R² retained; no invented parallel lines.",
+      "pdfPage": 84,
+      "printedPage": 83,
+      "sourceBox": [
+        0.039,
+        0.696,
+        0.325,
+        0.141
+      ]
+    },
+    {
+      "id": "4.7",
+      "canvas": [
+        244,
+        176
+      ],
+      "factory": "polygonBoundaryCollapseSubstance",
+      "math": "The entire polygon boundary is collapsed to one equivalence class; other points remain singletons.",
+      "visual": "Five-sided region, source proportions, full diagonal hatching and C label retained.",
+      "pdfPage": 84,
+      "printedPage": 83,
+      "sourceBox": [
+        0.521,
+        0.693,
+        0.321,
+        0.133
+      ]
+    }
+  ]
+}

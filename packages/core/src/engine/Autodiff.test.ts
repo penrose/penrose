@@ -65,6 +65,71 @@ describe("compile tests", () => {
   });
 });
 
+describe("sparse energy inputs", () => {
+  test("preserves state indices and masks when most inputs are unused", async () => {
+    const inputs = Array.from({ length: 50000 }, (_, i) => variable(i));
+    const xIndex = 7,
+      yIndex = 49991;
+    const x = inputs[xIndex],
+      y = inputs[yIndex];
+    const f = await genGradient(
+      inputs,
+      [add(squared(x), mul(x, y))],
+      [sub(y, 1)],
+    );
+    const values = new Float64Array(inputs.map((v) => v.val));
+    values[xIndex] = 2;
+    values[yIndex] = 4;
+    const gradient = new Float64Array(inputs.length).fill(NaN);
+    const inputMask = inputs.map(() => true);
+    inputMask[xIndex] = false;
+    const result = f(
+      { inputMask, objMask: [true], constrMask: [true] },
+      values,
+      3,
+      gradient,
+    );
+    expect(result.phi).toBe(39);
+    expect(result.objectives).toEqual([12]);
+    expect(result.constraints).toEqual([3]);
+    expect(gradient[xIndex]).toBe(0);
+    expect(gradient[yIndex]).toBe(20);
+    expect(gradient.filter((v) => v !== 0)).toEqual(new Float64Array([20]));
+    inputMask[xIndex] = true;
+    const objectiveOnly = f(
+      { inputMask, objMask: [true], constrMask: [false] },
+      values,
+      3,
+      gradient,
+    );
+    expect(objectiveOnly.phi).toBe(12);
+    expect(gradient[xIndex]).toBe(8);
+    expect(gradient[yIndex]).toBe(2);
+    const constraintOnly = f(
+      { inputMask, objMask: [false], constrMask: [true] },
+      values,
+      3,
+      gradient,
+    );
+    expect(constraintOnly.phi).toBe(27);
+    expect(gradient[xIndex]).toBe(0);
+    expect(gradient[yIndex]).toBe(18);
+  });
+
+  test("supports constant energy without reachable variables", async () => {
+    const f = await genGradient([variable(2)], [5], [-1]);
+    const gradient = new Float64Array([NaN]);
+    const result = f(
+      { inputMask: [true], objMask: [true], constrMask: [true] },
+      new Float64Array([9]),
+      3,
+      gradient,
+    );
+    expect(result.phi).toBe(5);
+    expect(gradient).toEqual(new Float64Array([0]));
+  });
+});
+
 // df/f[x] with finite differences about xi
 export const _gradFiniteDiff = (f: (args: number[]) => number) => {
   return (xs: number[]): number[] => {

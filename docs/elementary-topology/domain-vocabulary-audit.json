@@ -1,0 +1,1609 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "scope": {
+    "availableSections": 59,
+    "symbolIndexEntries": 49,
+    "reviewedText": "all supplied chapter sections, appendix, and symbol index; unavailable pages remain explicit source gaps"
+  },
+  "semantics": {
+    "declarations": "Typed, builder-independent objects and author-supplied propositions. Predicates have no automatic inference. A DSL vocabulary route does not imply an implementation of a decision procedure.",
+    "finiteHelpers": "Validated actual finite models with Set/Map identity equality, not a truncation theorem for infinite spaces.",
+    "geometry": "Mathematical entities are independent of Style; figure-specific geometric subclasses coexist with shape-free coarse declarations.",
+    "composition": "declareSetTheory is the small shared base; declareElementarySetTheory is full Chapter 1; declareGroupTheory is reusable algebra; declareTopologicalVocabulary creates its group vocabulary, or declareTopologicalVocabularyWithGroups reuses existing algebra. All declarations must be in the same builder.",
+    "sourceNotation": "Source LaTeX in entity labels, with matching semantic predicates. There is no parser for arbitrary set-builder syntax or quantifiers.",
+    "limits": [
+      "No reconstruction of missing definitions or pages.",
+      "Infinite countability, compactness, completeness, and homotopy facts require author-supplied mathematical justification. Finite sample tests do not prove them.",
+      "Higher homotopy, homology and cohomology are named background topics in the conclusion; declarations identify them, without inventing absent definitions or calculating these groups.",
+      "A raw numeric metadata object is a typed assertion, not a proof; use validated helper data where provided.",
+      "Equal induced homomorphisms require a based/relative homotopy; the source omission in \u00a711.4 Proposition 8 is documented.",
+      "Continuous/metric formulas preserve source inconsistencies in transcriptions; helpers implement explicitly stated mathematics, not invalid proof steps."
+    ]
+  },
+  "sections": [
+    {
+      "section": "1.1",
+      "title": "Sets and Functions",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-01/sets-and-functions.md",
+      "availablePrintedPages": [1, 2, 3],
+      "domains": ["setTheory"],
+      "declarations": [
+        "Set",
+        "Point",
+        "Member",
+        "Subset",
+        "UnionOf",
+        "IntersectionOf",
+        "DifferenceOf",
+        "ProductOf",
+        "BinaryRelation",
+        "Function",
+        "MapBetween",
+        "MapsTo",
+        "ImageOf",
+        "InverseImageOf",
+        "InverseRelationOf",
+        "RestrictionOf",
+        "CompositionOf",
+        "Permutation"
+      ],
+      "helpers": [
+        "finiteUnion",
+        "finiteIntersection",
+        "finiteDifference",
+        "finiteCartesianProduct",
+        "createFiniteFunction",
+        "finiteImage",
+        "finitePreimage",
+        "finiteInverseRelation",
+        "restrictFiniteFunction",
+        "composeFiniteFunctions",
+        "inverseFiniteFunction"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "1.2",
+      "title": "Orderings; Equivalence Relations",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-01/orderings-equivalence-relations.md",
+      "availablePrintedPages": [5, 6, 7, 8, 9],
+      "domains": ["setTheory"],
+      "declarations": [
+        "PartialOrder",
+        "TotalOrder",
+        "WellOrder",
+        "Chain",
+        "OrderOn",
+        "Precedes",
+        "InducedOrderOn",
+        "UpperBoundOf",
+        "LowerBoundOf",
+        "LeastUpperBoundOf",
+        "GreatestLowerBoundOf",
+        "MaximalIn",
+        "MinimalIn",
+        "GreatestIn",
+        "LeastIn",
+        "EquivalenceRelation",
+        "ClassOf",
+        "PartitionOf",
+        "PartitionBy",
+        "ChoiceFunction",
+        "ChoiceFor"
+      ],
+      "helpers": [
+        "createFinitePartialOrder",
+        "finiteOrderBounds",
+        "createFiniteRelation",
+        "finiteEquivalenceClasses",
+        "finiteQuotient",
+        "factorFiniteFunction"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "1.3",
+      "title": "Cardinality",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-01/cardinality.md",
+      "availablePrintedPages": [9, 10, 11, 12],
+      "domains": ["setTheory"],
+      "declarations": [
+        "Cardinal",
+        "FiniteCardinal",
+        "CardinalityOf",
+        "SameCardinality",
+        "CardinalityAtMost",
+        "CardinalityStrictlyGreater",
+        "Finite",
+        "Infinite",
+        "Countable",
+        "Uncountable",
+        "PowerSetOf",
+        "ArrayEnumeration",
+        "EnumeratesArray",
+        "PositiveInteger",
+        "DecimalExpansion",
+        "ZeroOneDecimalExpansion",
+        "DecimalPrefix",
+        "ZeroOneDecimalPrefix",
+        "DecimalPrefixOf"
+      ],
+      "helpers": [
+        "finiteCardinality",
+        "finitePowerSet",
+        "diagonalEnumerationPrefix",
+        "complementedDiagonalPrefix"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "1.4",
+      "title": "Groups",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-01/groups.md",
+      "availablePrintedPages": [14, 15],
+      "domains": ["setTheory"],
+      "declarations": [
+        "Group",
+        "AbelianGroup",
+        "Subgroup",
+        "GroupHomomorphism",
+        "GroupIsomorphism",
+        "BinaryOperation",
+        "GroupOperationOn",
+        "ProductValue",
+        "IdentityElement",
+        "InverseElement",
+        "KernelOf",
+        "DirectSum",
+        "DirectSumOf"
+      ],
+      "helpers": [
+        "createFiniteGroup",
+        "finiteCyclicGroup",
+        "finiteDirectSum",
+        "isFiniteGroupHomomorphism",
+        "isFiniteGroupIsomorphism",
+        "finiteGroupKernel",
+        "isFiniteSubgroup",
+        "isFiniteNormalSubgroup",
+        "finiteQuotientGroup"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "2.1",
+      "title": "The Notion of a Metric Space",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-02/metric-space.md",
+      "availablePrintedPages": [16, 17, 18],
+      "domains": ["metricSpaces", "pointSetTopology"],
+      "declarations": [
+        "MetricSpace",
+        "Metric",
+        "MetricOn",
+        "MetricPlane",
+        "EuclideanMetric",
+        "EquivalentMetricsOn"
+      ],
+      "helpers": ["planeDistance"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "2.2",
+      "title": "Neighborhoods",
+      "page": "packages/docs-site/docs/elementary-topology/neighborhoods.md",
+      "availablePrintedPages": [],
+      "domains": ["metricSpaces", "pointSetTopology"],
+      "declarations": [
+        "SpaceNeighborhood",
+        "SpaceNeighborhoodAt",
+        "Neighborhood",
+        "MetricNeighborhood",
+        "MetricNeighborhoodAt"
+      ],
+      "helpers": ["inNeighborhood"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "2.3",
+      "title": "Open Sets",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-02/open-sets.md",
+      "availablePrintedPages": [22, 23],
+      "domains": ["pointSetTopology"],
+      "declarations": ["OpenSet", "OpenIn", "InteriorOf"],
+      "helpers": ["finiteInterior"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "2.4",
+      "title": "Closed Sets",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-02/closed-sets.md",
+      "availablePrintedPages": [24, 25, 26],
+      "domains": ["pointSetTopology"],
+      "declarations": ["ClosedSet", "ClosedIn", "ComplementOf", "ClosureOf"],
+      "helpers": ["finiteClosure"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "2.5",
+      "title": "Convergence of Sequences",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-02/convergence-of-sequences.md",
+      "availablePrintedPages": [26, 27, 28],
+      "domains": ["metricSpaces", "pointSetTopology"],
+      "declarations": [
+        "ConvergesTo",
+        "TailOfSequence",
+        "TailInNeighborhood",
+        "RealSequence",
+        "SequenceConvergesTo",
+        "FunctionSequence",
+        "PointwiseConvergesTo",
+        "FailsToConvergeUniformlyTo"
+      ],
+      "helpers": [
+        "reciprocalConvergenceThreshold",
+        "powerSequenceTerm",
+        "powerSequencePointwiseLimit",
+        "powerSequenceUniformDistance"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "2.6",
+      "title": "Continuity",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-02/continuity.md",
+      "availablePrintedPages": [30, 31, 32, 33, 34],
+      "domains": ["metricSpaces", "pointSetTopology"],
+      "declarations": [
+        "ContinuousAt",
+        "MapsNeighborhoodInto",
+        "ContinuousMap",
+        "UniformlyContinuousBetween"
+      ],
+      "helpers": ["finiteMapIsContinuous"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "2.7",
+      "title": "\u201cDistance\u201d Between Two Sets",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-02/distance-between-sets.md",
+      "availablePrintedPages": [34, 35, 36, 37, 39],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "MetricValue",
+        "DistanceBetweenPoints",
+        "DistanceToSet",
+        "DistanceBetweenSets",
+        "ClosureOf",
+        "FrontierOf",
+        "ZeroSetDistance",
+        "ZeroPointDistance"
+      ],
+      "helpers": [
+        "pointDiskDistance",
+        "reciprocalDistanceToXAxis",
+        "finiteClosure",
+        "finiteFrontier"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "3.1",
+      "title": "The Notion of a Topology",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-03/topology.md",
+      "availablePrintedPages": [40, 41, 42, 43],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Topology",
+        "TopologyOn",
+        "OpenIn",
+        "ClosedIn",
+        "Discrete",
+        "Indiscrete",
+        "CofiniteTopology",
+        "Ring",
+        "Ideal",
+        "IdealOf"
+      ],
+      "helpers": ["createFiniteTopology"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "3.2",
+      "title": "Bases and Subbases",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-03/bases-and-subbases.md",
+      "availablePrintedPages": [43, 44, 45, 46, 47, 48],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Basis",
+        "Subbasis",
+        "BasisFor",
+        "SubbasisFor",
+        "SetInFamily",
+        "FiniteIntersectionOf",
+        "UnionOf"
+      ],
+      "helpers": ["createFiniteTopology"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "3.3",
+      "title": "Open Neighborhood Systems",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-03/open-neighborhood-systems.md",
+      "availablePrintedPages": [49, 51],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "NeighborhoodSystem",
+        "NeighborhoodSystemAt",
+        "NeighborhoodInSystem",
+        "NeighborhoodOf"
+      ],
+      "helpers": ["createFiniteTopology"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "3.4",
+      "title": "Finer and Coarser Topologies",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-03/finer-and-coarser-topologies.md",
+      "availablePrintedPages": [53, 54, 55],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "FinerTopologyThan",
+        "CoarserTopologyThan",
+        "EqualTopologies"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "3.5",
+      "title": "Derived Sets",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-03/derived-sets.md",
+      "availablePrintedPages": [55, 56, 57, 58, 59],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "InteriorOf",
+        "ClosureOf",
+        "FrontierOf",
+        "ExteriorOf",
+        "DerivedSetOf"
+      ],
+      "helpers": [
+        "finiteInterior",
+        "finiteClosure",
+        "finiteDerivedSet",
+        "finiteFrontier",
+        "finiteExterior"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "3.6",
+      "title": "More About Topologically Derived Sets",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-03/topologically-derived-sets.md",
+      "availablePrintedPages": [59, 60, 61, 62],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "DenseIn",
+        "NowhereDenseIn",
+        "SomewhereDenseIn",
+        "DerivedSetOf"
+      ],
+      "helpers": ["finiteDerivedSet", "finiteClosure"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "4.1",
+      "title": "Subspaces",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-04/subspaces.md",
+      "availablePrintedPages": [64, 65, 66, 67],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Subspace",
+        "OpenSubspace",
+        "ClosedSubspace",
+        "SubspaceTopologyOf",
+        "OpenIn",
+        "ClosedIn"
+      ],
+      "helpers": ["finiteSubspaceTopology"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "4.2",
+      "title": "The Topologically Derived Sets in Subspaces",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-04/derived-sets-in-subspaces.md",
+      "availablePrintedPages": [67, 68, 69],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "DerivedSetOf",
+        "ClosureOf",
+        "InteriorOf",
+        "FrontierOf",
+        "SubspaceTopologyOf"
+      ],
+      "helpers": [
+        "finiteSubspaceTopology",
+        "finiteDerivedSet",
+        "intervalDerivedMembership",
+        "diskDerivedMembership"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "4.3",
+      "title": "Continuity",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-04/continuity.md",
+      "availablePrintedPages": [70, 71, 72, 73, 74],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "TopologicalMap",
+        "MapBetween",
+        "ContinuousMap",
+        "MapsTo",
+        "TopologicalCompositionOf",
+        "TopologicalRestrictionOf",
+        "InclusionMap",
+        "InclusionOf"
+      ],
+      "helpers": [
+        "finiteMapIsContinuous",
+        "composeFiniteFunctions",
+        "restrictFiniteFunction"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "4.4",
+      "title": "Homeomorphisms",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-04/homeomorphisms.md",
+      "availablePrintedPages": [76, 77, 78, 79],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Homeomorphism",
+        "InverseMaps",
+        "CentralProjection",
+        "RadialProjection"
+      ],
+      "helpers": [
+        "centralProjectToSegment",
+        "radialProjectToCircle",
+        "radialProjectToTriangle"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "4.5",
+      "title": "Identification Spaces",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-04/identification-spaces.md",
+      "availablePrintedPages": [79, 80, 81, 82, 83, 84],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "EquivalenceRelation",
+        "QuotientSpace",
+        "EquivalenceClass",
+        "QuotientMap",
+        "QuotientOf",
+        "ClassOf",
+        "IdentificationMap",
+        "IdentificationTopology",
+        "FactorsThrough",
+        "QuotientGroup",
+        "QuotientGroupOf"
+      ],
+      "helpers": [
+        "finiteQuotient",
+        "factorFiniteFunction",
+        "finiteQuotientGroup",
+        "endpointIdentified",
+        "endpointCirclePoint",
+        "antipodalDiskEquivalent"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "4.6",
+      "title": "Product Spaces",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-04/product-spaces.md",
+      "availablePrintedPages": [84, 86, 87, 88, 89, 90],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "IndexedSetFamily",
+        "IndexedFamilyOver",
+        "IndexedSetAt",
+        "IndexedProduct",
+        "IndexedProductOf",
+        "IndexedTopologyFamily",
+        "IndexedProductTopologyOf",
+        "ProductCoordinateAt",
+        "IndexedCoordinateProjection",
+        "IndexedProjectionOf",
+        "FiniteSupportCylinder",
+        "CylinderSupportedOn",
+        "EmbeddingMap",
+        "EmbeddingInto",
+        "OpenMap",
+        "DiagonalOf"
+      ],
+      "helpers": [
+        "finiteCartesianProduct",
+        "coordinateEmbed",
+        "coordinateProject"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "5.1",
+      "title": "$T_0$- and $T_1$-Spaces",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-05/t0-and-t1-spaces.md",
+      "availablePrintedPages": [91, 93, 94, 95],
+      "domains": ["pointSetTopology"],
+      "declarations": ["T0", "T1", "SingletonOf"],
+      "helpers": ["finiteTopologySeparation"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "5.2",
+      "title": "$T_2$-Spaces",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-05/t2-spaces.md",
+      "availablePrintedPages": [95, 96, 97],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "T2",
+        "HausdorffNeighborhoodPair",
+        "OrderRelation",
+        "OrderTopologyFor"
+      ],
+      "helpers": ["finiteTopologySeparation"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "5.3",
+      "title": "$T_3$- and Regular Spaces",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-05/t3-and-regular-spaces.md",
+      "availablePrintedPages": [97, 98, 99, 100, 101],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "T3",
+        "Regular",
+        "PointClosedSetSeparation",
+        "NeighborhoodClosureWithin"
+      ],
+      "helpers": [
+        "reciprocalNeighborhoodOverlap",
+        "inDeletedReciprocalNeighborhood"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "5.4",
+      "title": "$T_4$- and Normal Spaces",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-05/t4-and-normal-spaces.md",
+      "availablePrintedPages": [103, 104, 105, 106],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "T4",
+        "Normal",
+        "NotNormal",
+        "ClosedSetsSeparation",
+        "CompletelyNormal",
+        "AbsoluteRetract"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "5.5",
+      "title": "Normality and the Extension of Functions",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-05/normality-and-extension.md",
+      "availablePrintedPages": [106, 107, 108, 109, 111, 112],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "DyadicOpenFamily",
+        "DyadicSeparationStep",
+        "DyadicRefinementStep",
+        "ExtensionOf",
+        "TopologicalPath",
+        "RelativeHomotopyOn"
+      ],
+      "helpers": ["dyadicValue", "dyadicRefinementValues"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "6.1",
+      "title": "The Need for a Generalized Notion of Convergence",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-06/generalized-convergence.md",
+      "availablePrintedPages": [113, 114, 115, 116],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "FunctionSpace",
+        "FunctionPoint",
+        "FunctionSpaceOf",
+        "PointwiseTopologyOn",
+        "PointwiseNeighborhood",
+        "FiniteControlNeighborhoodOf",
+        "FirstCountable"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "6.2",
+      "title": "Nets",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-06/nets.md",
+      "availablePrintedPages": [116, 118, 119],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "DirectedSet",
+        "DirectedOrder",
+        "DirectedIndex",
+        "DirectedOrderOn",
+        "IndexIn",
+        "IndexPrecedes",
+        "DirectedUpperBoundFor",
+        "Net",
+        "NetIndexedBy",
+        "NetIn",
+        "NetValueAt"
+      ],
+      "helpers": ["createFiniteDirectedSet"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "6.3",
+      "title": "Subsequences and Subnets",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-06/subsequences-and-subnets.md",
+      "availablePrintedPages": [119, 120, 121, 122],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Sequence",
+        "SubsequenceOf",
+        "SubnetOf",
+        "CofinalOrderMap"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "6.4",
+      "title": "Convergence of Nets",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-06/convergence-of-nets.md",
+      "availablePrintedPages": [122, 123, 124, 125, 126, 127],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "NetConvergesTo",
+        "EventuallyIn",
+        "OftenIn",
+        "NetLimitPoint"
+      ],
+      "helpers": ["finiteNetConvergesTo"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "6.5",
+      "title": "Limit Points",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-06/limit-points.md",
+      "availablePrintedPages": [127, 128, 130],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "NetLimitPoint",
+        "SubnetOf",
+        "SelectionNetOf",
+        "ChoosesFromIntersections",
+        "SelectedIntersectionValue"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "6.6",
+      "title": "Continuity and Convergence",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-06/continuity-and-convergence.md",
+      "availablePrintedPages": [130, 131, 132],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "ContinuousMap",
+        "ImageNetOf",
+        "NetConvergesTo",
+        "SubspaceTopologyOf"
+      ],
+      "helpers": ["finiteMapIsContinuous", "finiteNetConvergesTo"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "6.7",
+      "title": "Filters",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-06/filters.md",
+      "availablePrintedPages": [133, 134, 135, 136],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Filter",
+        "FilterBase",
+        "FilterOn",
+        "FilterBasisFor",
+        "FilterContains",
+        "FilterBaseContains",
+        "GeneratedFilterOf",
+        "FilterFinerThan",
+        "FilterConvergesTo",
+        "FilterLimitPoint",
+        "AssociatedFilterOf",
+        "FilterImageBaseOf",
+        "NetBasedOn"
+      ],
+      "helpers": ["finiteGeneratedFilter"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "6.8",
+      "title": "Ultranets and Ultrafilters",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-06/ultranets-and-ultrafilters.md",
+      "availablePrintedPages": [136, 137, 138, 140, 141],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Ultranet",
+        "Ultrafilter",
+        "PrincipalFilterAt",
+        "CofiniteFilterOn",
+        "FreeFilter"
+      ],
+      "helpers": ["finiteGeneratedFilter"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "7.1",
+      "title": "Open Covers and Refinements",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-07/open-covers-and-refinements.md",
+      "availablePrintedPages": [142, 143, 144],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "SetFamily",
+        "OpenCover",
+        "CoverOf",
+        "OpenCoverOf",
+        "SubfamilyOf",
+        "Refines"
+      ],
+      "helpers": ["isFiniteCoverRefinement"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "7.2",
+      "title": "Countability Properties",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-07/countability-properties.md",
+      "availablePrintedPages": [144, 145, 146, 148, 149, 150, 151],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Lindelof",
+        "FirstCountable",
+        "SecondCountable",
+        "Separable",
+        "CountableBasis",
+        "CountableNeighborhoodSystem",
+        "CountableFamily",
+        "CountableDenseSubsetOf",
+        "CondensationPointOf"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": true
+    },
+    {
+      "section": "7.3",
+      "title": "Compactness",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-07/compactness.md",
+      "availablePrintedPages": [152, 153, 154, 155, 156],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Compact",
+        "CompactIn",
+        "FiniteFamily",
+        "FiniteIntersectionProperty",
+        "FamilyIntersectionIs",
+        "HasNoFiniteSubcover"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "7.4",
+      "title": "The Derived Spaces and Compactness. The Separation Axioms and Compactness",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-07/derived-spaces-and-compactness.md",
+      "availablePrintedPages": [156, 158, 159, 160, 161, 162],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "CompactIn",
+        "ImageOf",
+        "Homeomorphism",
+        "IndexedProductTopologyOf",
+        "ProjectionOf"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "8.1",
+      "title": "Compactness in $R^n$",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-08/compactness-in-euclidean-space.md",
+      "availablePrintedPages": [163, 164, 165, 167, 168],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "EuclideanMetric",
+        "BoundedInMetric",
+        "BoundedFunction",
+        "TotallyBoundedIn",
+        "LebesgueNumber",
+        "LebesgueNumberFor",
+        "FiniteCoverReachOf"
+      ],
+      "helpers": [
+        "finiteBallLebesgueWitness",
+        "halfBallContaining",
+        "separatedCoverRadii",
+        "extendFiniteCoverReach"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "8.2",
+      "title": "Local Compactness",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-08/local-compactness.md",
+      "availablePrintedPages": [168, 169, 170, 171, 172, 173, 174],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "LocallyCompact",
+        "LocallyCompactIn",
+        "NotLocallyCompact",
+        "FailsLocalCompactnessAt",
+        "CompactNeighborhoodWithin"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "8.3",
+      "title": "Compactifications",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-08/compactifications.md",
+      "availablePrintedPages": [174, 176, 177, 178, 179],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Compactification",
+        "OnePointCompactification",
+        "CompactificationOf",
+        "IdealPointOf"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "8.4",
+      "title": "Sequential and Countable Compactness",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-08/sequential-and-countable-compactness.md",
+      "availablePrintedPages": [179, 180, 181, 182],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "CountablyCompact",
+        "SequentiallyCompact",
+        "AccumulationPointOf",
+        "Metacompact",
+        "Pseudocompact"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "9.1",
+      "title": "The Notion of Connectedness",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-09/notion-of-connectedness.md",
+      "availablePrintedPages": [184, 185, 186, 187],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Connected",
+        "ConnectedIn",
+        "Disconnected",
+        "TopologicalSeparationOf",
+        "TotallyDisconnected"
+      ],
+      "helpers": ["finiteConnectedComponents"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "9.2",
+      "title": "Further Tests for Connectedness",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-09/further-tests-for-connectedness.md",
+      "availablePrintedPages": [187, 188, 189, 190, 192],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "PathConnected",
+        "PolygonallyConnected",
+        "Convex",
+        "PolygonalPath",
+        "EuclideanLineSegment",
+        "PolygonalReachabilityClass",
+        "PolygonalReachableFrom"
+      ],
+      "helpers": [
+        "pointOnClosedSegment",
+        "polygonalPathAvoids",
+        "interpolateEuclideanSegment"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "9.3",
+      "title": "Connectedness and the Derived Spaces",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-09/connectedness-and-derived-spaces.md",
+      "availablePrintedPages": [192, 193, 194, 195, 196],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Connected",
+        "ImageOf",
+        "ProductOf",
+        "ProductTopologyOf",
+        "MutuallySeparated",
+        "Disconnects",
+        "ClosedMap"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "9.4",
+      "title": "Components. Local Connectedness",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-09/components-and-local-connectedness.md",
+      "availablePrintedPages": [196, 197, 198, 200, 201, 202],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "ComponentOf",
+        "ComponentFamilyOf",
+        "PathComponentOf",
+        "LocallyConnected",
+        "LocallyPathConnected"
+      ],
+      "helpers": ["finiteConnectedComponents"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "9.5",
+      "title": "Connectedness and Compact $T_2$-Spaces",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-09/connectedness-and-compact-t2-spaces.md",
+      "availablePrintedPages": [202, 203, 204, 205, 206, 207],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Continuum",
+        "IrreducibleAbout",
+        "IrreduciblyConnectedBetween",
+        "CutPoint",
+        "NoncutPoint",
+        "QuasiComponentOf",
+        "SubcontinuumOf",
+        "ClosedDirectedFamily",
+        "CannotSplitBetween",
+        "SplitBetween"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "10.1",
+      "title": "Metrizable Spaces",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-10/metrizable-spaces.md",
+      "availablePrintedPages": [208, 209, 210, 212, 213],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Metrizable",
+        "Nonmetrizable",
+        "MetricInducesTopology",
+        "EuclideanMetric",
+        "HilbertCube"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "10.2",
+      "title": "Cauchy Sequences",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-10/cauchy-sequences.md",
+      "availablePrintedPages": [213, 214, 215, 216],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "RealSequence",
+        "CauchySequenceIn",
+        "SequenceConvergesTo"
+      ],
+      "helpers": [
+        "geometricCauchyIndex",
+        "geometricSequenceBound",
+        "geometricSequenceTerm"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "10.3",
+      "title": "Complete Metric Spaces",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-10/complete-metric-spaces.md",
+      "availablePrintedPages": [218, 219, 220, 221, 222, 223],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "CompleteMetricSpace",
+        "Diameter",
+        "DiameterOf",
+        "DecreasingFamily",
+        "DiametersTendToZero",
+        "MetricCompletion",
+        "MetricCompletionOf",
+        "Isometry",
+        "IsometryBetween",
+        "TotallyBoundedIn",
+        "ContractionMap",
+        "AffineRealContraction",
+        "IterationSequence",
+        "IteratesOf",
+        "FixedPointOf"
+      ],
+      "helpers": [
+        "nestedBisectionBounds",
+        "circleDiameter",
+        "rectangleDiameter",
+        "affineRealContraction",
+        "contractionData"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "10.4",
+      "title": "Baire Category Theorem",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-10/baire-category-theorem.md",
+      "availablePrintedPages": [223, 224, 225, 226, 227],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "DenseOpenFamilyIn",
+        "NowhereDenseFamilyIn",
+        "FamilyUnionIs",
+        "FamilyIntersectionIs",
+        "BaireSpace",
+        "FirstCategoryIn",
+        "SecondCategoryIn"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "10.5",
+      "title": "Paracompactness. Complete Regularity",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-10/paracompactness-and-complete-regularity.md",
+      "availablePrintedPages": [228, 230, 231, 232],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "LocallyFiniteIn",
+        "PointFiniteIn",
+        "Refines",
+        "Paracompact",
+        "LocallyMetrizable",
+        "CompletelyRegular",
+        "Tychonoff",
+        "ContinuousFunctionSet",
+        "ContinuousFunctionSetOf",
+        "SeparatesPoints"
+      ],
+      "helpers": ["isFiniteCoverRefinement"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "11.1",
+      "title": "Homotopic Functions",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-11/homotopic-functions.md",
+      "availablePrintedPages": [233, 234, 235, 236, 237, 238, 240],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Homotopy",
+        "HomotopyBetween",
+        "Homotopic",
+        "SliceMapAt",
+        "FunctionSpace",
+        "FunctionSpaceOf",
+        "RelativeHomotopyOn",
+        "RelativelyHomotopic",
+        "Contractible"
+      ],
+      "helpers": [
+        "radialContractionValue",
+        "contractAndSlideValue",
+        "parabolicArcValue",
+        "pastedHomotopyTime"
+      ],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "11.2",
+      "title": "Loops",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-11/loops.md",
+      "availablePrintedPages": [240, 241, 242, 243, 244, 245],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "Loop",
+        "LoopSpace",
+        "LoopSpaceOf",
+        "LoopBasedAt",
+        "LoopInSpace",
+        "ConstantLoop",
+        "ConstantLoopAt",
+        "LoopHomotopyClass",
+        "LoopClassOf",
+        "LoopConcatenation",
+        "LoopProductOf",
+        "InverseLoop",
+        "LoopInverseOf"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "11.3",
+      "title": "The Fundamental Group",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-11/fundamental-group.md",
+      "availablePrintedPages": [246, 247, 249, 250, 251, 252],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "FundamentalGroup",
+        "FundamentalGroupOf",
+        "ClassInFundamentalGroup",
+        "LoopClassProductOf",
+        "NullHomotopic",
+        "SimplyConnected",
+        "BasepointChangeIsomorphism",
+        "BasepointChangeAlong",
+        "GroupIsomorphicTo",
+        "TrivialGroup",
+        "FreeGroup",
+        "FreeAbelianGroup"
+      ],
+      "helpers": ["freeGroupData"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "11.4",
+      "title": "The Fundamental Group and Continuous Functions",
+      "page": "packages/docs-site/docs/elementary-topology/chapter-11/fundamental-group-and-continuous-functions.md",
+      "availablePrintedPages": [254, 255, 256, 257, 259, 260],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "InducedHomomorphism",
+        "InducedHomomorphismOf",
+        "InducedLoopClassImage",
+        "HomotopyEquivalence",
+        "HomotopyEquivalent",
+        "HomotopyInverseMaps",
+        "RetractionMap",
+        "RetractsOnto",
+        "RetractOf",
+        "DeformationRetractionOf",
+        "HigherHomotopyGroup",
+        "HomologyGroup",
+        "CohomologyGroup"
+      ],
+      "helpers": [],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    },
+    {
+      "section": "A",
+      "title": "Appendix on Infinite Products",
+      "page": "packages/docs-site/docs/elementary-topology/back-matter/appendix-on-infinite-products.md",
+      "availablePrintedPages": [261, 262, 263, 264],
+      "domains": ["pointSetTopology"],
+      "declarations": [
+        "IndexedSetFamily",
+        "IndexSet",
+        "IndexedProduct",
+        "ProductElement",
+        "ProductCoordinateAt",
+        "IndexedTopologyFamily",
+        "IndexedProductTopologyOf",
+        "IndexedCoordinateProjection",
+        "IndexedProjectionOf",
+        "FiniteSupportCylinder",
+        "CylinderSupportedOn"
+      ],
+      "helpers": ["finiteCartesianProduct"],
+      "coverage": "declarative-vocabulary-present",
+      "sourceGapsRetained": false
+    }
+  ],
+  "symbols": [
+    {
+      "symbol": "$\\in$",
+      "sourcePrintedPages": "1",
+      "api": "setTheory.Member",
+      "semantics": "element membership"
+    },
+    {
+      "symbol": "$\\cup$",
+      "sourcePrintedPages": "1",
+      "api": "setTheory.UnionOf / finiteUnion",
+      "semantics": "union"
+    },
+    {
+      "symbol": "$\\cap$",
+      "sourcePrintedPages": "1",
+      "api": "setTheory.IntersectionOf / finiteIntersection",
+      "semantics": "intersection"
+    },
+    {
+      "symbol": "$\\subset$",
+      "sourcePrintedPages": "1",
+      "api": "setTheory.Subset",
+      "semantics": "inclusive subset; source \u2282 permits equality"
+    },
+    {
+      "symbol": "$\\{\\mid\\}$",
+      "sourcePrintedPages": "1",
+      "api": "labeled Set + Member/relations",
+      "semantics": "set-builder notation; labels are LaTeX, not a set-builder parser"
+    },
+    {
+      "symbol": "$\\phi$",
+      "sourcePrintedPages": "1",
+      "api": "setTheory.Empty",
+      "semantics": "empty set; source \u03c6"
+    },
+    {
+      "symbol": "$S-T$",
+      "sourcePrintedPages": "",
+      "api": "setTheory.DifferenceOf / finiteDifference",
+      "semantics": "difference"
+    },
+    {
+      "symbol": "$S\\times T$",
+      "sourcePrintedPages": "2",
+      "api": "setTheory.ProductOf / finiteCartesianProduct",
+      "semantics": "binary Cartesian product"
+    },
+    {
+      "symbol": "$f^{-1}$",
+      "sourcePrintedPages": "3",
+      "api": "InverseRelationOf / finiteInverseRelation / finitePreimage / inverseFiniteFunction",
+      "semantics": "inverse relation, preimage, and bijective inverse kept distinct"
+    },
+    {
+      "symbol": "$f\\circ g$",
+      "sourcePrintedPages": "3",
+      "api": "CompositionOf / TopologicalCompositionOf / composeFiniteFunctions",
+      "semantics": "composition; f\u2218g applies g first"
+    },
+    {
+      "symbol": "$f\\mid W$",
+      "sourcePrintedPages": "3",
+      "api": "RestrictionOf / TopologicalRestrictionOf / restrictFiniteFunction",
+      "semantics": "restriction"
+    },
+    {
+      "symbol": "$\\le$",
+      "sourcePrintedPages": "5",
+      "api": "PartialOrder / Precedes / IndexPrecedes",
+      "semantics": "partial order"
+    },
+    {
+      "symbol": "glb",
+      "sourcePrintedPages": "6",
+      "api": "GreatestLowerBoundOf / finiteOrderBounds.infimum",
+      "semantics": "greatest lower bound in ambient order"
+    },
+    {
+      "symbol": "lub",
+      "sourcePrintedPages": "6",
+      "api": "LeastUpperBoundOf / finiteOrderBounds.supremum",
+      "semantics": "least upper bound in ambient order"
+    },
+    {
+      "symbol": "$f:S\\to T$",
+      "sourcePrintedPages": "3",
+      "api": "Function / MapBetween / MapsTo",
+      "semantics": "function with stated domain and codomain; the book calls codomain range"
+    },
+    {
+      "symbol": "$S\\oplus T$",
+      "sourcePrintedPages": "14",
+      "api": "DirectSum / DirectSumOf / finiteDirectSum",
+      "semantics": "the book's binary componentwise product group"
+    },
+    {
+      "symbol": "$X,D$",
+      "sourcePrintedPages": "16",
+      "api": "Metric / MetricOn",
+      "semantics": "metric space"
+    },
+    {
+      "symbol": "$X,\\tau$",
+      "sourcePrintedPages": "40",
+      "api": "Topology / TopologyOn",
+      "semantics": "topological space"
+    },
+    {
+      "symbol": "$\\max(x_1,\\ldots,x_n)$ = maximum of the numbers $x_1,\\ldots,x_n$",
+      "sourcePrintedPages": "17",
+      "api": "Math.max",
+      "semantics": "finite real maximum used in metric/helper formulas"
+    },
+    {
+      "symbol": "$\\min(x_1,\\ldots,x_n)$ = minimum of the numbers $x_1,\\ldots,x_n$",
+      "sourcePrintedPages": "21",
+      "api": "Math.min",
+      "semantics": "finite real minimum used in metric/helper formulas"
+    },
+    {
+      "symbol": "$\\lvert x-y\\rvert$",
+      "sourcePrintedPages": "16",
+      "api": "planeDistance or absolute real difference",
+      "semantics": "absolute-value metric"
+    },
+    {
+      "symbol": "$N(x,p)$",
+      "sourcePrintedPages": "21",
+      "api": "MetricNeighborhood / MetricNeighborhoodAt / inNeighborhood",
+      "semantics": "strict metric neighborhood"
+    },
+    {
+      "symbol": "$s_i\\to y$",
+      "sourcePrintedPages": "26, 122",
+      "api": "SequenceConvergesTo / NetConvergesTo",
+      "semantics": "convergence supplied as a fact, not inferred from finite samples"
+    },
+    {
+      "symbol": "$D(x,y)$",
+      "sourcePrintedPages": "16",
+      "api": "DistanceBetweenPoints / planeDistance",
+      "semantics": "point distance"
+    },
+    {
+      "symbol": "$D(x,A)$",
+      "sourcePrintedPages": "34",
+      "api": "DistanceToSet / pointDiskDistance",
+      "semantics": "point-to-set infimum distance"
+    },
+    {
+      "symbol": "$D(A,B)$",
+      "sourcePrintedPages": "34",
+      "api": "DistanceBetweenSets / ZeroSetDistance",
+      "semantics": "set-to-set infimum distance; zero need not mean intersection"
+    },
+    {
+      "symbol": "$\\operatorname{Cl}$",
+      "sourcePrintedPages": "37, 55",
+      "api": "ClosureOf / finiteClosure",
+      "semantics": "closure"
+    },
+    {
+      "symbol": "$\\operatorname{Fr}$",
+      "sourcePrintedPages": "38, 55",
+      "api": "FrontierOf / finiteFrontier",
+      "semantics": "frontier"
+    },
+    {
+      "symbol": "$A^\\circ$",
+      "sourcePrintedPages": "43, 55",
+      "api": "InteriorOf / finiteInterior",
+      "semantics": "interior"
+    },
+    {
+      "symbol": "$\\operatorname{Ext}$",
+      "sourcePrintedPages": "56",
+      "api": "ExteriorOf / finiteExterior",
+      "semantics": "exterior"
+    },
+    {
+      "symbol": "$A'$",
+      "sourcePrintedPages": "56",
+      "api": "DerivedSetOf / finiteDerivedSet",
+      "semantics": "derived set; delete the point itself from the tested subset"
+    },
+    {
+      "symbol": "$\\mathop{\\Large\\times}_I S_i$",
+      "sourcePrintedPages": "84, 261",
+      "api": "IndexedProductOf / IndexedProductTopologyOf",
+      "semantics": "arbitrary indexed product; no runtime enumeration of an infinite product"
+    },
+    {
+      "symbol": "$\\mathfrak a\\to x$",
+      "sourcePrintedPages": "133",
+      "api": "FilterConvergesTo",
+      "semantics": "filter convergence"
+    },
+    {
+      "symbol": "$\\{S_i\\},\\ i\\in I$",
+      "sourcePrintedPages": "3",
+      "api": "IndexedSetFamily / IndexedFamilyOver / IndexedSetAt",
+      "semantics": "indexed family of sets"
+    },
+    {
+      "symbol": "$\\{s_n\\},\\ n\\in N$",
+      "sourcePrintedPages": "3",
+      "api": "Sequence / RealSequence",
+      "semantics": "sequence indexed by positive integers"
+    },
+    {
+      "symbol": "$\\{s_i\\},\\ i\\in I$",
+      "sourcePrintedPages": "117",
+      "api": "Net / NetIndexedBy / NetValueAt",
+      "semantics": "general directed net"
+    },
+    {
+      "symbol": "$d(A)$",
+      "sourcePrintedPages": "218",
+      "api": "DiameterOf / circleDiameter / rectangleDiameter",
+      "semantics": "diameter, potentially infinite in general"
+    },
+    {
+      "symbol": "$f\\sim g$",
+      "sourcePrintedPages": "236",
+      "api": "Homotopic / HomotopyBetween",
+      "semantics": "homotopy"
+    },
+    {
+      "symbol": "$Y^X$",
+      "sourcePrintedPages": "236",
+      "api": "FunctionSpace / FunctionSpaceOf",
+      "semantics": "space of functions"
+    },
+    {
+      "symbol": "$L(Y,y_0)$",
+      "sourcePrintedPages": "241",
+      "api": "LoopSpace / LoopSpaceOf",
+      "semantics": "based loop space"
+    },
+    {
+      "symbol": "$f:[0,1],\\{0,1\\}\\to Y,y_0$",
+      "sourcePrintedPages": "241",
+      "api": "Loop / LoopBasedAt / PathEndpointsOf",
+      "semantics": "both endpoints at the base point"
+    },
+    {
+      "symbol": "$\\lvert a\\rvert$",
+      "sourcePrintedPages": "241",
+      "api": "LoopHomotopyClass / LoopClassOf",
+      "semantics": "relative endpoint homotopy class"
+    },
+    {
+      "symbol": "$\\pi_1(Y,y_0),\\#$",
+      "sourcePrintedPages": "242, 246",
+      "api": "FundamentalGroup / FundamentalGroupOf / GroupOperationOn",
+      "semantics": "fundamental group and its group operation"
+    },
+    {
+      "symbol": "$a_1\\#a_2$",
+      "sourcePrintedPages": "241",
+      "api": "LoopConcatenation / LoopProductOf",
+      "semantics": "concatenation of representatives"
+    },
+    {
+      "symbol": "$\\lvert a_1\\rvert\\#\\lvert a_2\\rvert$",
+      "sourcePrintedPages": "242",
+      "api": "LoopClassProductOf",
+      "semantics": "well-defined class product supplied as a mathematical fact"
+    },
+    {
+      "symbol": "$a^{-1}$",
+      "sourcePrintedPages": "13, 246",
+      "api": "InverseElement / InverseLoop / LoopInverseOf",
+      "semantics": "group inverse or parameter-reversed loop"
+    },
+    {
+      "symbol": "$f_*$",
+      "sourcePrintedPages": "253",
+      "api": "InducedHomomorphism / InducedHomomorphismOf",
+      "semantics": "based continuous map induces group homomorphism"
+    },
+    {
+      "symbol": "$\\bar f$",
+      "sourcePrintedPages": "253",
+      "api": "InducedHomomorphism / InducedLoopClassImage",
+      "semantics": "induced map on homotopy classes"
+    },
+    {
+      "symbol": "$X\\simeq Y$",
+      "sourcePrintedPages": "257",
+      "api": "HomotopyEquivalent / HomotopyInverseMaps",
+      "semantics": "homotopy equivalence; homotopic composites to identities"
+    }
+  ],
+  "additionalOriginalCandidates": [
+    {
+      "section": "3.5",
+      "passage": "Proposition 10(iii)",
+      "printedPage": 57,
+      "pdfPage": 60,
+      "concept": "Cl(A\u222aB)=Cl(A)\u222aCl(B)"
+    },
+    {
+      "section": "6.6",
+      "passage": "Proposition 13(a,b)",
+      "printedPage": 132,
+      "pdfPage": 127,
+      "concept": "Convergence in a subspace containing the limit, and closed subspaces"
+    },
+    {
+      "section": "8.1",
+      "passage": "Proposition 3 proof",
+      "printedPage": 165,
+      "pdfPage": 157,
+      "concept": "Lebesgue number of a finite open cover"
+    },
+    {
+      "section": "10.3",
+      "passage": "Exercise 5",
+      "printedPages": [222, 223],
+      "pdfPages": [207, 208],
+      "concept": "Contraction iterates and the unique fixed point"
+    },
+    {
+      "section": "11.3",
+      "passage": "Proposition 4",
+      "printedPage": 246,
+      "pdfPage": 229,
+      "concept": "Loop-inverse product contracts relative to endpoints"
+    }
+  ],
+  "validation": {
+    "focusedMathematicalTests": 23,
+    "status": "passed",
+    "declarationEmit": "Full Bloom tsc --emitDeclarationOnly passed, including exported generic factories and native table examples.",
+    "lint": "Scoped ESLint passed for the vocabulary modules, finite helpers, group-kernel and early-table programs/tests.",
+    "publicApi": "Every API declaration and helper named in the section audit was checked against emitted public modules; all 59 sections and 49 symbols have a vocabulary route."
+  }
+}

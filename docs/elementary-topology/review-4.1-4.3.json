@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "path": "/Users/nimo/Downloads/ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "edition": "Elementary Topology, Michael C. Gemignani, Second Edition",
+    "sourceImageDimensions": [762, 1262],
+    "visualReview": "Full supplied PDF pages 77 and 82 inspected at 762×1262, with surrounding supplied prose on PDF pages 76 and 81. Every reconstructed figure was reviewed beside an inspected source crop. Missing printed page 75 was not reconstructed.",
+    "boundsConvention": "sourceBounds is normalized [x,y,width,height] against the full source page. Visually inspected pixel rectangles include graphics and labels and exclude prose and captions."
+  },
+  "implementation": {
+    "domain": "point-set-topology",
+    "domainFile": "packages/bloom/src/domains/point-set-topology.ts",
+    "semantics": "Shape-free immutable Substance snapshots declare maps, membership, inverse correspondences and quotient constructions. Reusable synchronous TSX styles assemble native Penrose geometry.",
+    "graphics": "Native Penrose circles, ellipses, lines, polygon, equations and groups; no source raster wrappers.",
+    "appearance": "Shared 18px serif mathematical label policy, black outlines and markers, subdued orange and gray hatching for equivalence-class highlights."
+  },
+  "verification": {
+    "focusedTestFile": "packages/examples/src/elementary-topology/topological-maps.test.ts",
+    "testsPassed": 8,
+    "publicBloomDeclarationEmit": "passed (full packages/bloom yarn tsc --pretty false)",
+    "exampleLeafTypecheckAndEmit": "passed for both projection and endpoint-identification leaf modules",
+    "scopedBloomESLint": "passed",
+    "scopedBloomPrettier": "passed",
+    "visualReview": "All three SVGs optimized and rendered, rasterized on white backgrounds and inspected side by side with source crops. Label sizes adjusted to the shared topology policy after comparison.",
+    "scope": "Analytic correspondence invariants, equivalence-class membership and actual SVG lowering are checked. Finite numeric tests do not constitute formal proofs or pixel-level equivalence."
+  },
+  "figures": [
+    {
+      "id": "4.1",
+      "pdfPage": 77,
+      "printedPage": 76,
+      "pixelBounds": [72, 79, 310, 210],
+      "panels": 1,
+      "style": "topologicalProjectionStyle",
+      "styleFile": "packages/bloom/src/styles/topological-projections.tsx",
+      "substance": "segmentCentralProjection",
+      "build": "buildSegmentProjectionFigure",
+      "exampleFile": "packages/examples/src/elementary-topology/topological-projections.ts",
+      "sourceContext": "Visible central projection diagram with labels P, x, j_P(x), Segment 1 and Segment 2. Example 12 is on absent printed page 75; supplied Example 13 on printed page 76 refers back to it.",
+      "geometry": [
+        "Two closed segments meet at their left endpoint. One rises toward the right; the other descends slightly toward the right.",
+        "A ray from P passes through Segment 1's right endpoint to Segment 2's right endpoint. A second ray is vertical through x and j_P(x).",
+        "There is no extra edge from P to the segments' shared left endpoint.",
+        "Default mathematical coordinates P=(0,2), A=(-0.85,0.08), B=(2.45,-0.2), C=P+0.265(B−P); the marked x is selected on A–C with x-coordinate zero. Its image is computed by ray–segment intersection."
+      ],
+      "facts": [
+        "LinearSegment objects store mathematical endpoints; CentralProjection stores P.",
+        "CentralProjectionBetween and MapBetween declare the construction, ProjectionCenter binds P, Member and MapsTo bind x and j_P(x).",
+        "TopologyOn, ContinuousMap and Homeomorphism describe this independently valid realization."
+      ],
+      "defaultCanvas": [340, 240],
+      "checks": [
+        "The chosen analytic projection carries both segment endpoints bijectively.",
+        "101 parameter samples have ordered images, ray collinearity and inverse round trips.",
+        "A degenerate projection from P itself is rejected.",
+        "Actual SVG contains the four source lines and three marked points."
+      ],
+      "limits": [
+        "The original Example 12's exact hypotheses and proof are unavailable in the supplied scan. The source graphic is recreated and the chosen realization is independently checked; absent prose is not attributed to the book.",
+        "Coordinates approximate the scanned construction. The source's line and print noise are replaced with clean vectors."
+      ],
+      "sourceBounds": [0.094488, 0.062599, 0.406824, 0.166403],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-4.1.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-4.1.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-4.1-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-4.1-comparison.png"
+    },
+    {
+      "id": "4.2",
+      "pdfPage": 77,
+      "printedPage": 76,
+      "pixelBounds": [431, 86, 269, 229],
+      "panels": 1,
+      "style": "topologicalProjectionStyle",
+      "styleFile": "packages/bloom/src/styles/topological-projections.tsx",
+      "substance": "triangleCircleRadialProjection",
+      "build": "buildTriangleCircleFigure",
+      "exampleFile": "packages/examples/src/elementary-topology/topological-projections.ts",
+      "sourceContext": "Example 13 positions a circle center strictly inside a triangle and gives a radial homeomorphism. The prose says circle onto triangle, while the drawn x lies on the triangle and j(x) on the circle.",
+      "geometry": [
+        "Unfilled circle and triangular boundary share a center C strictly inside the triangle.",
+        "The single ray C–j(x) crosses x on the triangle's right edge and ends at j(x) on the circle.",
+        "Default center C=(0,0), circle radius 1.16, triangle vertices (−1.58,−0.82), (1.16,−0.6), (0.35,1.43). The marked x is the midpoint of the right edge."
+      ],
+      "facts": [
+        "TriangleBoundary and CircleBoundary represent the outlines, rather than filled disks.",
+        "RadialProjectionBetween(j,triangle,circle) and MapsTo(j,x,j(x)) preserve the source's marker direction.",
+        "InverseMaps(j,j⁻¹), inverse MapBetween and MapsTo facts also represent the prose's circle-to-triangle direction.",
+        "Both directions have ContinuousMap and Homeomorphism relations."
+      ],
+      "defaultCanvas": [280, 245],
+      "checks": [
+        "Radial circle and triangle helpers are inverse around 80 sampled directions and all triangle vertices.",
+        "Every computed circle image has the stated radius.",
+        "Centers outside the triangle and zero-length radial directions are rejected.",
+        "Actual SVG contains one circle outline, one triangular boundary, one radial ray and three marked points."
+      ],
+      "limits": [
+        "The source's prose and displayed marker direction differ. The graphic preserves x and j(x) exactly; the DSL records both inverse homeomorphisms rather than silently swapping the labels.",
+        "The original triangle and circular trace are hand drawn; smooth analytic boundaries approximate their geometry."
+      ],
+      "sourceBounds": [0.565617, 0.068146, 0.353018, 0.181458],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-4.2.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-4.2.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-4.2-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-4.2-comparison.png"
+    },
+    {
+      "id": "4.3",
+      "pdfPage": 82,
+      "printedPage": 81,
+      "pixelBounds": [489, 474, 228, 316],
+      "panels": 2,
+      "panelBounds": [
+        {
+          "id": "a",
+          "pixelBounds": [489, 474, 228, 49],
+          "sourceBounds": [0.641732, 0.375594, 0.299213, 0.038827]
+        },
+        {
+          "id": "b",
+          "pixelBounds": [510, 550, 196, 240],
+          "sourceBounds": [0.669291, 0.435816, 0.257218, 0.190174]
+        }
+      ],
+      "style": "endpointIdentificationStyle",
+      "styleFile": "packages/bloom/src/styles/endpoint-identification.tsx",
+      "substance": "intervalEndpointIdentification",
+      "build": "buildEndpointIdentificationFigure",
+      "exampleFile": "packages/examples/src/elementary-topology/endpoint-identification.ts",
+      "sourceContext": "Definition 5 on supplied printed page 80 defines the identification map and quotient topology. Example 14 on printed page 81 takes [0,1] with its usual topology, identifies 0 with 1 and keeps every interior point equivalent only to itself, producing a circle.",
+      "geometry": [
+        "Upper panel: closed interval 0–x–1 with both endpoints highlighted by hatch marks.",
+        "Lower panel: circular quotient with one highlighted top point labeled {0,1} and a bottom point labeled {x}.",
+        "The source's two stacked panels are retained with no added arrow or caption inside the SVG.",
+        "The circle parameterization t↦(cos(π/2+2π(t−a)/(b−a)),sin(π/2+2π(t−a)/(b−a))) sends both endpoints exactly to the top; default interior representative t=1/2 goes to the bottom."
+      ],
+      "facts": [
+        "EndpointIdentification records the entire rule x~y iff x=y or both are endpoints, rather than treating the two drawn classes as the whole quotient.",
+        "EquivalenceOn, EquivalentUnder, QuotientOf, ClassOf, ClassInQuotient and Member describe the identification construction.",
+        "EquivalenceClass is both a Set of original points and a Point of the QuotientSpace.",
+        "IdentificationMap(q,I,Q,R) and IdentificationTopology declare the quotient topology; CircleParameterizes and FactorsThrough express the circle realization through the quotient."
+      ],
+      "defaultCanvas": [250, 330],
+      "checks": [
+        "The endpoint relation is reflexive, symmetric and transitive on representative samples; interior classes remain singleton.",
+        "Both endpoint circle images are exactly equal, the midpoint maps to the bottom, and sampled distinct interior points have distinct images.",
+        "The default two represented classes have no drawing coordinates and participate in both set membership and map images.",
+        "Actual SVG retains both panels, three class highlights and the circle boundary."
+      ],
+      "limits": [
+        "Only two representative quotient classes are drawn; the full equivalence relation and quotient are declared mathematically.",
+        "Ellipse sizes and orange hatching are style-owned visual highlights for single quotient points and are not additional members or neighborhoods.",
+        "The source's irregular endpoint parentheses and hatch strokes are approximated by elliptic highlights and analytic hatch chords."
+      ],
+      "sourceBounds": [0.641732, 0.375594, 0.299213, 0.250396],
+      "previewSVG": "tmp/elementary-topology/new-figures/figure-4.3.svg",
+      "previewPNG": "tmp/elementary-topology/new-figures/figure-4.3.png",
+      "sourceCrop": "tmp/elementary-topology/new-figures/figure-4.3-source.png",
+      "comparisonPNG": "tmp/elementary-topology/new-figures/figure-4.3-comparison.png"
+    }
+  ],
+  "missingSourceNotes": [
+    "Printed page 75 is absent from the supplied scan. Figure 4.1 is visible on printed page 76, but its preceding Example 12 text has not been reconstructed."
+  ]
+}

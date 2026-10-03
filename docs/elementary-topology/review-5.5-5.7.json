@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "status": "implemented-and-visually-reviewed",
+  "source": {
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "pdfPage": 100,
+    "printedPage": 101,
+    "pixelDimensions": [
+      762,
+      1262
+    ],
+    "review": "Supplied page100 inspected at150dpi together with Proposition6 onpage99 and Example11. NativeSVGs rasterized and compared beside source graphic crops; canvases and fiber display refined after comparison."
+  },
+  "domain": "packages/bloom/src/domains/point-set-topology.ts",
+  "style": "packages/bloom/src/styles/quotient-spaces.tsx",
+  "reusableSurfaceStyle": "packages/bloom/src/styles/parametric-surfaces.tsx",
+  "substance": "packages/bloom/src/examples/quotient-spaces.ts",
+  "verification": {
+    "testsPassed": 5,
+    "XMLRoundTrip": true,
+    "declarationEmit": "passed",
+    "lint": "passed",
+    "nativeGraphics": true,
+    "torusPatches": 1536,
+    "geometry": "Periodic torus samples satisfy the torus equation and unit-normal invariants; alternate fixed circle parameters instantiate the same fiber vocabulary.",
+    "preview": "tmp/elementary-topology/review/figures-5.5-5.7-side-by-side.png"
+  },
+  "limits": [
+    "Freeform ambient outlines in Figures5.5/5.6 are schematic Style geometry, not coordinates or metric assumptions on the abstract spaces.",
+    "The torus uses an orthographic native polygon mesh with outward normals, depth ordering and visible silhouettes. Smooth shading and a faint patch grid are consistent additions for this three-dimensional source figure.",
+    "The nearly edge-on fiber is widened to a narrow oval to preserve the source drawing and keep the circle legible; its minimum display width is Style data and does not change ProductOf or membership facts.",
+    "No universal theorem is inferred automatically by the DSL. The source Proposition6 and Example11 are represented with their stated topology relations."
+  ],
+  "figures": [
+    {
+      "id": "5.5",
+      "canvas": [
+        148,
+        218
+      ],
+      "mathematics": "F is closed in regular X; the source point x lies outside F. All complete quotient facts are shared with Figure5.6.",
+      "visual": "Retains the nonconvex ambient outline, source x position, hatched closed F and X label.",
+      "pdfPage": 100,
+      "printedPage": 101,
+      "sourceBox": [
+        0.18635170603674542,
+        0.08161648177496038,
+        0.1889763779527559,
+        0.1664025356576862
+      ]
+    },
+    {
+      "id": "5.6",
+      "canvas": [
+        126,
+        196
+      ],
+      "mathematics": "The collapse relation makes F one quotient class and the outside point x a singleton. IdentificationTopology and the Proposition6 Hausdorff conclusion are declared.",
+      "visual": "Retains the narrower quotient outline, two image points, {x}=bar{x}, F and X/R labels.",
+      "pdfPage": 100,
+      "printedPage": 101,
+      "sourceBox": [
+        0.6404199475065617,
+        0.09429477020602219,
+        0.16272965879265092,
+        0.15213946117274169
+      ]
+    },
+    {
+      "id": "5.7",
+      "canvas": [
+        216,
+        146
+      ],
+      "mathematics": "C×C has the product topology on a regular circle C. The marked fiber is {y}×C, using the same circle and SingletonOf relation.",
+      "visual": "Retains torus silhouette, central hole, narrow marked fiber with solid/dashed visibility, y, y×C and C×C labels.",
+      "pdfPage": 100,
+      "printedPage": 101,
+      "sourceBox": [
+        0.31758530183727035,
+        0.5309033280507132,
+        0.29658792650918636,
+        0.11568938193343899
+      ]
+    }
+  ]
+}

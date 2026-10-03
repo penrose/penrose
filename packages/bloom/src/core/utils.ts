@@ -28,6 +28,7 @@ import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
 import {
   Color,
+  RawSvgElement,
   Shape,
   ShapeProps,
   ShapeType,
@@ -303,7 +304,11 @@ export const stateToSVG = async (
     "svg",
   );
   rendered.setAttribute("version", "1.2");
-  rendered.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  rendered.setAttributeNS(
+    "http://www.w3.org/2000/xmlns/",
+    "xmlns",
+    "http://www.w3.org/2000/svg",
+  );
   rendered.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
   await RenderShapes(shapes, rendered, {
     labels: labelCache,
@@ -355,6 +360,95 @@ export const mathjaxInitWithHandler = () => {
   };
 
   return { convert, handler };
+};
+
+/**
+ * Recursively create and append SVG DOM elements from a RawSvgElement tree.
+ */
+const appendRawSvgElement = (parent: Element, raw: RawSvgElement): void => {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", raw.tag);
+  for (const [key, val] of Object.entries(raw.attrs)) {
+    el.setAttribute(key, val);
+  }
+  for (const child of raw.children) {
+    appendRawSvgElement(el, child);
+  }
+  parent.appendChild(el);
+};
+
+/**
+ * Append (or prepend) a list of RawSvgElements to the given SVG element.
+ * @param svg The target SVG element
+ * @param defs The list of raw SVG elements to inject
+ * @param prepend If true, insert before the first child; otherwise append
+ */
+/** Scope SVG definitions and local references so separate diagrams can coexist. */
+export const namespaceSvgIds = (
+  svg: SVGSVGElement,
+  namespace: string,
+  scope: ReadonlySet<string>,
+) => {
+  const ids = new Map<string, string>();
+  for (const element of Array.from(svg.querySelectorAll("[id]"))) {
+    const id = element.getAttribute("id")!;
+    if (scope.has(id)) ids.set(id, `${namespace}--${id}`);
+  }
+  const localUrl = /url\(\s*(["']?)#([^\s"'()]+)\1\s*\)/g;
+  for (const element of [svg, ...Array.from(svg.querySelectorAll("*"))]) {
+    for (const attribute of Array.from(element.attributes)) {
+      let value = attribute.value.replace(
+        localUrl,
+        (original: string, _quote: string, id: string) =>
+          ids.has(id) ? `url(#${ids.get(id)})` : original,
+      );
+      if (
+        (attribute.localName === "href" || attribute.name === "xlink:href") &&
+        value.startsWith("#")
+      ) {
+        value = ids.has(value.slice(1)) ? `#${ids.get(value.slice(1))}` : value;
+      } else if (
+        [
+          "aria-labelledby",
+          "aria-describedby",
+          "aria-activedescendant",
+          "aria-controls",
+          "aria-details",
+          "aria-errormessage",
+          "aria-flowto",
+          "aria-owns",
+        ].includes(attribute.name)
+      ) {
+        value = value
+          .split(/\s+/)
+          .map((id) => ids.get(id) ?? id)
+          .join(" ");
+      } else if (attribute.name === "id") {
+        value = ids.get(value) ?? value;
+      }
+      if (value !== attribute.value) attribute.value = value;
+    }
+  }
+};
+
+export const appendRawSvgElements = (
+  svg: SVGSVGElement,
+  defs: RawSvgElement[],
+  prepend = false,
+): void => {
+  for (const def of defs) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", def.tag);
+    for (const [key, val] of Object.entries(def.attrs)) {
+      el.setAttribute(key, val);
+    }
+    for (const child of def.children) {
+      appendRawSvgElement(el, child);
+    }
+    if (prepend && svg.firstChild) {
+      svg.insertBefore(el, svg.firstChild);
+    } else {
+      svg.appendChild(el);
+    }
+  }
 };
 
 export const setNoFillIfTransparent = (shape: SVGElement) => {

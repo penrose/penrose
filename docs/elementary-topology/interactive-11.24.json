@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "figure": "11.24",
+  "status": "native-render-and-drag-verified",
+  "implementation": {
+    "styleFile": "packages/bloom/src/styles/planar-graph-spaces.tsx",
+    "exampleFile": "packages/examples/src/elementary-topology/fundamental-group-spaces.ts",
+    "style": "planarGraphSpacesStyle",
+    "factory": "buildPlanarHomotopyExercisesFigure",
+    "reusableHelper": "draggablePlanarSpace",
+    "interaction": "objects",
+    "nativeHandles": 11,
+    "objects": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "R",
+      "T",
+      "animal",
+      "house",
+      "8",
+      "108"
+    ],
+    "mechanism": "A native transparent Rectangle hit region controls shared Bloom translation inputs for every Path and Line belonging to one complete space. Individual contours, strokes and glyph components have no independent drag handles.",
+    "canonical": "Static output retains the reviewed source geometry. Interactive jitter:0 retains every contour coordinate, connecting stroke and fill-rule exactly.",
+    "sampling": "Variation seeds sample mild whole-space translations. Default jitter is 2 diagram units and maximum displacement is 3 units at the source scale. Caller-requested offsets are bounded by the same source margins.",
+    "constraints": "Whole-object displacement has native inRange constraints and sampled-anchor objectives. Invisible hit-region bounds and cubic control-point bounds do not reflow the source construction."
+  },
+  "verification": {
+    "testFile": "packages/examples/src/elementary-topology/fundamental-group-spaces.test.ts",
+    "testsPassed": 12,
+    "previousTestsRetained": 11,
+    "nativeCanonicalCheck": "All displayed native Path coordinates, Line endpoints and even-odd fill rules exactly match static output at zero jitter.",
+    "nativeDraggingCheck": "Every object accepts actual beginDrag/translate/endDrag operations. Every contour coordinate and both compound-108 connecting lines move by the same object displacement after optimization. Immediate requested drag displacement is checked independently.",
+    "topologyCheck": "Rendered animal and chimney-house centerlines each retain one connected component and two cycles. Actual point-in-contour parity verifies transparent holes in A, B and the compound 108. Path commands, connected joins, strokes and fill rules remain unchanged by translation.",
+    "samplingCheck": "Repeated seeds produce equal object offsets, distinct seeds change placement, and optimized offsets stay within the prescribed displacement bound.",
+    "publicBloomDeclarationEmit": "passed",
+    "exampleLeafTypecheckAndEmit": "passed",
+    "scopedESLint": "passed with zero warnings",
+    "finalExamplesRegression": {
+      "command": "yarn vitest run src/elementary-topology --no-threads",
+      "filesPassed": 12,
+      "testsPassed": 119,
+      "failures": 0,
+      "includes": "Current cover-family and complete exercise-space native interaction tests."
+    },
+    "browserIntegration": "Parent owns fresh reader build and browser verification. The factory accepts the existing final FigureRenderOptions; manifest and widget integration are unchanged here."
+  },
+  "limits": [
+    "Dragging and re-sampling change display positions only; immutable mathematical objects, fundamental-group facts, connectedness, holes and graph cycles are retained.",
+    "Movement is deliberately bounded to preserve the tightly spaced source rows. The compound 108 moves as one connected object; its components cannot be separated interactively.",
+    "Native vector glyph contours approximate the source typeface. Their actual holes and incidences are tested; host-font identity and scanned ink texture are not claimed."
+  ]
+}

@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "sourceBook": "Michael C. Gemignani, Elementary Topology, Second Edition, Addison-Wesley",
+  "status": "implemented-and-manually-compared; final-book-fidelity-review-pending",
+  "privateInputPolicy": "The supplied PDF, page renders, crops, and side-by-side source comparisons remain local private inputs. This report includes provenance and rectangle coordinates, not source images or the full PDF.",
+  "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+  "styleModules": [
+    "packages/bloom/src/styles/topology-bases.tsx",
+    "packages/bloom/src/styles/derived-sets.tsx"
+  ],
+  "substanceModules": [
+    "packages/bloom/src/examples/topology-bases.ts",
+    "packages/bloom/src/examples/derived-sets.ts"
+  ],
+  "testModules": [
+    "packages/bloom/src/styles/topology-bases.test.ts",
+    "packages/bloom/src/styles/derived-sets.test.ts"
+  ],
+  "vocabulary": {
+    "types": [
+      "RealInterval",
+      "OpenInterval",
+      "ClosedInterval",
+      "HalfLine",
+      "OpenHalfPlane",
+      "OpenSquare",
+      "OpenTriangle",
+      "ClosedDisk",
+      "CircleBoundary",
+      "DiskExterior",
+      "EndpointPair",
+      "Topology",
+      "SetFamily",
+      "FiniteSetFamily",
+      "Basis",
+      "Subbasis"
+    ],
+    "predicates": [
+      "TopologyOn",
+      "BasisFor",
+      "SubbasisFor",
+      "SetInFamily",
+      "FiniteIntersectionOf",
+      "UnionOf",
+      "EqualTopologies",
+      "InteriorOf",
+      "ClosureOf",
+      "FrontierOf",
+      "ExteriorOf",
+      "DerivedSetOf"
+    ],
+    "reused": [
+      "Set and Point descriptors and directed Subset/Member predicates from composed set theory",
+      "CoordinatePoint and OpenDisk from point-set topology",
+      "Euclidean and supremum planeDistance from metric spaces"
+    ],
+    "separation": "Substance factories contain mathematical entities, coefficients, radii, endpoints, topology names, and relationships. TSX style modules own hatching, canvas scale, layout, glyph placement, fill, and clipping."
+  },
+  "reuseVerification": [
+    "Basis styles render distinct interval and square substances.",
+    "Derived-set styles render distinct interval endpoint conventions and disk radii.",
+    "Shared native TSX hatch primitives are reused across half-planes, triangles, disks, and real intervals."
+  ],
+  "verification": {
+    "focusedTests": {
+      "chapter3Passed": 6,
+      "chapter3Failed": 0,
+      "includingPreviousTopologyFiguresPassed": 10,
+      "mockedRendering": false
+    },
+    "typecheck": "Bloom declaration emit passed after all Chapter 3 additions.",
+    "lint": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "rendering": "Every canonical figure was built through diagram(), stepped through the real optimizer interface, rendered as SVG, rasterized with rsvg-convert, and manually compared side-by-side with the inspected 160 dpi source on a white background.",
+    "geometryPolicy": "Coordinate shapes are fixed by mathematical definitions and the source composition. These styles do not require free optimization variables; real rendering and geometric verification still exercise the Penrose pipeline.",
+    "preview": "tmp/elementary-topology/review/figures-3.1-3.5-side-by-side.png"
+  },
+  "sourceRectangleMethod": "Graphic and its labels, excluding caption and prose. Rectangles were isolated on inspected 160 dpi page renders, tightened to dark ink with a 2 pixel margin, and divided by the full rendered page dimensions. Coordinates are top-left x,y,width,height in [0,1].",
+  "inventoryCorrections": [
+    "3.2 is a square supremum-metric neighborhood cut out by four half-planes, not a disk.",
+    "3.3 shows disks and a triangle, not concentric squares.",
+    "3.5 uses A=(0,1] and one overlaid panel, not five or six separate derived-set panels."
+  ],
+  "sourceLimitations": [
+    "Printed pages 50,52,63 are absent from the supplied PDF. No unavailable text or figure content is reconstructed by guesswork.",
+    "This batch demonstrates Euclidean-plane and usual-real-line derived sets; it does not claim those formulas hold in arbitrary topologies.",
+    "The source’s heavier scanned letters and hatch ink differ from clean MathJax type and the consistent lighter orange drawing treatment.",
+    "Finite windows show representative rays, half-planes, and neighborhood chains; the mathematical substance denotes the underlying unbounded sets and topology families."
+  ],
+  "figures": [
+    {
+      "id": "3.1",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 52,
+        "printedPage": 47,
+        "boundingBox": [0.27027, 0.114243, 0.464373, 0.052671],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels160dpi": [220, 154, 378, 71],
+        "pagePixels160dpi": [814, 1348],
+        "context": "Example 8, section 3.2: the open-interval topology has open rays as a subbasis."
+      },
+      "implementation": {
+        "substanceFactory": "intervalSubbasisSubstance",
+        "styleFactory": "intervalSubbasisStyle",
+        "buildFactory": "buildIntervalSubbasisFigure",
+        "canvas": [400, 100]
+      },
+      "mathematics": [
+        "(a,b)={x | x<b} ∩ {x | a<x}; neither endpoint belongs to the open interval.",
+        "Two HalfLine objects are members of one finite family; FiniteIntersectionOf connects that family to OpenInterval. BasisFor, SubbasisFor, and TopologyOn retain the topological context."
+      ],
+      "checks": [
+        "Strict membership checked at both endpoints and at interior/exterior samples.",
+        "Actual SVG contains the book’s three ray/intersection labels, symbolic a,b, and one baseline with the dashed left extension.",
+        "A distinct substance with endpoints -2 and 5 reuses the same style."
+      ],
+      "visualReview": {
+        "status": "manual source comparison complete; final-book-fidelity review pending",
+        "observations": [
+          "One horizontal panel retains the dashed left ray, solid right ray, endpoint parentheses, and the labels above/below the baseline.",
+          "Endpoint parentheses were enlarged after comparison with the scanned source."
+        ],
+        "privatePreview": "tmp/elementary-topology/review/figure-3.1-side-by-side.png"
+      },
+      "privateSvg": "tmp/elementary-topology/rendered/figure-3.1.svg"
+    },
+    {
+      "id": "3.2",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 52,
+        "printedPage": 47,
+        "boundingBox": [0.302211, 0.474036, 0.434889, 0.204748],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels160dpi": [246, 639, 354, 276],
+        "pagePixels160dpi": [814, 1348],
+        "context": "Example 9, section 3.2: D₃ neighborhoods are squares and open half-planes form a subbasis."
+      },
+      "implementation": {
+        "substanceFactory": "halfPlaneSquareSubstance",
+        "styleFactory": "halfPlaneIntersectionStyle",
+        "buildFactory": "buildHalfPlaneSquareFigure",
+        "canvas": [360, 285]
+      },
+      "mathematics": [
+        "The square centered at (x,y) with radius ρ in the supremum metric is the strict intersection of four half-planes.",
+        "OpenHalfPlane stores mathematical coefficients a,b,c for ax+by<c; OpenSquare stores mathematical center and radius. All four planes belong to the finite intersection family."
+      ],
+      "checks": [
+        "Membership in the four strict half-planes is compared with the supremum-metric inequality, including all four boundary sides.",
+        "Four native clipped Polygon regions are rendered; representative rendered coordinates lie in all four polygons exactly in the central square.",
+        "The same style renders radius 3/4 from a distinct substance."
+      ],
+      "visualReview": {
+        "status": "manual source comparison complete; final-book-fidelity review pending",
+        "observations": [
+          "Preserves the rectangular drawing window, four hatch directions, central square, point, and white (x,y) label knockout.",
+          "No axes or additional labels were added. Lighter hatch strokes and orange overlap shading replace the heavy scanned black ink."
+        ],
+        "privatePreview": "tmp/elementary-topology/review/figure-3.2-side-by-side.png"
+      },
+      "privateSvg": "tmp/elementary-topology/rendered/figure-3.2.svg"
+    },
+    {
+      "id": "3.3",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 57,
+        "printedPage": 54,
+        "boundingBox": [0.360394, 0.521545, 0.284133, 0.172363],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels160dpi": [293, 702, 231, 232],
+        "pagePixels160dpi": [813, 1346],
+        "context": "Example 17, section 3.4, referring to Example 12: triangular neighborhoods and Euclidean disks induce the same plane topology."
+      },
+      "implementation": {
+        "substanceFactory": "triangleDiskBasisSubstance",
+        "styleFactory": "triangleDiskBasisStyle",
+        "buildFactory": "buildTriangleDiskBasisFigure",
+        "canvas": [240, 240]
+      },
+      "mathematics": [
+        "A small open Euclidean disk about (x,y) is contained in an open triangle about the point, and that triangle is contained in a larger disk.",
+        "The two basis families belong to explicitly equal topologies; the illustrated Subset predicates are directed small-disk→triangle→large-disk. The finite illustration is a local refinement witness, not an enumeration of either infinite basis."
+      ],
+      "checks": [
+        "Strict triangle membership excludes its vertices; Euclidean distance places all triangle vertices strictly inside the outer disk.",
+        "The inner disk’s distance to each triangle edge is verified mathematically; 128 rendered inner-circle boundary samples lie inside the rendered triangle.",
+        "Two rendered disks, one triangle, and one point/label retain the source’s single-panel nesting."
+      ],
+      "visualReview": {
+        "status": "manual source comparison complete; final-book-fidelity review pending",
+        "observations": [
+          "Preserves the outer circular hatch region, asymmetric triangle, inner circular hatch region, central point, and white (x,y) label box.",
+          "Triangle vertices are mathematical coordinates selected to match the scanned composition; the curves are exact Euclidean circles rather than scan traces."
+        ],
+        "privatePreview": "tmp/elementary-topology/review/figure-3.3-side-by-side.png"
+      },
+      "privateSvg": "tmp/elementary-topology/rendered/figure-3.3.svg"
+    },
+    {
+      "id": "3.4",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 59,
+        "printedPage": 56,
+        "boundingBox": [0.298893, 0.231798, 0.439114, 0.248886],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels160dpi": [243, 312, 357, 335],
+        "pagePixels160dpi": [813, 1346],
+        "context": "Example 18, section 3.5: derived sets of the open unit disk in the Euclidean plane."
+      },
+      "implementation": {
+        "substanceFactory": "openDiskDerivedSubstance",
+        "styleFactory": "diskDerivedSetsStyle",
+        "buildFactory": "buildDiskDerivedSetsFigure",
+        "canvas": [370, 350]
+      },
+      "mathematics": [
+        "A={(x,y) | x²+y²<1}; A°=A; Cl A=A′={(x,y) | x²+y²≤1}; Fr A={(x,y) | x²+y²=1}; Ext A={(x,y) | x²+y²>1}.",
+        "The marked point (1,0) belongs to the closure and frontier and is outside the strict open disk. All five derived-set predicates reference the same topology."
+      ],
+      "checks": [
+        "Interior, closure, frontier, exterior, and derived membership are checked at the center, boundary, and exterior.",
+        "The rendered boundary marker lies exactly one rendered radius from the disk center; equations distinguish < from ≤.",
+        "The same style renders a radius-3/4 disk, updating the closure equation to x²+y²≤0.5625."
+      ],
+      "visualReview": {
+        "status": "manual source comparison complete; final-book-fidelity review pending",
+        "observations": [
+          "Retains one coordinate panel, the hatched disk, crossing axes, boundary point (1,0), origin label, and the source’s exterior/frontier/interior/closure equations.",
+          "Labels retain white knockouts. A′ is present as a mathematical predicate, but no extra A′ label is added to the source composition."
+        ],
+        "privatePreview": "tmp/elementary-topology/review/figure-3.4-side-by-side.png"
+      },
+      "privateSvg": "tmp/elementary-topology/rendered/figure-3.4.svg"
+    },
+    {
+      "id": "3.5",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 64,
+        "printedPage": 61,
+        "boundingBox": [0.04428, 0.845468, 0.751538, 0.073551],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels160dpi": [36, 1138, 611, 99],
+        "pagePixels160dpi": [813, 1346],
+        "context": "Example 20, section 3.6: neighborhoods and derived sets for A=(0,1] in the usual real topology."
+      },
+      "implementation": {
+        "substanceFactory": "intervalDerivedSubstance",
+        "styleFactory": "intervalDerivedSetsStyle",
+        "buildFactory": "buildIntervalDerivedSetsFigure",
+        "canvas": [610, 115]
+      },
+      "mathematics": [
+        "A=(0,1]; A°=(0,1); Cl A=A′=[0,1]; Fr A={0,1}; Ext A=(-∞,0)∪(1,∞).",
+        "The exterior is an explicit union of the two strict outside rays. Source, interior, and closure share mathematical endpoints; inclusion is carried by typed interval data."
+      ],
+      "checks": [
+        "Membership and all five derived-set memberships are checked at 0, 1, an interior point, and an exterior point.",
+        "Rendered source delimiters exclude 0/include 1; interior excludes both endpoints and closure includes both, checked through SVG endpoint attributes.",
+        "A separate substance with [-2,5) reuses the same style and reverses the source endpoint-inclusion convention correctly."
+      ],
+      "visualReview": {
+        "status": "manual source comparison complete; final-book-fidelity review pending",
+        "observations": [
+          "Preserves one overlaid number-line panel with a hatch band, 0 and 1, source/interior/closure notation, and the two Ext A wings.",
+          "Frontier and derived set are encoded in the substance without adding new panels or labels absent from the graphic."
+        ],
+        "privatePreview": "tmp/elementary-topology/review/figure-3.5-side-by-side.png"
+      },
+      "privateSvg": "tmp/elementary-topology/rendered/figure-3.5.svg"
+    }
+  ]
+}

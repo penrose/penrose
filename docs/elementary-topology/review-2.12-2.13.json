@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "status": "implemented-and-visually-reviewed",
+  "domainFile": "packages/bloom/src/domains/metric-spaces.ts",
+  "styleFile": "packages/bloom/src/styles/function-sequences.tsx",
+  "substanceFile": "packages/examples/src/elementary-topology/function-sequences.ts",
+  "testFile": "packages/examples/src/elementary-topology/function-sequences.test.ts",
+  "verification": {
+    "focusedTestsPassed": 4,
+    "typecheck": "passed",
+    "visual": "Rendered SVGs rasterized and compared with source PDF page 34; labels and leaders revised."
+  },
+  "figures": [
+    {
+      "id": "2.12",
+      "pdfPage": 34,
+      "printedPage": 27,
+      "sourceBounds": [
+        0.03,
+        0.064,
+        0.42,
+        0.246
+      ],
+      "style": "powerFunctionSequenceStyle",
+      "build": "buildPowerFunctionSequenceFigure",
+      "mathematics": [
+        "s_n(x)=x^n for x in [0,1], n a positive integer.",
+        "The pointwise limit is zero on [0,1) and one at 1.",
+        "The supremum uniform distance from every term to the limit is 1; the supremum need not be attained."
+      ],
+      "limits": [
+        "The source labels exponents 1,2,3 and draws further unlabelled terms. Default exponents 5,8,13 for those illustrative curves are a style-independent presentation choice, not additional source claims.",
+        "Analytic sampling regularizes hand-drawn curves."
+      ]
+    },
+    {
+      "id": "2.13",
+      "pdfPage": 34,
+      "printedPage": 27,
+      "sourceBounds": [
+        0.486,
+        0.064,
+        0.44,
+        0.246
+      ],
+      "style": "powerSequenceLimitCollarStyle",
+      "build": "buildPowerSequenceLimitFigure",
+      "mathematics": [
+        "The rho=1/3 uniform collar around f has values below 1/3 for x<1, and above 2/3 at x=1.",
+        "The drawn y=x^2 curve leaves that collar.",
+        "For every finite n there are x<1 with x^n>1/3; the sequence fails to converge uniformly."
+      ],
+      "limits": [
+        "Hatching and pale orange fill depict the collar; the strict inequalities belong to the domain semantics, not hatch pixels.",
+        "The source uses a schematic representative term. The default term has exponent 2."
+      ]
+    }
+  ]
+}

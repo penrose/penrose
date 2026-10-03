@@ -1,0 +1,323 @@
+{
+  "schemaVersion": 1,
+  "scope": "Snapshot of 42 reviewed source figures, including the unnumbered countable-union diagram. Original additions and later reviewed figures are excluded.",
+  "verification": "Real compiled TS Substance and TSX Style factories, native Bloom optimization to convergence, SVG rendering and XML parsing, and presence of native dragging constraints.",
+  "canonicalMode": {
+    "interactive": {
+      "jitter": 0
+    },
+    "assertion": "Every native label-layout x/y input remains within 1e-8 of zero; initial reviewed geometry is preserved."
+  },
+  "sampledMode": {
+    "variation": "interactive-audit",
+    "interactive": true,
+    "jitter": 4
+  },
+  "summary": {
+    "figures": 42,
+    "canonicalPassed": 42,
+    "sampledPassed": 42,
+    "failed": 0,
+    "nativeDragHandles": 260,
+    "maxCanonicalSteps": 5,
+    "maxSampledSteps": 35
+  },
+  "figures": [
+    {
+      "id": "unnumbered-countable-union-enumeration",
+      "nativeDragHandles": 47,
+      "canonicalSteps": 5,
+      "sampledSteps": 11,
+      "status": "passed"
+    },
+    {
+      "id": "2.1",
+      "nativeDragHandles": 7,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.2",
+      "nativeDragHandles": 7,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.3",
+      "nativeDragHandles": 3,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.4",
+      "nativeDragHandles": 11,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.5",
+      "nativeDragHandles": 8,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.6",
+      "nativeDragHandles": 6,
+      "canonicalSteps": 5,
+      "sampledSteps": 13,
+      "status": "passed"
+    },
+    {
+      "id": "2.8",
+      "nativeDragHandles": 6,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.9",
+      "nativeDragHandles": 4,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.10",
+      "nativeDragHandles": 5,
+      "canonicalSteps": 5,
+      "sampledSteps": 33,
+      "status": "passed"
+    },
+    {
+      "id": "2.11",
+      "nativeDragHandles": 7,
+      "canonicalSteps": 5,
+      "sampledSteps": 10,
+      "status": "passed"
+    },
+    {
+      "id": "2.12",
+      "nativeDragHandles": 6,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.13",
+      "nativeDragHandles": 7,
+      "canonicalSteps": 5,
+      "sampledSteps": 25,
+      "status": "passed"
+    },
+    {
+      "id": "2.14",
+      "nativeDragHandles": 8,
+      "canonicalSteps": 5,
+      "sampledSteps": 11,
+      "status": "passed"
+    },
+    {
+      "id": "2.15",
+      "nativeDragHandles": 8,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.16",
+      "nativeDragHandles": 5,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.17",
+      "nativeDragHandles": 6,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.18",
+      "nativeDragHandles": 6,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.19",
+      "nativeDragHandles": 8,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "2.20",
+      "nativeDragHandles": 6,
+      "canonicalSteps": 5,
+      "sampledSteps": 12,
+      "status": "passed"
+    },
+    {
+      "id": "3.1",
+      "nativeDragHandles": 5,
+      "canonicalSteps": 5,
+      "sampledSteps": 18,
+      "status": "passed"
+    },
+    {
+      "id": "3.2",
+      "nativeDragHandles": 1,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "3.3",
+      "nativeDragHandles": 1,
+      "canonicalSteps": 5,
+      "sampledSteps": 8,
+      "status": "passed"
+    },
+    {
+      "id": "3.4",
+      "nativeDragHandles": 9,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "3.5",
+      "nativeDragHandles": 7,
+      "canonicalSteps": 5,
+      "sampledSteps": 9,
+      "status": "passed"
+    },
+    {
+      "id": "4.1",
+      "nativeDragHandles": 5,
+      "canonicalSteps": 5,
+      "sampledSteps": 12,
+      "status": "passed"
+    },
+    {
+      "id": "4.2",
+      "nativeDragHandles": 3,
+      "canonicalSteps": 5,
+      "sampledSteps": 7,
+      "status": "passed"
+    },
+    {
+      "id": "4.3",
+      "nativeDragHandles": 5,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "4.4",
+      "nativeDragHandles": 4,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "4.5",
+      "nativeDragHandles": 1,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "4.6",
+      "nativeDragHandles": 4,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "4.7",
+      "nativeDragHandles": 1,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "4.8",
+      "nativeDragHandles": 7,
+      "canonicalSteps": 5,
+      "sampledSteps": 35,
+      "status": "passed"
+    },
+    {
+      "id": "4.9",
+      "nativeDragHandles": 7,
+      "canonicalSteps": 5,
+      "sampledSteps": 17,
+      "status": "passed"
+    },
+    {
+      "id": "4.10",
+      "nativeDragHandles": 3,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "5.1",
+      "nativeDragHandles": 4,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "5.2",
+      "nativeDragHandles": 4,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "5.3",
+      "nativeDragHandles": 6,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "5.4",
+      "nativeDragHandles": 3,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "5.5",
+      "nativeDragHandles": 3,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "5.6",
+      "nativeDragHandles": 3,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    },
+    {
+      "id": "5.7",
+      "nativeDragHandles": 3,
+      "canonicalSteps": 5,
+      "sampledSteps": 6,
+      "status": "passed"
+    }
+  ],
+  "additionalRegressionCoverage": "core/interactive-layout.test.ts checks native keyboard dragging, retained drag handlers after a live SVG update, label drop persistence, zero-jitter geometry, and grouped geometric companions. The disk construction in Figure 4.5 and the full native torus mesh have separate focused native drag tests.",
+  "browserVerification": "This audit covers the native build/render layer. Final website controls and source tabs are verified separately in the local browser preview."
+}

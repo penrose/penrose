@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "id": "unnumbered-four-element-group-table",
+  "kind": "unnumbered-mathematical-table",
+  "status": "implemented-and-visually-reviewed",
+  "pdfPage": 22,
+  "printedPage": 14,
+  "section": "1.4",
+  "example": 10,
+  "domainFile": "packages/bloom/src/domains/set-theory.ts",
+  "styleFile": "packages/bloom/src/styles/group-tables.tsx",
+  "substanceFile": "packages/bloom/src/examples/early-tables.ts",
+  "substanceFactory": "fourElementGroupTableSubstance",
+  "buildFactory": "buildFourElementGroupTable",
+  "testFile": "packages/bloom/src/styles/early-tables.test.ts",
+  "verification": {
+    "testsPassed": 5,
+    "mathematics": [
+      "All sixteen table entries match the source s1…s4 ordering exactly.",
+      "The group is constructed as Z2 direct-sum Z2, with s1 the identity and each element its own inverse.",
+      "The reusable Style checks closure, all associative triples, the unique identity and all two-sided inverses from the complete recorded product facts. It rejects false associativity and incorrectly asserted inverses."
+    ],
+    "reuse": "The same native operation-table Style renders a different Z3 Substance with its own symbols and addition table.",
+    "visual": "Full-resolution source PDF22 and the native rendered table were compared. The operation symbol, header/row labels, all products and eight internal grid lines are retained. There is no outer border or shading.",
+    "nativeInteraction": "One native whole-table handle translates every label and grid line together. Canonical positions equal the static source layout, seeded sampling changes only the bounded common translation, and all Substance facts remain immutable.",
+    "rootVisualReview": "Passed: parent inspected the full supplied pages and both native previews. Exact source decimal strings, sixteen products, open grid and continuation dots are retained."
+  },
+  "limits": [
+    "Fixed table coordinates reproduce the source layout; cells are not independently rearranged because their positions identify operation arguments.",
+    "The reusable table Style supports complete finite groups with 1–16 elements, rather than a truncated infinite group table."
+  ],
+  "sourceImageDimensions": [762, 1262],
+  "pixelBounds": [232, 314, 321, 213],
+  "sourceBounds": [0.304461942, 0.24881141, 0.421259843, 0.168779715],
+  "sourcePlacementMeasurement": {
+    "referenceDpi": 150,
+    "boundsConvention": "[x,y,width,height], with a half-open pixel rectangle; sourceBounds uses the same rectangle normalized against the complete rendered source page",
+    "graphicInkPixelBounds": [236, 318, 313, 205],
+    "paddingPixels": 4,
+    "visualReview": "Graphic-only crop inspected at triple scale. Headings, all entries, continuation dots or grid lines are complete; surrounding prose is excluded."
+  }
+}

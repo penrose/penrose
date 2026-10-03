@@ -1,0 +1,2316 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "filename": "ElementaryTopologyGemignani.pdf",
+    "sha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+    "pdfPageCount": 250,
+    "title": "Elementary Topology",
+    "author": "Michael C. Gemignani",
+    "edition": "Second edition",
+    "publisher": "Addison-Wesley Publishing Company",
+    "identityVerification": "Title page, PDF page 3."
+  },
+  "status": "incomplete-source",
+  "method": {
+    "pageLabels": "OCR candidate extraction followed by visual review of every supplied running page header, chapter-opening footer, index-opening footer, and numbered frontmatter page. All PDF indices are one-based.",
+    "coverage": "All 250 PDF pages classified; all 239 supplied Arabic-numbered pages mapped.",
+    "limitations": [
+      "Unnumbered or blank frontmatter pages cannot be inferred from numbered pagination.",
+      "No missing-page prose, figures, panels, or mathematical content has been reconstructed.",
+      "A complete figure count requires a complete source and a separate visual inventory.",
+      "Pagination gaps do not establish whether an omitted page carried prose, a figure, or no content; printed position 266, between the symbol index and general index, is one such unresolved case."
+    ]
+  },
+  "pagination": {
+    "arabicRange": [1, 270],
+    "presentArabicCount": 239,
+    "missingArabicCount": 31,
+    "missingPrintedPages": [
+      4, 13, 21, 29, 38, 50, 52, 63, 75, 85, 92, 102, 110, 117, 129, 139, 147,
+      157, 166, 175, 183, 191, 199, 211, 217, 229, 239, 248, 253, 258, 266
+    ],
+    "unresolvedPrintedLabels": [],
+    "missingPrintedPagesInterpretation": "Absent positions in the inclusive Arabic-numbered range 1-270; the audit does not establish whether an omitted page carried content or was intentionally blank."
+  },
+  "printedPageToPdfPage": {
+    "vii": 6,
+    "viii": 7,
+    "ix": 8,
+    "x": 9,
+    "xi": 10,
+    "1": 11,
+    "2": 12,
+    "3": 13,
+    "5": 14,
+    "6": 15,
+    "7": 16,
+    "8": 17,
+    "9": 18,
+    "10": 19,
+    "11": 20,
+    "12": 21,
+    "14": 22,
+    "15": 23,
+    "16": 24,
+    "17": 25,
+    "18": 26,
+    "19": 27,
+    "20": 28,
+    "22": 29,
+    "23": 30,
+    "24": 31,
+    "25": 32,
+    "26": 33,
+    "27": 34,
+    "28": 35,
+    "30": 36,
+    "31": 37,
+    "32": 38,
+    "33": 39,
+    "34": 40,
+    "35": 41,
+    "36": 42,
+    "37": 43,
+    "39": 44,
+    "40": 45,
+    "41": 46,
+    "42": 47,
+    "43": 48,
+    "44": 49,
+    "45": 50,
+    "46": 51,
+    "47": 52,
+    "48": 53,
+    "49": 54,
+    "51": 55,
+    "53": 56,
+    "54": 57,
+    "55": 58,
+    "56": 59,
+    "57": 60,
+    "58": 61,
+    "59": 62,
+    "60": 63,
+    "61": 64,
+    "62": 65,
+    "64": 66,
+    "65": 67,
+    "66": 68,
+    "67": 69,
+    "68": 70,
+    "69": 71,
+    "70": 72,
+    "71": 73,
+    "72": 74,
+    "73": 75,
+    "74": 76,
+    "76": 77,
+    "77": 78,
+    "78": 79,
+    "79": 80,
+    "80": 81,
+    "81": 82,
+    "82": 83,
+    "83": 84,
+    "84": 85,
+    "86": 86,
+    "87": 87,
+    "88": 88,
+    "89": 89,
+    "90": 90,
+    "91": 91,
+    "93": 92,
+    "94": 93,
+    "95": 94,
+    "96": 95,
+    "97": 96,
+    "98": 97,
+    "99": 98,
+    "100": 99,
+    "101": 100,
+    "103": 101,
+    "104": 102,
+    "105": 103,
+    "106": 104,
+    "107": 105,
+    "108": 106,
+    "109": 107,
+    "111": 108,
+    "112": 109,
+    "113": 110,
+    "114": 111,
+    "115": 112,
+    "116": 113,
+    "118": 114,
+    "119": 115,
+    "120": 116,
+    "121": 117,
+    "122": 118,
+    "123": 119,
+    "124": 120,
+    "125": 121,
+    "126": 122,
+    "127": 123,
+    "128": 124,
+    "130": 125,
+    "131": 126,
+    "132": 127,
+    "133": 128,
+    "134": 129,
+    "135": 130,
+    "136": 131,
+    "137": 132,
+    "138": 133,
+    "140": 134,
+    "141": 135,
+    "142": 136,
+    "143": 137,
+    "144": 138,
+    "145": 139,
+    "146": 140,
+    "148": 141,
+    "149": 142,
+    "150": 143,
+    "151": 144,
+    "152": 145,
+    "153": 146,
+    "154": 147,
+    "155": 148,
+    "156": 149,
+    "158": 150,
+    "159": 151,
+    "160": 152,
+    "161": 153,
+    "162": 154,
+    "163": 155,
+    "164": 156,
+    "165": 157,
+    "167": 158,
+    "168": 159,
+    "169": 160,
+    "170": 161,
+    "171": 162,
+    "172": 163,
+    "173": 164,
+    "174": 165,
+    "176": 166,
+    "177": 167,
+    "178": 168,
+    "179": 169,
+    "180": 170,
+    "181": 171,
+    "182": 172,
+    "184": 173,
+    "185": 174,
+    "186": 175,
+    "187": 176,
+    "188": 177,
+    "189": 178,
+    "190": 179,
+    "192": 180,
+    "193": 181,
+    "194": 182,
+    "195": 183,
+    "196": 184,
+    "197": 185,
+    "198": 186,
+    "200": 187,
+    "201": 188,
+    "202": 189,
+    "203": 190,
+    "204": 191,
+    "205": 192,
+    "206": 193,
+    "207": 194,
+    "208": 195,
+    "209": 196,
+    "210": 197,
+    "212": 198,
+    "213": 199,
+    "214": 200,
+    "215": 201,
+    "216": 202,
+    "218": 203,
+    "219": 204,
+    "220": 205,
+    "221": 206,
+    "222": 207,
+    "223": 208,
+    "224": 209,
+    "225": 210,
+    "226": 211,
+    "227": 212,
+    "228": 213,
+    "230": 214,
+    "231": 215,
+    "232": 216,
+    "233": 217,
+    "234": 218,
+    "235": 219,
+    "236": 220,
+    "237": 221,
+    "238": 222,
+    "240": 223,
+    "241": 224,
+    "242": 225,
+    "243": 226,
+    "244": 227,
+    "245": 228,
+    "246": 229,
+    "247": 230,
+    "249": 231,
+    "250": 232,
+    "251": 233,
+    "252": 234,
+    "254": 235,
+    "255": 236,
+    "256": 237,
+    "257": 238,
+    "259": 239,
+    "260": 240,
+    "261": 241,
+    "262": 242,
+    "263": 243,
+    "264": 244,
+    "265": 245,
+    "267": 246,
+    "268": 247,
+    "269": 248,
+    "270": 249
+  },
+  "pdfPages": [
+    {
+      "pdfPage": 1,
+      "printedPage": null,
+      "labelPosition": null,
+      "verification": "rendered-scan",
+      "role": "front-cover"
+    },
+    {
+      "pdfPage": 2,
+      "printedPage": null,
+      "labelPosition": null,
+      "verification": "rendered-scan",
+      "role": "half-title"
+    },
+    {
+      "pdfPage": 3,
+      "printedPage": null,
+      "labelPosition": null,
+      "verification": "rendered-scan",
+      "role": "title"
+    },
+    {
+      "pdfPage": 4,
+      "printedPage": null,
+      "labelPosition": null,
+      "verification": "rendered-scan",
+      "role": "publication-information"
+    },
+    {
+      "pdfPage": 5,
+      "printedPage": null,
+      "labelPosition": null,
+      "verification": "rendered-scan",
+      "role": "dedication"
+    },
+    {
+      "pdfPage": 6,
+      "printedPage": "vii",
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 7,
+      "printedPage": "viii",
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 8,
+      "printedPage": "ix",
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 9,
+      "printedPage": "x",
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 10,
+      "printedPage": "xi",
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 11,
+      "printedPage": 1,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 12,
+      "printedPage": 2,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 13,
+      "printedPage": 3,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 14,
+      "printedPage": 5,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 15,
+      "printedPage": 6,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 16,
+      "printedPage": 7,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 17,
+      "printedPage": 8,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 18,
+      "printedPage": 9,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 19,
+      "printedPage": 10,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 20,
+      "printedPage": 11,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 21,
+      "printedPage": 12,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 22,
+      "printedPage": 14,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 23,
+      "printedPage": 15,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 24,
+      "printedPage": 16,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 25,
+      "printedPage": 17,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 26,
+      "printedPage": 18,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 27,
+      "printedPage": 19,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 28,
+      "printedPage": 20,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 29,
+      "printedPage": 22,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 30,
+      "printedPage": 23,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 31,
+      "printedPage": 24,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 32,
+      "printedPage": 25,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 33,
+      "printedPage": 26,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 34,
+      "printedPage": 27,
+      "labelPosition": "header",
+      "verification": "rendered-scan",
+      "ocrCorrection": "Running header absent from OCR."
+    },
+    {
+      "pdfPage": 35,
+      "printedPage": 28,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 36,
+      "printedPage": 30,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 37,
+      "printedPage": 31,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 38,
+      "printedPage": 32,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 39,
+      "printedPage": 33,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 40,
+      "printedPage": 34,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 41,
+      "printedPage": 35,
+      "labelPosition": "header",
+      "verification": "rendered-scan",
+      "ocrCorrection": "OCR reads 36; scan reads 35."
+    },
+    {
+      "pdfPage": 42,
+      "printedPage": 36,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 43,
+      "printedPage": 37,
+      "labelPosition": "header",
+      "verification": "rendered-scan",
+      "ocrCorrection": "Page and section numbers merged in OCR."
+    },
+    {
+      "pdfPage": 44,
+      "printedPage": 39,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 45,
+      "printedPage": 40,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 46,
+      "printedPage": 41,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 47,
+      "printedPage": 42,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 48,
+      "printedPage": 43,
+      "labelPosition": "header",
+      "verification": "rendered-scan",
+      "ocrCorrection": "Page and section numbers merged in OCR."
+    },
+    {
+      "pdfPage": 49,
+      "printedPage": 44,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 50,
+      "printedPage": 45,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 51,
+      "printedPage": 46,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 52,
+      "printedPage": 47,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 53,
+      "printedPage": 48,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 54,
+      "printedPage": 49,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 55,
+      "printedPage": 51,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 56,
+      "printedPage": 53,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 57,
+      "printedPage": 54,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 58,
+      "printedPage": 55,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 59,
+      "printedPage": 56,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 60,
+      "printedPage": 57,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 61,
+      "printedPage": 58,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 62,
+      "printedPage": 59,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 63,
+      "printedPage": 60,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 64,
+      "printedPage": 61,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 65,
+      "printedPage": 62,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 66,
+      "printedPage": 64,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 67,
+      "printedPage": 65,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 68,
+      "printedPage": 66,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 69,
+      "printedPage": 67,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 70,
+      "printedPage": 68,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 71,
+      "printedPage": 69,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 72,
+      "printedPage": 70,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 73,
+      "printedPage": 71,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 74,
+      "printedPage": 72,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 75,
+      "printedPage": 73,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 76,
+      "printedPage": 74,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 77,
+      "printedPage": 76,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 78,
+      "printedPage": 77,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 79,
+      "printedPage": 78,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 80,
+      "printedPage": 79,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 81,
+      "printedPage": 80,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 82,
+      "printedPage": 81,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 83,
+      "printedPage": 82,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 84,
+      "printedPage": 83,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 85,
+      "printedPage": 84,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 86,
+      "printedPage": 86,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 87,
+      "printedPage": 87,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 88,
+      "printedPage": 88,
+      "labelPosition": "header",
+      "verification": "rendered-scan",
+      "ocrCorrection": "Printed page number absent from OCR."
+    },
+    {
+      "pdfPage": 89,
+      "printedPage": 89,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 90,
+      "printedPage": 90,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 91,
+      "printedPage": 91,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 92,
+      "printedPage": 93,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 93,
+      "printedPage": 94,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 94,
+      "printedPage": 95,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 95,
+      "printedPage": 96,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 96,
+      "printedPage": 97,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 97,
+      "printedPage": 98,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 98,
+      "printedPage": 99,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 99,
+      "printedPage": 100,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 100,
+      "printedPage": 101,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 101,
+      "printedPage": 103,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 102,
+      "printedPage": 104,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 103,
+      "printedPage": 105,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 104,
+      "printedPage": 106,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 105,
+      "printedPage": 107,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 106,
+      "printedPage": 108,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 107,
+      "printedPage": 109,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 108,
+      "printedPage": 111,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 109,
+      "printedPage": 112,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 110,
+      "printedPage": 113,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 111,
+      "printedPage": 114,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 112,
+      "printedPage": 115,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 113,
+      "printedPage": 116,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 114,
+      "printedPage": 118,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 115,
+      "printedPage": 119,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 116,
+      "printedPage": 120,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 117,
+      "printedPage": 121,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 118,
+      "printedPage": 122,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 119,
+      "printedPage": 123,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 120,
+      "printedPage": 124,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 121,
+      "printedPage": 125,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 122,
+      "printedPage": 126,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 123,
+      "printedPage": 127,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 124,
+      "printedPage": 128,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 125,
+      "printedPage": 130,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 126,
+      "printedPage": 131,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 127,
+      "printedPage": 132,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 128,
+      "printedPage": 133,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 129,
+      "printedPage": 134,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 130,
+      "printedPage": 135,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 131,
+      "printedPage": 136,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 132,
+      "printedPage": 137,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 133,
+      "printedPage": 138,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 134,
+      "printedPage": 140,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 135,
+      "printedPage": 141,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 136,
+      "printedPage": 142,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 137,
+      "printedPage": 143,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 138,
+      "printedPage": 144,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 139,
+      "printedPage": 145,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 140,
+      "printedPage": 146,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 141,
+      "printedPage": 148,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 142,
+      "printedPage": 149,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 143,
+      "printedPage": 150,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 144,
+      "printedPage": 151,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 145,
+      "printedPage": 152,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 146,
+      "printedPage": 153,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 147,
+      "printedPage": 154,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 148,
+      "printedPage": 155,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 149,
+      "printedPage": 156,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 150,
+      "printedPage": 158,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 151,
+      "printedPage": 159,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 152,
+      "printedPage": 160,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 153,
+      "printedPage": 161,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 154,
+      "printedPage": 162,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 155,
+      "printedPage": 163,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 156,
+      "printedPage": 164,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 157,
+      "printedPage": 165,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 158,
+      "printedPage": 167,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 159,
+      "printedPage": 168,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 160,
+      "printedPage": 169,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 161,
+      "printedPage": 170,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 162,
+      "printedPage": 171,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 163,
+      "printedPage": 172,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 164,
+      "printedPage": 173,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 165,
+      "printedPage": 174,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 166,
+      "printedPage": 176,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 167,
+      "printedPage": 177,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 168,
+      "printedPage": 178,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 169,
+      "printedPage": 179,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 170,
+      "printedPage": 180,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 171,
+      "printedPage": 181,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 172,
+      "printedPage": 182,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 173,
+      "printedPage": 184,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 174,
+      "printedPage": 185,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 175,
+      "printedPage": 186,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 176,
+      "printedPage": 187,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 177,
+      "printedPage": 188,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 178,
+      "printedPage": 189,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 179,
+      "printedPage": 190,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 180,
+      "printedPage": 192,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 181,
+      "printedPage": 193,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 182,
+      "printedPage": 194,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 183,
+      "printedPage": 195,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 184,
+      "printedPage": 196,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 185,
+      "printedPage": 197,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 186,
+      "printedPage": 198,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 187,
+      "printedPage": 200,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 188,
+      "printedPage": 201,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 189,
+      "printedPage": 202,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 190,
+      "printedPage": 203,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 191,
+      "printedPage": 204,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 192,
+      "printedPage": 205,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 193,
+      "printedPage": 206,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 194,
+      "printedPage": 207,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 195,
+      "printedPage": 208,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 196,
+      "printedPage": 209,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 197,
+      "printedPage": 210,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 198,
+      "printedPage": 212,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 199,
+      "printedPage": 213,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 200,
+      "printedPage": 214,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 201,
+      "printedPage": 215,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 202,
+      "printedPage": 216,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 203,
+      "printedPage": 218,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 204,
+      "printedPage": 219,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 205,
+      "printedPage": 220,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 206,
+      "printedPage": 221,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 207,
+      "printedPage": 222,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 208,
+      "printedPage": 223,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 209,
+      "printedPage": 224,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 210,
+      "printedPage": 225,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 211,
+      "printedPage": 226,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 212,
+      "printedPage": 227,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 213,
+      "printedPage": 228,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 214,
+      "printedPage": 230,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 215,
+      "printedPage": 231,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 216,
+      "printedPage": 232,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 217,
+      "printedPage": 233,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 218,
+      "printedPage": 234,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 219,
+      "printedPage": 235,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 220,
+      "printedPage": 236,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 221,
+      "printedPage": 237,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 222,
+      "printedPage": 238,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 223,
+      "printedPage": 240,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 224,
+      "printedPage": 241,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 225,
+      "printedPage": 242,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 226,
+      "printedPage": 243,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 227,
+      "printedPage": 244,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 228,
+      "printedPage": 245,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 229,
+      "printedPage": 246,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 230,
+      "printedPage": 247,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 231,
+      "printedPage": 249,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 232,
+      "printedPage": 250,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 233,
+      "printedPage": 251,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 234,
+      "printedPage": 252,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 235,
+      "printedPage": 254,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 236,
+      "printedPage": 255,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 237,
+      "printedPage": 256,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 238,
+      "printedPage": 257,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 239,
+      "printedPage": 259,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 240,
+      "printedPage": 260,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 241,
+      "printedPage": 261,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 242,
+      "printedPage": 262,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 243,
+      "printedPage": 263,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 244,
+      "printedPage": 264,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 245,
+      "printedPage": 265,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 246,
+      "printedPage": 267,
+      "labelPosition": "footer",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 247,
+      "printedPage": 268,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 248,
+      "printedPage": 269,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 249,
+      "printedPage": 270,
+      "labelPosition": "header",
+      "verification": "rendered-scan"
+    },
+    {
+      "pdfPage": 250,
+      "printedPage": null,
+      "labelPosition": null,
+      "verification": "rendered-scan",
+      "role": "back-cover"
+    }
+  ],
+  "missingPages": [
+    {
+      "printedPage": 4,
+      "before": {
+        "printedPage": 3,
+        "pdfPage": 13
+      },
+      "after": {
+        "printedPage": 5,
+        "pdfPage": 14
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 13,
+      "before": {
+        "printedPage": 12,
+        "pdfPage": 21
+      },
+      "after": {
+        "printedPage": 14,
+        "pdfPage": 22
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 21,
+      "before": {
+        "printedPage": 20,
+        "pdfPage": 28
+      },
+      "after": {
+        "printedPage": 22,
+        "pdfPage": 29
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 29,
+      "before": {
+        "printedPage": 28,
+        "pdfPage": 35
+      },
+      "after": {
+        "printedPage": 30,
+        "pdfPage": 36
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 38,
+      "before": {
+        "printedPage": 37,
+        "pdfPage": 43
+      },
+      "after": {
+        "printedPage": 39,
+        "pdfPage": 44
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 50,
+      "before": {
+        "printedPage": 49,
+        "pdfPage": 54
+      },
+      "after": {
+        "printedPage": 51,
+        "pdfPage": 55
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 52,
+      "before": {
+        "printedPage": 51,
+        "pdfPage": 55
+      },
+      "after": {
+        "printedPage": 53,
+        "pdfPage": 56
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 63,
+      "before": {
+        "printedPage": 62,
+        "pdfPage": 65
+      },
+      "after": {
+        "printedPage": 64,
+        "pdfPage": 66
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 75,
+      "before": {
+        "printedPage": 74,
+        "pdfPage": 76
+      },
+      "after": {
+        "printedPage": 76,
+        "pdfPage": 77
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 85,
+      "before": {
+        "printedPage": 84,
+        "pdfPage": 85
+      },
+      "after": {
+        "printedPage": 86,
+        "pdfPage": 86
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 92,
+      "before": {
+        "printedPage": 91,
+        "pdfPage": 91
+      },
+      "after": {
+        "printedPage": 93,
+        "pdfPage": 92
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 102,
+      "before": {
+        "printedPage": 101,
+        "pdfPage": 100
+      },
+      "after": {
+        "printedPage": 103,
+        "pdfPage": 101
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 110,
+      "before": {
+        "printedPage": 109,
+        "pdfPage": 107
+      },
+      "after": {
+        "printedPage": 111,
+        "pdfPage": 108
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 117,
+      "before": {
+        "printedPage": 116,
+        "pdfPage": 113
+      },
+      "after": {
+        "printedPage": 118,
+        "pdfPage": 114
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 129,
+      "before": {
+        "printedPage": 128,
+        "pdfPage": 124
+      },
+      "after": {
+        "printedPage": 130,
+        "pdfPage": 125
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 139,
+      "before": {
+        "printedPage": 138,
+        "pdfPage": 133
+      },
+      "after": {
+        "printedPage": 140,
+        "pdfPage": 134
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 147,
+      "before": {
+        "printedPage": 146,
+        "pdfPage": 140
+      },
+      "after": {
+        "printedPage": 148,
+        "pdfPage": 141
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 157,
+      "before": {
+        "printedPage": 156,
+        "pdfPage": 149
+      },
+      "after": {
+        "printedPage": 158,
+        "pdfPage": 150
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 166,
+      "before": {
+        "printedPage": 165,
+        "pdfPage": 157
+      },
+      "after": {
+        "printedPage": 167,
+        "pdfPage": 158
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 175,
+      "before": {
+        "printedPage": 174,
+        "pdfPage": 165
+      },
+      "after": {
+        "printedPage": 176,
+        "pdfPage": 166
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 183,
+      "before": {
+        "printedPage": 182,
+        "pdfPage": 172
+      },
+      "after": {
+        "printedPage": 184,
+        "pdfPage": 173
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 191,
+      "before": {
+        "printedPage": 190,
+        "pdfPage": 179
+      },
+      "after": {
+        "printedPage": 192,
+        "pdfPage": 180
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 199,
+      "before": {
+        "printedPage": 198,
+        "pdfPage": 186
+      },
+      "after": {
+        "printedPage": 200,
+        "pdfPage": 187
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 211,
+      "before": {
+        "printedPage": 210,
+        "pdfPage": 197
+      },
+      "after": {
+        "printedPage": 212,
+        "pdfPage": 198
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 217,
+      "before": {
+        "printedPage": 216,
+        "pdfPage": 202
+      },
+      "after": {
+        "printedPage": 218,
+        "pdfPage": 203
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 229,
+      "before": {
+        "printedPage": 228,
+        "pdfPage": 213
+      },
+      "after": {
+        "printedPage": 230,
+        "pdfPage": 214
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 239,
+      "before": {
+        "printedPage": 238,
+        "pdfPage": 222
+      },
+      "after": {
+        "printedPage": 240,
+        "pdfPage": 223
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 248,
+      "before": {
+        "printedPage": 247,
+        "pdfPage": 230
+      },
+      "after": {
+        "printedPage": 249,
+        "pdfPage": 231
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 253,
+      "before": {
+        "printedPage": 252,
+        "pdfPage": 234
+      },
+      "after": {
+        "printedPage": 254,
+        "pdfPage": 235
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 258,
+      "before": {
+        "printedPage": 257,
+        "pdfPage": 238
+      },
+      "after": {
+        "printedPage": 259,
+        "pdfPage": 239
+      },
+      "contents": "not supplied; not inferred"
+    },
+    {
+      "printedPage": 266,
+      "before": {
+        "printedPage": 265,
+        "pdfPage": 245
+      },
+      "after": {
+        "printedPage": 267,
+        "pdfPage": 246
+      },
+      "contents": "not supplied; not inferred"
+    }
+  ],
+  "figureReferenceAudit": {
+    "status": "supplied-page-visual-inventory-complete",
+    "reviewedPdfPageRange": [1, 250],
+    "inventories": [
+      "inventory-001-090.json",
+      "inventory-091-170.json",
+      "inventory-171-250.json"
+    ],
+    "countsOfVisuallyPresentItems": {
+      "numberedFiguresPresent": 96,
+      "unnumberedMathematicalDiagramsPresent": 1,
+      "unnumberedMathematicalTablesPresent": 3,
+      "coverIllustrationsPresent": 1,
+      "numberedPanelsPresent": 118
+    },
+    "unlocatedNumberedFigureLabels": [
+      {
+        "label": "2.7",
+        "status": "numbering-gap candidate; contents unknown",
+        "missingPrintedPageCandidates": [21],
+        "evidence": {
+          "precedingLabel": "2.6",
+          "precedingPdfPage": 28,
+          "followingLabel": "2.8",
+          "followingPdfPage": 29
+        },
+        "note": "This association is an inference from the numbered sequence and pagination gap, not an inspected figure."
+      },
+      {
+        "label": "5.8",
+        "status": "numbering-gap candidate; contents unknown",
+        "missingPrintedPageCandidates": [102],
+        "evidence": {
+          "precedingLabel": "5.7",
+          "precedingPdfPage": 100,
+          "precedingPrintedPage": 101,
+          "followingLabel": "5.9",
+          "followingPdfPage": 102,
+          "followingPrintedPage": 104,
+          "visuallyReviewedInterveningPdfPages": [101]
+        },
+        "note": "Printed page 103 is supplied and has no illustration; association with missing printed page 102 is an inference, not an inspected figure."
+      },
+      {
+        "label": "5.13",
+        "status": "referenced but unlocated in supplied pages; contents uninspected",
+        "missingPrintedPageCandidates": [110],
+        "evidence": {
+          "precedingLabel": "5.12",
+          "precedingPdfPage": 107,
+          "precedingPrintedPage": 109,
+          "followingLabel": "5.14",
+          "followingPdfPage": 108,
+          "followingPrintedPage": 111,
+          "inTextReference": {
+            "pdfPage": 107,
+            "printedPage": 109,
+            "context": "The Urysohn lemma proof refers to Fig. 5.13 when defining V = U(q prime) - Cl U(q) as a neighborhood of x_0."
+          }
+        },
+        "note": "The in-text reference confirms the figure label; placement on missing printed page 110 is an inference from pagination and sequence. No panel contents have been reconstructed."
+      },
+      {
+        "label": "8.2",
+        "status": "numbering-gap candidate; contents unknown",
+        "missingPrintedPageCandidates": [166],
+        "evidence": {
+          "precedingLabel": "8.1",
+          "precedingPdfPage": 156,
+          "precedingPrintedPage": 164,
+          "followingLabel": "8.3",
+          "followingPdfPage": 159,
+          "followingPrintedPage": 168,
+          "visuallyReviewedInterveningPdfPages": [157, 158]
+        },
+        "note": "Supplied printed pages 165 and 167 contain no illustration; association with missing printed page 166 is an inference, not an inspected figure."
+      },
+      {
+        "label": "9.10",
+        "status": "numbering-gap candidate; absent figure contents unverified",
+        "missingPrintedPageCandidates": [199],
+        "evidence": {
+          "precedingLabel": "9.9",
+          "precedingPdfPage": 182,
+          "followingLabel": "9.11",
+          "followingPdfPage": 190,
+          "explicitReferencePdfPages": [186]
+        },
+        "note": "The supplied page at printed 198 references Figure 9.10; printed 199 is missing. This page association is an inference, not an inspected figure."
+      },
+      {
+        "label": "11.16",
+        "status": "numbering-gap candidate; absent figure contents unverified",
+        "missingPrintedPageCandidates": [248],
+        "evidence": {
+          "precedingLabel": "11.15",
+          "precedingPdfPage": 229,
+          "followingLabel": "11.19",
+          "followingPdfPage": 231
+        },
+        "note": "Printed 248 is missing between the verified surrounding captions. Figure 11.18 is explicitly referenced on printed 249; no absent panel contents were reconstructed."
+      },
+      {
+        "label": "11.17",
+        "status": "numbering-gap candidate; absent figure contents unverified",
+        "missingPrintedPageCandidates": [248],
+        "evidence": {
+          "precedingLabel": "11.15",
+          "precedingPdfPage": 229,
+          "followingLabel": "11.19",
+          "followingPdfPage": 231
+        },
+        "note": "Printed 248 is missing between the verified surrounding captions. Figure 11.18 is explicitly referenced on printed 249; no absent panel contents were reconstructed."
+      },
+      {
+        "label": "11.18",
+        "status": "numbering-gap candidate; absent figure contents unverified",
+        "missingPrintedPageCandidates": [248],
+        "evidence": {
+          "precedingLabel": "11.15",
+          "precedingPdfPage": 229,
+          "followingLabel": "11.19",
+          "followingPdfPage": 231,
+          "explicitReferencePdfPages": [231]
+        },
+        "note": "Printed 248 is missing between the verified surrounding captions. Figure 11.18 is explicitly referenced on printed 249; no absent panel contents were reconstructed."
+      },
+      {
+        "label": "11.22",
+        "status": "numbering-gap candidate; absent figure contents unverified",
+        "missingPrintedPageCandidates": [253],
+        "evidence": {
+          "precedingLabel": "11.21",
+          "precedingPdfPage": 234,
+          "followingLabel": "11.23",
+          "followingPdfPage": 237
+        },
+        "note": "Printed 253 is missing between the surrounding captions; the page association is an inference, not an inspected figure."
+      }
+    ],
+    "notes": [
+      "Every supplied page was visually reviewed, including unnumbered mathematical diagrams, tables, covers, and grouped panels.",
+      "These counts cover the supplied PDF only; they do not establish the complete book figure count.",
+      "Unlocated labels are supported by visual numbering gaps and, where noted, in-text references. Their contents and panel counts remain unknown.",
+      "OCR omissions alone were not treated as missing figures. In particular Figures 2.1, 4.1, 7.5, and 7.6 are visibly present.",
+      "Implementation, precise crop review, mathematical/notation checks, and side-by-side fidelity review remain pending."
+    ]
+  }
+}

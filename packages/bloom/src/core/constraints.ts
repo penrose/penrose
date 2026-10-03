@@ -212,7 +212,8 @@ export const containsCircles = (
 ) => constrDict.containsCircles.body(c1, r1, c2, r2, padding).value;
 
 /**
- * Require that a polygon `p1` contains another polygon `p2` with optional margin `padding`.
+ * Require all vertices of polygon `p2` to be inside simple polygon `p1` with optional margin `padding`.
+ * This guarantees entire polygon containment for a convex `p1`; for concave `p1`, inner edges can still cross outside.
  * @param pts1 List of points for `p1`
  * @param pts2 List of points for `p2`
  * @param padding Margin between the polygons (default: 0)
@@ -221,7 +222,9 @@ export const containsPolys = (pts1: Vec2[], pts2: Vec2[], padding: Num = 0) =>
   constrDict.containsPolys.body(pts1, pts2, padding).value;
 
 /**
- * Require that a polygon `p` contains circle `c` with optional margin `padding`.
+ * Require that a simple polygon `p` contains circle `c` with optional nonnegative margin `padding`.
+ * Measures clearance to the actual boundary, including concave corners, in either vertex orientation.
+ * The radius must be nonnegative. Holes and self-intersections are unsupported.
  * @param pts List of points for `p`
  * @param c Center of `c`
  * @param r Radius of `c`
@@ -235,7 +238,9 @@ export const containsPolyCircle = (
 ) => constrDict.containsPolyCircle.body(pts, c, r, padding).value;
 
 /**
- * Require that a polygon `p` contains point `pt` with optional margin `padding`.
+ * Require that a simple polygon `p` contains point `pt` with optional margin `padding`.
+ * Measures signed Euclidean distance to the actual boundary in either vertex orientation.
+ * Holes and self-intersections are unsupported.
  * @param pts List of points for polygon `p`
  * @param pt Location of point `pt`
  * @param padding Margin between the polygon and the point (default: 0)

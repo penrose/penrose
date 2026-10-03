@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "sourceBook": "Michael C. Gemignani, Elementary Topology, Second Edition",
+  "status": "implemented-and-visually-reviewed",
+  "privateInputPolicy": "Original PDF, scanned pages/crops and private comparisons remain local.",
+  "domainModule": "packages/bloom/src/domains/point-set-topology.ts",
+  "mathematicalHelpers": "packages/bloom/src/domains/loop-operations.ts",
+  "styleModule": "packages/bloom/src/styles/loops.tsx",
+  "substanceModule": "packages/bloom/src/examples/loops.ts",
+  "testModule": "packages/bloom/src/styles/loops.test.ts",
+  "reuseVerification": [
+    "loopOperationStyle is one reusable Style for concatenation, associativity, left unit and right unit programs; a single instance renders all four.",
+    "loopFamilyStyle renders distinct scaled/intermediate finite Fourier loop programs; TrigonometricLoopView independently renders genuine plane loop parameterizations as native Paths.",
+    "Existing Loop/TrigonometricLoop/ConstantLoop/LoopConcatenation/InverseLoop, based endpoints, relative homotopy, classes and FundamentalGroup declarations are composed with products, intervals and continuous maps.",
+    "Pure loop-operations functions evaluate finite Fourier loops and calculate actual concatenation, associativity, unit and retracing parameter maps, independent of rendered shapes."
+  ],
+  "verification": {
+    "focusedTests": 4,
+    "failures": 0,
+    "mockedRendering": false,
+    "nativeRendering": "All seven factories converge in static, exact canonical interactive and sampled modes, producing XML-valid SVG.",
+    "nativeDragHandles": {
+      "11.9": 2,
+      "11.10": 11,
+      "11.11": 12,
+      "11.12": 20,
+      "11.13": 8,
+      "11.14": 8,
+      "11.15": 4
+    },
+    "canonicalInteraction": "Initial native label offsets remain within1e-8 of zero. Native translation by(3,1) preserves all construction paths, lines, circles, rectangles and polygons.",
+    "mathematicalChecks": "Based endpoints, linear Fourier homotopy slices, concatenation seams, associativity interval rescalings, unit endpoint preservation, inverse orientation, retracing endpoint values and class/group relations are checked. Visible rectangle/outer-loop contours are separately verified outside the native clipping definitions.",
+    "typecheck": "Full Bloom declaration emit passed.",
+    "lintWarnings": 0,
+    "rootVisualReview": "Passed: parent inspected all seven equal-width comparisons; source paths, actual based-loop family, partitions, endpoint labels and traversal directions match. Fractional labels in 11.12 are shifted slightly to the source side of the partition lines for clearance.",
+    "rootReaderReview": "All seven source-page native SVGs have positive visible dimensions and expected drag handles in the production reader. Figure 11.12 caption is preserved with a shaped mask; small right-label scan padding is being refreshed."
+  },
+  "figures": [
+    {
+      "id": "11.9",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 224,
+        "printedPage": 241,
+        "boundingBox": [0.031579, 0.076305, 0.308421, 0.15261],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [30, 114, 293, 228],
+        "pagePixels180dpi": [950, 1494]
+      },
+      "implementation": {
+        "substanceFactory": "basedLoopSubstance",
+        "styleFactory": "loopStyle",
+        "buildFactory": "buildBasedLoopFigure",
+        "canvas": [162, 122]
+      },
+      "mathematics": [
+        "The continuous map a:[0,1]\u2192Y has a(0)=a(1)=y0; a loop can have self-intersections.",
+        "The basepoint belongs to Y and names the loop space/fundamental group; Substance contains no drawing geometry."
+      ],
+      "visualFidelity": [
+        "Source self-intersecting path, small upper lobe, lower twist, common marked basepoint, endpoint equality annotation and enclosing Y contour are retained."
+      ],
+      "comparison": "Full supplied source pages and graphic crops visually inspected beside the native SVG at equal width; private comparisons are retained locally.",
+      "limitations": [
+        "Exact rectangles/circles and smooth native contours replace slight scan irregularities."
+      ]
+    },
+    {
+      "id": "11.10",
+      "panelCount": 2,
+      "source": {
+        "pdfPage": 224,
+        "printedPage": 241,
+        "boundingBox": [0.409474, 0.074967, 0.42, 0.155957],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [389, 112, 399, 233],
+        "pagePixels180dpi": [950, 1494]
+      },
+      "implementation": {
+        "substanceFactory": "basedLoopFamilySubstance",
+        "styleFactory": "loopFamilyStyle",
+        "buildFactory": "buildBasedLoopFamilyFigure",
+        "canvas": [224, 134]
+      },
+      "mathematics": [
+        "H fixes the two interval endpoints at y0 for every parameter; its top/bottom/intermediate slices are based loops a1,a0,ar.",
+        "The mathematical family is linear interpolation of two finite Fourier plane loops, with coefficients chosen to follow the scan contours; endpoints agree exactly as real functions, up to floating arithmetic in evaluation.",
+        "Native path samples evaluate the actual loop parameterizations, rather than drawing an unrelated filled band."
+      ],
+      "visualFidelity": [
+        "Both parameter-square and loop-band panels, diagonal hatching, common basepoint above the enclosing region bottom, r slice, H arrow and all eleven labels follow the source."
+      ],
+      "comparison": "Full supplied source pages and graphic crops visually inspected beside the native SVG at equal width; private comparisons are retained locally.",
+      "limitations": [
+        "Exact rectangles/circles and smooth native contours replace slight scan irregularities.",
+        "Eight-harmonic periodic approximations and linear interpolation closely follow the source loops; they are smooth mathematical representatives rather than an exact tracing of every hand-drawn waviness."
+      ]
+    },
+    {
+      "id": "11.11",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 225,
+        "printedPage": 242,
+        "boundingBox": [0.734737, 0.720884, 0.237895, 0.178715],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [698, 1077, 226, 267],
+        "pagePixels180dpi": [950, 1494]
+      },
+      "implementation": {
+        "substanceFactory": "concatenationHomotopySubstance",
+        "styleFactory": "loopOperationStyle",
+        "buildFactory": "buildConcatenationHomotopyFigure",
+        "canvas": [120, 142]
+      },
+      "mathematics": [
+        "Two loops a1/a3 are homotopic relative to y0; concatenating either with the same a2 gives a relative homotopy H\u2032.",
+        "The actual second-half map is a2(2r\u22121), with a2 held fixed at all homotopy times; the common basepoint glues the two half intervals.",
+        "Homotopy-class products are explicitly related in the fundamental group."
+      ],
+      "visualFidelity": [
+        "All four edge-loop labels, half partition, s slice, source cell labels H(2r,s)/a2(r), side parameters and H\u2032 caption within the graphic are retained."
+      ],
+      "comparison": "Full supplied source pages and graphic crops visually inspected beside the native SVG at equal width; private comparisons are retained locally.",
+      "limitations": [
+        "Exact rectangles/circles and smooth native contours replace slight scan irregularities."
+      ],
+      "sourceCorrection": {
+        "source": "The source cell label says a2(r), while its nearby formula correctly resamples the second half as a2(2r\u22121). Nearby endpoint prose also reverses the top a1/bottom a3 order shown in the graphic.",
+        "mathematicalProgram": "Uses the resampled formula and the coherent graphic endpoint convention a1 at1,a3 at0.",
+        "visibleFigure": "All supplied cell/edge labels remain unchanged."
+      }
+    },
+    {
+      "id": "11.12",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 227,
+        "printedPage": 244,
+        "boundingBox": [0.342105, 0.356091, 0.421053, 0.196787],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [325, 532, 400, 294],
+        "pagePixels180dpi": [950, 1494],
+        "captionExclusionPixels180dpi": [717, 798, 120, 42],
+        "captionExclusionNote": "The nearby figure caption intrudes into the extreme lower-right corner of the rectangular union of graphic labels; it was masked only in the private graphic comparison crop. The caption is not part of the diagram.",
+        "readerMaskPadding": "Width padded from 400 to 410 reference pixels to cover the final source parenthesis in the right corner labels; caption cutout remains anchored at original x717,y798. Native canvas remains unchanged."
+      },
+      "implementation": {
+        "substanceFactory": "associativeLoopSubstance",
+        "styleFactory": "loopOperationStyle",
+        "buildFactory": "buildAssociativeLoopFigure",
+        "canvas": [218, 168]
+      },
+      "mathematics": [
+        "Moving boundaries are r=(1+s)/4 and r=(2+s)/4; the three durations are(1+s)/4,1/4,(2\u2212s)/4.",
+        "At source top s=0, the path is(a1#a2)#a3; at source bottom s=1 it is a1#(a2#a3).",
+        "Both nested class products are equal in the fundamental group; boundary seams all map to the same basepoint."
+      ],
+      "visualFidelity": [
+        "The wide parameter rectangle, two slanting partition lines, horizontal slice, top/bottom grouping braces, exact corner/fraction labels and all twenty annotations are retained."
+      ],
+      "comparison": "Full supplied source pages and graphic crops visually inspected beside the native SVG at equal width; private comparisons are retained locally.",
+      "limitations": [
+        "Exact rectangles/circles and smooth native contours replace slight scan irregularities."
+      ]
+    },
+    {
+      "id": "11.13",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 228,
+        "printedPage": 245,
+        "boundingBox": [0.115789, 0.383534, 0.216842, 0.139224],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [110, 573, 206, 208],
+        "pagePixels180dpi": [950, 1494]
+      },
+      "implementation": {
+        "substanceFactory": "unitLoopSubstance",
+        "styleFactory": "loopOperationStyle",
+        "buildFactory": "buildRightUnitLoopFigure",
+        "canvas": [106, 120],
+        "substanceArguments": ["right"]
+      },
+      "mathematics": [
+        "a1#k at homotopy time1 is homotopic relative to y0 to a1 at0.",
+        "The nonconstant interval length is1\u2212s/2; the terminal constant interval shrinks continuously to zero length.",
+        "The constant-loop class is the group identity; the product class equals the a1 class."
+      ],
+      "visualFidelity": [
+        "Square, diagonal descending toward the lower right, horizontal intermediate slice, repeated a1/k labels and source times0/1 are retained."
+      ],
+      "comparison": "Full supplied source pages and graphic crops visually inspected beside the native SVG at equal width; private comparisons are retained locally.",
+      "limitations": [
+        "Exact rectangles/circles and smooth native contours replace slight scan irregularities."
+      ]
+    },
+    {
+      "id": "11.14",
+      "panelCount": 1,
+      "source": {
+        "pdfPage": 228,
+        "printedPage": 245,
+        "boundingBox": [0.532632, 0.382865, 0.213684, 0.139893],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [506, 572, 203, 209],
+        "pagePixels180dpi": [950, 1494]
+      },
+      "implementation": {
+        "substanceFactory": "unitLoopSubstance",
+        "styleFactory": "loopOperationStyle",
+        "buildFactory": "buildLeftUnitLoopFigure",
+        "canvas": [106, 120],
+        "substanceArguments": ["left"]
+      },
+      "mathematics": [
+        "k#a1 at time1 is homotopic relative to y0 to a1 at0.",
+        "The initial constant interval length is s/2; the remaining interval evaluates a1((r\u2212s/2)/(1\u2212s/2))."
+      ],
+      "visualFidelity": [
+        "Square, diagonal descending toward the lower left, horizontal intermediate slice and all eight source labels are retained."
+      ],
+      "comparison": "Full supplied source pages and graphic crops visually inspected beside the native SVG at equal width; private comparisons are retained locally.",
+      "limitations": [
+        "Exact rectangles/circles and smooth native contours replace slight scan irregularities."
+      ]
+    },
+    {
+      "id": "11.15",
+      "panelCount": 2,
+      "source": {
+        "pdfPage": 229,
+        "printedPage": 246,
+        "boundingBox": [0.328421, 0.321285, 0.410526, 0.125167],
+        "boundingBoxUnits": "normalized full-page x,y,width,height",
+        "pixels180dpi": [312, 480, 390, 187],
+        "pagePixels180dpi": [950, 1494]
+      },
+      "implementation": {
+        "substanceFactory": "inverseLoopSubstance",
+        "styleFactory": "inverseLoopStyle",
+        "buildFactory": "buildInverseLoopFigure",
+        "canvas": [208, 106]
+      },
+      "mathematics": [
+        "a1^\u22121(r)=a1(1\u2212r) preserves the same image and basepoint while reversing traversal orientation.",
+        "The native circle images correspond to the unit-radius finite Fourier loop; the inverse class is explicitly related to the original in its fundamental group."
+      ],
+      "visualFidelity": [
+        "Equal circles, the leftward arrow on the first upper arc, rightward arrow on its inverse, internal loop labels and both marked lower basepoints are retained."
+      ],
+      "comparison": "Full supplied source pages and graphic crops visually inspected beside the native SVG at equal width; private comparisons are retained locally.",
+      "limitations": [
+        "Exact rectangles/circles and smooth native contours replace slight scan irregularities."
+      ]
+    }
+  ],
+  "finalReaderMaskVerification": "Final production reader checked on printed244: padded replacement covers the original right-parenthesis remnant beside(1,1), with fractional labels clear of diagonals and source caption/prose intact."
+}

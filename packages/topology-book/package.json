@@ -1,0 +1,46 @@
+{
+  "name": "@penrose/topology-book",
+  "version": "3.3.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare-book": "node ../../scripts/elementary-topology/sync-figure-modules.mjs && node ../../scripts/elementary-topology/sync-transcription-links.mjs && node scripts/prepare-assets.mjs",
+    "dev": "npm run prepare-book && vitepress dev --host 127.0.0.1 --port 5200",
+    "build": "npm run prepare-book && cross-env NODE_OPTIONS=--max-old-space-size=8192 vitepress build",
+    "preview": "vitepress preview --host 127.0.0.1 --port 5201",
+    "build-decls": ":",
+    "typecheck": ":"
+  },
+  "dependencies": {
+    "@penrose/bloom": "^3.3.1",
+    "katex": "^0.13.0",
+    "markdown-it-katex": "^2.0.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "veaury": "^2.3.11"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite-plugin-top-level-await": "^1.4.1",
+    "vitepress": "^1.3"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "dev": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "preview": {
+        "dependsOn": [
+          "build"
+        ]
+      }
+    }
+  }
+}

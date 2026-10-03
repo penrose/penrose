@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "845c0dfcbd8ebd4cf95d465291dcab8b699cac018abf6e281e89c12902380b59",
+  "part": {
+    "title": "Appendix and Indexes",
+    "printedPageRange": [261, 270]
+  },
+  "review": {
+    "pdfPageRange": [241, 250],
+    "method": "Private extracted text checked against every full-page150dpi rendered scan. Every formula and every index entry visually reviewed; Lebesque spelling confirmed by enlarged crop.",
+    "status": "available-pages-transcribed",
+    "availableBodyPdfPages": [241, 242, 243, 244, 245, 246, 247, 248, 249],
+    "visualReviewedPdfPages": [
+      241, 242, 243, 244, 245, 246, 247, 248, 249, 250
+    ],
+    "limits": [
+      "Printed266 is absent between symbol and subject indexes; no content invented. PDF250 is a blank back cover.",
+      "Appendix printed261 says (x,y)\u2208R, retained. Proposition2 proof on263 prints f_i=f\u2218p_i, opposite its preceding definition; retained and annotated.",
+      "Appendix Example1 claims the uncountable binary product has an open cover with no countable subcover, retained although this conflicts with compactness; domain library must not infer that false covering claim.",
+      "Appendix Exercise4 prints trival topology, retained. Subject index prints Lebesque number, visually enlarged and retained. All source page references retained, including unavailable source pages and imperfect numbering.",
+      "Symbol index S\u2212T has no page number; none inserted. The printed set-builder braces/bar, Fraktur filter a, indexed cross product, class vertical bars, barred f and f_* subscript visually checked.",
+      "Two-column source reading order preserved as left column followed by right; subject subentry indentation represented by nested list. Running headers/footers preserved in source map; line wrapping normalized."
+    ],
+    "browserVisualQa": {
+      "status": "passed",
+      "record": "browser-qa-chapters-09-11-and-matter.json",
+      "scope": "Every corresponding sidebar route renders with no KaTeX errors, broken figure assets or document overflow in the desktop preview."
+    }
+  },
+  "outputDirectory": "packages/docs-site/docs/elementary-topology/back-matter",
+  "pages": [
+    {
+      "pdfPage": 241,
+      "printedPage": 261,
+      "path": "appendix-on-infinite-products.md",
+      "anchor": "printed-page-261",
+      "formulaReview": "verified against rendered scan",
+      "coverage": "All body text; heading, general-product introduction, function interpretation and Definition1."
+    },
+    {
+      "pdfPage": 242,
+      "printedPage": 262,
+      "path": "appendix-on-infinite-products.md",
+      "anchor": "printed-page-262",
+      "formulaReview": "verified against rendered scan",
+      "coverage": "All body text; Definition2, projections, Proposition1 and full proof, Proposition2."
+    },
+    {
+      "pdfPage": 243,
+      "printedPage": 263,
+      "path": "appendix-on-infinite-products.md",
+      "anchor": "printed-page-263",
+      "formulaReview": "verified against rendered scan",
+      "coverage": "All body text; Proposition2 proof, Propositions3\u20134, referenced proofs, Example1."
+    },
+    {
+      "pdfPage": 244,
+      "printedPage": 264,
+      "path": "appendix-on-infinite-products.md",
+      "anchor": "printed-page-264",
+      "formulaReview": "verified against rendered scan",
+      "coverage": "All body text; Example2, Exercises1\u20135, all appendix-ending text."
+    },
+    {
+      "pdfPage": 245,
+      "printedPage": 265,
+      "path": "index-of-symbols.md",
+      "anchor": "printed-page-265",
+      "formulaReview": "verified against rendered scan",
+      "coverage": "All49 symbol entries and source page references; visual mathematical glyph review."
+    },
+    {
+      "pdfPage": 246,
+      "printedPage": 267,
+      "path": "subject-index.md",
+      "anchor": "printed-page-267",
+      "formulaReview": "verified against rendered scan",
+      "coverage": "Every available index entry/subentry in both columns."
+    },
+    {
+      "pdfPage": 247,
+      "printedPage": 268,
+      "path": "subject-index.md",
+      "anchor": "printed-page-268",
+      "formulaReview": "verified against rendered scan",
+      "coverage": "Every available index entry/subentry in both columns; source spelling Lebesque retained."
+    },
+    {
+      "pdfPage": 248,
+      "printedPage": 269,
+      "path": "subject-index.md",
+      "anchor": "printed-page-269",
+      "formulaReview": "verified against rendered scan",
+      "coverage": "Every available index entry/subentry in both columns including T0\u2013T4."
+    },
+    {
+      "pdfPage": 249,
+      "printedPage": 270,
+      "path": "subject-index.md",
+      "anchor": "printed-page-270",
+      "formulaReview": "verified against rendered scan",
+      "coverage": "Every available index entry/subentry in both columns through Zorn lemma."
+    }
+  ],
+  "gaps": [
+    {
+      "printedPage": 266,
+      "status": "missing-from-supplied-source",
+      "noticePaths": ["index.md", "index-of-symbols.md"],
+      "availableBoundaryEvidence": "Printed265 symbol index is followed directly by printed267 subject index."
+    }
+  ],
+  "illustrations": [],
+  "cover": {
+    "pdfPage": 250,
+    "printedPage": null,
+    "visualReview": "blank back cover; no text or mathematical illustration present"
+  },
+  "validation": {
+    "sourceBodyCoverage": "Every extracted alphabetic OCR word of four or more characters checked against per-page body; unmatched only running headers or corrected formula/Lindelof OCR. Supplements full-page visual review.",
+    "sourceFormulaVerification": "All expressions reviewed visually against scans, including coordinate superscripts, product projections, finite exceptions, function-space notation and every symbol-index mathematical entry.",
+    "mathRenderer": "KaTeX0.13.24 via shared configureMath with v-pre wrappers",
+    "mathExpressionCountInNewPages": 291,
+    "mathValidationStatus": "passed",
+    "vueCompilationStatus": "passed",
+    "renderedMarkdownStatus": "passed; all50 table rows including header have exactly2columns, no unexpected code blocks, index hierarchy preserved",
+    "browserVisualQa": {
+      "status": "pending-root-review",
+      "browser": "Codex in-app browser",
+      "pages": [
+        "appendix-on-infinite-products",
+        "index-of-symbols",
+        "subject-index"
+      ],
+      "checked": []
+    }
+  },
+  "generalizabilityCandidates": [
+    {
+      "printedPage": 261,
+      "pdfPage": 241,
+      "passage": "General product as coordinate-selection function",
+      "concept": "One Substance function picks one element from each indexed component; demonstrate composable indexed-family and Cartesian-product declarations."
+    }
+  ]
+}

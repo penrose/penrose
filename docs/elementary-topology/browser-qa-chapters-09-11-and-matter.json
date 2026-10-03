@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "preview": "http://localhost:5194",
+  "build": "Final production VitePress build passed in 54.65 seconds after the first-frame mouse hit-region fix.",
+  "scope": "All 25 sidebar routes for Chapters 9\u201311, front matter, appendix and indexes visited in the production browser. All 97 mathematical figures were checked on their 66 source pages for positive visible native dimensions and finite SVG markup. Final production checks add both early tables and cover on three additional source pages, Figure11.24 whole-object pointer interaction, corrected Figure11.12 mask, and all10 original diagrams/source declarations.",
+  "checks": {
+    "mathErrors": 0,
+    "horizontalOverflow": false,
+    "brokenFigures": 0,
+    "originalNativeHandles": {
+      "original-subspace-derived-sets": 13,
+      "original-coordinate-slice": 5,
+      "original-lebesgue-number": 13,
+      "original-symmetric-lebesgue-number": 13,
+      "original-contraction-iterates": 13,
+      "original-alternating-contraction": 13,
+      "original-group-kernel-6-3": 14,
+      "original-group-kernel-8-4": 17,
+      "original-retracing-circle": 10,
+      "original-retracing-figure-eight": 10
+    },
+    "nativeNonfiniteSvg": false,
+    "embeddedNativeFigures": 100,
+    "sourcePagesChecked": 69,
+    "responsiveReader": {
+      "viewport": [390, 844],
+      "page": 236,
+      "horizontalOverflow": false,
+      "visibleNativeFigures": ["11.5", "11.6"],
+      "sourcePanel": "Controls wrap and source stays in its scrolling panel. Viewport override reset after inspection."
+    },
+    "finalChapterHandles": {
+      "11.9": 2,
+      "11.10": 11,
+      "11.11": 12,
+      "11.12": 20,
+      "11.13": 8,
+      "11.14": 8,
+      "11.15": 4,
+      "11.19": 3,
+      "11.20": 3,
+      "11.21": 5,
+      "11.23": 5,
+      "11.24": 11
+    },
+    "newSourceHandles": {
+      "unnumbered-cantor-diagonal-table": 1,
+      "unnumbered-four-element-group-table": 1,
+      "cover-rosette": 1
+    }
+  },
+  "interactiveReader": {
+    "figure": "10.6",
+    "printedPage": 225,
+    "canonicalHandles": 8,
+    "keyboardTranslation": "ArrowRight changes the visible native transform by two display units; printed page 225 remains selected.",
+    "resample": "Passed after the sizing fix: new seed, positive visible native SVG dimensions and eight handles.",
+    "reset": "Restores gemignani-10.6 and its canonical first-label transform.",
+    "source": "Actual baireDenseIntersectionSubstance declaration includes the separate qPrime radius and zPrime point.",
+    "captionMask": "Figure10.6 source caption remains intact.",
+    "visibleCanvasVerification": "97 mathematical native canvases have positive dimensions; final checks confirm both tables and cover positive dimensions as well. The CSS position fix remains in the final production build.",
+    "readerMaskReview": {
+      "9.6": "Scan padding removes contour remnants without covering the caption. Canonical canvas unchanged.",
+      "10.5": "Outer contour fully replaced; source caption and proof intact.",
+      "10.6": "Native figure, separate z-prime label, caption and proof intact.",
+      "11.5\u201311.8": "Native figures visible; source correction notes and actual Substance available.",
+      "11.12": "Expanded right-corner scan mask removes the old parenthesis next to (1,1). Native fractional labels remain clear of slanted lines; original Figure11.12 caption and surrounding proof remain intact in the final production screenshot."
+    }
+  },
+  "limits": [
+    "Phone breakpoint individually inspected on printed page236; other mobile pages have not received individual visual review.",
+    "Native curve/surface approximations and source errata handling are documented in individual figure review records.",
+    "Full-book completeness remains blocked by31 missing printed pagination positions in the supplied scan."
+  ],
+  "finalPointerInteraction": {
+    "initialMouseTarget": "Transparent table and planar-space rectangles retain explicit pointer-events=all on the first interactive frame; ordinary shapes default to painted. Native regression also verifies explicit none and frame-update persistence.",
+    "cantorTable": "Actual pointer drag moves all12 native equation groups by a common translation, retains all values and stays on printed page11. Source, re-sampling and reset verified.",
+    "groupTable": "Actual pointer drag moves all25 equation groups and8 grid lines together, while page14 remains selected. Actual fourElementGroupTableSubstance source visible.",
+    "figure11.24": "All11 handles have pointer-events=all. Actual pointer drag moves A contour while the other12 Path elements remain unchanged; fill rules retained. Resample keeps11 handles; reset and actual Substance declaration verified on page259.",
+    "cover": "Native Circle handle is reachable on the visible boundary. Keyboard and actual pointer drag move all8 closed paths with the circle, retaining radius353. Resample retains8 paths/1handle; coverLoopFan and full module are available.",
+    "groupKernel": "Actual native node pointer drag and keyboard translation update its label, incident arrow and dynamic kernel enclosure; all mathematical residues and relationships remain fixed."
+  },
+  "originalGallery": {
+    "diagrams": 10,
+    "actualSubstanceDeclarations": 10,
+    "nativeFiniteGeometry": true,
+    "mathErrors": 0,
+    "horizontalOverflow": false,
+    "note": "All10 live diagrams and every source disclosure checked. Kernel pointer movement separately verified."
+  }
+}

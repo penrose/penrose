@@ -1,5 +1,6 @@
 import { EnhanceAppContext } from "vitepress";
 import DefaultTheme from "vitepress/theme";
+import "katex/dist/katex.min.css";
 import CirclePackingDisjoint from "../../src/bloom-examples/CirclePackingDisjoint.vue";
 import CirclePackingEqual from "../../src/bloom-examples/CirclePackingEqual.vue";
 import CirclePackingPadded from "../../src/bloom-examples/CirclePackingPadded.vue";
