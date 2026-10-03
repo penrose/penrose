@@ -142,7 +142,7 @@ export function planeLoopFamilyStyle(options: PlaneLoopStyleOptions = {}) {
               stroke-width={options.strokeWidth ?? 4.2}
               aria-label="Drag the complete curve family"
             />
-          ) as Circle)
+          ) as unknown as Circle)
         : undefined;
     for (const [loop] of loops) {
       const base = planeCurveSegmentValue(loop.segments[0], 0),

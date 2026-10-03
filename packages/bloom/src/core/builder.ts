@@ -298,6 +298,7 @@ export class DiagramBuilder {
   private samplingContext: NamedSamplingContext;
   private shapes: Shape[] = [];
   private constraints: Num[] = [];
+  private constraintNames: (string | undefined)[] = [];
   private objectives: Num[] = [];
   private variation: string;
   private nextId = 0;
@@ -710,12 +711,14 @@ export class DiagramBuilder {
    *   You can read about creating custom constaints at https://penrose.cs.cmu.edu/docs/ref/constraints)
    * @param weight An optional weight to multiply the constraint by. If you find that your constraints are not
    *   being satisfied, you may want to try increasing the weight.
+   * @param label An optional explanation used by `Diagram.getConstraintDiagnostics`.
    */
-  ensure = (constraint: Num, weight?: number) => {
-    if (weight) {
+  ensure = (constraint: Num, weight?: number, label?: string) => {
+    if (weight !== undefined) {
       constraint = mul(constraint, weight);
     }
     this.constraints.push(constraint);
+    this.constraintNames.push(label);
   };
 
   /**
@@ -727,7 +730,7 @@ export class DiagramBuilder {
    *   being satisfied, you may want to try increasing the weight.
    */
   encourage = (objective: Num, weight?: number) => {
-    if (weight) {
+    if (weight !== undefined) {
       objective = mul(objective, weight);
     }
     this.objectives.push(objective);
@@ -960,6 +963,12 @@ export class DiagramBuilder {
         : [...this.inputs];
     const pinnedInputs = new Set(this.pinnedInputs);
     const constraints = [...this.constraints, ...onCanvasConstraints];
+    const constraintNames = [
+      ...this.constraintNames,
+      ...this.shapes
+        .filter((shape) => shape.ensureOnCanvas)
+        .map((shape) => `onCanvas(${shape.name})`),
+    ];
     const objectives = [...this.objectives];
 
     if (this.lassoStrength !== 0) {
@@ -1011,6 +1020,7 @@ export class DiagramBuilder {
       variation: this.variation,
       inputs,
       constraints,
+      constraintNames,
       objectives,
       shapes: orderedShapes,
       nameShapeMap,

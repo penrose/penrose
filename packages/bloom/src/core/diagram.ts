@@ -45,6 +45,7 @@ export type DiagramCreationData = {
   variation: string;
   inputs: InputInfo[];
   constraints: Num[];
+  constraintNames?: (string | undefined)[];
   objectives: Num[];
   shapes: Shape<Num>[];
   nameShapeMap: Map<string, Shape<Num>>;
@@ -74,7 +75,29 @@ type DiagramConstructorData = {
   eventListeners: Map<string, [string, (e: any, diagram: Diagram) => void][]>;
   rawSvgDefs: RawSvgElement[];
   rawAttrsByName: Map<string, Record<string, string>>;
+  constraintNames?: (string | undefined)[];
 };
+
+/** A registered constraint is satisfied when its signed value is nonpositive. */
+export interface ConstraintDiagnostic {
+  index: number;
+  label?: string;
+  active: boolean;
+  /** Value of the registered expression, including any weight passed to ensure. */
+  value: number;
+  /** Positive part of value; nonfinite values have infinite violation. */
+  violation: number;
+}
+
+export interface ConstraintDiagnostics {
+  /** Solver termination is distinct from satisfying the registered constraints. */
+  optimizationFinished: boolean;
+  /** Current-stage active constraints satisfy the supplied numerical tolerance. */
+  feasible: boolean;
+  tolerance: number;
+  maxViolation: number;
+  constraints: ConstraintDiagnostic[];
+}
 
 /**
  * A renderable diagram, created with `DiagramBuilder.prototype.build`.
@@ -109,6 +132,7 @@ export class Diagram {
   private eventListeners;
   private rawSvgDefs: RawSvgElement[];
   private rawAttrsByName: Map<string, Record<string, string>>;
+  private readonly constraintNames: (string | undefined)[];
   private optimizationLooper = new CallbackLooper("MessageChannel");
   private renderLooper = new CallbackLooper("AnimationFrame");
   private onOptimizationFinished: (xs: number[]) => void = () => {};
@@ -141,6 +165,7 @@ export class Diagram {
     this.eventListeners = data.eventListeners;
     this.rawSvgDefs = data.rawSvgDefs;
     this.rawAttrsByName = data.rawAttrsByName;
+    this.constraintNames = [...(data.constraintNames ?? [])];
   }
 
   /**
@@ -531,6 +556,47 @@ export class Diagram {
    * Get the canvas of the diagram.
    */
   getCanvas = () => ({ ...this.state.canvas });
+
+  /**
+   * Inspect current constraint residuals without changing inputs or optimization.
+   * Values retain the units and weights of their registered expressions. This
+   * checks current-stage numerical feasibility, not the truth of mathematical
+   * assertions. Inactive terms are evaluated but do not affect feasibility.
+   */
+  getConstraintDiagnostics = (tolerance = 1e-3): ConstraintDiagnostics => {
+    if (!Number.isFinite(tolerance) || tolerance < 0)
+      throw new Error("Constraint tolerance must be finite and nonnegative");
+    const stage =
+      this.state.optStages[
+        Math.min(this.state.currentStageIndex, this.state.optStages.length - 1)
+      ];
+    const masks = this.state.constraintSets.get(stage)!;
+    const { constraints: values } = this.state.gradient(
+      { ...masks, constrMask: masks.constrMask.map(() => true) },
+      new Float64Array(this.state.varyingValues),
+      1,
+      new Float64Array(this.state.varyingValues.length),
+    );
+    const constraints = values.map((value, index) => ({
+      index,
+      label: this.constraintNames[index],
+      active: masks.constrMask[index],
+      value,
+      violation: Number.isFinite(value) ? Math.max(0, value) : Infinity,
+    }));
+    const maxViolation = constraints.reduce(
+      (maximum, constraint) =>
+        constraint.active ? Math.max(maximum, constraint.violation) : maximum,
+      0,
+    );
+    return {
+      optimizationFinished: isOptimized(this.state),
+      feasible: maxViolation <= tolerance,
+      tolerance,
+      maxViolation,
+      constraints,
+    };
+  };
 
   /**
    * Get the dragging constraints of the diagram.
