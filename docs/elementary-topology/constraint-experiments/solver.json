@@ -1,0 +1,1381 @@
+{
+  "generatedAt": "2026-10-03T20:30:38.063Z",
+  "nodeVersion": "v23.11.0",
+  "gitHead": "baf76d69f3b200a31b4d9a0dc82d93bbbd2d168f",
+  "fingerprints": {
+    "scripts/elementary-topology/constraint-solver-experiments.mjs": "116b4c9ed177e45e0369dbd335f1111020040323dffa8bcb7e687f6dc2dea662",
+    "packages/core/dist/engine/AutodiffFunctions.js": "3e133445ca4ab4bec8350b75bc60122105680f6ed7272d86dacf9303f87f8925",
+    "packages/core/dist/engine/Optimizer.js": "92edb98d466389cd7b6fd8a9189dc4e6664dbc05484105497becd07a398d0146",
+    "packages/bloom/dist/core/builder.js": "838b0ce9f239dc10543567ead8dbb8ced4c654e9e61feed5f168aa0c3e067f90",
+    "packages/bloom/dist/core/diagram.js": "1b1fa8eeaf9d76f59e4a4ccb0cff331c1b720ddfc5b6f21719ebabf49bcd9673"
+  },
+  "methodology": "Two native circles, four optimized center coordinates, fixed radii35, required clearance10, one semantic inequality; canvas constraints appear only in the representation-limited fixture. Initial positions, units, residual normalization, variable normalization, and explicitly declared weak squared stability priors vary. Native exterior-penalty solver unchanged. Independent numeric clearance checks rendered SVG circles in common reference units. SVG viewBoxes fit the final geometry; they do not indicate canvas feasibility.",
+  "stepLimit": 2500,
+  "timeLimitMs": 15000,
+  "results": [
+    {
+      "id": "already-feasible",
+      "scale": 1,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -45,
+          0
+        ],
+        [
+          45,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -45,
+          0
+        ],
+        [
+          45,
+          0
+        ]
+      ],
+      "buildMs": 27.486041999999998,
+      "optimizationMs": 1.0144999999999982,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 0,
+      "initialPenaltyGradientNormAtUnitWeight": 0,
+      "initiallyFeasibleAtDefaultTolerance": true,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/already-feasible.svg",
+      "error": null
+    },
+    {
+      "id": "overlapping-distinct",
+      "scale": 1,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -15010,
+          0
+        ],
+        [
+          15010,
+          0
+        ]
+      ],
+      "buildMs": 4.483416000000034,
+      "optimizationMs": 0.4123329999999896,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 169.7056274847714,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 14895,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/overlapping-distinct.svg",
+      "error": null
+    },
+    {
+      "id": "coincident",
+      "scale": 1,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "final": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "buildMs": 3.5644580000000587,
+      "optimizationMs": 0.19204100000001745,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 80,
+      "initialPenaltyGradientNormAtUnitWeight": 0,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": false,
+      "maxRegisteredViolation": 80,
+      "independentRelativeViolation": 80,
+      "independentCanvasViolation": 0,
+      "independentFeasible": false,
+      "svg": "constraint-experiments/coincident.svg",
+      "error": null
+    },
+    {
+      "id": "tiny-asymmetry",
+      "scale": 1,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          0,
+          0
+        ],
+        [
+          0.0001,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -9999.987500000001,
+          0
+        ],
+        [
+          9999.9876,
+          0
+        ]
+      ],
+      "buildMs": 3.9969169999999394,
+      "optimizationMs": 0.1689170000000786,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 79.9999,
+      "initialPenaltyGradientNormAtUnitWeight": 226.27388713698278,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 9884.9876,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/tiny-asymmetry.svg",
+      "error": null
+    },
+    {
+      "id": "diagonal-asymmetry",
+      "scale": 1,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          0.2
+        ]
+      ],
+      "final": [
+        [
+          -8919.271909999157,
+          -17838.543819998315
+        ],
+        [
+          8919.371909999158,
+          17838.743819998315
+        ]
+      ],
+      "buildMs": 4.695875000000001,
+      "optimizationMs": 0.14249999999992724,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 79.77639320225002,
+      "initialPenaltyGradientNormAtUnitWeight": 225.64171444766154,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 17783.743819998315,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/diagonal-asymmetry.svg",
+      "error": null
+    },
+    {
+      "id": "overlapping-with-prior",
+      "scale": 1,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -40.00061799732023,
+          0
+        ],
+        [
+          40.00061799732023,
+          0
+        ]
+      ],
+      "buildMs": 3.5880409999999756,
+      "optimizationMs": 1.3123339999999644,
+      "calls": 15,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 169.7056274847714,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/overlapping-with-prior.svg",
+      "error": null
+    },
+    {
+      "id": "coincident-with-prior",
+      "scale": 1,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "final": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "buildMs": 3.5545000000000755,
+      "optimizationMs": 0.2783749999999827,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 80,
+      "initialPenaltyGradientNormAtUnitWeight": 0,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": false,
+      "maxRegisteredViolation": 80,
+      "independentRelativeViolation": 80,
+      "independentCanvasViolation": 0,
+      "independentFeasible": false,
+      "svg": "constraint-experiments/coincident-with-prior.svg",
+      "error": null
+    },
+    {
+      "id": "tiny-asymmetry-with-prior",
+      "scale": 1,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          0,
+          0
+        ],
+        [
+          0.0001,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -39.9999525353173,
+          0
+        ],
+        [
+          40.00005253531729,
+          0
+        ]
+      ],
+      "buildMs": 3.765916999999945,
+      "optimizationMs": 1.0908340000000862,
+      "calls": 20,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 79.9999,
+      "initialPenaltyGradientNormAtUnitWeight": 226.27388713698278,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/tiny-asymmetry-with-prior.svg",
+      "error": null
+    },
+    {
+      "id": "representation-limited-canvas",
+      "scale": 1,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0.002,
+      "limitedCanvas": true,
+      "initial": [
+        [
+          -45,
+          0
+        ],
+        [
+          45,
+          0
+        ]
+      ],
+      "final": [
+        [
+          23.16666621222222,
+          0
+        ],
+        [
+          -23.16666621222222,
+          0
+        ]
+      ],
+      "buildMs": 5.550958000000037,
+      "optimizationMs": 0.3497499999999718,
+      "calls": 9,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 55.5,
+      "initialPenaltyGradientNormAtUnitWeight": 156.97770542341357,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": false,
+      "maxRegisteredViolation": 33.66666757555556,
+      "independentRelativeViolation": 33.66666757555555,
+      "independentCanvasViolation": 33.166666212222225,
+      "independentFeasible": false,
+      "svg": "constraint-experiments/representation-limited-canvas.svg",
+      "error": null
+    },
+    {
+      "id": "scale-0.000001-raw",
+      "scale": 0.000001,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -7510.000000000001,
+          0
+        ],
+        [
+          7510.000000000001,
+          0
+        ]
+      ],
+      "buildMs": 5.064166999999998,
+      "optimizationMs": 0.09254199999998036,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 0.000059999999999999995,
+      "initialPenaltyGradientNormAtUnitWeight": 0.0001697056274847714,
+      "initiallyFeasibleAtDefaultTolerance": true,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-0.000001-raw.svg",
+      "error": null
+    },
+    {
+      "id": "scale-0.000001-normalized",
+      "scale": 0.000001,
+      "normalized": true,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -58593750000010.01,
+          0
+        ],
+        [
+          58593750000010.01,
+          0
+        ]
+      ],
+      "buildMs": 3.369957999999997,
+      "optimizationMs": 0.38362500000005184,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 169705627.48477143,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 58593600000045.01,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-0.000001-normalized.svg",
+      "error": null
+    },
+    {
+      "id": "scale-0.0001-raw",
+      "scale": 0.0001,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -15009.999999999998,
+          0
+        ],
+        [
+          15009.999999999998,
+          0
+        ]
+      ],
+      "buildMs": 3.9075000000000273,
+      "optimizationMs": 0.08262500000000728,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 0.006,
+      "initialPenaltyGradientNormAtUnitWeight": 0.016970562748477143,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-0.0001-raw.svg",
+      "error": null
+    },
+    {
+      "id": "scale-0.0001-normalized",
+      "scale": 0.0001,
+      "normalized": true,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -5859375010,
+          0
+        ],
+        [
+          5859375010,
+          0
+        ]
+      ],
+      "buildMs": 3.0895420000000513,
+      "optimizationMs": 0.11612500000001091,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 1697056.2748477142,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 5857875045,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-0.0001-normalized.svg",
+      "error": null
+    },
+    {
+      "id": "scale-0.01-raw",
+      "scale": 0.01,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -15010,
+          0
+        ],
+        [
+          15010,
+          0
+        ]
+      ],
+      "buildMs": 3.0570419999999103,
+      "optimizationMs": 0.08320800000001327,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 0.6,
+      "initialPenaltyGradientNormAtUnitWeight": 1.6970562748477145,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 45.00000000000455,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-0.01-raw.svg",
+      "error": null
+    },
+    {
+      "id": "scale-0.01-normalized",
+      "scale": 0.01,
+      "normalized": true,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -585947.5,
+          0
+        ],
+        [
+          585947.5,
+          0
+        ]
+      ],
+      "buildMs": 2.8676249999999754,
+      "optimizationMs": 0.08666699999992034,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 16970.562748477143,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 570982.5000000001,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-0.01-normalized.svg",
+      "error": null
+    },
+    {
+      "id": "scale-1-raw",
+      "scale": 1,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -15010,
+          0
+        ],
+        [
+          15010,
+          0
+        ]
+      ],
+      "buildMs": 2.7433750000000146,
+      "optimizationMs": 0.07608300000003965,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 169.7056274847714,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 14895,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-1-raw.svg",
+      "error": null
+    },
+    {
+      "id": "scale-1-normalized",
+      "scale": 1,
+      "normalized": true,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -15010,
+          0
+        ],
+        [
+          15010,
+          0
+        ]
+      ],
+      "buildMs": 2.567042000000015,
+      "optimizationMs": 0.06674999999995634,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 169.7056274847714,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 14895,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-1-normalized.svg",
+      "error": null
+    },
+    {
+      "id": "scale-100-raw",
+      "scale": 100,
+      "normalized": false,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -15010,
+          0
+        ],
+        [
+          15010,
+          0
+        ]
+      ],
+      "buildMs": 2.7533339999999953,
+      "optimizationMs": 0.08100000000001728,
+      "calls": 6,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 6000,
+      "initialPenaltyGradientNormAtUnitWeight": 16970.562748477143,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 14895,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-100-raw.svg",
+      "error": null
+    },
+    {
+      "id": "scale-100-normalized",
+      "scale": 100,
+      "normalized": true,
+      "normalizedVariables": false,
+      "prior": 0,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -40,
+          0
+        ],
+        [
+          40,
+          0
+        ]
+      ],
+      "buildMs": 2.780458000000067,
+      "optimizationMs": 0.10362499999996544,
+      "calls": 7,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 1.697056274847714,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-100-normalized.svg",
+      "error": null
+    },
+    {
+      "id": "scale-0.000001-prior-raw-variables",
+      "scale": 0.000001,
+      "normalized": true,
+      "normalizedVariables": false,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -40.0030094327579,
+          0
+        ],
+        [
+          40.0030094327579,
+          0
+        ]
+      ],
+      "buildMs": 2.8398329999999987,
+      "optimizationMs": 1.6251670000000331,
+      "calls": 36,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 169705627.48477143,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-0.000001-prior-raw-variables.svg",
+      "error": null
+    },
+    {
+      "id": "scale-0.000001-prior-normalized-variables",
+      "scale": 0.000001,
+      "normalized": true,
+      "normalizedVariables": true,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -40.00061799822629,
+          0
+        ],
+        [
+          40.00061799822629,
+          0
+        ]
+      ],
+      "buildMs": 3.227041999999983,
+      "optimizationMs": 0.5419999999999163,
+      "calls": 15,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 169.70562748477144,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-0.000001-prior-normalized-variables.svg",
+      "error": null
+    },
+    {
+      "id": "scale-0.0001-prior-raw-variables",
+      "scale": 0.0001,
+      "normalized": true,
+      "normalizedVariables": false,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -40.00838297674935,
+          0
+        ],
+        [
+          40.00838297674935,
+          0
+        ]
+      ],
+      "buildMs": 2.842457999999965,
+      "optimizationMs": 5.092792000000031,
+      "calls": 98,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 1697056.2748477142,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-0.0001-prior-raw-variables.svg",
+      "error": null
+    },
+    {
+      "id": "scale-0.0001-prior-normalized-variables",
+      "scale": 0.0001,
+      "normalized": true,
+      "normalizedVariables": true,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -40.000617997397406,
+          0
+        ],
+        [
+          40.000617997397406,
+          0
+        ]
+      ],
+      "buildMs": 2.810333000000014,
+      "optimizationMs": 0.44687499999997726,
+      "calls": 15,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 169.7056274847714,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-0.0001-prior-normalized-variables.svg",
+      "error": null
+    },
+    {
+      "id": "scale-0.01-prior-raw-variables",
+      "scale": 0.01,
+      "normalized": true,
+      "normalizedVariables": false,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -40.00000170781537,
+          0
+        ],
+        [
+          40.00000170781537,
+          0
+        ]
+      ],
+      "buildMs": 2.6067500000000337,
+      "optimizationMs": 0.5718339999999671,
+      "calls": 19,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 16970.562748477143,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-0.01-prior-raw-variables.svg",
+      "error": null
+    },
+    {
+      "id": "scale-0.01-prior-normalized-variables",
+      "scale": 0.01,
+      "normalized": true,
+      "normalizedVariables": true,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -40.00061800101671,
+          0
+        ],
+        [
+          40.00061800101671,
+          0
+        ]
+      ],
+      "buildMs": 2.6802920000000086,
+      "optimizationMs": 0.5052500000000464,
+      "calls": 15,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 169.7056274847714,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-0.01-prior-normalized-variables.svg",
+      "error": null
+    },
+    {
+      "id": "scale-1-prior-raw-variables",
+      "scale": 1,
+      "normalized": true,
+      "normalizedVariables": false,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -40.00061799732023,
+          0
+        ],
+        [
+          40.00061799732023,
+          0
+        ]
+      ],
+      "buildMs": 2.7901659999999993,
+      "optimizationMs": 0.4235830000000078,
+      "calls": 15,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 169.7056274847714,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-1-prior-raw-variables.svg",
+      "error": null
+    },
+    {
+      "id": "scale-1-prior-normalized-variables",
+      "scale": 1,
+      "normalized": true,
+      "normalizedVariables": true,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -40.00061799732023,
+          0
+        ],
+        [
+          40.00061799732023,
+          0
+        ]
+      ],
+      "buildMs": 2.843832999999904,
+      "optimizationMs": 0.4996249999999236,
+      "calls": 15,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 169.7056274847714,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-1-prior-normalized-variables.svg",
+      "error": null
+    },
+    {
+      "id": "scale-100-prior-raw-variables",
+      "scale": 100,
+      "normalized": true,
+      "normalizedVariables": false,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -39.9999973878658,
+          0
+        ],
+        [
+          39.9999973878658,
+          0
+        ]
+      ],
+      "buildMs": 2.7505409999999983,
+      "optimizationMs": 0.13008400000001075,
+      "calls": 7,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 1.697056274847714,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0.000005224268406891497,
+      "independentRelativeViolation": 0.000005224268388701603,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-100-prior-raw-variables.svg",
+      "error": null
+    },
+    {
+      "id": "scale-100-prior-normalized-variables",
+      "scale": 100,
+      "normalized": true,
+      "normalizedVariables": true,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -40.000618003961065,
+          0
+        ],
+        [
+          40.000618003961065,
+          0
+        ]
+      ],
+      "buildMs": 3.02312500000005,
+      "optimizationMs": 0.44554199999993216,
+      "calls": 15,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60,
+      "initialPenaltyGradientNormAtUnitWeight": 169.7056274847714,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-100-prior-normalized-variables.svg",
+      "error": null
+    },
+    {
+      "id": "scale-1e-9-prior-raw-variables",
+      "scale": 1e-9,
+      "normalized": true,
+      "normalizedVariables": false,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -39.99997559400735,
+          0
+        ],
+        [
+          39.99997559400735,
+          0
+        ]
+      ],
+      "buildMs": 2.723124999999982,
+      "optimizationMs": 0.5186250000000427,
+      "calls": 21,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60.00000000000001,
+      "initialPenaltyGradientNormAtUnitWeight": 339411254.9695428,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 0.00004881198529684039,
+      "independentRelativeViolation": 0.00005022418918586331,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-1e-9-prior-raw-variables.svg",
+      "error": null
+    },
+    {
+      "id": "scale-1e-9-prior-normalized-variables",
+      "scale": 1e-9,
+      "normalized": true,
+      "normalizedVariables": true,
+      "prior": 0.002,
+      "limitedCanvas": false,
+      "initial": [
+        [
+          -10,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "final": [
+        [
+          -39.999999996645236,
+          0
+        ],
+        [
+          39.999999996645236,
+          0
+        ]
+      ],
+      "buildMs": 3.0267499999999927,
+      "optimizationMs": 0.5811250000000427,
+      "calls": 22,
+      "stopped": true,
+      "status": "EPConverged",
+      "initialMaxViolation": 60.00000000000001,
+      "initialPenaltyGradientNormAtUnitWeight": 0.33941125496954283,
+      "initiallyFeasibleAtDefaultTolerance": false,
+      "optimizationFinished": true,
+      "feasibleAtDefaultTolerance": true,
+      "maxRegisteredViolation": 6.709523337491173e-9,
+      "independentRelativeViolation": 0,
+      "independentCanvasViolation": 0,
+      "independentFeasible": true,
+      "svg": "constraint-experiments/scale-1e-9-prior-normalized-variables.svg",
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "tolerance": 0.001,
+  "totalTrials": 288,
+  "revisions": [
+    {
+      "revision": "before",
+      "consistentTrials": 84,
+      "consistentFinished": 84,
+      "consistentFeasible": 83,
+      "contradictoryTrials": 12,
+      "contradictoryFinished": 12,
+      "contradictoryFeasible": 0,
+      "maxLabelDistanceAmongFeasible": 399.04012840470216,
+      "failures": [
+        {
+          "id": "unhinted-composition--book--5--weak-priors",
+          "status": "EPConverged",
+          "maxViolation": 0.002584864505060125,
+          "semanticClearanceViolation": 0.0025848645050388086,
+          "maxLabelDistance": 0.7305973833500764
+        }
+      ]
+    },
+    {
+      "revision": "after",
+      "consistentTrials": 84,
+      "consistentFinished": 83,
+      "consistentFeasible": 77,
+      "contradictoryTrials": 12,
+      "contradictoryFinished": 12,
+      "contradictoryFeasible": 0,
+      "maxLabelDistanceAmongFeasible": 24.00002888399112,
+      "failures": [
+        {
+          "id": "neighborhood-triangle--violet--160--weak-priors",
+          "status": "UnconstrainedRunning",
+          "maxViolation": "Infinity",
+          "semanticClearanceViolation": "NaN",
+          "maxLabelDistance": "NaN"
+        },
+        {
+          "id": "L-membership--book--160--weak-priors",
+          "status": "EPConverged",
+          "maxViolation": 0.36085159616529694,
+          "semanticClearanceViolation": 0.3608253026942947,
+          "maxLabelDistance": 24.360851596165297
+        },
+        {
+          "id": "L-membership--cedar--90--weak-priors",
+          "status": "EPConverged",
+          "maxViolation": 0.6998691008694209,
+          "semanticClearanceViolation": 0.6998691008694209,
+          "maxLabelDistance": 24.699438082824475
+        },
+        {
+          "id": "unhinted-composition--book--160--weak-priors",
+          "status": "EPConverged",
+          "maxViolation": 1.0700583685697893,
+          "semanticClearanceViolation": 0,
+          "maxLabelDistance": 25.070058368569793
+        },
+        {
+          "id": "unhinted-composition--violet--90--weak-priors",
+          "status": "EPConverged",
+          "maxViolation": 0.0018020833436729333,
+          "semanticClearanceViolation": 0,
+          "maxLabelDistance": 24.001802083343673
+        },
+        {
+          "id": "unhinted-composition--violet--160--weak-priors",
+          "status": "EPConverged",
+          "maxViolation": 0.0017304670669417987,
+          "semanticClearanceViolation": 0,
+          "maxLabelDistance": 24.001730467066945
+        },
+        {
+          "id": "L-membership--cedar--90--geometry-priors-off",
+          "status": "EPConverged",
+          "maxViolation": 0.6720210477965303,
+          "semanticClearanceViolation": 0.6719683021840979,
+          "maxLabelDistance": 24.67202104779653
+        }
+      ]
+    },
+    {
+      "revision": "final",
+      "consistentTrials": 84,
+      "consistentFinished": 83,
+      "consistentFeasible": 79,
+      "contradictoryTrials": 12,
+      "contradictoryFinished": 12,
+      "contradictoryFeasible": 0,
+      "maxLabelDistanceAmongFeasible": 24.000032500581916,
+      "failures": [
+        {
+          "id": "neighborhood-triangle--cedar--160--weak-priors",
+          "status": "EPConverged",
+          "maxViolation": 4.748966811407712,
+          "semanticClearanceViolation": 4.748966811407726,
+          "maxLabelDistance": 27.799230919013695
+        },
+        {
+          "id": "L-membership--cedar--90--weak-priors",
+          "status": "EPConverged",
+          "maxViolation": 0.7037996757571392,
+          "semanticClearanceViolation": 0.7037996757571534,
+          "maxLabelDistance": 24.674959397991145
+        },
+        {
+          "id": "L-membership--cedar--160--weak-priors",
+          "status": "EPConverged",
+          "maxViolation": 0.7229268034988365,
+          "semanticClearanceViolation": 0.7229268034988507,
+          "maxLabelDistance": 24.691933095021188
+        },
+        {
+          "id": "neighborhood-triangle--violet--90--geometry-priors-off",
+          "status": "UnconstrainedRunning",
+          "maxViolation": 2.1260194070762394e+37,
+          "semanticClearanceViolation": 21655642698667340000,
+          "maxLabelDistance": 31945098456517472000
+        },
+        {
+          "id": "L-membership--cedar--90--geometry-priors-off",
+          "status": "EPConverged",
+          "maxViolation": 0.6855360184321029,
+          "semanticClearanceViolation": 0.6855360184321455,
+          "maxLabelDistance": 24.65821880898422
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "topology-unhinted-canonical.svg",
+      "revision": "final",
+      "trial": "unhinted-composition--book--0--weak-priors"
+    },
+    {
+      "file": "topology-triangle-canonical.svg",
+      "revision": "final",
+      "trial": "neighborhood-triangle--book--0--weak-priors"
+    },
+    {
+      "file": "topology-l-labels-before.svg",
+      "revision": "before",
+      "trial": "L-membership--violet--160--weak-priors"
+    },
+    {
+      "file": "topology-l-labels-final.svg",
+      "revision": "final",
+      "trial": "L-membership--violet--160--weak-priors"
+    },
+    {
+      "file": "topology-triangle-local-minimum.svg",
+      "revision": "final",
+      "trial": "neighborhood-triangle--cedar--160--weak-priors"
+    },
+    {
+      "file": "topology-bipartite-crossing.svg",
+      "revision": "final",
+      "trial": "bipartite-map--cedar--160--weak-priors"
+    },
+    {
+      "file": "topology-contradiction.svg",
+      "revision": "final",
+      "trial": "inconsistent--book--0--weak-priors"
+    }
+  ]
+}

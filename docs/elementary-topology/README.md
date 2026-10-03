@@ -63,6 +63,16 @@ recorded in the audit; their contents and panel counts remain unknown. Figures
 inventory entries, precise source crops and implementations have mathematical
 and fidelity review records; missing-page contents remain unresolved.
 
+## Constraint use and reuse
+
+The [constraint-use study](constraint-research.md) audits all 110 registered
+programs and qualifies their reuse claims. Static reconstructions have no authored
+layout constraints or free geometric inputs; interactive modes mainly reposition
+labels and some rigid groups. Analytic mathematical construction remains useful,
+but these source-tuned styles do not establish a general constraint-based visual
+language. The study adds experimental composed styles, independent geometry
+checks, solver counterexamples, targeted library fixes, and research suggestions.
+
 ## Visual reference and adaptation
 
 The observations below come from rendered inspection of Crane's dissertation,
