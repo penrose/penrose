@@ -25,7 +25,11 @@ const RenderPolyline = (
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem, titleCache));
-  attrToNotAutoMap.push(...attrScale(shape, elem));
+  // Preserve existing SVG output for the default identity scale. Nonidentity
+  // scaling is applied to Penrose coordinates by attrPolyPoints.
+  if (shape.scale.contents === 1) {
+    attrToNotAutoMap.push(...attrScale(shape, elem));
+  }
   attrToNotAutoMap.push(...attrPolyPoints(shape, canvasSize, elem));
 
   // Directly Map across any "unknown" SVG properties

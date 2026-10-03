@@ -35,19 +35,17 @@ import {
   shapeT,
 } from "../utils/Util.js";
 import { constrDictCurves } from "./Curves.js";
+import { signedDistancePolygon } from "./Functions.js";
 import {
   absCircleToImplicitEllipse,
   absEllipseToImplicit,
 } from "./ImplicitShapes.js";
-import {
-  containsConvexPolygonPoints,
-  convexPartitions,
-  overlappingImplicitEllipses,
-} from "./Minkowski.js";
+import { overlappingImplicitEllipses } from "./Minkowski.js";
 import {
   bboxFromShape,
   bboxPts,
   polygonLikePoints,
+  rectPts,
   shapeDistance,
 } from "./Queries.js";
 import * as utils from "./Utils.js";
@@ -352,7 +350,13 @@ export const contains = (
       ),
     );
   } else if (t1 === "Circle" && isRectlike(s2)) {
-    const rPts = bboxPts(bboxFromShape(s2));
+    const stroke = t2 === "Rectangle" ? s2.strokeWidth.contents : 0;
+    const rPts = rectPts(
+      s2.center.contents,
+      add(s2.width.contents, stroke),
+      add(s2.height.contents, stroke),
+      s2.rotation.contents,
+    );
     return noWarn(
       containsCircleRect(
         toPt(s1.center.contents),
@@ -447,8 +451,10 @@ export const containsPolyPoint = (
   pt: ad.Pt2,
   padding: ad.Num,
 ): ad.Num => {
-  const cp1 = convexPartitions(pts);
-  return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, pt, padding)));
+  // For a simple polygon, clearance is the distance to its actual boundary,
+  // not to the internal edges of a convex partition. This also keeps vertex
+  // positions live in the AD graph as the polygon deforms.
+  return add(signedDistancePolygon(pts, pt), padding);
 };
 
 export const containsCirclePoint = (
@@ -475,16 +481,12 @@ export const containsCircleRect = (
   rect: ad.Pt2[],
   padding: ad.Num,
 ): ad.Num => {
-  // Bad implementation
-  // Treats the rectangle as a circle
-  // Does not take into account padding
   if (rect.length !== 4) {
     throw new Error("`rect` should be a list of four 2d-points.");
   }
-  const bbox = BBox.bboxFromPoints(rect);
-  const rectr = max(bbox.width, bbox.height);
-  const rectc = bbox.center;
-  return containsCircles(c, r, [rectc[0], rectc[1]], rectr, 0);
+  // The disk eroded by padding is convex, so all four corners being inside
+  // is equivalent to the entire rectangle being inside.
+  return containsCirclePoly(c, r, rect, padding);
 };
 
 export const containsRectCircle = (
@@ -901,7 +903,7 @@ const constrDictGeneral = {
 
   containsPolys: {
     name: "containsPolys",
-    description: `Require that a polygon \`p1\` contains another polygon \`p2\` with optional margin \`padding\`.`,
+    description: `Require that every vertex of polygon \`p2\` lies inside simple polygon \`p1\` with optional margin \`padding\`. This guarantees polygon containment when \`p1\` is convex; for a concave \`p1\`, edges of \`p2\` may still cross outside.`,
     params: [
       { name: "pts1", description: "List of points for `p1`", type: real2NT() },
       { name: "pts2", description: "List of points for `p2`", type: real2NT() },
@@ -917,7 +919,7 @@ const constrDictGeneral = {
 
   containsPolyCircle: {
     name: "containsPolyCircle",
-    description: `Require that a polygon \`p\` contains circle \`c\` with optional margin \`padding\`.`,
+    description: `Require that a simple polygon \`p\` contains circle \`c\` with optional nonnegative margin \`padding\`. The circle center must have boundary clearance at least its radius plus the margin.`,
     params: [
       { name: "pts", description: "List of points for `p`", type: real2NT() },
       { name: "c", description: "Center of `c`", type: real2T() },
@@ -934,7 +936,7 @@ const constrDictGeneral = {
 
   containsPolyPoint: {
     name: "containsPolyPoint",
-    description: `Require that a polygon \`p\` contains point \`pt\` with optional margin \`padding\`.`,
+    description: `Require that a simple polygon \`p\` contains point \`pt\` with optional margin \`padding\`, measured as signed Euclidean distance to its boundary. Both vertex orientations are supported; holes and self-intersections are not supported.`,
     params: [
       {
         name: "pts",
