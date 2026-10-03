@@ -28,14 +28,33 @@ export function radialDiskContractionSubstance(
   factor = 0.5,
   point: PlaneCoordinates = [0.53, 0.53],
 ) {
+  return radialDiskProgram(factor, point, false);
+}
+
+/** One restriction of the continuous family j(p,r)=r·p, including both endpoints. */
+export function radialDiskContractionSliceSubstance(
+  factor: number,
+  point: PlaneCoordinates = [0.53, 0.53],
+) {
+  return radialDiskProgram(factor, point, true);
+}
+
+function radialDiskProgram(
+  factor: number,
+  point: PlaneCoordinates,
+  includeFamily: boolean,
+) {
   if (
     !Number.isFinite(factor) ||
-    !(factor > 0 && factor < 1) ||
+    !(includeFamily ? factor >= 0 && factor <= 1 : factor > 0 && factor < 1) ||
+    point.length !== 2 ||
     !point.every(Number.isFinite) ||
     Math.hypot(...point) > 1
   )
     throw new Error(
-      "The illustrated contraction needs 0<r<1 and a point in the closed unit disk",
+      includeFamily
+        ? "A radial slice needs a finite r in [0,1] and a point in the closed unit disk"
+        : "The illustrated contraction needs 0<r<1 and a point in the closed unit disk",
     );
   const s = topology.substance();
   const Y = s.ClosedDisk({ center: [0, 0], radius: 1, label: "Y" });
@@ -43,7 +62,10 @@ export function radialDiskContractionSubstance(
   const origin = s.CoordinatePoint({ coordinates: [0, 0], label: "(0,0)" });
   const parameter = s.RealPoint({
     coordinate: factor,
-    label: factor === 0.5 ? "1/2" : String(factor),
+    label:
+      factor === 0.5
+        ? "1/2"
+        : String(includeFamily ? Number(factor.toPrecision(4)) : factor),
   });
   const contraction = s.RadialContraction({
     center: Y.center,
@@ -51,15 +73,22 @@ export function radialDiskContractionSubstance(
     label: "j_{" + parameter.label + "}",
     formula: "(x,y)↦(" + factor + "x," + factor + "y)",
   });
-  const image = s.ClosedDisk({
-    center: Y.center,
-    radius: factor,
-    label: contraction.label + "(Y)",
-  });
+  const image =
+    factor === 0
+      ? (() => {
+          const singleton = s.Singleton({ label: "\\{(0,0)\\}" });
+          s.SingletonOf(singleton, origin);
+          return singleton;
+        })()
+      : s.ClosedDisk({
+          center: Y.center,
+          radius: factor,
+          label: contraction.label + "(Y)",
+        });
   const p = s.CoordinatePoint({ coordinates: point, label: "(x,y)" });
   const q = s.CoordinatePoint({
     coordinates: radialContractionValue(point, Y.center, factor),
-    label: contraction.label + "(x,y)",
+    label: includeFamily ? "j_r(x,y)" : contraction.label + "(x,y)",
   });
   const boundary = s.CoordinatePoint({ coordinates: [1, 0], label: "(1,0)" });
   const boundaryImage = s.CoordinatePoint({
@@ -79,6 +108,47 @@ export function radialDiskContractionSubstance(
   s.MapsTo(contraction, p, q);
   s.MapsTo(contraction, boundary, boundaryImage);
   s.MapsTo(contraction, origin, origin);
+  if (includeFamily) {
+    const I = s.ClosedInterval({
+      a: 0,
+      b: 1,
+      leftClosed: true,
+      rightClosed: true,
+      label: "[0,1]",
+    });
+    const total = s.ProductSet({ label: "Y\\times[0,1]" });
+    const tauI = s.Topology({ label: "\\tau_I" }),
+      tauTotal = s.Topology({ label: "\\tau_{Y\\times I}" });
+    const identity =
+      factor === 1
+        ? contraction
+        : s.TopologicalMap({ label: "j_1", formula: "(x,y)↦(x,y)" });
+    const constant =
+      factor === 0
+        ? contraction
+        : s.TopologicalMap({ label: "j_0", formula: "(x,y)↦(0,0)" });
+    const family = s.RadialHomotopy({
+      center: Y.center,
+      label: "j",
+      formula: "((x,y),r)↦(rx,ry)",
+    });
+    s.TopologyOn(tauI, I);
+    s.TopologyOn(tauTotal, total);
+    s.ProductOf(total, Y, I);
+    s.ProductTopologyOf(tauTotal, tau, tauI);
+    s.IdentityOn(identity, Y);
+    s.ConstantTo(constant, origin);
+    for (const map of [identity, constant]) {
+      s.MapBetween(map, Y, Y);
+      s.ContinuousMap(map, tau, tau);
+    }
+    s.MapBetween(family, total, Y);
+    s.ContinuousMap(family, tauTotal, tau);
+    s.HomotopyBetween(family, identity, constant);
+    s.Homotopic(identity, constant);
+    s.Member(parameter, I);
+    s.SliceMapAt(contraction, family, parameter);
+  }
   return s.make();
 }
 
@@ -251,6 +321,23 @@ export const buildRadialDiskContractionFigure = (
     variation: "gemignani-11.2",
     ...renderOptions,
   });
+
+/** Contract the unit disk to its center while displaying the actual selected radial slice. */
+export const buildRadialContractionFrameFigure = (
+  time: number,
+  point: PlaneCoordinates = [0.53, 0.53],
+  options: FigureRenderOptions = {},
+) => {
+  if (!Number.isFinite(time) || time < 0 || time > 1)
+    throw new Error("Choose a finite contraction time in [0,1]");
+  return diagram({
+    sub: radialDiskContractionSliceSubstance(1 - time, point),
+    sty: diskContractionStyle({ sliceFrame: true }),
+    canvas: canvas(256, 220),
+    variation: "radial-contraction-frame",
+    ...options,
+  });
+};
 export const buildRadialHomotopyFigure = (
   renderOptions: FigureRenderOptions = {},
 ) =>

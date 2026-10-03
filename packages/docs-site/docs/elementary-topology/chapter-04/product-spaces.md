@@ -3,6 +3,10 @@ title: Product Spaces — Elementary Topology
 description: The available text of section 4.6 of the supplied second-edition scan.
 ---
 
+<script setup>
+import ReadingAdditions from '../../../src/elementary-topology/ReadingAdditions.vue';
+</script>
+
 # 4.6 Product Spaces
 
 ::: info Transcription note
@@ -202,3 +206,5 @@ for each $x\in R$. Then $f_1(x)=\sin x$ and $f_2(x)=3x+1$ for each $x\in R$. Sin
 .topology-chapter-figure-pair .topology-chapter-figure { margin: 0; }
 @media (max-width: 480px) { .topology-chapter-figure-pair { grid-template-columns: 1fr; } }
 </style>
+
+<ReadingAdditions :pdf-page="87" />

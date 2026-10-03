@@ -5,6 +5,7 @@ description: New Penrose illustrations for unillustrated passages, with reusable
 
 <script setup>
 import InteractiveFigure from '../../src/elementary-topology/InteractiveFigure.vue';
+import SteppableFigure from '../../src/elementary-topology/SteppableFigure.vue';
 import additions from '../../../../docs/elementary-topology/original-illustrations.json';
 </script>
 
@@ -12,9 +13,9 @@ import additions from '../../../../docs/elementary-topology/original-illustratio
 
 These are new illustrations of passages that have no corresponding figure in
 the supplied book. They are separate from the numbered figure reproductions.
-Each uses the same typed mathematical vocabulary as the book figures. Open the
-program controls to inspect the Substance, Style and Domain modules, drag the
-marked objects or labels, or re-sample the layout.
+Each uses the same typed mathematical vocabulary as the book figures. Flip an illustration to inspect its Substance, Style and Domain modules.
+Drag the marked objects or labels, re-sample the layout, and advance the
+animated constructions one step at a time.
 
 ## Ambient and relative derived sets
 
@@ -77,14 +78,14 @@ For an affine map $f(x)=ax+b$ on the complete real line, $k=|a|$ and the
 unique fixed point is $z=b/(1-a)$. The exact identity
 $|s_n-z|=k^n|y-z|$ shows convergence and explains the shrinking error curve.
 
-<InteractiveFigure :figure="additions.illustrations.find(f => f.id === 'original-contraction-iterates')" />
+<SteppableFigure :figure="additions.illustrations.find(f => f.id === 'original-contraction-iterates')" />
 
 A negative slope produces alternating iterates. The Substance parameters
 change; the same style draws both the iteration and its error curve.
 
-<InteractiveFigure :figure="additions.illustrations.find(f => f.id === 'original-alternating-contraction')" />
+<SteppableFigure :figure="additions.illustrations.find(f => f.id === 'original-alternating-contraction')" />
 
-The diagrams show eight steps. The algebraic identity applies to every $n$;
+Use the arrows or timeline to reveal the eight steps. Play runs the same construction automatically. The algebraic identity applies to every $n$;
 the finite drawing represents it without inferring convergence from samples.
 
 ## The kernel of a group homomorphism
@@ -112,11 +113,11 @@ contracts $a\mathbin{\#}a^{-1}$ to the constant loop while keeping its
 basepoint fixed. Orange shows the current image; gray retains the original
 curve as a reference. The two arrows distinguish outgoing and return traversal.
 
-<InteractiveFigure :figure="additions.illustrations.find(f => f.id === 'original-retracing-circle')" />
+<SteppableFigure :figure="additions.illustrations.find(f => f.id === 'original-retracing-circle')" />
 
 The same Style and rescaling work for a self-intersecting loop:
 
-<InteractiveFigure :figure="additions.illustrations.find(f => f.id === 'original-retracing-figure-eight')" />
+<SteppableFigure :figure="additions.illustrations.find(f => f.id === 'original-retracing-figure-eight')" />
 
 [Read the homotopy formula and its endpoint behavior.](./loop-retracing)
 

@@ -2,6 +2,10 @@
 title: Compactness in Euclidean Space — Elementary Topology
 ---
 
+<script setup>
+import ReadingAdditions from '../../../src/elementary-topology/ReadingAdditions.vue';
+</script>
+
 # 8.1 Compactness in $R^n$
 
 <span id="printed-page-163"></span>
@@ -176,3 +180,5 @@ The corollary prints “Any function” without adding a continuity assumption. 
 6. A metric space $X,D$ is said to be _totally bounded_ if given any $p>0$, the open cover $\{N(x,p)\}$, $x\in X$, has a finite subcover. Prove that any bounded subset of $R^m$ (with the metric described earlier) is totally bounded. Prove that a compact subset of $X,D$ is closed and totally bounded. Show that a subset of $X,D$ may be closed and totally bounded yet not be compact.
 
 [Chapter 8 contents](./index.md) · [Next: 8.2 Local Compactness](./local-compactness.md)
+
+<ReadingAdditions :pdf-page="157" />

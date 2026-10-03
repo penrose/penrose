@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "node ../../scripts/elementary-topology/sync-figure-modules.mjs && cross-env NODE_OPTIONS='--max-old-space-size=8192' vitepress build",
+    "build": "node ../../scripts/elementary-topology/sync-figure-modules.mjs && node ../../scripts/elementary-topology/sync-transcription-links.mjs && cross-env NODE_OPTIONS='--max-old-space-size=8192' vitepress build",
     "build-decls": ":",
     "copy-editor": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try",
     "build-shapedefs": "shx rm -f ./src/shapedefs.json && node ./scripts/shapedefs.js ./src/shapedefs.json",

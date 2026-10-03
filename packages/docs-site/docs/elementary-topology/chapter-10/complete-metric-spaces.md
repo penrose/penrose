@@ -2,6 +2,10 @@
 title: Complete Metric Spaces — Elementary Topology
 ---
 
+<script setup>
+import ReadingAdditions from '../../../src/elementary-topology/ReadingAdditions.vue';
+</script>
+
 # 10.3 Complete Metric Spaces
 
 ::: warning Missing printed page 217
@@ -217,3 +221,5 @@ It must be shown that the required limit always exists and is independent of the
 6. A distance-preserving function is called an _isometry_. Prove that it is not possible to isometrically embed a complete metric space $X,D$ as a dense proper subspace of another complete metric space $Y,D'$. Prove, however, that it might be possible to embed $X$ as a dense proper subspace of a complete metric space $Y,D'$ if the embedding is not required to be an isometry.
 
 7. A subset $A$ of a metric space $X,D$ is said to be _totally bounded_ if given any positive number $p$, the open cover $\{N(x,p)\}$, $x\in A$, of $A$ has a finite subcover. Prove that a subspace of a complete metric space is compact if and only if it is closed and totally bounded. (Cf. Exercise 6 of Section 8.1.)
+
+<ReadingAdditions :pdf-page="207" />

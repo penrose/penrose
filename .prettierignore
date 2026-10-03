@@ -28,3 +28,7 @@ coverage/
 public/app.css
 public/app.js
 tsconfig.tsbuildinfo
+
+/packages/topology-book/.vitepress/cache/
+/packages/topology-book/.vitepress/dist/
+/packages/topology-book/public/

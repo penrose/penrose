@@ -6,8 +6,15 @@ import {
   type TopologyStyleOptions,
 } from "./point-set-topology.js";
 
+export interface ContractionIterationStyleOptions extends TopologyStyleOptions {
+  /** Last visible iteration index; axes still use the complete declared sequence. */
+  currentStep?: number;
+}
+
 /** The same chart handles monotone and alternating affine contractions. */
-export function contractionIterationStyle(options: TopologyStyleOptions = {}) {
+export function contractionIterationStyle(
+  options: ContractionIterationStyleOptions = {},
+) {
   return topology.style((ctx) => {
     const f = ctx.entities(topology.AffineRealContraction)[0];
     const iteration = ctx
@@ -43,6 +50,15 @@ export function contractionIterationStyle(options: TopologyStyleOptions = {}) {
       throw new Error(
         "The chart needs consecutive true iterates and their actual fixed point",
       );
+    const currentStep = options.currentStep ?? samples.length - 1;
+    if (
+      !Number.isSafeInteger(currentStep) ||
+      currentStep < 0 ||
+      currentStep >= samples.length
+    )
+      throw new Error(
+        "Choose a whole iteration index from zero to the last sample",
+      );
     const draw = topologyDrawing({
       ...options,
       fontSize: options.fontSize ?? "13px",
@@ -71,18 +87,34 @@ export function contractionIterationStyle(options: TopologyStyleOptions = {}) {
       stroke-width={1.7}
     />;
     const commands: [string, ...number[]][] = [["M", px(values[0]), py(0)]];
-    for (let n = 1; n < values.length; n++)
+    for (let n = 1; n <= currentStep; n++)
       commands.push(
         ["L", px(values[n - 1]), py(values[n])],
         ["L", px(values[n]), py(values[n])],
       );
-    <path
-      name="contraction.cobweb"
-      d={draw.data(commands)}
-      fill-color={[0, 0, 0, 0]}
-      stroke-color={[0.08, 0.08, 0.08, 1]}
-      stroke-width={1}
-    />;
+    if (currentStep > 0)
+      <path
+        name="contraction.cobweb"
+        d={draw.data(commands)}
+        fill-color={[0, 0, 0, 0]}
+        stroke-color={[0.08, 0.08, 0.08, 1]}
+        stroke-width={1}
+      />;
+    if (options.currentStep !== undefined) {
+      const value = values[currentStep];
+      <circle
+        name="contraction.current-sample"
+        center={draw.xy([px(value), py(currentStep === 0 ? 0 : value)])}
+        r={3.5 * draw.scale}
+        fill-color={[0.88, 0.32, 0.08, 1]}
+        stroke-width={0}
+        aria-label={`current iterate s_${currentStep}`}
+      />;
+      draw.label(
+        `s_${currentStep}=${Number(value.toPrecision(5))}`,
+        [185, -73],
+      );
+    }
     draw.dot("contraction.fixed-point", [
       px(fixed.coordinate),
       py(fixed.coordinate),
@@ -109,7 +141,7 @@ export function contractionIterationStyle(options: TopologyStyleOptions = {}) {
     ];
     draw.line("contraction.error-axis-x", [45, base], [315, base]);
     draw.line("contraction.error-axis-y", [45, base], [45, base + 120]);
-    for (let n = 0; n < values.length; n++) {
+    for (let n = 0; n <= currentStep; n++) {
       const p = errorAt(n);
       if (n) draw.line(`contraction.error-step-${n}`, errorAt(n - 1), p);
       <circle

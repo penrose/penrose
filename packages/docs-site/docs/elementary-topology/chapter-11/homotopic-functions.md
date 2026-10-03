@@ -2,6 +2,10 @@
 title: Homotopic Functions — Elementary Topology
 ---
 
+<script setup>
+import ReadingAdditions from '../../../src/elementary-topology/ReadingAdditions.vue';
+</script>
+
 # 11.1 Homotopic Functions
 
 <span id="printed-page-233"></span>
@@ -251,3 +255,5 @@ The supplied scan omits printed page 239. Exercises 1–4 and any other unavaila
 ## Exercises — available continuation
 
 5. Explain intuitively why the identity function on the unit circle $X=\{(x,y)\mid x^2+y^2=1\}$ is not homotopic to $f:X\to X$ where $f(z)=(1,0)$ for all $z\in X$. Take a rubber band and pin the rubber band at one point to a table. Then try to push the rubber band back along itself to the point at which it is pinned.
+
+<ReadingAdditions :pdf-page="217" />

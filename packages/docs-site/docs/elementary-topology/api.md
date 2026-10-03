@@ -3,7 +3,9 @@ title: Reusable Domain, Substance, and TSX Style Programs
 description: Define independent mathematical programs and reusable Penrose styles in TypeScript.
 ---
 
-# Reusable TSX programs
+# A library of mathematical illustrations
+
+Reuse the book’s mathematical vocabulary and visual rules to illustrate a new idea.
 
 The TypeScript API keeps the three Penrose programs separate. A **domain**
 declares the mathematical vocabulary. A **substance** creates objects and asserts
@@ -545,3 +547,19 @@ The importer validates the source checksum and page count, renders the supplied
 scan pages through Poppler, and writes the local reader assets. HTML formulas
 use the site's local KaTeX renderer. The figure manifest
 records source pages, reusable modules, review status, and placement rectangles.
+
+## Step through a construction
+
+The animated illustrations use native Penrose diagrams at each chosen mathematical parameter. The same frame factories can be used in another reader, lesson, or exploration:
+
+```ts
+import { buildInverseCancellationFrameFigure } from "@penrose/bloom/examples/loop-retracing";
+import { buildContractionIterationFrameFigure } from "@penrose/bloom/examples/contraction-iterates";
+import { buildRadialContractionFrameFigure } from "@penrose/bloom/examples/homotopies";
+
+const loop = await buildInverseCancellationFrameFigure("figure-eight", 0.5);
+const iterates = await buildContractionIterationFrameFigure(-0.6, 0.8, 3, 8, 4);
+const disk = await buildRadialContractionFrameFigure(0.5);
+```
+
+Loop and disk time runs from zero to one. The disk uses the book’s parameter `r = 1 - time`: its image changes from the full disk to the singleton origin. For contraction iterates, `currentStep` selects the visible prefix of a declared iteration sequence; the mathematical values and axes stay fixed. Each factory accepts the usual rendering options as its final argument. Flip an animated illustration to inspect its actual invocation and reusable programs.

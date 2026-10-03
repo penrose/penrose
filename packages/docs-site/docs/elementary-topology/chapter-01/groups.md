@@ -3,6 +3,10 @@ title: Groups — Elementary Topology
 description: The available text of section 1.4, printed pages 14–15, of Elementary Topology, second edition.
 ---
 
+<script setup>
+import ReadingAdditions from '../../../src/elementary-topology/ReadingAdditions.vue';
+</script>
+
 # 1.4 Groups
 
 ::: warning Source gap: printed page 13
@@ -75,3 +79,5 @@ Again, we have only set forth as much about groups as will be required to unders
 ::: info Chapter boundary
 The next supplied page, printed page 16 (PDF page 24), begins Chapter 2, “Metric Spaces.”
 :::
+
+<ReadingAdditions :pdf-page="23" />

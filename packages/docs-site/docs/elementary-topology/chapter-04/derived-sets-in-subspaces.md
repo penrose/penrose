@@ -3,6 +3,10 @@ title: The Topologically Derived Sets in Subspaces — Elementary Topology
 description: Section 4.2 of the supplied second-edition scan.
 ---
 
+<script setup>
+import ReadingAdditions from '../../../src/elementary-topology/ReadingAdditions.vue';
+</script>
+
 # 4.2 The Topologically Derived Sets in Subspaces
 
 ::: info Transcription note
@@ -138,3 +142,5 @@ Since $N\in\mathfrak{N}_y$ is an open subset of $X$, $N'=Y\cap N$ is an open (in
 6. Compute $\operatorname{Ext}A$, $A'$, $A^\circ$, and $\operatorname{Fr}A$ in $Y$, for $A$ and $Y$ in Example 5.
 
 7. Find a necessary and sufficient condition for each subset $A$ of a subspace $W$ of a space $X,\tau$ to have the same frontier relative to $W$ as $A$ has relative to $X$. Find such a condition on $W$ in order to have $A'$ in $W$ equal to $A'$ (in $X$) for each subset $A$ of $W$.
+
+<ReadingAdditions :pdf-page="70" />

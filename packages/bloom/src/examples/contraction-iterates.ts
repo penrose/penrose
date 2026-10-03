@@ -65,3 +65,20 @@ export const buildContractionIteratesIllustration = (
     variation: "gemignani-original-contraction-iterates",
     ...options,
   });
+
+/** Show a true finite iteration prefix on the full sequence's fixed chart. */
+export const buildContractionIterationFrameFigure = (
+  slope: number,
+  intercept: number,
+  initial: number,
+  steps: number,
+  currentStep: number,
+  options: FigureRenderOptions = {},
+) =>
+  diagram({
+    sub: affineContractionIteratesSubstance(slope, intercept, initial, steps),
+    sty: contractionIterationStyle({ currentStep }),
+    canvas: canvas(700, 330),
+    variation: "contraction-iteration-frame",
+    ...options,
+  });

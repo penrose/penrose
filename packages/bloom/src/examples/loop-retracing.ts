@@ -7,9 +7,15 @@ import { inverseCancellationStyle } from "../styles/loop-retracing.js";
 /** Proposition4: any loop followed by its parameter inverse contracts relative to its basepoint. */
 export function inverseCancellationSubstance(
   loopFamily: "circle" | "figure-eight" = "circle",
+  chosenTime?: number,
 ) {
   if (loopFamily !== "circle" && loopFamily !== "figure-eight")
     throw new Error("Choose the circle or figure-eight loop family");
+  if (
+    chosenTime !== undefined &&
+    (!Number.isFinite(chosenTime) || chosenTime < 0 || chosenTime > 1)
+  )
+    throw new Error("Choose a finite homotopy time in [0,1]");
   const s = topology.substance();
   const Y = s.EuclideanPlane({ label: "Y" }),
     tauY = s.Topology({ label: "\\tau_Y" });
@@ -78,7 +84,9 @@ export function inverseCancellationSubstance(
   s.HomotopyBetween(H, k, product);
   s.RelativeHomotopyOn(H, endpoints);
   s.RelativelyHomotopic(k, product, endpoints, tauY);
-  for (const time of [0, 1 / 3, 2 / 3, 1]) {
+  for (const time of chosenTime === undefined
+    ? [0, 1 / 3, 2 / 3, 1]
+    : [chosenTime]) {
     const parameter = s.RealPoint({
       coordinate: time,
       label:
@@ -86,7 +94,9 @@ export function inverseCancellationSubstance(
           ? String(time)
           : time === 1 / 3
           ? "\\tfrac13"
-          : "\\tfrac23",
+          : time === 2 / 3
+          ? "\\tfrac23"
+          : String(Number(time.toPrecision(4))),
     });
     s.Member(parameter, I);
     const slice =
@@ -122,4 +132,18 @@ export const buildInverseCancellationFigure = (
     canvas: canvas(512, 164),
     variation: "retracing-" + loopFamily,
     ...renderOptions,
+  });
+
+/** A genuine slice H(-,time); the reference loop and chart stay fixed across frames. */
+export const buildInverseCancellationFrameFigure = (
+  loopFamily: "circle" | "figure-eight",
+  time: number,
+  options: FigureRenderOptions = {},
+) =>
+  diagram({
+    sub: inverseCancellationSubstance(loopFamily, time),
+    sty: inverseCancellationStyle({ singleSlice: true }),
+    canvas: canvas(256, 176),
+    variation: "retracing-frame-" + loopFamily,
+    ...options,
   });

@@ -135,3 +135,21 @@ Renderer/useDiagram widgets for native dragging and deterministic resampling,
 and exposes the actual Substance, Style and Domain source modules. The full
 available text is present; full-book completion requires resolving the missing
 source pages.
+
+## Standalone reading edition
+
+The book has its own app in `packages/topology-book`, with an editorial title page, an eleven-chapter contents menu, a focused page reader and separate illustration/library routes. It reuses the transcribed chapters and native Bloom widgets. It builds independently of the Penrose documentation shell:
+
+```sh
+npm --prefix packages/topology-book run dev
+npm --prefix packages/topology-book run build
+npm --prefix packages/topology-book run preview
+```
+
+The output is `packages/topology-book/.vitepress/dist`. Locally imported source pages are mirrored into the output; they remain ignored in Git. See that package’s README for port overrides and importing the private scan.
+
+Each native figure sits directly inside its source-page overlay. Flip reveals the actual program in place; the native renderer stays mounted so dragged positions and layout seeds survive the turn. Source panels use escaped syntax highlighting, keyboard-accessible tabs and scrollable code, with copy/download/full-module and seed controls. A reader can return to any transcribed source page through the generated “Read text” links and resume the last reading position.
+
+The ten added illustrations also appear alongside their relevant source passages and in the HTML sections. Five stepped explorations use three reusable frame factories: monotone and alternating contraction iterates, circle and figure-eight inverse-loop contraction, and radial contraction of a disk to its origin. Manual steps, a timeline and opt-in playback all execute the same mathematical factories. The disk and loop endpoints are actual singleton/constant maps; iteration frames reveal a prefix of a declared sequence with fixed axes. Existing source-figure factories keep their reviewed defaults.
+
+The website design reference is [Nicholas Rougeux’s Byrne’s Euclid](https://www.c82.net/euclid/): generous serif typography, clear book navigation and diagrams in the reading flow. Gemignani’s source page layouts and the restrained orange diagram palette remain the basis of this edition.

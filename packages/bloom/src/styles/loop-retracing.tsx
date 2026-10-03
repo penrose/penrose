@@ -12,8 +12,15 @@ import {
 type XY = [number, number];
 const ORANGE: [number, number, number, number] = [0.85, 0.31, 0.08, 1];
 
+export interface InverseCancellationStyleOptions extends TopologyStyleOptions {
+  /** Display one declared SliceMapAt instead of the original four-pose comparison. */
+  singleSlice?: boolean;
+}
+
 /** Parameterized native retracing diagrams reuse the same style for different analytic loops. */
-export function inverseCancellationStyle(options: TopologyStyleOptions = {}) {
+export function inverseCancellationStyle(
+  options: InverseCancellationStyleOptions = {},
+) {
   return topology.style((ctx) => {
     const inverse = ctx.facts(topology.LoopInverseOf)[0];
     const a =
@@ -52,7 +59,17 @@ export function inverseCancellationStyle(options: TopologyStyleOptions = {}) {
       .facts(topology.SliceMapAt)
       .filter(([, family]) => family === H[0])
       .sort((x, y) => x[2].coordinate - y[2].coordinate);
-    if (
+    if (options.singleSlice) {
+      if (
+        slices.length !== 1 ||
+        !Number.isFinite(slices[0][2].coordinate) ||
+        slices[0][2].coordinate < 0 ||
+        slices[0][2].coordinate > 1
+      )
+        throw new Error(
+          "This frame needs one homotopy slice at a time in [0,1]",
+        );
+    } else if (
       slices.length !== 4 ||
       slices[0][2].coordinate !== 0 ||
       slices[3][2].coordinate !== 1
@@ -77,7 +94,7 @@ export function inverseCancellationStyle(options: TopologyStyleOptions = {}) {
       fontSize: options.fontSize ?? "10px",
     });
     for (const [i, [loop, , parameter]] of slices.entries()) {
-      const cx = -192 + 128 * i,
+      const cx = options.singleSlice ? 0 : -192 + 128 * i,
         origin: XY = [
           cx - (units * (xMin + xMax)) / 2,
           6 - (units * (yMin + yMax)) / 2,

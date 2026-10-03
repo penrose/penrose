@@ -19,8 +19,10 @@ The supplied scan omits 31 printed pagination positions; absent prose and figure
 remain explicitly recorded as source gaps.
 
 Use the page controls or the left and right arrow keys to turn pages.
-Expand a figure's **program and layout** panel to view its Substance source,
+Select **Flip** on a figure to turn it over and view its Substance source,
 inspect the reusable Style and Domain modules, or choose a new layout seed.
+The program stays anchored to its figure on the book page; select **Back to
+diagram** or press Escape to return.
 Most figures let you drag labels to adjust the layout. Figure 4.5 moves its disk
 as a whole; the cover moves its complete curve family, and the two source tables
 move their cells and grid together. Figure 11.24 lets you move each complete

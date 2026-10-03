@@ -217,7 +217,13 @@ export function hatchedHomotopyEllipse(
 }
 
 /** The same mathematical disk view supports its contractibility and a specific radial map. */
-export function diskContractionStyle(options: TopologyStyleOptions = {}) {
+export interface DiskContractionStyleOptions extends TopologyStyleOptions {
+  /** Display one declared radial homotopy slice with its numerical parameter. */
+  sliceFrame?: boolean;
+}
+export function diskContractionStyle(
+  options: DiskContractionStyleOptions = {},
+) {
   return topology.style((ctx) => {
     const relation = ctx.facts(topology.RadialContractionOf)[0];
     const Y = relation?.[1] ?? ctx.entities(topology.ClosedDisk)[0];
@@ -258,6 +264,9 @@ export function diskContractionStyle(options: TopologyStyleOptions = {}) {
       const image =
         imageFact &&
         ctx.entities(topology.ClosedDisk).find((disk) => disk === imageFact[0]);
+      const singleton =
+        imageFact &&
+        ctx.entities(topology.Singleton).find((set) => set === imageFact[0]);
       const points = ctx
         .facts(topology.MapsTo)
         .find(([f, p]) => f === map && p.label === "(x,y)");
@@ -268,13 +277,28 @@ export function diskContractionStyle(options: TopologyStyleOptions = {}) {
         points &&
         ctx.entities(topology.CoordinatePoint).find((v) => v === points[2]);
       if (
-        !image ||
+        !(image || (map.factor === 0 && singleton)) ||
         !p ||
         !q ||
         parameter.coordinate !== map.factor ||
         map.center.some((v, i) => v !== Y.center[i]) ||
-        image.radius !== Y.radius * map.factor ||
-        image.center.some((v, i) => v !== Y.center[i]) ||
+        (image &&
+          (image.radius !== Y.radius * map.factor ||
+            image.center.some((v, i) => v !== Y.center[i]))) ||
+        (singleton &&
+          !ctx
+            .facts(topology.SingletonOf)
+            .some(
+              ([set, point]) =>
+                set === singleton &&
+                ctx
+                  .entities(topology.CoordinatePoint)
+                  .some(
+                    (p) =>
+                      p === point &&
+                      p.coordinates.every((v, i) => v === Y.center[i]),
+                  ),
+            )) ||
         radialContractionValue(p.coordinates, map.center, map.factor).some(
           (v, i) => Math.abs(v - q.coordinates[i]) > 1e-12,
         )
@@ -282,22 +306,33 @@ export function diskContractionStyle(options: TopologyStyleOptions = {}) {
         throw new Error(
           "The map, image disk and marked point must agree with the radial formula",
         );
-      hatchedTopologyDisk(
-        "homotopy.contracted-image",
-        draw.xy([0, 0]),
-        radius * map.factor * draw.scale,
-        [Math.PI / 4, -Math.PI / 4],
-        [0.95, 0.41, 0.12, 0.28],
-        { spacing: 1.6, strokeWidth: 0.45, strokeOpacity: 0.75 },
-      );
-      <circle
-        center={draw.xy([0, 0])}
-        r={radius * map.factor * draw.scale}
-        fill-color={CLEAR}
-        stroke-color={INK}
-        stroke-width={0.8}
-        aria-label="concentric radial image disk"
-      />;
+      if (
+        options.sliceFrame &&
+        !ctx
+          .facts(topology.SliceMapAt)
+          .some(([slice, , r]) => slice === map && r === parameter)
+      )
+        throw new Error(
+          "A radial frame needs its declared homotopy restriction",
+        );
+      if (map.factor > 0) {
+        hatchedTopologyDisk(
+          "homotopy.contracted-image",
+          draw.xy([0, 0]),
+          radius * map.factor * draw.scale,
+          [Math.PI / 4, -Math.PI / 4],
+          [0.95, 0.41, 0.12, 0.28],
+          { spacing: 1.6, strokeWidth: 0.45, strokeOpacity: 0.75 },
+        );
+        <circle
+          center={draw.xy([0, 0])}
+          r={radius * map.factor * draw.scale}
+          fill-color={CLEAR}
+          stroke-color={INK}
+          stroke-width={0.8}
+          aria-label="concentric radial image disk"
+        />;
+      } else draw.dot("radial image singleton", [0, 0]);
       draw.line("disk-contraction.x-axis", [-88, 0], [90, 0]);
       draw.line("disk-contraction.y-axis", [0, -87], [0, 87]);
       draw.dot("disk-contraction.source-point", at(p.coordinates));
@@ -305,7 +340,12 @@ export function diskContractionStyle(options: TopologyStyleOptions = {}) {
       const pa = at(p.coordinates),
         qa = at(q.coordinates);
       whiteLabel(draw, p.label, [pa[0] + 14, pa[1] + 1], 29);
-      whiteLabel(draw, q.label, [qa[0] + 25, qa[1] + 2], 49);
+      whiteLabel(
+        draw,
+        q.label,
+        options.sliceFrame ? [qa[0] - 22, qa[1] + 19] : [qa[0] + 25, qa[1] + 2],
+        49,
+      );
       const boundary = ctx
         .facts(topology.MapsTo)
         .find(([f, v]) => f === map && v.label === "(1,0)");
@@ -313,8 +353,17 @@ export function diskContractionStyle(options: TopologyStyleOptions = {}) {
         throw new Error(
           "The diagram needs the marked unit-radius boundary image",
         );
-      whiteLabel(draw, boundary[2].label, [radius * map.factor + 12, -8], 31);
-      whiteLabel(draw, boundary[1].label, [radius + 16, -8], 28);
+      if (options.sliceFrame) {
+        const rounded =
+          Number(parameter.coordinate.toPrecision(4)) !== parameter.coordinate;
+        draw.label(
+          "r" + (rounded ? "\\approx " : "=") + parameter.label,
+          [0, -87],
+        );
+      } else {
+        whiteLabel(draw, boundary[2].label, [radius * map.factor + 12, -8], 31);
+        whiteLabel(draw, boundary[1].label, [radius + 16, -8], 28);
+      }
       draw.label("x", [95, 0]);
       draw.label("y", [0, 93]);
     } else {

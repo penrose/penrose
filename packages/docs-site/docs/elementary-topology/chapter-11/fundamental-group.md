@@ -2,6 +2,10 @@
 title: The Fundamental Group — Elementary Topology
 ---
 
+<script setup>
+import ReadingAdditions from '../../../src/elementary-topology/ReadingAdditions.vue';
+</script>
+
 # 11.3 The Fundamental Group
 
 <span id="printed-page-246"></span>
@@ -301,3 +305,5 @@ If a base point $y_0$ in $\{(x,y)\mid x=3\}$ is chosen, then all of the loops ba
 ::: warning Missing printed page 253
 The supplied scan omits printed page 253. The preceding discussion ends mid-sentence. The opening of Section 11.4 is also unavailable; no missing text is reconstructed.
 :::
+
+<ReadingAdditions :pdf-page="229" />

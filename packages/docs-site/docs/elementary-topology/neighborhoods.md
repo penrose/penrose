@@ -5,6 +5,10 @@ description: Section 2.2 of Michael C. Gemignani's Elementary Topology, with fig
 
 # 2.2 Neighborhoods
 
+<span id="printed-page-19"></span>
+
+<!-- Source: PDF27, printed19. -->
+
 Let $X,D$ be a metric space. If $x$ is any point of $X$, then we may want
 to consider all the points of $X$ within a certain distance of $x$, that is, the
 set of points of $X$ which are within some degree of nearness to $x$.
@@ -32,6 +36,10 @@ these figures.
   <figure><img src="/elementary-topology/figures/figure-2.3.svg" alt="The singleton containing the origin in discrete metric D₂." /><figcaption>Figure 2.3</figcaption></figure>
   <figure><img src="/elementary-topology/figures/figure-2.4.svg" alt="The square shaped unit neighborhood about the origin in metric D₃." /><figcaption>Figure 2.4</figcaption></figure>
 </div>
+
+<span id="printed-page-20"></span>
+
+<!-- Source: PDF28, printed20. The continuation of Example 6 remains in the preceding paragraph. -->
 
 Note that the $D_1$-$1$-neighborhood of $(0,0)$ is a subset of the $D$-$1$-neighborhood
 of $(0,0)$. Since

@@ -2795,7 +2795,7 @@
           "Exact native circles/ellipses and smooth cubic paths replace small scan irregularities."
         ]
       },
-      "substanceLines": [27, 83]
+      "substanceLines": [27, 32]
     },
     {
       "id": "11.3",
@@ -2827,7 +2827,7 @@
           "Exact native circles/ellipses and smooth cubic paths replace small scan irregularities."
         ]
       },
-      "substanceLines": [86, 172]
+      "substanceLines": [156, 242]
     },
     {
       "id": "11.4",
@@ -2863,7 +2863,7 @@
           "Exact native circles/ellipses and smooth cubic paths replace small scan irregularities."
         ]
       },
-      "substanceLines": [175, 232]
+      "substanceLines": [245, 302]
     },
     {
       "id": "11.5",

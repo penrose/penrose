@@ -426,10 +426,13 @@ export const makeTranslateOnMouseDown =
 
     let dx = 0,
       dy = 0;
+    let finished = false;
+    const isFinished = () => finished;
     let queuedPointerMove: () => void = () => {};
     let readyForPointerMove = true;
 
     const onPointerMove_ = async (e: PointerEvent) => {
+      if (isFinished()) return;
       e.preventDefault();
 
       if (!readyForPointerMove) {
@@ -464,6 +467,7 @@ export const makeTranslateOnMouseDown =
 
       readyForPointerMove = false;
       await translate(path, dx, dy);
+      if (isFinished()) return;
       readyForPointerMove = true;
 
       const toRun = queuedPointerMove;
@@ -474,7 +478,11 @@ export const makeTranslateOnMouseDown =
     };
 
     const onPointerUp_ = (e: PointerEvent) => {
+      if (finished) return;
+      finished = true;
+      queuedPointerMove = () => {};
       window.removeEventListener("pointerup", onPointerUp_);
+      window.removeEventListener("pointercancel", onPointerUp_);
       window.removeEventListener("pointermove", onPointerMove_);
       window.removeEventListener("selectstart", preventSelection);
       document.body.style.cursor = prevCursor;
